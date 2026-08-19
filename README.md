@@ -4,14 +4,17 @@ A virtualized React list table for **wide, dense, data-entry style screens** —
 with twenty columns, thousands of rows, per-column search boxes, frozen leading columns
 and a totals row pinned to the bottom.
 
-Built on [`react-table`](https://github.com/TanStack/table/tree/v7) **v7**. No UI library,
-no CSS file to import, no theme to configure — every visual is an inline style and the
+Built on [`react-table`](https://github.com/TanStack/table/tree/v7) **v7**, which is bundled
+in. No peer install, no UI library, no CSS file to import, no theme to configure — every visual is an inline style and the
 handful of glyphs it needs (sort arrows, pin marker, spinner, empty-state icon) are inline
 SVG.
 
 ```bash
-npm i freeze-table react-table@7
+npm i freeze-table
 ```
+
+That is the whole install. `react-table` v7 is bundled in (see
+[Compatibility](#13-demo-build-compatibility)), so React is the only peer dependency.
 
 ```jsx
 import { FreezeTable } from 'freeze-table';
@@ -526,12 +529,19 @@ The demo renders 2,000 rows × 18 columns with frozen columns, footer totals, st
 strips and the loading / empty states, and bundles React in, so `example/index.html`
 opens straight from the filesystem with no server.
 
-**Peer dependencies:** `react >= 16.8` (hooks + `forwardRef`) and `react-table@7`.
-React 16, 17, 18 and 19 all work; the component is function-based and uses no legacy
-lifecycle APIs.
+**The only peer dependency is `react >= 16.8`** (hooks + `forwardRef`). React 16, 17, 18
+and 19 all work — the component is function-based and uses no legacy lifecycle APIs.
 
-> react-table **v8** (`@tanstack/react-table`) is a completely different API. This
-> component needs **v7** — `npm i react-table@7`.
+**`react-table` v7 is bundled into the build** rather than required as a peer. It only
+ships CommonJS/UMD builds, and its peer range — frozen, since the v7 line is archived —
+stops at React 18, so on a React 19 app npm declines to install it and the consumer's
+build fails with `Can't resolve 'react-table'`. Bundling makes `npm i freeze-table`
+sufficient on every React version. If your app also uses react-table directly, that is
+fine: v7 is a set of plain hooks with no shared context, so a second copy cannot
+conflict.
+
+> react-table **v8** (`@tanstack/react-table`) is a completely different API and is not
+> involved here.
 
 Server-side rendering is safe: layout effects degrade to `useEffect` on the server and
 the style tag is only injected in the browser. The body renders empty until the client
@@ -539,4 +549,8 @@ measures it, which is the correct behaviour for a virtualized list.
 
 ## License
 
-MIT
+MIT.
+
+This package bundles [react-table](https://github.com/TanStack/table/tree/v7) v7,
+MIT License, Copyright (c) 2016 Tanner Linsley. Its notice is reproduced in `LICENSE`
+and in the banner of every built file.
