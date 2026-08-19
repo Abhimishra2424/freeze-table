@@ -231,6 +231,7 @@ is not clipped:
 | `footerLeft`        | `null`                | Static left-aligned footer label (prefer a column `Footer` — §7)     |
 | `showFooter`        | auto                  | Override footer visibility                                           |
 | `rowNavigation`     | `true`                | Keyboard row navigation (§6)                                         |
+| `rowSnap`           | `true`                | Settle vertical scrolling on a row boundary (§6)                     |
 | `onRowSelect`       | —                     | `(rowData, index)` on every selection change                         |
 | `onRowEnter`        | —                     | `(rowData, index)` on Enter — "open this row"                        |
 | `selectedBg`        | `'#d3e5f8'`           | Selected-row highlight colour                                        |
@@ -284,6 +285,22 @@ user clicks the table.
 - Selection is **index-based**: after a sort the highlight stays at the same *position*
   (a different logical row). Track ids yourself via `onRowSelect` if you need otherwise.
 - Turn the whole thing off with `rowNavigation={false}`.
+
+### Row-boundary scroll snapping
+
+Because `ft-wrap` is the single scrollport and the header is `sticky` inside it, rows
+scroll *under* the header — so a freely-scrolled list leaves a half-row sliced off at
+the top. `rowSnap` (on by default) settles the scroll on a row boundary instead, the way
+a spreadsheet does, so the topmost row is always whole.
+
+It is pure CSS — `scroll-snap-type: y proximity` plus `scroll-snap-align: start` on each
+row, with `scroll-padding-top` set to the measured header height so a snapped row lands
+just *below* the header rather than at the hidden top of the scrollport. Nothing runs in
+JS, and horizontal scrolling is untouched (the snap axis is `y`).
+
+`proximity`, not `mandatory`: rows are windowed, so snap targets appear and disappear as
+you scroll, and mandatory snapping fights both that and programmatic scrolls. Pass
+`rowSnap={false}` for plain continuous scrolling.
 
 **Body states**, in order: `loading` → spinner; `rows.length === 0 && dataFetched` → the
 soft empty state; otherwise the list.

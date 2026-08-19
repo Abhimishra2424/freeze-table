@@ -89,6 +89,9 @@ export interface FreezeTableProps<D extends object = any> {
   showFooter?: boolean;
   /** Keyboard row navigation. Default true. */
   rowNavigation?: boolean;
+  /** Settle vertical scrolling on a row boundary instead of leaving a half-row cut
+   *  off by the sticky header (spreadsheet behaviour). Default true. */
+  rowSnap?: boolean;
   /** Fires on every selection change. */
   onRowSelect?: (rowData: D, index: number) => void;
   /** Fires on Enter — "open this row". */

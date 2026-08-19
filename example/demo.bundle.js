@@ -707,7 +707,8 @@
 	    selectedIndexRef,
 	    onSelect,
 	    rowHeight,
-	    pinnedLeft
+	    pinnedLeft,
+	    rowSnap
 	  } = data;
 	  const style = {
 	    position: 'absolute',
@@ -750,7 +751,9 @@
 	      color: custom.color,
 	      backgroundColor: baseBg,
 	      borderBottom: '1px solid #edf0f3',
-	      cursor: 'default'
+	      cursor: 'default',
+	      // Snap target — see the scrollSnapType/scrollPaddingTop pair on .ft-wrap.
+	      scrollSnapAlign: rowSnap ? 'start' : undefined
 	    }
 	  }), row.cells.map(cell => {
 	    const {
@@ -857,6 +860,7 @@
 	  footerLeft = null,
 	  showFooter,
 	  rowNavigation = true,
+	  rowSnap = true,
 	  onRowSelect,
 	  onRowEnter,
 	  selectedBg = '#d3e5f8',
@@ -1106,6 +1110,9 @@
 	  // Measured in the layout effect further down; declared here because scrollToRow and the
 	  // windowing maths both read it.
 	  const [listH, setListH] = React.useState(0);
+	  // Height of the sticky header. Rows scroll UNDER it, so it is also the distance the
+	  // snapport's top edge has to be pushed down for a snapped row to land just below it.
+	  const [headH, setHeadH] = React.useState(0);
 	  const [selectedIndex, setSelectedIndex] = React.useState(0);
 	  // Mirror of selectedIndex for the memoized rows (they must not re-render on selection
 	  // change — see VirtualRow). Kept in sync by the selection-highlight effect below.
@@ -1323,12 +1330,13 @@
 	    selectedIndexRef,
 	    rowHeight,
 	    pinnedLeft,
+	    rowSnap,
 	    onSelect: i => setSelectedIndex(i),
 	    // Not read by VirtualRow — included so a pin-boundary change breaks the memo and
 	    // every visible row re-renders with the new pinned flags (otherwise rows could
 	    // keep stale pin attributes / sticky offsets).
 	    allColumns
-	  }), [rows, prepareRow, rowStyle, selectedBg, rowNavigation, fontPx, allColumns, rowHeight, pinnedLeft]);
+	  }), [rows, prepareRow, rowStyle, selectedBg, rowNavigation, fontPx, allColumns, rowHeight, pinnedLeft, rowSnap]);
 
 	  // Selection highlight, applied imperatively so only the affected DOM nodes change on
 	  // ↑/↓ (a state-driven highlight re-rendered every visible row per keypress).
@@ -1356,6 +1364,7 @@
 	    const update = () => {
 	      const hh = headRef.current ? headRef.current.offsetHeight : 0;
 	      const fh = footRef.current ? footRef.current.offsetHeight : 0;
+	      setHeadH(hh);
 	      setListH(Math.max(0, wrap.clientHeight - hh - fh));
 	    };
 	    update();
@@ -1388,6 +1397,17 @@
 	      height: parseFloat(height),
 	      overflow: 'auto',
 	      outline: 'none',
+	      // Vertical scrolling settles on a row boundary (spreadsheet behaviour) instead of
+	      // leaving a half-row sliced by the sticky header. `scroll-padding-top` moves the
+	      // snapport's top edge below the header, which is what the rows scroll under —
+	      // without it a snapped row would align to the hidden top of the scrollport.
+	      // `proximity`, not `mandatory`: rows are windowed, so snap targets come and go,
+	      // and mandatory snapping fights programmatic scrolls and the end of the list.
+	      // Horizontal scrolling is untouched (the axis is `y`).
+	      ...(rowSnap ? {
+	        scrollSnapType: 'y proximity',
+	        scrollPaddingTop: headH
+	      } : {}),
 	      ...style
 	    }
 	  }, /*#__PURE__*/React.createElement("div", _extends({}, tableProps, {
