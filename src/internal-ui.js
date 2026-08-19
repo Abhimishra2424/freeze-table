@@ -48,6 +48,19 @@ const STYLESHEET = `
 .ft-track-h .ft-thumb{top:2px;bottom:2px;left:0;}
 .ft-track:hover .ft-thumb{background:#a7b3c1;}
 .ft-thumb:active,.ft-thumb.ft-thumb-drag{background:#8c9bab;}
+
+/* Column resize grip: a hit area straddling the header's right edge that only paints a
+   line on hover / while dragging — drawn permanently, twenty columns would read as
+   twenty vertical rules and bury the header text. */
+.ft-resizer{position:absolute;top:0;right:0;width:9px;height:100%;cursor:col-resize;
+  touch-action:none;user-select:none;z-index:6;}
+.ft-resizer::after{content:"";position:absolute;top:5px;bottom:5px;right:4px;width:2px;
+  border-radius:1px;background:transparent;}
+.ft-resizer:hover::after,.ft-resizer.ft-resizing::after{background:#0070C2;}
+/* The line that follows the pointer during a resize. The drag never writes width state
+   per frame (see startColResize) — this guide is the only thing that moves. */
+.ft-resize-guide{position:absolute;top:0;bottom:0;left:0;width:2px;background:#0070C2;
+  opacity:.7;pointer-events:none;z-index:7;}
 `;
 
 let injected = false;

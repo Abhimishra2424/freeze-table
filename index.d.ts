@@ -42,6 +42,14 @@ export interface FreezeTableColumn<D extends object = any> {
   /** DEFAULT freeze state. `true` / `'left'` freezes against the left edge (only a
    *  LEADING run counts), `'right'` against the right edge (only a TRAILING run). */
   pinned?: boolean | 'left' | 'right';
+  /** DEFAULT visibility — `true` starts the column hidden. The user's choice (ref:
+   *  `toggleColumn` / `setHiddenColumns`) overrides it and persists under
+   *  `ctHide:<pinStorageKey>`. Needs an `id` or a string `accessor`. */
+  hidden?: boolean;
+  /** `false` locks the column visible — it cannot be hidden from any menu. */
+  hideable?: boolean;
+  /** Drop this column's drag-to-resize grip. */
+  disableResizing?: boolean;
   [key: string]: any;
 }
 
@@ -117,13 +125,42 @@ export interface FreezeTableProps<D extends object = any> {
   rowStyle?: (rowData: D) => { backgroundColor?: string; color?: string } | undefined;
   /** Strip column width in px. Default 14. */
   stripWidth?: number;
-  /** Persist the user's pin boundaries in `localStorage` — `ctPin:<key>` for the left
-   *  block and `ctPinR:<key>` for the right one. */
+  /** Persist the user's layout in `localStorage`: pin boundaries (`ctPin:<key>` /
+   *  `ctPinR:<key>`), dragged column widths (`ctW:<key>`) and hidden columns
+   *  (`ctHide:<key>`). */
   pinStorageKey?: string;
+  /** Drag-to-resize grip on every header's right edge (the status strip never gets one).
+   *  Default true. */
+  resizable?: boolean;
+  /** Floor for a drag-resized column, in px. Default 48. */
+  minColumnWidth?: number;
+  /** Fires when a column is resized or reset. `width` is null on a reset; `widths` is the
+   *  full id -> px map of user overrides. `id` is null when every width was reset. */
+  onColumnResize?: (id: string | null, width: number | null, widths: Record<string, number>) => void;
+  /** Fires whenever the hidden-column set changes. */
+  onColumnVisibilityChange?: (hiddenIds: string[]) => void;
   /** Extra class on the root element. */
   className?: string;
   /** Extra inline styles merged onto the root element. */
   style?: React.CSSProperties;
+}
+
+/** One row of {@link FreezeTableHandle.getColumnList} — enough to render a column menu. */
+export interface FreezeTableColumnInfo {
+  /** react-table id: the explicit `id`, else the string `accessor`. */
+  id?: string;
+  /** Position in the caller's `columns` array. */
+  index: number;
+  /** The `Header` when it is a plain string (a node cannot be listed in a menu). */
+  header?: string;
+  /** Currently hidden. */
+  hidden: boolean;
+  /** Can be hidden at all (`hideable !== false`, and the column has an id). */
+  hideable: boolean;
+  /** Carries a resize grip. */
+  resizable: boolean;
+  /** Current width in px — the user's override if there is one, else the configured one. */
+  width: number;
 }
 
 /** Imperative API exposed through `ref`. */
@@ -145,6 +182,24 @@ export interface FreezeTableHandle {
   /** Freeze the LAST N caller columns against the right edge (0 = none; the Action
    *  column, if any, freezes with them). */
   setRightPinCount(n: number): void;
+
+  /** User-resized widths only, as an id -> px map. A column the user has not dragged is
+   *  absent (it renders at its configured `width` / `minWidth`). */
+  getColumnWidths(): Record<string, number>;
+  /** Set one column's width in px (clamped to `minColumnWidth`). */
+  setColumnWidth(id: string, px: number): void;
+  /** Clear one column's width override, or every one when called with no argument. */
+  resetColumnWidths(id?: string): void;
+  /** Ids of the currently hidden columns. */
+  getHiddenColumns(): string[];
+  /** Replace the hidden set (ids of `hideable: false` columns are ignored). */
+  setHiddenColumns(ids: string[]): void;
+  /** Hide/show one column. Omit `visible` to flip it. */
+  toggleColumn(id: string, visible?: boolean): void;
+  /** Un-hide everything. */
+  showAllColumns(): void;
+  /** Everything a column menu needs, in the caller's own column order. */
+  getColumnList(): FreezeTableColumnInfo[];
 
   /** @deprecated Pre-0.6 name for {@link getLeftPinCount}. */
   getPinCount(): number;

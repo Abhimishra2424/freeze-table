@@ -77,6 +77,12 @@ const btn = {
 };
 const btnActive = { ...btn, background: '#0070C2', borderColor: '#0070C2', color: '#fff' };
 
+const menuBox = {
+  position: 'absolute', top: 'calc(100% + 4px)', left: 0, zIndex: 20, minWidth: 190,
+  maxHeight: 320, overflowY: 'auto', background: '#fff', border: '1px solid #d8e0e9',
+  borderRadius: 6, boxShadow: '0 6px 18px rgba(0,0,0,.12)', padding: 8, fontSize: 12,
+};
+
 function Demo() {
   const tableRef = useRef(null);
   const [selected, setSelected] = useState(null);
@@ -84,6 +90,11 @@ function Demo() {
   const [rightPin, setRightPin] = useState(1);
   const [loading, setLoading] = useState(false);
   const [empty, setEmpty] = useState(false);
+  // The column menu is the CALLER's to render -- the table only owns the state.
+  // getColumnList() hands over id / header / hidden per column, so the menu never has to
+  // re-derive any of that from COLUMNS.
+  const [hidden, setHidden] = useState([]);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const columns = useMemo(() => COLUMNS, []);
   const data = useMemo(() => (empty ? [] : ROWS), [empty]);
@@ -104,11 +115,24 @@ function Demo() {
     }
   };
 
+  const toggleCol = (id) => {
+    if (!tableRef.current) return;
+    tableRef.current.toggleColumn(id);
+    setHidden(tableRef.current.getHiddenColumns());
+  };
+
+  const showAll = () => {
+    if (!tableRef.current) return;
+    tableRef.current.showAllColumns();
+    setHidden([]);
+  };
+
   return (
     <div style={{ font: '13px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif', color: '#1b2733', padding: 20, background: '#f7f9fb', minHeight: '100vh' }}>
       <h1 style={{ margin: '0 0 4px', fontSize: 20 }}>freeze-table</h1>
       <p style={{ margin: '0 0 14px', color: '#5a6a7a' }}>
         2,000 rows · 18 columns · left se {pin} column aur right se {rightPin} (+ Action) freeze ·
+        header ke right edge ko drag karke column resize karo (double-click = reset) ·
         arrow keys / Home / End / Enter chalte hain (table pe click karke try karo).
       </p>
 
@@ -126,6 +150,32 @@ function Demo() {
             {n === 0 ? 'No pin' : `Last ${n}`}
           </button>
         ))}
+        <span style={{ width: 16 }} />
+        <div style={{ position: 'relative' }}>
+          <button type="button" style={hidden.length ? btnActive : btn} onClick={() => setMenuOpen((v) => !v)}>
+            Columns{hidden.length ? ` (${hidden.length} hidden)` : ''}
+          </button>
+          {menuOpen && (
+            <div style={menuBox}>
+              {(tableRef.current ? tableRef.current.getColumnList() : []).map((c) => (
+                <label
+                  key={c.id}
+                  style={{ display: 'flex', gap: 6, alignItems: 'center', padding: '3px 2px',
+                           cursor: c.hideable ? 'pointer' : 'default', opacity: c.hideable ? 1 : 0.5 }}
+                >
+                  <input type="checkbox" checked={!c.hidden} disabled={!c.hideable} onChange={() => toggleCol(c.id)} />
+                  <span>{c.header || c.id}</span>
+                </label>
+              ))}
+              <div style={{ display: 'flex', gap: 6, marginTop: 6, borderTop: '1px solid #e3e8ee', paddingTop: 6 }}>
+                <button type="button" style={btn} onClick={showAll}>Show all</button>
+                <button type="button" style={btn} onClick={() => tableRef.current && tableRef.current.resetColumnWidths()}>
+                  Reset widths
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
         <span style={{ width: 16 }} />
         <button type="button" style={loading ? btnActive : btn} onClick={() => setLoading((v) => !v)}>Loading state</button>
         <button type="button" style={empty ? btnActive : btn} onClick={() => setEmpty((v) => !v)}>Empty state</button>

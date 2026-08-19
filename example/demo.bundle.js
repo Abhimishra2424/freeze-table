@@ -509,6 +509,19 @@
 .ft-track-h .ft-thumb{top:2px;bottom:2px;left:0;}
 .ft-track:hover .ft-thumb{background:#a7b3c1;}
 .ft-thumb:active,.ft-thumb.ft-thumb-drag{background:#8c9bab;}
+
+/* Column resize grip: a hit area straddling the header's right edge that only paints a
+   line on hover / while dragging — drawn permanently, twenty columns would read as
+   twenty vertical rules and bury the header text. */
+.ft-resizer{position:absolute;top:0;right:0;width:9px;height:100%;cursor:col-resize;
+  touch-action:none;user-select:none;z-index:6;}
+.ft-resizer::after{content:"";position:absolute;top:5px;bottom:5px;right:4px;width:2px;
+  border-radius:1px;background:transparent;}
+.ft-resizer:hover::after,.ft-resizer.ft-resizing::after{background:#0070C2;}
+/* The line that follows the pointer during a resize. The drag never writes width state
+   per frame (see startColResize) — this guide is the only thing that moves. */
+.ft-resize-guide{position:absolute;top:0;bottom:0;left:0;width:2px;background:#0070C2;
+  opacity:.7;pointer-events:none;z-index:7;}
 `;
 	let injected = false;
 
@@ -700,6 +713,16 @@
 	// the pin cap and for the sticky `left` offset of each pinned column.
 	const colWidthOf = c => Math.min(Math.max(c.minWidth != null ? c.minWidth : 90, c.width != null ? c.width : 1), c.maxWidth != null ? c.maxWidth : Infinity);
 
+	// The id react-table will key a column by: an explicit `id`, else a string accessor.
+	// A column with neither (an accessor FUNCTION and no id) cannot be addressed by the
+	// width / visibility APIs — react-table rejects such a column outright, so this is not
+	// a restriction this component adds.
+	const colIdOf = c => c.id || (typeof c.accessor === 'string' ? c.accessor : undefined);
+
+	// Smallest width a drag can leave a column at. Below roughly this the header label and
+	// the filter box have nowhere to go and the column stops being a usable hit target.
+	const COL_MIN_WIDTH = 48;
+
 	// How many rows to render above / below the viewport.
 	const OVERSCAN = 6;
 
@@ -845,6 +868,13 @@
 	 *     disableSortBy?,         // disable sorting for this column
 	 *     Footer?,                // string | node | fn(tableInstance) — per-column totals
 	 *     noPadding?,             // drop the default cell padding (used by the status strip)
+	 *     hidden?,                // DEFAULT visibility — true = start hidden. The user's
+	 *                             // choice lives in state (ref: toggleColumn / setHiddenColumns)
+	 *                             // and persists under `ctHide:<pinStorageKey>`.
+	 *     hideable?,              // false = this column can never be hidden (a key column)
+	 *     disableResizing?,       // false-y by default: every column but the status strip
+	 *                             // carries a drag grip on its right edge unless `resizable`
+	 *                             // is off. A dragged width persists under `ctW:<pinStorageKey>`.
 	 *     pinned?,                // DEFAULT freeze state for this column. Only a LEADING
 	 *                             // run counts (col 1..N all pinned); the status strip
 	 *                             // auto-pins with them. The user changes the boundary at
@@ -901,6 +931,10 @@
 	  initialScrollLeft = 0,
 	  fontSize = 12,
 	  pinStorageKey,
+	  resizable = true,
+	  minColumnWidth = COL_MIN_WIDTH,
+	  onColumnResize,
+	  onColumnVisibilityChange,
 	  className,
 	  style
 	}, ref) {
@@ -962,6 +996,133 @@
 	    };
 	  }, []);
 
+	  // ----- Persisted layout state -----
+	  // Three separate user choices ride on the same `pinStorageKey`, each in its own
+	  // localStorage entry: the freeze boundaries (`ctPin:` / `ctPinR:`, plain numbers), the
+	  // dragged column widths (`ctW:`, an id -> px map) and the hidden columns (`ctHide:`, a
+	  // list of ids). Without the key nothing is persisted and every choice is per-mount.
+	  const readStored = key => {
+	    if (!pinStorageKey) return null;
+	    try {
+	      const v = window.localStorage.getItem(`${key}:${pinStorageKey}`);
+	      if (v != null && v !== '') {
+	        const n = parseInt(v, 10);
+	        if (!Number.isNaN(n) && n >= 0) return n;
+	      }
+	    } catch (e) {/* storage unavailable — fall back to config default */}
+	    return null;
+	  };
+	  const readStoredJson = key => {
+	    if (!pinStorageKey) return null;
+	    try {
+	      const v = window.localStorage.getItem(`${key}:${pinStorageKey}`);
+	      if (v) {
+	        const parsed = JSON.parse(v);
+	        if (parsed && typeof parsed === 'object') return parsed;
+	      }
+	    } catch (e) {/* unreadable or no longer JSON — fall back to the config default */}
+	    return null;
+	  };
+	  const persist = React.useCallback((key, value) => {
+	    if (!pinStorageKey) return;
+	    try {
+	      window.localStorage.setItem(`${key}:${pinStorageKey}`, typeof value === 'object' ? JSON.stringify(value) : String(value));
+	    } catch (e) {/* ignore */}
+	  }, [pinStorageKey]);
+
+	  // ----- Column widths and column visibility -----
+	  // Both follow the same shape as the pin boundary: the column config carries the
+	  // DEFAULT (`width` / `minWidth`, `hidden`), the user's choice lives in state here and
+	  // is applied on top. `hideable: false` locks a column visible (a key column the list
+	  // is unusable without); `disableResizing` drops its drag grip.
+	  const [colWidths, setColWidths] = React.useState(() => readStoredJson('ctW') || {});
+	  const lockedIds = React.useMemo(() => new Set(columns.filter(c => c.hideable === false).map(colIdOf).filter(Boolean)), [columns]);
+	  const defaultHidden = React.useMemo(() => columns.filter(c => c.hidden && c.hideable !== false).map(colIdOf).filter(Boolean), [columns]);
+	  const [userHidden, setUserHidden] = React.useState(() => {
+	    const stored = readStoredJson('ctHide');
+	    return Array.isArray(stored) ? stored : null;
+	  });
+	  const hiddenIds = userHidden != null ? userHidden : defaultHidden;
+
+	  // The caller's columns as they are actually laid out: hidden ones dropped, resized ones
+	  // carrying their new width. EVERYTHING downstream — the pin defaults, the pin caps,
+	  // `pinIndex`, the sticky offsets — is computed from this list rather than from the
+	  // `columns` prop, so a hidden column simply does not exist as far as freezing and the
+	  // cumulative left/right offsets are concerned.
+	  //
+	  // A resize writes the same number into ALL THREE of width / minWidth / maxWidth,
+	  // because react-table renders a column at `min(max(minWidth, width), maxWidth)`:
+	  // writing only `width` would leave a column with `minWidth: 200` stuck at 200 however
+	  // far left it was dragged, and a column with a `maxWidth` could not be widened past it.
+	  // Setting all three collapses that expression to exactly the dragged number — the
+	  // config's floor and ceiling are the DEFAULT, and an explicit drag outranks them.
+	  const cols = React.useMemo(() => {
+	    const hide = new Set(hiddenIds);
+	    const out = [];
+	    columns.forEach(c => {
+	      const id = colIdOf(c);
+	      if (id && c.hideable !== false && hide.has(id)) return;
+	      const w = id ? colWidths[id] : undefined;
+	      out.push(w ? {
+	        ...c,
+	        width: w,
+	        minWidth: w,
+	        maxWidth: w
+	      } : c);
+	    });
+	    // Hiding literally every column would leave react-table with nothing to render — and
+	    // no header row to un-hide anything from. Falling back to the full list keeps the
+	    // table recoverable instead of blank.
+	    return out.length ? out : columns;
+	  }, [columns, hiddenIds, colWidths]);
+
+	  // Latest-value mirrors: the setters below are called from pointer handlers and from the
+	  // imperative ref, both of which can hold a closure from an older render.
+	  const colWidthsRef = React.useRef(colWidths);
+	  colWidthsRef.current = colWidths;
+	  const hiddenRef = React.useRef(hiddenIds);
+	  hiddenRef.current = hiddenIds;
+	  const setColumnWidth = React.useCallback((id, px) => {
+	    if (!id) return;
+	    const w = Math.max(minColumnWidth, Math.round(parseFloat(px) || 0));
+	    const next = {
+	      ...colWidthsRef.current,
+	      [id]: w
+	    };
+	    colWidthsRef.current = next;
+	    setColWidths(next);
+	    persist('ctW', next);
+	    if (onColumnResize) onColumnResize(id, w, next);
+	  }, [persist, minColumnWidth, onColumnResize]);
+
+	  // No id = clear every override and fall back to the configured widths.
+	  const resetColumnWidths = React.useCallback(id => {
+	    let next;
+	    if (id == null) next = {};else {
+	      next = {
+	        ...colWidthsRef.current
+	      };
+	      delete next[id];
+	    }
+	    colWidthsRef.current = next;
+	    setColWidths(next);
+	    persist('ctW', next);
+	    if (onColumnResize) onColumnResize(id == null ? null : id, null, next);
+	  }, [persist, onColumnResize]);
+	  const setHiddenColumns = React.useCallback(ids => {
+	    const next = Array.from(new Set((ids || []).filter(id => id && !lockedIds.has(id))));
+	    hiddenRef.current = next;
+	    setUserHidden(next);
+	    persist('ctHide', next);
+	    if (onColumnVisibilityChange) onColumnVisibilityChange(next);
+	  }, [persist, lockedIds, onColumnVisibilityChange]);
+	  const toggleColumn = React.useCallback((id, visible) => {
+	    if (!id) return;
+	    const isHidden = hiddenRef.current.indexOf(id) >= 0;
+	    const show = visible === undefined ? isHidden : !!visible;
+	    setHiddenColumns(show ? hiddenRef.current.filter(x => x !== id) : hiddenRef.current.concat(id));
+	  }, [setHiddenColumns]);
+
 	  // ----- Which columns are pinned -----
 	  // The `pinned: true` flags in the column config are only the DEFAULT. The whole
 	  // choice is a single number: how many leading columns are frozen (freezing only
@@ -974,29 +1135,18 @@
 	  // under it, so each side is fully described by a single count.
 	  const defaultPinCount = React.useMemo(() => {
 	    let n = 0;
-	    for (const c of columns) {
+	    for (const c of cols) {
 	      if (c.pinned && c.pinned !== 'right') n++;else break;
 	    }
 	    return n;
-	  }, [columns]);
+	  }, [cols]);
 	  const defaultRightPinCount = React.useMemo(() => {
 	    let n = 0;
-	    for (let i = columns.length - 1; i >= 0; i--) {
-	      if (columns[i].pinned === 'right') n++;else break;
+	    for (let i = cols.length - 1; i >= 0; i--) {
+	      if (cols[i].pinned === 'right') n++;else break;
 	    }
 	    return n;
-	  }, [columns]);
-	  const readStored = key => {
-	    if (!pinStorageKey) return null;
-	    try {
-	      const v = window.localStorage.getItem(`${key}:${pinStorageKey}`);
-	      if (v != null && v !== '') {
-	        const n = parseInt(v, 10);
-	        if (!Number.isNaN(n) && n >= 0) return n;
-	      }
-	    } catch (e) {/* storage unavailable — fall back to config default */}
-	    return null;
-	  };
+	  }, [cols]);
 	  const [userPinCount, setUserPinCount] = React.useState(() => readStored('ctPin'));
 	  const [userRightPinCount, setUserRightPinCount] = React.useState(() => readStored('ctPinR'));
 	  const pinCount = userPinCount != null ? userPinCount : defaultPinCount;
@@ -1009,17 +1159,17 @@
 	  // The right block is measured first (it is usually one or two columns, and the Action
 	  // column rides along with it), then whatever viewport is left funds the left block.
 	  const maxRightPinCount = React.useMemo(() => {
-	    if (!wrapW) return columns.length;
+	    if (!wrapW) return cols.length;
 	    const budget = wrapW - PIN_MIN_SCROLLABLE;
 	    let used = Actions ? actionWidth : 0;
 	    let n = 0;
-	    for (let i = columns.length - 1; i >= 0; i--) {
-	      used += colWidthOf(columns[i]);
+	    for (let i = cols.length - 1; i >= 0; i--) {
+	      used += colWidthOf(cols[i]);
 	      if (used > budget) break;
 	      n++;
 	    }
 	    return n;
-	  }, [columns, wrapW, Actions, actionWidth]);
+	  }, [cols, wrapW, Actions, actionWidth]);
 	  const effectiveRightPinCount = Math.min(rightPinCount, maxRightPinCount);
 
 	  // The Action column freezes when the right block is non-empty, or on its own via
@@ -1028,29 +1178,23 @@
 	  const actionsPinned = !!Actions && (pinActions || effectiveRightPinCount > 0);
 	  const rightBlockWidth = React.useMemo(() => {
 	    let w = actionsPinned ? actionWidth : 0;
-	    for (let i = columns.length - effectiveRightPinCount; i < columns.length; i++) w += colWidthOf(columns[i]);
+	    for (let i = cols.length - effectiveRightPinCount; i < cols.length; i++) w += colWidthOf(cols[i]);
 	    return w;
-	  }, [columns, effectiveRightPinCount, actionsPinned, actionWidth]);
+	  }, [cols, effectiveRightPinCount, actionsPinned, actionWidth]);
 	  const maxPinCount = React.useMemo(() => {
-	    if (!wrapW) return columns.length; // not measured yet — cap kicks in right after mount
+	    if (!wrapW) return cols.length; // not measured yet — cap kicks in right after mount
 	    const colW = colWidthOf;
 	    const budget = wrapW - PIN_MIN_SCROLLABLE - rightBlockWidth;
 	    let used = rowStripColor ? stripWidth : 0;
 	    let n = 0;
-	    for (const c of columns) {
+	    for (const c of cols) {
 	      used += colW(c);
 	      if (used > budget) break;
 	      n++;
 	    }
-	    return Math.min(n, columns.length - effectiveRightPinCount);
-	  }, [columns, wrapW, rowStripColor, stripWidth, rightBlockWidth, effectiveRightPinCount]);
+	    return Math.min(n, cols.length - effectiveRightPinCount);
+	  }, [cols, wrapW, rowStripColor, stripWidth, rightBlockWidth, effectiveRightPinCount]);
 	  const effectivePinCount = Math.min(pinCount, maxPinCount);
-	  const persist = React.useCallback((key, n) => {
-	    if (!pinStorageKey) return;
-	    try {
-	      window.localStorage.setItem(`${key}:${pinStorageKey}`, String(n));
-	    } catch (e) {/* ignore */}
-	  }, [pinStorageKey]);
 	  const setPinCount = React.useCallback(n => {
 	    setUserPinCount(n);
 	    persist('ctPin', n);
@@ -1062,10 +1206,12 @@
 
 	  // Append the Action column (as a real column) when an Actions renderer is given.
 	  const allColumns = React.useMemo(() => {
-	    // pinIndex = the column's position among the caller's columns — the pin UI uses
-	    // it to set the freeze boundary ("pin up to here" = pinCount pinIndex+1).
-	    const firstRight = columns.length - effectiveRightPinCount;
-	    const base = columns.map((c, i) => ({
+	    // pinIndex = the column's position among the caller's VISIBLE columns — the pin UI
+	    // uses it to set the freeze boundary ("pin up to here" = pinCount pinIndex+1).
+	    // Hidden columns are already gone from `cols`, so both the index and the freeze
+	    // counts speak in terms of what is actually on screen.
+	    const firstRight = cols.length - effectiveRightPinCount;
+	    const base = cols.map((c, i) => ({
 	      ...c,
 	      pinIndex: i,
 	      pinned: i < effectivePinCount,
@@ -1114,12 +1260,16 @@
 	      });
 	    }
 	    if (Actions) {
+	      // The Action column is resizable like any other; a dragged width replaces the
+	      // `actionWidth` prop for this list (and, with a pinStorageKey, for the next visit).
+	      const actionW = colWidths.__actions;
 	      base.push({
 	        id: '__actions',
 	        Header: 'Action',
 	        align: 'center',
-	        width: 0.6,
-	        minWidth: actionWidth,
+	        width: actionW || 0.6,
+	        minWidth: actionW || actionWidth,
+	        maxWidth: actionW || undefined,
 	        disableFilters: true,
 	        disableSortBy: true,
 	        Cell: ({
@@ -1144,7 +1294,7 @@
 	    if (lastPinned) lastPinned.pinnedLast = true;
 	    if (firstPinnedRight) firstPinnedRight.pinnedRightFirst = true;
 	    return base;
-	  }, [columns, Actions, fn, actionWidth, rowStripColor, rowStripTitle, stripWidth, effectivePinCount, effectiveRightPinCount, actionsPinned]);
+	  }, [cols, colWidths, Actions, fn, actionWidth, rowStripColor, rowStripTitle, stripWidth, effectivePinCount, effectiveRightPinCount, actionsPinned]);
 	  const hasPinned = React.useMemo(() => allColumns.some(c => c.pinned), [allColumns]);
 	  const hasPinnedRight = React.useMemo(() => allColumns.some(c => c.pinnedRight), [allColumns]);
 
@@ -1155,7 +1305,7 @@
 	    let acc = 0;
 	    allColumns.forEach(c => {
 	      if (!c.pinned) return;
-	      const id = c.id || (typeof c.accessor === 'string' ? c.accessor : undefined);
+	      const id = colIdOf(c);
 	      if (id) map[id] = acc;
 	      acc += colWidthOf(c);
 	    });
@@ -1170,7 +1320,7 @@
 	    for (let i = allColumns.length - 1; i >= 0; i--) {
 	      const c = allColumns[i];
 	      if (!c.pinnedRight) continue;
-	      const id = c.id || (typeof c.accessor === 'string' ? c.accessor : undefined);
+	      const id = colIdOf(c);
 	      if (id) map[id] = acc;
 	      acc += colWidthOf(c);
 	    }
@@ -1197,7 +1347,7 @@
 	    autoResetGlobalFilter: false
 	  }, reactTableExports.useFilters, reactTableExports.useSortBy, reactTableExports.useFlexLayout);
 	  const align = alignFlex;
-	  const hasColumnFooter = React.useMemo(() => columns.some(c => c.Footer), [columns]);
+	  const hasColumnFooter = React.useMemo(() => cols.some(c => c.Footer), [cols]);
 	  const renderFooter = showFooter !== undefined ? showFooter : footerLeft != null || hasColumnFooter;
 
 	  // ----- Keyboard row navigation (Up/Down to move the selected row) -----
@@ -1242,6 +1392,40 @@
 	    getPinCount: () => effectivePinCount,
 	    getMaxPinCount: () => maxPinCount,
 	    setPinCount: n => setPinCount(Math.max(0, parseInt(n, 10) || 0)),
+	    // ----- Column widths -----
+	    // Widths are normally set by dragging a header's right edge; these are for a toolbar
+	    // ("Reset column widths") or for restoring a layout the caller stored itself.
+	    // getColumnWidths() reports only the columns the USER has resized — a column the
+	    // caller has not touched is absent from the map and renders at its configured width.
+	    // Read through the mirrors, not through this render's state: a caller that calls a
+	    // setter and then a getter in the SAME handler (`toggleColumn(id)` then
+	    // `getHiddenColumns()` to refresh its menu) would otherwise read the value from
+	    // before its own call — React has not re-rendered yet at that point.
+	    getColumnWidths: () => ({
+	      ...colWidthsRef.current
+	    }),
+	    setColumnWidth: (id, px) => setColumnWidth(id, px),
+	    resetColumnWidths: id => resetColumnWidths(id),
+	    // ----- Column visibility -----
+	    // The column MENU is the caller's to render, exactly like the pin menu; getColumnList()
+	    // hands it everything it needs (id, header text, current state) so it does not have to
+	    // re-derive any of this from its own column config.
+	    getHiddenColumns: () => hiddenRef.current.slice(),
+	    setHiddenColumns: ids => setHiddenColumns(ids),
+	    toggleColumn: (id, visible) => toggleColumn(id, visible),
+	    showAllColumns: () => setHiddenColumns([]),
+	    getColumnList: () => columns.map((c, i) => {
+	      const id = colIdOf(c);
+	      return {
+	        id,
+	        index: i,
+	        header: typeof c.Header === 'string' ? c.Header : undefined,
+	        hidden: !!(id && c.hideable !== false && hiddenRef.current.indexOf(id) >= 0),
+	        hideable: !!id && c.hideable !== false,
+	        resizable: !!id && resizable && !c.disableResizing,
+	        width: id && colWidthsRef.current[id] != null ? colWidthsRef.current[id] : colWidthOf(c)
+	      };
+	    }),
 	    // Move the selection (and the focus) to a row — e.g. a list that re-fetches on a
 	    // Search click wants the first row selected + focused once the results land, but
 	    // the table is already mounted so the mount-time focus effect won't fire again.
@@ -1533,6 +1717,8 @@
 	  //
 	  // Thumbs are positioned imperatively from the same rAF-throttled scroll handler that
 	  // drives the windowing — no React re-render per frame.
+	  const rootRef = React.useRef(null);
+	  const guideRef = React.useRef(null);
 	  const vTrackRef = React.useRef(null);
 	  const vThumbRef = React.useRef(null);
 	  const hTrackRef = React.useRef(null);
@@ -1630,12 +1816,63 @@
 	    }
 	  }, [listH]);
 
+	  // ----- Column resize -----
+	  // The drag paints a vertical GUIDE and commits the new width exactly once, on
+	  // pointer-up. It deliberately does NOT write width state per pointermove: the column
+	  // defs are what `itemData` hangs off, so a live resize would re-render every visible
+	  // row sixty times a second — the same cost the memoized rows and the imperative
+	  // selection highlight exist to avoid. (It is also what Excel and Sheets do.)
+	  const startColResize = React.useCallback(id => e => {
+	    if (e.button !== 0) return;
+	    e.preventDefault();
+	    e.stopPropagation(); // never let the press reach the header's sort toggle
+	    const handle = e.currentTarget;
+	    const th = handle.parentElement;
+	    const root = rootRef.current;
+	    const guide = guideRef.current;
+	    if (!th || !root) return;
+	    const startX = e.clientX;
+	    // Measured, not configured: `width` is only a request — the rendered size is
+	    // `min(max(minWidth, width), maxWidth)`, so a column configured `width: 1,
+	    // minWidth: 90` is 90px on screen. Starting the drag from the config would make
+	    // the column jump on the first pixel of pointer movement.
+	    const startW = th.offsetWidth;
+	    const rootRect = root.getBoundingClientRect();
+	    const thLeft = th.getBoundingClientRect().left - rootRect.left;
+	    let width = startW;
+	    const paint = clientX => {
+	      width = Math.max(minColumnWidth, Math.round(startW + (clientX - startX)));
+	      if (!guide) return;
+	      guide.style.display = 'block';
+	      // Clamped to the table box — the pointer can travel far past either edge, and a
+	      // guide drawn outside the root would streak across the page around it.
+	      guide.style.transform = `translateX(${Math.min(Math.max(0, thLeft + width), rootRect.width - 2)}px)`;
+	    };
+	    paint(e.clientX);
+	    handle.classList.add('ft-resizing');
+	    document.body.style.userSelect = 'none';
+	    document.body.style.cursor = 'col-resize';
+	    const onMove = ev => paint(ev.clientX);
+	    const onUp = () => {
+	      window.removeEventListener('pointermove', onMove);
+	      window.removeEventListener('pointerup', onUp);
+	      if (guide) guide.style.display = 'none';
+	      handle.classList.remove('ft-resizing');
+	      document.body.style.userSelect = '';
+	      document.body.style.cursor = '';
+	      if (width !== startW) setColumnWidth(id, width);
+	    };
+	    window.addEventListener('pointermove', onMove);
+	    window.addEventListener('pointerup', onUp);
+	  }, [minColumnWidth, setColumnWidth]);
+
 	  // Which rows are actually rendered. The frozen columns are sticky, so this can lag a
 	  // frame behind the scroll without ever pulling them out of place.
 	  const firstIdx = Math.max(0, Math.floor(scrollTop / rowHeight) - OVERSCAN);
 	  const lastIdx = Math.min(rows.length - 1, Math.ceil((scrollTop + (listH || 0)) / rowHeight) + OVERSCAN);
 	  const tableProps = getTableProps();
 	  return /*#__PURE__*/React.createElement("div", {
+	    ref: rootRef,
 	    className: `ft-root ct-root${className ? ` ${className}` : ''}`,
 	    style: {
 	      position: 'relative',
@@ -1695,6 +1932,8 @@
 	    }), headerGroup.headers.map(column => {
 	      const canSort = sortable && !column.disableSortBy;
 	      const canSearch = searchable && column.canFilter && !column.disableFilters;
+	      // The status strip is a fixed 4px bar — there is nothing in it to resize.
+	      const canResize = resizable && !column.disableResizing && column.id !== '__strip';
 	      const {
 	        key: headerKey,
 	        ...headerProps
@@ -1711,6 +1950,9 @@
 	          ...headerProps.style,
 	          padding: column.noPadding ? 0 : '7px 12px 9px',
 	          boxSizing: 'border-box',
+	          // Containing block for the resize grip. A pinned header overrides
+	          // this with `sticky`, which is just as good an anchor.
+	          position: 'relative',
 	          ...(column.pinned || column.pinnedRight ? {
 	            position: 'sticky',
 	            ...(column.pinned ? {
@@ -1764,7 +2006,12 @@
 	        style: {
 	          marginTop: 4
 	        }
-	      }, column.render('Filter')));
+	      }, column.render('Filter')), canResize && /*#__PURE__*/React.createElement("div", {
+	        className: "ft-resizer ct-resizer",
+	        onPointerDown: startColResize(column.id),
+	        onDoubleClick: () => resetColumnWidths(column.id),
+	        title: "Drag to resize \xB7 double-click to reset"
+	      }));
 	    }));
 	  }), /*#__PURE__*/React.createElement("div", _extends({}, getTableBodyProps(), {
 	    ref: bodyWrapRef,
@@ -1902,7 +2149,13 @@
 	    className: "ft-thumb",
 	    ref: hThumbRef,
 	    onPointerDown: startThumbDrag('x')
-	  })));
+	  })), /*#__PURE__*/React.createElement("div", {
+	    className: "ft-resize-guide",
+	    ref: guideRef,
+	    style: {
+	      display: 'none'
+	    }
+	  }));
 	});
 
 	const FIRST = ['Ramesh', 'Sunita', 'Imran', 'Priya', 'Arjun', 'Fatima', 'Rakesh', 'Neha', 'Vikram', 'Anjali'];
@@ -2142,6 +2395,21 @@
 	  borderColor: '#0070C2',
 	  color: '#fff'
 	};
+	const menuBox = {
+	  position: 'absolute',
+	  top: 'calc(100% + 4px)',
+	  left: 0,
+	  zIndex: 20,
+	  minWidth: 190,
+	  maxHeight: 320,
+	  overflowY: 'auto',
+	  background: '#fff',
+	  border: '1px solid #d8e0e9',
+	  borderRadius: 6,
+	  boxShadow: '0 6px 18px rgba(0,0,0,.12)',
+	  padding: 8,
+	  fontSize: 12
+	};
 	function Demo() {
 	  const tableRef = reactExports.useRef(null);
 	  const [selected, setSelected] = reactExports.useState(null);
@@ -2149,6 +2417,11 @@
 	  const [rightPin, setRightPin] = reactExports.useState(1);
 	  const [loading, setLoading] = reactExports.useState(false);
 	  const [empty, setEmpty] = reactExports.useState(false);
+	  // The column menu is the CALLER's to render -- the table only owns the state.
+	  // getColumnList() hands over id / header / hidden per column, so the menu never has to
+	  // re-derive any of that from COLUMNS.
+	  const [hidden, setHidden] = reactExports.useState([]);
+	  const [menuOpen, setMenuOpen] = reactExports.useState(false);
 	  const columns = reactExports.useMemo(() => COLUMNS, []);
 	  const data = reactExports.useMemo(() => empty ? [] : ROWS, [empty]);
 	  const applyPin = n => {
@@ -2164,6 +2437,16 @@
 	      tableRef.current.setRightPinCount(n);
 	      tableRef.current.focus();
 	    }
+	  };
+	  const toggleCol = id => {
+	    if (!tableRef.current) return;
+	    tableRef.current.toggleColumn(id);
+	    setHidden(tableRef.current.getHiddenColumns());
+	  };
+	  const showAll = () => {
+	    if (!tableRef.current) return;
+	    tableRef.current.showAllColumns();
+	    setHidden([]);
 	  };
 	  return /*#__PURE__*/React.createElement("div", {
 	    style: {
@@ -2183,7 +2466,7 @@
 	      margin: '0 0 14px',
 	      color: '#5a6a7a'
 	    }
-	  }, "2,000 rows \xB7 18 columns \xB7 left se ", pin, " column aur right se ", rightPin, " (+ Action) freeze \xB7 arrow keys / Home / End / Enter chalte hain (table pe click karke try karo)."), /*#__PURE__*/React.createElement("div", {
+	  }, "2,000 rows \xB7 18 columns \xB7 left se ", pin, " column aur right se ", rightPin, " (+ Action) freeze \xB7 header ke right edge ko drag karke column resize karo (double-click = reset) \xB7 arrow keys / Home / End / Enter chalte hain (table pe click karke try karo)."), /*#__PURE__*/React.createElement("div", {
 	    style: {
 	      display: 'flex',
 	      gap: 8,
@@ -2214,6 +2497,51 @@
 	    style: rightPin === n ? btnActive : btn,
 	    onClick: () => applyRightPin(n)
 	  }, n === 0 ? 'No pin' : `Last ${n}`)), /*#__PURE__*/React.createElement("span", {
+	    style: {
+	      width: 16
+	    }
+	  }), /*#__PURE__*/React.createElement("div", {
+	    style: {
+	      position: 'relative'
+	    }
+	  }, /*#__PURE__*/React.createElement("button", {
+	    type: "button",
+	    style: hidden.length ? btnActive : btn,
+	    onClick: () => setMenuOpen(v => !v)
+	  }, "Columns", hidden.length ? ` (${hidden.length} hidden)` : ''), menuOpen && /*#__PURE__*/React.createElement("div", {
+	    style: menuBox
+	  }, (tableRef.current ? tableRef.current.getColumnList() : []).map(c => /*#__PURE__*/React.createElement("label", {
+	    key: c.id,
+	    style: {
+	      display: 'flex',
+	      gap: 6,
+	      alignItems: 'center',
+	      padding: '3px 2px',
+	      cursor: c.hideable ? 'pointer' : 'default',
+	      opacity: c.hideable ? 1 : 0.5
+	    }
+	  }, /*#__PURE__*/React.createElement("input", {
+	    type: "checkbox",
+	    checked: !c.hidden,
+	    disabled: !c.hideable,
+	    onChange: () => toggleCol(c.id)
+	  }), /*#__PURE__*/React.createElement("span", null, c.header || c.id))), /*#__PURE__*/React.createElement("div", {
+	    style: {
+	      display: 'flex',
+	      gap: 6,
+	      marginTop: 6,
+	      borderTop: '1px solid #e3e8ee',
+	      paddingTop: 6
+	    }
+	  }, /*#__PURE__*/React.createElement("button", {
+	    type: "button",
+	    style: btn,
+	    onClick: showAll
+	  }, "Show all"), /*#__PURE__*/React.createElement("button", {
+	    type: "button",
+	    style: btn,
+	    onClick: () => tableRef.current && tableRef.current.resetColumnWidths()
+	  }, "Reset widths")))), /*#__PURE__*/React.createElement("span", {
 	    style: {
 	      width: 16
 	    }

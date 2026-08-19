@@ -79,6 +79,48 @@ assert(/right:0[;"]/.test(actionsOnly), 'pinActions freezes the Action column on
 assert(actionsOnly.includes('data-ct-pin-right-first="1"'), 'the Action column becomes the right boundary');
 assert(!actionsOnly.includes('right:110px'), 'no data column is dragged into the right block');
 
+// ----- Column resizing -----
+// One grip per header EXCEPT the status strip: 4 caller columns + the Action column.
+assert((html.match(/ft-resizer/g) || []).length === 5, 'every column but the status strip gets a resize grip');
+const noResize = renderToStaticMarkup(React.createElement(FreezeTable, { columns, data, Actions, resizable: false }));
+assert(!noResize.includes('ft-resizer'), 'resizable:false drops the grips');
+const someResize = renderToStaticMarkup(
+  React.createElement(FreezeTable, {
+    columns: columns.map((c) => (c.accessor === 'city' ? { ...c, disableResizing: true } : c)),
+    data,
+    Actions,
+  })
+);
+assert((someResize.match(/ft-resizer/g) || []).length === 4, 'disableResizing drops that column\'s grip');
+
+// ----- Column visibility -----
+// Hiding the pinned 'Name' column leaves the pinned run as strip (14px) + '#' (45px),
+// so the third offset (59px) must be gone and 'City' must slide into its place.
+const hidden = renderToStaticMarkup(
+  React.createElement(FreezeTable, {
+    columns: columns.map((c) => (c.accessor === 'name' ? { ...c, hidden: true } : c)),
+    data,
+    Actions,
+    rowStripColor: () => '#e03e3e',
+  })
+);
+assert(!hidden.includes('>Name<'), 'a column with hidden:true is not rendered');
+assert(hidden.includes('>City<'), 'the remaining columns still render');
+assert((hidden.match(/ft-th /g) || []).length === 5, 'the hidden column is gone from the header row');
+assert(hidden.includes('left:14px') && !hidden.includes('left:59px'), 'hiding a pinned column re-flows the freeze offsets');
+assert(!hidden.includes('Count : 3'), "the hidden column's footer goes with it");
+const locked = renderToStaticMarkup(
+  React.createElement(FreezeTable, {
+    columns: columns.map((c) => (c.accessor === 'name' ? { ...c, hidden: true, hideable: false } : c)),
+    data,
+  })
+);
+assert(locked.includes('>Name<'), 'hideable:false keeps a column visible even if hidden:true');
+const allHidden = renderToStaticMarkup(
+  React.createElement(FreezeTable, { columns: columns.map((c) => ({ ...c, hidden: true })), data })
+);
+assert(allHidden.includes('>Name<') && allHidden.includes('>City<'), 'hiding every column falls back to showing them all');
+
 const empty = renderToStaticMarkup(React.createElement(FreezeTable, { columns, data: [], dataFetched: true }));
 assert(empty.includes('No records found'), 'empty state renders');
 const busy = renderToStaticMarkup(React.createElement(FreezeTable, { columns, data: [], loading: true }));

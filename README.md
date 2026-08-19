@@ -16,7 +16,7 @@ npm i freeze-table
 ```
 
 That is the whole install. `react-table` v7 is bundled in (see
-[Compatibility](#13-demo-build-compatibility)), so React is the only peer dependency.
+[Compatibility](#14-demo-build-compatibility)), so React is the only peer dependency.
 
 ```jsx
 import { FreezeTable } from 'freeze-table';
@@ -40,6 +40,8 @@ exactly what an accounting / ERP list screen needs, in ~900 lines you can read.
   which is precisely what keeps the single scrollport, and therefore the sticky freeze,
   possible.
 - **Keyboard first.** ↑/↓/Home/End/Enter work on mount, without the user clicking in.
+- **The user's layout is theirs.** Freeze boundary, column widths and hidden columns are
+  all draggable / toggleable at runtime and survive a reload (one `pinStorageKey`).
 - **Selection repaints imperatively**, so arrow-key navigation does not re-render every
   visible row.
 
@@ -55,11 +57,12 @@ exactly what an accounting / ERP list screen needs, in ~900 lines you can read.
 6. [Keyboard navigation and body states](#6-keyboard-navigation-and-body-states)
 7. [Footer totals](#7-footer-totals)
 8. [Frozen (pinned) columns](#8-frozen-pinned-columns)
-9. [Per-row status colouring](#9-per-row-status-colouring)
-10. [Restoring position on re-entry](#10-restoring-position-on-re-entry)
-11. [Styling hooks](#11-styling-hooks)
-12. [Gotchas](#12-gotchas)
-13. [Demo, build, compatibility](#13-demo-build-compatibility)
+9. [Column resizing and hiding](#9-column-resizing-and-hiding)
+10. [Per-row status colouring](#10-per-row-status-colouring)
+11. [Restoring position on re-entry](#11-restoring-position-on-re-entry)
+12. [Styling hooks](#12-styling-hooks)
+13. [Gotchas](#13-gotchas)
+14. [Demo, build, compatibility](#14-demo-build-compatibility)
 
 ---
 
@@ -104,7 +107,7 @@ export default function CustomerList({ byId, fetched, openRow }) {
 }
 ```
 
-Both `columns` and `data` should be memoized — see [Gotchas](#12-gotchas).
+Both `columns` and `data` should be memoized — see [Gotchas](#13-gotchas).
 
 ### Exports
 
@@ -182,6 +185,9 @@ sticky.
   Footer,           // string | node | fn(tableInstance) — see §7
   noPadding,        // drop the default cell/header padding
   pinned,           // DEFAULT freeze state: true / 'left' / 'right' — see §8
+  hidden,           // DEFAULT visibility: true = start hidden — see §9
+  hideable,         // false = can never be hidden (a key column)
+  disableResizing,  // no drag-to-resize grip on this column
   Filter,           // custom filter UI (e.g. a dropdown for an enum column)
   filter,           // custom react-table filter fn (rows, columnIds, filterValue)
 }
@@ -196,6 +202,10 @@ react-table computes `totalWidth = min(max(minWidth, width), maxWidth)`, and
 
 Give real pixel values. A `width` below `minWidth` is silently ignored
 (`width: 2.4, minWidth: 200` → a 200px column).
+
+A **dragged** width (§9) overwrites `width`, `minWidth` **and** `maxWidth` with the same
+number, precisely so that expression collapses to it — the config's floor and ceiling are
+the default, and an explicit drag outranks both.
 
 ### What `Cell` receives
 
@@ -265,11 +275,15 @@ is not clipped:
 | `rowIdKey`          | `'id'`                | Field `initialSelectedId` matches against                            |
 | `initialSelectedId` | `null`                | Re-select + scroll to this row once, after the rows load             |
 | `initialScrollLeft` | `0`                   | Restore horizontal scroll once, after the rows load                  |
-| `rowStripColor`     | —                     | `(rowData) => color \| null` — coloured status bar column (§9)       |
+| `rowStripColor`     | —                     | `(rowData) => color \| null` — coloured status bar column (§10)       |
 | `rowStripTitle`     | —                     | `(rowData) => string` — hover tooltip on the strip cell              |
-| `rowStyle`          | —                     | `(rowData) => ({ backgroundColor?, color? })` — full-row tint (§9)   |
+| `rowStyle`          | —                     | `(rowData) => ({ backgroundColor?, color? })` — full-row tint (§10)   |
 | `stripWidth`        | `14`                  | Strip column width px                                                |
-| `pinStorageKey`     | —                     | Persist the freeze boundary in `localStorage["ctPin:<key>"]` (§8)    |
+| `pinStorageKey`     | —                     | Persist the freeze boundaries, column widths and hidden columns in `localStorage` (§8, §9) |
+| `resizable`         | `true`                | Drag-to-resize grip on every header's right edge (§9)                |
+| `minColumnWidth`    | `48`                  | Floor for a drag-resized column, px (§9)                             |
+| `onColumnResize`    | —                     | `(id, width, widths)` — `width` is `null` on a reset (§9)            |
+| `onColumnVisibilityChange` | —              | `(hiddenIds)` whenever a column is hidden or shown (§9)              |
 | `className`         | —                     | Extra class on the root element                                      |
 | `style`             | —                     | Extra inline styles merged onto the root element                     |
 
@@ -285,7 +299,7 @@ const tableRef = useRef(null);
 | Method             | Meaning                                                                    |
 |--------------------|----------------------------------------------------------------------------|
 | `focus()`          | Re-focus the table container — e.g. return focus to the selected row after a modal closes |
-| `getScrollLeft()`  | Current horizontal offset — stash it before navigating away (§10)          |
+| `getScrollLeft()`  | Current horizontal offset — stash it before navigating away (§11)          |
 | `selectRow(i)`     | Select + scroll to + focus row `i`                                          |
 | `getLeftPinCount()` | Current **effective** (viewport-capped) left boundary; 0 = none            |
 | `getMaxLeftPinCount()` | Largest left boundary the viewport allows — disable menu entries beyond it |
@@ -293,6 +307,14 @@ const tableRef = useRef(null);
 | `getRightPinCount()` | Current **effective** right boundary; 0 = none                            |
 | `getMaxRightPinCount()` | Largest right boundary the viewport allows                             |
 | `setRightPinCount(n)` | Freeze the **last** N caller columns against the right edge              |
+| `getColumnWidths()` | User-resized widths only, as an `id -> px` map (§9)                        |
+| `setColumnWidth(id, px)` | Set one column's width (clamped to `minColumnWidth`)                  |
+| `resetColumnWidths(id?)` | Clear one override, or **all** of them when called with no argument   |
+| `getHiddenColumns()` | Ids of the currently hidden columns                                      |
+| `setHiddenColumns(ids)` | Replace the hidden set (`hideable: false` ids are ignored)             |
+| `toggleColumn(id, visible?)` | Hide/show one column — omit `visible` to flip it                 |
+| `showAllColumns()` | Un-hide everything                                                         |
+| `getColumnList()`  | `[{ id, index, header, hidden, hideable, resizable, width }]` — everything a column menu needs |
 
 Both boundaries persist when `pinStorageKey` is set. `getPinCount` / `getMaxPinCount` /
 `setPinCount` are the pre-0.6 names for the three left-hand methods — they still work,
@@ -394,6 +416,10 @@ would have its neighbours scroll out from under it — so only a **leading** run
 the left and only a **trailing** run on the right. A flag after the first unflagged
 column (or, on the right, before the last one) is ignored.
 
+Both counts speak in terms of the columns **currently on screen**: a hidden column (§9)
+is not counted, so "first 3" with the second column hidden freezes the 1st, 3rd and 4th
+of your `columns` array.
+
 - The auto-appended columns join the block on their own side: the status strip freezes
   left whenever `pinCount > 0`, the Action column freezes right whenever
   `rightPinCount > 0`. Either would otherwise be stranded outside its own block.
@@ -468,7 +494,106 @@ shadow once the table is scrolled.
 
 ---
 
-## 9. Per-row status colouring
+## 9. Column resizing and hiding
+
+Two more per-user layout choices, built the same way as the freeze boundary (§8): the
+column config carries the **default**, the user's choice lives in the table's own state,
+and the caller drives it through the ref. Both persist under `pinStorageKey`.
+
+### Resizing
+
+Every header except the status strip carries a **drag grip** on its right edge — invisible
+until you hover it, then a thin blue line. Drag it to resize; **double-click** it to drop
+the override and go back to the configured width.
+
+```jsx
+<FreezeTable
+  columns={columns}
+  data={rows}
+  resizable            // default true — pass false to switch every grip off
+  minColumnWidth={48}  // the drag cannot go below this
+  pinStorageKey="sales-invoice-list"          // widths survive a reload
+  onColumnResize={(id, width) => log(id, width)}
+/>
+```
+
+- Per column: `disableResizing: true` drops that column's grip.
+- The **Action column** is resizable too — a dragged width replaces the `actionWidth` prop
+  for that list.
+- The drag paints a **guide line** and commits the width once, on release. It deliberately
+  does not resize live: the column defs are what the memoized rows hang off, so a per-frame
+  width would re-render every visible row sixty times a second. This is also what Excel and
+  Sheets do.
+- A resized frozen column widens the frozen block, so the pin cap (§8) may quietly reduce
+  the effective freeze count — the frozen block never gets to eat the viewport.
+
+### Hiding
+
+```jsx
+// column config: the DEFAULT only
+{ Header: 'Engine No', accessor: 'engine', width: 140, minWidth: 140, hidden: true }
+{ Header: 'Invoice No', accessor: 'invoice', width: 150, minWidth: 150, hideable: false }
+```
+
+```jsx
+tableRef.current.toggleColumn('engine');        // flip one column
+tableRef.current.toggleColumn('engine', true);  // or say which way
+tableRef.current.setHiddenColumns(['engine', 'vin']);
+tableRef.current.showAllColumns();
+```
+
+The **menu is yours to render**, exactly like the pin menu. `getColumnList()` gives you
+one entry per caller column — `{ id, index, header, hidden, hideable, resizable, width }`
+— so the menu never has to re-derive any of it from your column config:
+
+```jsx
+{tableRef.current?.getColumnList().map((c) => (
+  <label key={c.id}>
+    <input
+      type="checkbox"
+      checked={!c.hidden}
+      disabled={!c.hideable}
+      onChange={() => {
+        tableRef.current.toggleColumn(c.id);
+        forceUpdate();          // the table owns the state; re-render your menu
+      }}
+    />
+    {c.header || c.id}
+  </label>
+))}
+```
+
+Things worth knowing:
+
+- A hidden column is **gone from the layout**, not merely invisible: the freeze counts and
+  the sticky offsets are computed from the visible columns only. Pin "first 3" with the
+  second column hidden and you freeze the 1st, 3rd and 4th.
+- Its **filter and sort stop applying** while it is hidden, and come back when it is shown
+  again (react-table keeps the state, and skips sort/filter entries whose column is not
+  currently mounted).
+- Its **footer total goes with it** — hide the Amount column and the footer loses that cell.
+- A column needs an `id` (or a string `accessor`) to be hidden or resized — a column with
+  only an accessor **function** cannot be addressed. react-table demands an `id` for those
+  columns anyway.
+- `hideable: false` locks a column visible even against `hidden: true`, and hiding *every*
+  column falls back to showing them all — a blank table has no header to un-hide from.
+
+### What gets persisted
+
+With `pinStorageKey="sales-invoice-list"`:
+
+| Key                              | Holds                                    |
+|----------------------------------|------------------------------------------|
+| `ctPin:sales-invoice-list`       | left freeze count                        |
+| `ctPinR:sales-invoice-list`      | right freeze count                       |
+| `ctW:sales-invoice-list`         | `{"<columnId>": <px>}` — resized columns only |
+| `ctHide:sales-invoice-list`      | `["<columnId>", …]` — hidden columns     |
+
+Without the key nothing is stored and every choice lasts until unmount.
+
+---
+
+## 10. Per-row status colouring
 
 Two independent, optional props for lists where a row carries a state (cancelled, failed
 to post, …). Both take the raw row object and should be pure functions.
@@ -501,7 +626,7 @@ const STRIP = { Cancelled: '#e03e3e', Pending: '#e8912d', Posted: '#2aa76a' };
 
 ---
 
-## 10. Restoring position on re-entry
+## 11. Restoring position on re-entry
 
 When the list unmounts on navigation (list → edit → back), both scroll axes reset. Restore
 them with the pair below — each is applied **once**, after the rows load:
@@ -542,7 +667,7 @@ render until the rows and the measured body height exist, then latch via a ref.
 
 ---
 
-## 11. Styling hooks
+## 12. Styling hooks
 
 There is **no stylesheet to import**. Every visual is an inline style; the one injected
 `<style>` tag carries only what inline styles cannot express (keyframes, `:focus`,
@@ -560,6 +685,8 @@ your tests:
 | `.ft-head` / `.ft-th`  | header row / cell              | —                                       |
 | `.ft-th-label`         | header label row               | sort toggle click area                  |
 | `.ft-th-filter`        | search-box wrapper             | —                                       |
+| `.ft-resizer`          | grip on the header's right edge | the hover line (§9)                    |
+| `.ft-resize-guide`     | root element                   | the line that follows a resize drag      |
 | `.ft-row` / `.ft-td`   | row / body cell                | selection repaint                       |
 | `.ft-foot` / `.ft-tf`  | footer row / cell              | —                                       |
 | `data-ct-index`        | `.ft-row`                      | row index (selection repaint)           |
@@ -580,7 +707,7 @@ Key values, if you want to re-theme by forking:
 
 ---
 
-## 12. Gotchas
+## 13. Gotchas
 
 1. **Memoize `data`.** react-table's `autoResetSortBy` / `autoResetFilters` are already
    disabled inside the component (otherwise every `Object.values(byId)` recreation
@@ -600,7 +727,7 @@ Key values, if you want to re-theme by forking:
 
 ---
 
-## 13. Demo, build, compatibility
+## 14. Demo, build, compatibility
 
 ```bash
 npm install

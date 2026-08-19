@@ -79,13 +79,30 @@ middle column would have its neighbours scroll out from under it.
 - The 0.6.0 rename left `getPinCount`/`getMaxPinCount`/`setPinCount` as working deprecated
   aliases for the left-edge methods. Keep them.
 
+### Column widths and visibility (0.7.0)
+
+Same shape as pinning: the column config is only the **default**, the user's choice lives
+in state and is applied on top, and the *menu* is the caller's to render (`getColumnList()`
+feeds it).
+
+- Both are keyed by `colIdOf(c)` (explicit `id`, else a string accessor). A column with an
+  accessor function and no id cannot be hidden or resized.
+- `cols` (hidden dropped, resized widths applied) is derived from the `columns` prop right
+  at the top of the component, and **everything downstream reads `cols`, never `columns`** —
+  pin defaults, pin caps, `pinIndex`, the sticky offsets. Only the layout-state block and
+  `getColumnList()` still look at the raw prop.
+- A resize writes `width`/`minWidth`/`maxWidth` to the same number, because react-table
+  renders `min(max(minWidth, width), maxWidth)`.
+- The drag paints a guide line and commits **once, on pointer-up**. Never make it live: the
+  column defs feed `itemData`, so a per-frame width would re-render every visible row.
+
 ### Synthetic columns
 
 `allColumns` = optional `__strip` column (prepended when `rowStripColor` is set) +
 caller columns (annotated with `pinIndex`, `pinned`, `pinnedRight`, `pinnedLast`,
 `pinnedRightFirst`) + optional `__actions` column (appended when `Actions` is given).
-Caller columns keep their original indices as `pinIndex` so the pin UI can talk in terms
-of the caller's own list.
+Caller columns carry their index among the VISIBLE caller columns as `pinIndex`, so the
+pin UI can talk in terms of the caller's own list (minus whatever is hidden).
 
 ### Performance rules that are load-bearing
 
