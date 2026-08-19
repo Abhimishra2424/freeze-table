@@ -4,6 +4,8 @@ A virtualized React list table for **wide, dense, data-entry style screens** —
 with twenty columns, thousands of rows, per-column search boxes, frozen leading columns
 and a totals row pinned to the bottom.
 
+![freeze-table — 2,000 rows, 18 columns, three columns frozen left and one plus the Action column frozen right](https://raw.githubusercontent.com/Abhimishra2424/freeze-table/main/public/FreezeTable.png)
+
 Built on [`react-table`](https://github.com/TanStack/table/tree/v7) **v7**, which is bundled
 in. No peer install, no UI library, no CSS file to import, no theme to configure — every visual is an inline style and the
 handful of glyphs it needs (sort arrows, pin marker, spinner, empty-state icon) are inline
