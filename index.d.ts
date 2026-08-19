@@ -114,9 +114,9 @@ export interface FreezeTableProps<D extends object = any> {
   stripWidth?: number;
   /** Persist the user's pin boundary in `localStorage["ctPin:<key>"]`. */
   pinStorageKey?: string;
-  /** Extra class on the outer scroller. */
+  /** Extra class on the root element. */
   className?: string;
-  /** Extra inline styles merged onto the outer scroller. */
+  /** Extra inline styles merged onto the root element. */
   style?: React.CSSProperties;
 }
 

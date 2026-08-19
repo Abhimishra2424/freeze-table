@@ -28,6 +28,22 @@ const STYLESHEET = `
   border:2px solid rgba(0,0,0,.10);border-top-color:#0070C2;animation:ft-spin .6s linear infinite;}
 @keyframes ft-spin{to{transform:rotate(360deg);}}
 @media (prefers-reduced-motion: reduce){.ft-spinner{animation-duration:2s;}}
+
+/* Native scrollbars are hidden and redrawn as overlays, so the vertical bar can sit
+   beside the ROWS only instead of running the full height of the table (header and
+   footer included). Per-axis hiding is not expressible in Firefox — scrollbar-width
+   takes no axis — so both bars are drawn, which also keeps them looking the same
+   across browsers. Wheel, trackpad and keyboard scrolling stay fully native. */
+.ft-wrap.ft-nobar{scrollbar-width:none;-ms-overflow-style:none;}
+.ft-wrap.ft-nobar::-webkit-scrollbar{width:0;height:0;}
+.ft-track{position:absolute;background:transparent;z-index:6;}
+.ft-track-v{width:11px;}
+.ft-track-h{height:11px;}
+.ft-thumb{position:absolute;background:#c3ccd6;border-radius:6px;transition:background .15s;}
+.ft-track-v .ft-thumb{left:2px;right:2px;top:0;}
+.ft-track-h .ft-thumb{top:2px;bottom:2px;left:0;}
+.ft-track:hover .ft-thumb{background:#a7b3c1;}
+.ft-thumb:active,.ft-thumb.ft-thumb-drag{background:#8c9bab;}
 `;
 
 let injected = false;

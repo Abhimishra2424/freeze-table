@@ -120,12 +120,15 @@ TypeScript definitions ship with the package (`index.d.ts`) — `FreezeTableProp
 ## 2. Layout and scroll model
 
 ```
-ft-wrap  (fixed height, overflow: auto)      ← THE scrollport for BOTH axes
-└── inner div (minWidth: totalColumnsWidth, flex column, minHeight 100%)
-    ├── ft-head   (position: sticky; top: 0)     ← labels + sort + search boxes
-    ├── body      (position: relative, height = rows * rowHeight)
-    │   └── ft-row (position: absolute, top = index * rowHeight) → ft-td cells
-    └── ft-foot   (position: sticky; bottom: 0)  ← optional totals row
+ft-root  (position: relative, the `height` you pass)
+├── ft-wrap  (overflow: auto, native bars hidden) ← THE scrollport for BOTH axes
+│   └── inner div (minWidth: totalColumnsWidth, flex column, minHeight 100%)
+│       ├── ft-head   (position: sticky; top: 0)     ← labels + sort + search boxes
+│       ├── body      (position: relative, height = rows * rowHeight)
+│       │   └── ft-row (position: absolute, top = index * rowHeight) → ft-td cells
+│       └── ft-foot   (position: sticky; bottom: 0)  ← optional totals row
+├── ft-track ft-track-v  (inset by the header/footer heights) ← overlay vertical bar
+└── ft-track ft-track-h                                       ← overlay horizontal bar
 ```
 
 - **`height` is the TOTAL height** (header + body + footer), not the body height. The
@@ -137,6 +140,26 @@ ft-wrap  (fixed height, overflow: auto)      ← THE scrollport for BOTH axes
   represents the whole list.
 - The header/footer stay put because they are `sticky`, not because anything is
   repositioned in JS.
+
+### Why the scrollbars are drawn, not native
+
+`ft-wrap` covers the header and the footer as well as the rows, so its native vertical
+scrollbar ran the **full height of the table** — a thumb sitting beside the header reads
+as wrong, since the header does not scroll.
+
+Moving that bar onto the body is not possible while the columns freeze: an element that
+scrolls in y is a scroll container in x too, so the body would become the sticky
+scrollport for the pinned cells and they would slide away with the rest of the row (this
+is exactly the react-window problem the component was rewritten to escape).
+
+So the native bars are hidden and redrawn as overlays — the vertical track inset by the
+measured header and footer heights, so it spans the rows only. Both bars are drawn
+rather than just the vertical one because Firefox's `scrollbar-width` takes no axis, and
+drawing both keeps them identical across browsers. Wheel, trackpad, keyboard and
+touch scrolling all remain fully native; the thumbs are positioned from the same
+rAF-throttled handler that drives the windowing, so nothing extra re-renders. Dragging a
+thumb temporarily suspends row snapping, which would otherwise make the drag feel
+sticky.
 
 ---
 
@@ -243,8 +266,8 @@ is not clipped:
 | `rowStyle`          | —                     | `(rowData) => ({ backgroundColor?, color? })` — full-row tint (§9)   |
 | `stripWidth`        | `14`                  | Strip column width px                                                |
 | `pinStorageKey`     | —                     | Persist the freeze boundary in `localStorage["ctPin:<key>"]` (§8)    |
-| `className`         | —                     | Extra class on the outer scroller                                    |
-| `style`             | —                     | Extra inline styles merged onto the outer scroller                   |
+| `className`         | —                     | Extra class on the root element                                      |
+| `style`             | —                     | Extra inline styles merged onto the root element                     |
 
 ---
 
@@ -489,7 +512,10 @@ your tests:
 
 | Class / attribute      | On                             | Used for                                |
 |------------------------|--------------------------------|-----------------------------------------|
-| `.ft-wrap`             | outer scroller                 | scroll owner, focus target              |
+| `.ft-root`             | root element                   | positioning context for the overlay bars |
+| `.ft-wrap`             | scroller                       | scroll owner, focus target              |
+| `.ft-track-v` / `-h`   | overlay scrollbar tracks       | restyle the bars                        |
+| `.ft-thumb`            | scrollbar thumb                | restyle the bars                        |
 | `.ft-head` / `.ft-th`  | header row / cell              | —                                       |
 | `.ft-th-label`         | header label row               | sort toggle click area                  |
 | `.ft-th-filter`        | search-box wrapper             | —                                       |

@@ -1,6 +1,6 @@
 {
   "name": "freeze-table",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Virtualized React list table \u2014 sortable, per-column filters, frozen (pinned) columns, keyboard row navigation, sticky totals footer. Built on react-table v7. Zero UI-library dependencies.",
   "keywords": [
     "react",
