@@ -14,6 +14,7 @@ zero UI-library dependencies. The whole implementation is three files under `src
 npm run build     # rimraf dist + rollup -c → dist/freeze-table.{esm,cjs}.js
 npm run smoke     # node scripts/smoke.js — server-renders dist/*.cjs.js and asserts markup
 npm run demo      # bundles example/demo.jsx → example/demo.bundle.js
+npm run release   # loads .env, then npm publish (which runs prepublishOnly → build)
 ```
 
 - **`npm run smoke` tests the BUILT bundle, not `src/`.** Always `npm run build` first,
@@ -26,6 +27,10 @@ npm run demo      # bundles example/demo.jsx → example/demo.bundle.js
   value from the column widths rather than loosening the assertion.
 - `dist/` is gitignored but is what `main`/`module` point at; `prepublishOnly` rebuilds it.
   `example/` and `scripts/` are gitignored from the npm tarball but tracked in git.
+- **Publish with `npm run release`, not bare `npm publish`.** `.npmrc` (gitignored) reads
+  the token indirectly as `${NPM_TOKEN}`, and nothing loads `.env` on its own — a bare
+  `npm publish` resolves that to nothing and fails with a 401. The `release` script sources
+  `.env` first. Bump `package.json` in the release commit, as always.
 
 ## Architecture
 

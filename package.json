@@ -48,7 +48,8 @@
     "build": "rimraf dist && rollup -c",
     "prepublishOnly": "npm run build",
     "smoke": "node scripts/smoke.js",
-    "demo": "rollup -c rollup.demo.mjs"
+    "demo": "rollup -c rollup.demo.mjs",
+    "release": "set -a && . ./.env && set +a && npm publish"
   },
   "peerDependencies": {
     "react": ">=16.8.0"
