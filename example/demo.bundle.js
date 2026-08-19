@@ -476,9 +476,13 @@
 
 	// Separator shadow on the last pinned column while horizontally scrolled.
 	const PIN_SHADOW = '6px 0 6px -4px rgba(0,0,0,0.18)';
+	// Mirror of PIN_SHADOW for a right-frozen block: cast leftwards, over the scrolling
+	// columns sliding underneath it.
+	const PIN_SHADOW_RIGHT = '-6px 0 6px -4px rgba(0,0,0,0.18)';
 	const STYLE_ID = 'freeze-table-styles';
 	const STYLESHEET = `
 .ft-wrap[data-ct-scrolled="1"] [data-ct-pin-last="1"]{box-shadow:${PIN_SHADOW};}
+.ft-wrap[data-ct-scrolled-end="1"] [data-ct-pin-right-first="1"]{box-shadow:${PIN_SHADOW_RIGHT};}
 .ft-filter-input{width:100%;box-sizing:border-box;border:1px solid rgba(34,36,38,.15);border-radius:4px;
   padding:4px 6px 4px 24px;line-height:1.2;outline:0;color:rgba(0,0,0,.87);background:#fff;
   font-family:inherit;-webkit-appearance:none;appearance:none;}
@@ -724,6 +728,7 @@
 	    onSelect,
 	    rowHeight,
 	    pinnedLeft,
+	    pinnedRight,
 	    rowSnap
 	  } = data;
 	  const style = {
@@ -777,14 +782,16 @@
 	      ...cellProps
 	    } = cell.getCellProps();
 	    const pinned = cell.column.pinned;
+	    const pinnedR = cell.column.pinnedRight;
 	    // Frozen by the browser, not by JS: sticky offsets are resolved against .ft-wrap,
 	    // the single scrollport for both axes.
 	    return /*#__PURE__*/React.createElement("div", _extends({
 	      key: cellKey
 	    }, cellProps, {
 	      className: "ft-td ct-td",
-	      "data-ct-pin": pinned ? '1' : undefined,
+	      "data-ct-pin": pinned || pinnedR ? '1' : undefined,
 	      "data-ct-pin-last": pinned && cell.column.pinnedLast ? '1' : undefined,
+	      "data-ct-pin-right-first": pinnedR && cell.column.pinnedRightFirst ? '1' : undefined,
 	      style: {
 	        ...cellProps.style,
 	        display: 'flex',
@@ -796,9 +803,13 @@
 	        textAlign: cell.column.align || 'left',
 	        // `background: inherit` tracks the row's imperative bg changes
 	        // (selection / hover / status tint) with zero extra bookkeeping.
-	        ...(pinned ? {
+	        ...(pinned || pinnedR ? {
 	          position: 'sticky',
-	          left: pinnedLeft[cell.column.id] || 0,
+	          ...(pinned ? {
+	            left: pinnedLeft[cell.column.id] || 0
+	          } : {
+	            right: pinnedRight[cell.column.id] || 0
+	          }),
 	          zIndex: 2,
 	          background: 'inherit'
 	        } : {})
@@ -956,34 +967,69 @@
 	  // makes sense as a leading run — a frozen middle column would have its left
 	  // neighbours scroll away underneath it). The caller changes it at runtime through
 	  // the imperative setPinCount(n). Persisted per list via `pinStorageKey`.
+	  // `pinned: true` / `pinned: 'left'` freeze from the left, `pinned: 'right'` from the
+	  // right. Only the LEADING run counts on the left and only the TRAILING run on the
+	  // right — a frozen column in the middle would have its neighbours scroll out from
+	  // under it, so each side is fully described by a single count.
 	  const defaultPinCount = React.useMemo(() => {
 	    let n = 0;
 	    for (const c of columns) {
-	      if (c.pinned) n++;else break;
+	      if (c.pinned && c.pinned !== 'right') n++;else break;
 	    }
 	    return n;
 	  }, [columns]);
-	  const [userPinCount, setUserPinCount] = React.useState(() => {
+	  const defaultRightPinCount = React.useMemo(() => {
+	    let n = 0;
+	    for (let i = columns.length - 1; i >= 0; i--) {
+	      if (columns[i].pinned === 'right') n++;else break;
+	    }
+	    return n;
+	  }, [columns]);
+	  const readStored = key => {
 	    if (!pinStorageKey) return null;
 	    try {
-	      const v = window.localStorage.getItem(`ctPin:${pinStorageKey}`);
+	      const v = window.localStorage.getItem(`${key}:${pinStorageKey}`);
 	      if (v != null && v !== '') {
 	        const n = parseInt(v, 10);
 	        if (!Number.isNaN(n) && n >= 0) return n;
 	      }
 	    } catch (e) {/* storage unavailable — fall back to config default */}
 	    return null;
-	  });
+	  };
+	  const [userPinCount, setUserPinCount] = React.useState(() => readStored('ctPin'));
+	  const [userRightPinCount, setUserRightPinCount] = React.useState(() => readStored('ctPinR'));
 	  const pinCount = userPinCount != null ? userPinCount : defaultPinCount;
+	  const rightPinCount = userRightPinCount != null ? userRightPinCount : defaultRightPinCount;
 
 	  // HARD CAP: the pinned block must never be as wide as the viewport. Beyond that
 	  // there is no room left to actually read the scrolling columns, and the frozen
 	  // block starts fighting the scroller instead of helping. Capping also matches the
 	  // UX reality of "freeze panes" in any spreadsheet.
+	  // The right block is measured first (it is usually one or two columns, and the Action
+	  // column rides along with it), then whatever viewport is left funds the left block.
+	  const maxRightPinCount = React.useMemo(() => {
+	    if (!wrapW) return columns.length;
+	    const budget = wrapW - PIN_MIN_SCROLLABLE;
+	    let used = Actions ? actionWidth : 0;
+	    let n = 0;
+	    for (let i = columns.length - 1; i >= 0; i--) {
+	      used += colWidthOf(columns[i]);
+	      if (used > budget) break;
+	      n++;
+	    }
+	    return n;
+	  }, [columns, wrapW, Actions, actionWidth]);
+	  const effectiveRightPinCount = Math.min(rightPinCount, maxRightPinCount);
+	  const rightBlockWidth = React.useMemo(() => {
+	    if (effectiveRightPinCount <= 0) return 0;
+	    let w = Actions ? actionWidth : 0;
+	    for (let i = columns.length - effectiveRightPinCount; i < columns.length; i++) w += colWidthOf(columns[i]);
+	    return w;
+	  }, [columns, effectiveRightPinCount, Actions, actionWidth]);
 	  const maxPinCount = React.useMemo(() => {
 	    if (!wrapW) return columns.length; // not measured yet — cap kicks in right after mount
 	    const colW = colWidthOf;
-	    const budget = wrapW - PIN_MIN_SCROLLABLE;
+	    const budget = wrapW - PIN_MIN_SCROLLABLE - rightBlockWidth;
 	    let used = rowStripColor ? stripWidth : 0;
 	    let n = 0;
 	    for (const c of columns) {
@@ -991,27 +1037,36 @@
 	      if (used > budget) break;
 	      n++;
 	    }
-	    return n;
-	  }, [columns, wrapW, rowStripColor, stripWidth]);
+	    return Math.min(n, columns.length - effectiveRightPinCount);
+	  }, [columns, wrapW, rowStripColor, stripWidth, rightBlockWidth, effectiveRightPinCount]);
 	  const effectivePinCount = Math.min(pinCount, maxPinCount);
+	  const persist = React.useCallback((key, n) => {
+	    if (!pinStorageKey) return;
+	    try {
+	      window.localStorage.setItem(`${key}:${pinStorageKey}`, String(n));
+	    } catch (e) {/* ignore */}
+	  }, [pinStorageKey]);
 	  const setPinCount = React.useCallback(n => {
 	    setUserPinCount(n);
-	    if (pinStorageKey) {
-	      try {
-	        window.localStorage.setItem(`ctPin:${pinStorageKey}`, String(n));
-	      } catch (e) {/* ignore */}
-	    }
-	  }, [pinStorageKey]);
+	    persist('ctPin', n);
+	  }, [persist]);
+	  const setRightPinCount = React.useCallback(n => {
+	    setUserRightPinCount(n);
+	    persist('ctPinR', n);
+	  }, [persist]);
 
 	  // Append the Action column (as a real column) when an Actions renderer is given.
 	  const allColumns = React.useMemo(() => {
 	    // pinIndex = the column's position among the caller's columns — the pin UI uses
 	    // it to set the freeze boundary ("pin up to here" = pinCount pinIndex+1).
+	    const firstRight = columns.length - effectiveRightPinCount;
 	    const base = columns.map((c, i) => ({
 	      ...c,
 	      pinIndex: i,
 	      pinned: i < effectivePinCount,
-	      pinnedLast: false
+	      pinnedRight: effectiveRightPinCount > 0 && i >= firstRight,
+	      pinnedLast: false,
+	      pinnedRightFirst: false
 	    }));
 	    // Status strip as a real (fixed-width) first column, so it stays aligned with the
 	    // header and scrolls horizontally together with the rest of the row.
@@ -1070,19 +1125,23 @@
 	        })
 	      });
 	    }
-	    // The status strip is auto-pinned whenever any real column is pinned (it sits
-	    // left of everything, so it must freeze with the leading run). The Actions
-	    // column (rightmost) never pins.
+	    // The status strip auto-freezes with the leading run (it sits left of everything),
+	    // and the Action column auto-freezes with the trailing one (it sits right of
+	    // everything) — each would otherwise be stranded outside its own block.
 	    let lastPinned = null;
+	    let firstPinnedRight = null;
 	    base.forEach(c => {
 	      if (c.id === '__strip') c.pinned = effectivePinCount > 0;
-	      if (c.id === '__actions') c.pinned = false;
+	      if (c.id === '__actions') c.pinnedRight = effectiveRightPinCount > 0;
 	      if (c.pinned) lastPinned = c;
+	      if (c.pinnedRight && !firstPinnedRight) firstPinnedRight = c;
 	    });
 	    if (lastPinned) lastPinned.pinnedLast = true;
+	    if (firstPinnedRight) firstPinnedRight.pinnedRightFirst = true;
 	    return base;
-	  }, [columns, Actions, fn, actionWidth, rowStripColor, rowStripTitle, stripWidth, effectivePinCount]);
+	  }, [columns, Actions, fn, actionWidth, rowStripColor, rowStripTitle, stripWidth, effectivePinCount, effectiveRightPinCount]);
 	  const hasPinned = React.useMemo(() => allColumns.some(c => c.pinned), [allColumns]);
+	  const hasPinnedRight = React.useMemo(() => allColumns.some(c => c.pinnedRight), [allColumns]);
 
 	  // Sticky `left` for each pinned column = total width of the pinned columns before it.
 	  // Keyed by the id react-table will use (explicit id, else the string accessor).
@@ -1095,6 +1154,21 @@
 	      if (id) map[id] = acc;
 	      acc += colWidthOf(c);
 	    });
+	    return map;
+	  }, [allColumns]);
+
+	  // Mirror for the right block: each frozen column's `right` offset is the total width
+	  // of the frozen columns that sit to its right, so walk the list backwards.
+	  const pinnedRight = React.useMemo(() => {
+	    const map = {};
+	    let acc = 0;
+	    for (let i = allColumns.length - 1; i >= 0; i--) {
+	      const c = allColumns[i];
+	      if (!c.pinnedRight) continue;
+	      const id = c.id || (typeof c.accessor === 'string' ? c.accessor : undefined);
+	      if (id) map[id] = acc;
+	      acc += colWidthOf(c);
+	    }
 	    return map;
 	  }, [allColumns]);
 	  const {
@@ -1152,6 +1226,11 @@
 	    getPinCount: () => effectivePinCount,
 	    getMaxPinCount: () => maxPinCount,
 	    setPinCount: n => setPinCount(Math.max(0, parseInt(n, 10) || 0)),
+	    // Same three for the right-hand block: N = the LAST N caller columns frozen against
+	    // the right edge (the Action column, if any, freezes with them).
+	    getRightPinCount: () => effectiveRightPinCount,
+	    getMaxRightPinCount: () => maxRightPinCount,
+	    setRightPinCount: n => setRightPinCount(Math.max(0, parseInt(n, 10) || 0)),
 	    // Move the selection (and the focus) to a row — e.g. a list that re-fetches on a
 	    // Search click wants the first row selected + focused once the results land, but
 	    // the table is already mounted so the mount-time focus effect won't fire again.
@@ -1181,6 +1260,7 @@
 	  // permanently on, `proximity` re-settles the scroll on every wheel notch, which reads
 	  // as the list stuttering / catching mid-scroll rather than gliding.
 	  const snapTimerRef = React.useRef(null);
+	  const pinScrolledEndRef = React.useRef(false);
 	  const [scrollTop, setScrollTop] = React.useState(0);
 	  const scrollTickRef = React.useRef(false);
 	  const onWrapScroll = React.useCallback(() => {
@@ -1190,6 +1270,14 @@
 	    if (scrolled !== pinScrolledRef.current) {
 	      pinScrolledRef.current = scrolled;
 	      if (scrolled) el.setAttribute('data-ct-scrolled', '1');else el.removeAttribute('data-ct-scrolled');
+	    }
+	    // The right block only casts its shadow while columns are still hidden beneath it,
+	    // i.e. until the scroll reaches the end.
+	    const atEnd = el.scrollLeft >= el.scrollWidth - el.clientWidth - 1;
+	    const shadeRight = hasPinnedRight && !atEnd;
+	    if (shadeRight !== pinScrolledEndRef.current) {
+	      pinScrolledEndRef.current = shadeRight;
+	      if (shadeRight) el.setAttribute('data-ct-scrolled-end', '1');else el.removeAttribute('data-ct-scrolled-end');
 	    }
 	    if (rowSnap) {
 	      if (el.style.scrollSnapType !== 'none') el.style.scrollSnapType = 'none';
@@ -1208,7 +1296,7 @@
 	      syncBarsRef.current();
 	      setScrollTop(node.scrollTop);
 	    });
-	  }, [hasPinned, rowSnap]);
+	  }, [hasPinned, hasPinnedRight, rowSnap]);
 	  React.useEffect(() => () => {
 	    if (snapTimerRef.current) clearTimeout(snapTimerRef.current);
 	  }, []);
@@ -1368,13 +1456,14 @@
 	    selectedIndexRef,
 	    rowHeight,
 	    pinnedLeft,
+	    pinnedRight,
 	    rowSnap,
 	    onSelect: i => setSelectedIndex(i),
 	    // Not read by VirtualRow — included so a pin-boundary change breaks the memo and
 	    // every visible row re-renders with the new pinned flags (otherwise rows could
 	    // keep stale pin attributes / sticky offsets).
 	    allColumns
-	  }), [rows, prepareRow, rowStyle, selectedBg, rowNavigation, fontPx, allColumns, rowHeight, pinnedLeft, rowSnap]);
+	  }), [rows, prepareRow, rowStyle, selectedBg, rowNavigation, fontPx, allColumns, rowHeight, pinnedLeft, pinnedRight, rowSnap]);
 
 	  // Selection highlight, applied imperatively so only the affected DOM nodes change on
 	  // ↑/↓ (a state-driven highlight re-rendered every visible row per keypress).
@@ -1476,6 +1565,7 @@
 	  useIsoLayoutEffect(() => {
 	    syncBarsRef.current = syncBars;
 	    syncBars();
+	    onWrapScroll(); // sets the pin shadows for the initial (unscrolled) position too
 	  });
 
 	  // Dragging a thumb. Snapping is switched off for the duration: `proximity` snapping
@@ -1603,15 +1693,20 @@
 	        key: headerKey
 	      }, headerProps, {
 	        className: "ft-th ct-th",
-	        "data-ct-pin": column.pinned ? '1' : undefined,
+	        "data-ct-pin": column.pinned || column.pinnedRight ? '1' : undefined,
 	        "data-ct-pin-last": column.pinnedLast ? '1' : undefined,
+	        "data-ct-pin-right-first": column.pinnedRightFirst ? '1' : undefined,
 	        style: {
 	          ...headerProps.style,
 	          padding: column.noPadding ? 0 : '7px 12px 9px',
 	          boxSizing: 'border-box',
-	          ...(column.pinned ? {
+	          ...(column.pinned || column.pinnedRight ? {
 	            position: 'sticky',
-	            left: pinnedLeft[column.id] || 0,
+	            ...(column.pinned ? {
+	              left: pinnedLeft[column.id] || 0
+	            } : {
+	              right: pinnedRight[column.id] || 0
+	            }),
 	            // above the scrolling header cells it overlaps
 	            zIndex: 5,
 	            background: '#ffffff'
@@ -1649,8 +1744,8 @@
 	          overflow: 'hidden',
 	          textOverflow: 'ellipsis'
 	        }
-	      }, column.render('Header')), column.pinnedLast && column.pinIndex != null && /*#__PURE__*/React.createElement(PinIcon, {
-	        title: "Columns up to here are pinned"
+	      }, column.render('Header')), (column.pinnedLast && column.pinIndex != null || column.pinnedRightFirst && column.pinIndex != null) && /*#__PURE__*/React.createElement(PinIcon, {
+	        title: column.pinnedLast ? 'Columns up to here are pinned' : 'Columns from here are pinned to the right'
 	      })), canSort && column.align !== 'right' && /*#__PURE__*/React.createElement(SortIcon, {
 	        direction: sortDir
 	      })), canSearch && /*#__PURE__*/React.createElement("div", {
@@ -1726,8 +1821,9 @@
 	        key: footerKey
 	      }, footerProps, {
 	        className: "ft-tf ct-tf",
-	        "data-ct-pin": column.pinned ? '1' : undefined,
+	        "data-ct-pin": column.pinned || column.pinnedRight ? '1' : undefined,
 	        "data-ct-pin-last": column.pinnedLast ? '1' : undefined,
+	        "data-ct-pin-right-first": column.pinnedRightFirst ? '1' : undefined,
 	        style: {
 	          ...footerProps.style,
 	          display: 'flex',
@@ -1740,9 +1836,13 @@
 	          whiteSpace: 'nowrap',
 	          overflow: 'hidden',
 	          textAlign: column.align || 'left',
-	          ...(column.pinned ? {
+	          ...(column.pinned || column.pinnedRight ? {
 	            position: 'sticky',
-	            left: pinnedLeft[column.id] || 0,
+	            ...(column.pinned ? {
+	              left: pinnedLeft[column.id] || 0
+	            } : {
+	              right: pinnedRight[column.id] || 0
+	            }),
 	            zIndex: 5,
 	            background: '#f4f5f7'
 	          } : {})
@@ -1997,6 +2097,7 @@
 	  accessor: 'remarks',
 	  width: 260,
 	  minWidth: 260,
+	  pinned: 'right',
 	  Cell: ({
 	    value
 	  }) => text(value)
@@ -2034,6 +2135,7 @@
 	  const tableRef = reactExports.useRef(null);
 	  const [selected, setSelected] = reactExports.useState(null);
 	  const [pin, setPin] = reactExports.useState(3);
+	  const [rightPin, setRightPin] = reactExports.useState(1);
 	  const [loading, setLoading] = reactExports.useState(false);
 	  const [empty, setEmpty] = reactExports.useState(false);
 	  const columns = reactExports.useMemo(() => COLUMNS, []);
@@ -2042,6 +2144,13 @@
 	    setPin(n);
 	    if (tableRef.current) {
 	      tableRef.current.setPinCount(n);
+	      tableRef.current.focus();
+	    }
+	  };
+	  const applyRightPin = n => {
+	    setRightPin(n);
+	    if (tableRef.current) {
+	      tableRef.current.setRightPinCount(n);
 	      tableRef.current.focus();
 	    }
 	  };
@@ -2063,7 +2172,7 @@
 	      margin: '0 0 14px',
 	      color: '#5a6a7a'
 	    }
-	  }, "2,000 rows \xB7 18 columns \xB7 horizontal scroll ke waqt pehle ", pin, " column freeze \xB7 arrow keys / Home / End / Enter chalte hain (table pe click karke try karo)."), /*#__PURE__*/React.createElement("div", {
+	  }, "2,000 rows \xB7 18 columns \xB7 left se ", pin, " column aur right se ", rightPin, " (+ Action) freeze \xB7 arrow keys / Home / End / Enter chalte hain (table pe click karke try karo)."), /*#__PURE__*/React.createElement("div", {
 	    style: {
 	      display: 'flex',
 	      gap: 8,
@@ -2082,7 +2191,20 @@
 	    onClick: () => applyPin(n)
 	  }, n === 0 ? 'No pin' : `First ${n}`)), /*#__PURE__*/React.createElement("span", {
 	    style: {
-	      width: 12
+	      width: 16
+	    }
+	  }), /*#__PURE__*/React.createElement("span", {
+	    style: {
+	      color: '#5a6a7a'
+	    }
+	  }, "Right pin:"), [0, 1, 2].map(n => /*#__PURE__*/React.createElement("button", {
+	    key: `r${n}`,
+	    type: "button",
+	    style: rightPin === n ? btnActive : btn,
+	    onClick: () => applyRightPin(n)
+	  }, n === 0 ? 'No pin' : `Last ${n}`)), /*#__PURE__*/React.createElement("span", {
+	    style: {
+	      width: 16
 	    }
 	  }), /*#__PURE__*/React.createElement("button", {
 	    type: "button",

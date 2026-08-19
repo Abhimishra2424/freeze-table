@@ -39,8 +39,9 @@ export interface FreezeTableColumn<D extends object = any> {
   disableSortBy?: boolean;
   /** Drop the default cell/header padding. */
   noPadding?: boolean;
-  /** DEFAULT freeze state. Only a leading run counts (col 1..N all flagged). */
-  pinned?: boolean;
+  /** DEFAULT freeze state. `true` / `'left'` freezes against the left edge (only a
+   *  LEADING run counts), `'right'` against the right edge (only a TRAILING run). */
+  pinned?: boolean | 'left' | 'right';
   [key: string]: any;
 }
 
@@ -112,7 +113,8 @@ export interface FreezeTableProps<D extends object = any> {
   rowStyle?: (rowData: D) => { backgroundColor?: string; color?: string } | undefined;
   /** Strip column width in px. Default 14. */
   stripWidth?: number;
-  /** Persist the user's pin boundary in `localStorage["ctPin:<key>"]`. */
+  /** Persist the user's pin boundaries in `localStorage` — `ctPin:<key>` for the left
+   *  block and `ctPinR:<key>` for the right one. */
   pinStorageKey?: string;
   /** Extra class on the root element. */
   className?: string;
@@ -132,6 +134,13 @@ export interface FreezeTableHandle {
   getMaxPinCount(): number;
   /** Set the freeze boundary (0 = none, N = first N caller columns). */
   setPinCount(n: number): void;
+  /** Current EFFECTIVE right-hand freeze boundary (viewport-capped; 0 = none). */
+  getRightPinCount(): number;
+  /** Largest right-hand boundary the current viewport allows. */
+  getMaxRightPinCount(): number;
+  /** Set the right-hand boundary (0 = none, N = LAST N caller columns; the Action
+   *  column, if any, freezes with them). */
+  setRightPinCount(n: number): void;
   /** Select + scroll to + focus a row. */
   selectRow(index: number): void;
 }

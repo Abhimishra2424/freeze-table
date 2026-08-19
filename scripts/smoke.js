@@ -17,7 +17,7 @@ const columns = [
   { Header: '#', id: 'sl', width: 45, minWidth: 45, align: 'right', pinned: true, disableFilters: true, disableSortBy: true, Cell: ({ row, rows }) => rows.indexOf(row) + 1 },
   { Header: 'Name', accessor: 'name', width: 200, minWidth: 200, pinned: true, Footer: (info) => 'Count : ' + info.rows.length },
   { Header: 'City', accessor: 'city', width: 160, minWidth: 160 },
-  { Header: 'Amount', accessor: 'amount', width: 120, minWidth: 120, align: 'right', Footer: (info) => info.rows.reduce((s, r) => s + Number(r.values.amount || 0), 0).toFixed(2) },
+  { Header: 'Amount', accessor: 'amount', width: 120, minWidth: 120, align: 'right', pinned: 'right', Footer: (info) => info.rows.reduce((s, r) => s + Number(r.values.amount || 0), 0).toFixed(2) },
 ];
 
 const data = [
@@ -57,6 +57,12 @@ assert(html.includes('left:14px'), 'second pinned column gets its cumulative sti
 assert(html.includes('left:59px'), 'third pinned column gets its cumulative sticky offset');
 assert((html.match(/data-ct-pin="1"/g) || []).length >= 3, 'pinned columns are flagged');
 assert(html.includes('data-ct-pin-last="1"'), 'freeze boundary is marked');
+// Right block = Amount (120px) + the auto-joining Action column (110px), so Amount sits
+// 110px in from the right edge and Action sits flush against it.
+assert(html.includes('right:110px'), 'right-pinned column is offset by the Action column width');
+// React drops the unit for a zero-valued style, so this is `right:0`, not `right:0px`.
+assert(/right:0[;"]/.test(html), 'the Action column freezes flush with the right edge');
+assert(html.includes('data-ct-pin-right-first="1"'), 'right freeze boundary is marked');
 assert(html.includes('<svg'), 'inline SVG icons render (no Semantic UI)');
 assert(!/semantic/i.test(html), 'no semantic-ui markup in the output');
 

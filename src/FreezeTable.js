@@ -34,7 +34,7 @@ const PIN_MIN_SCROLLABLE = 250;
 // this, every ↑/↓ press re-rendered all visible rows (each with icon-heavy action
 // cells), which made arrow navigation visibly laggy on wide lists.
 const VirtualRow = React.memo(function VirtualRow({ data, index }) {
-  const { rows, prepareRow, rowStyle, selectedBg, rowNavigation, fontPx, selectedIndexRef, onSelect, rowHeight, pinnedLeft, rowSnap } = data;
+  const { rows, prepareRow, rowStyle, selectedBg, rowNavigation, fontPx, selectedIndexRef, onSelect, rowHeight, pinnedLeft, pinnedRight, rowSnap } = data;
   const style = { position: 'absolute', top: index * rowHeight, left: 0, width: '100%', height: rowHeight };
   const row = rows[index];
   prepareRow(row);
@@ -74,6 +74,7 @@ const VirtualRow = React.memo(function VirtualRow({ data, index }) {
       {row.cells.map((cell) => {
         const { key: cellKey, ...cellProps } = cell.getCellProps();
         const pinned = cell.column.pinned;
+        const pinnedR = cell.column.pinnedRight;
         // Frozen by the browser, not by JS: sticky offsets are resolved against .ft-wrap,
         // the single scrollport for both axes.
         return (
@@ -81,8 +82,9 @@ const VirtualRow = React.memo(function VirtualRow({ data, index }) {
             key={cellKey}
             {...cellProps}
             className="ft-td ct-td"
-            data-ct-pin={pinned ? '1' : undefined}
+            data-ct-pin={pinned || pinnedR ? '1' : undefined}
             data-ct-pin-last={pinned && cell.column.pinnedLast ? '1' : undefined}
+            data-ct-pin-right-first={pinnedR && cell.column.pinnedRightFirst ? '1' : undefined}
             style={{
               ...cellProps.style,
               display: 'flex',
@@ -94,10 +96,12 @@ const VirtualRow = React.memo(function VirtualRow({ data, index }) {
               textAlign: cell.column.align || 'left',
               // `background: inherit` tracks the row's imperative bg changes
               // (selection / hover / status tint) with zero extra bookkeeping.
-              ...(pinned
+              ...(pinned || pinnedR
                 ? {
                     position: 'sticky',
-                    left: pinnedLeft[cell.column.id] || 0,
+                    ...(pinned
+                      ? { left: pinnedLeft[cell.column.id] || 0 }
+                      : { right: pinnedRight[cell.column.id] || 0 }),
                     zIndex: 2,
                     background: 'inherit',
                   }
@@ -259,35 +263,73 @@ export const FreezeTable = React.forwardRef(function FreezeTable(
   // makes sense as a leading run — a frozen middle column would have its left
   // neighbours scroll away underneath it). The caller changes it at runtime through
   // the imperative setPinCount(n). Persisted per list via `pinStorageKey`.
+  // `pinned: true` / `pinned: 'left'` freeze from the left, `pinned: 'right'` from the
+  // right. Only the LEADING run counts on the left and only the TRAILING run on the
+  // right — a frozen column in the middle would have its neighbours scroll out from
+  // under it, so each side is fully described by a single count.
   const defaultPinCount = React.useMemo(() => {
     let n = 0;
     for (const c of columns) {
-      if (c.pinned) n++;
+      if (c.pinned && c.pinned !== 'right') n++;
       else break;
     }
     return n;
   }, [columns]);
-  const [userPinCount, setUserPinCount] = React.useState(() => {
+  const defaultRightPinCount = React.useMemo(() => {
+    let n = 0;
+    for (let i = columns.length - 1; i >= 0; i--) {
+      if (columns[i].pinned === 'right') n++;
+      else break;
+    }
+    return n;
+  }, [columns]);
+  const readStored = (key) => {
     if (!pinStorageKey) return null;
     try {
-      const v = window.localStorage.getItem(`ctPin:${pinStorageKey}`);
+      const v = window.localStorage.getItem(`${key}:${pinStorageKey}`);
       if (v != null && v !== '') {
         const n = parseInt(v, 10);
         if (!Number.isNaN(n) && n >= 0) return n;
       }
     } catch (e) { /* storage unavailable — fall back to config default */ }
     return null;
-  });
+  };
+  const [userPinCount, setUserPinCount] = React.useState(() => readStored('ctPin'));
+  const [userRightPinCount, setUserRightPinCount] = React.useState(() => readStored('ctPinR'));
   const pinCount = userPinCount != null ? userPinCount : defaultPinCount;
+  const rightPinCount = userRightPinCount != null ? userRightPinCount : defaultRightPinCount;
 
   // HARD CAP: the pinned block must never be as wide as the viewport. Beyond that
   // there is no room left to actually read the scrolling columns, and the frozen
   // block starts fighting the scroller instead of helping. Capping also matches the
   // UX reality of "freeze panes" in any spreadsheet.
+  // The right block is measured first (it is usually one or two columns, and the Action
+  // column rides along with it), then whatever viewport is left funds the left block.
+  const maxRightPinCount = React.useMemo(() => {
+    if (!wrapW) return columns.length;
+    const budget = wrapW - PIN_MIN_SCROLLABLE;
+    let used = Actions ? actionWidth : 0;
+    let n = 0;
+    for (let i = columns.length - 1; i >= 0; i--) {
+      used += colWidthOf(columns[i]);
+      if (used > budget) break;
+      n++;
+    }
+    return n;
+  }, [columns, wrapW, Actions, actionWidth]);
+  const effectiveRightPinCount = Math.min(rightPinCount, maxRightPinCount);
+
+  const rightBlockWidth = React.useMemo(() => {
+    if (effectiveRightPinCount <= 0) return 0;
+    let w = Actions ? actionWidth : 0;
+    for (let i = columns.length - effectiveRightPinCount; i < columns.length; i++) w += colWidthOf(columns[i]);
+    return w;
+  }, [columns, effectiveRightPinCount, Actions, actionWidth]);
+
   const maxPinCount = React.useMemo(() => {
     if (!wrapW) return columns.length; // not measured yet — cap kicks in right after mount
     const colW = colWidthOf;
-    const budget = wrapW - PIN_MIN_SCROLLABLE;
+    const budget = wrapW - PIN_MIN_SCROLLABLE - rightBlockWidth;
     let used = rowStripColor ? stripWidth : 0;
     let n = 0;
     for (const c of columns) {
@@ -295,27 +337,47 @@ export const FreezeTable = React.forwardRef(function FreezeTable(
       if (used > budget) break;
       n++;
     }
-    return n;
-  }, [columns, wrapW, rowStripColor, stripWidth]);
+    return Math.min(n, columns.length - effectiveRightPinCount);
+  }, [columns, wrapW, rowStripColor, stripWidth, rightBlockWidth, effectiveRightPinCount]);
   const effectivePinCount = Math.min(pinCount, maxPinCount);
 
+  const persist = React.useCallback(
+    (key, n) => {
+      if (!pinStorageKey) return;
+      try {
+        window.localStorage.setItem(`${key}:${pinStorageKey}`, String(n));
+      } catch (e) { /* ignore */ }
+    },
+    [pinStorageKey]
+  );
   const setPinCount = React.useCallback(
     (n) => {
       setUserPinCount(n);
-      if (pinStorageKey) {
-        try {
-          window.localStorage.setItem(`ctPin:${pinStorageKey}`, String(n));
-        } catch (e) { /* ignore */ }
-      }
+      persist('ctPin', n);
     },
-    [pinStorageKey]
+    [persist]
+  );
+  const setRightPinCount = React.useCallback(
+    (n) => {
+      setUserRightPinCount(n);
+      persist('ctPinR', n);
+    },
+    [persist]
   );
 
   // Append the Action column (as a real column) when an Actions renderer is given.
   const allColumns = React.useMemo(() => {
     // pinIndex = the column's position among the caller's columns — the pin UI uses
     // it to set the freeze boundary ("pin up to here" = pinCount pinIndex+1).
-    const base = columns.map((c, i) => ({ ...c, pinIndex: i, pinned: i < effectivePinCount, pinnedLast: false }));
+    const firstRight = columns.length - effectiveRightPinCount;
+    const base = columns.map((c, i) => ({
+      ...c,
+      pinIndex: i,
+      pinned: i < effectivePinCount,
+      pinnedRight: effectiveRightPinCount > 0 && i >= firstRight,
+      pinnedLast: false,
+      pinnedRightFirst: false,
+    }));
     // Status strip as a real (fixed-width) first column, so it stays aligned with the
     // header and scrolls horizontally together with the rest of the row.
     if (rowStripColor) {
@@ -359,20 +421,24 @@ export const FreezeTable = React.forwardRef(function FreezeTable(
         Cell: ({ row }) => <Actions object={row.original} fn={fn} />,
       });
     }
-    // The status strip is auto-pinned whenever any real column is pinned (it sits
-    // left of everything, so it must freeze with the leading run). The Actions
-    // column (rightmost) never pins.
+    // The status strip auto-freezes with the leading run (it sits left of everything),
+    // and the Action column auto-freezes with the trailing one (it sits right of
+    // everything) — each would otherwise be stranded outside its own block.
     let lastPinned = null;
+    let firstPinnedRight = null;
     base.forEach((c) => {
       if (c.id === '__strip') c.pinned = effectivePinCount > 0;
-      if (c.id === '__actions') c.pinned = false;
+      if (c.id === '__actions') c.pinnedRight = effectiveRightPinCount > 0;
       if (c.pinned) lastPinned = c;
+      if (c.pinnedRight && !firstPinnedRight) firstPinnedRight = c;
     });
     if (lastPinned) lastPinned.pinnedLast = true;
+    if (firstPinnedRight) firstPinnedRight.pinnedRightFirst = true;
     return base;
-  }, [columns, Actions, fn, actionWidth, rowStripColor, rowStripTitle, stripWidth, effectivePinCount]);
+  }, [columns, Actions, fn, actionWidth, rowStripColor, rowStripTitle, stripWidth, effectivePinCount, effectiveRightPinCount]);
 
   const hasPinned = React.useMemo(() => allColumns.some((c) => c.pinned), [allColumns]);
+  const hasPinnedRight = React.useMemo(() => allColumns.some((c) => c.pinnedRight), [allColumns]);
 
   // Sticky `left` for each pinned column = total width of the pinned columns before it.
   // Keyed by the id react-table will use (explicit id, else the string accessor).
@@ -385,6 +451,21 @@ export const FreezeTable = React.forwardRef(function FreezeTable(
       if (id) map[id] = acc;
       acc += colWidthOf(c);
     });
+    return map;
+  }, [allColumns]);
+
+  // Mirror for the right block: each frozen column's `right` offset is the total width
+  // of the frozen columns that sit to its right, so walk the list backwards.
+  const pinnedRight = React.useMemo(() => {
+    const map = {};
+    let acc = 0;
+    for (let i = allColumns.length - 1; i >= 0; i--) {
+      const c = allColumns[i];
+      if (!c.pinnedRight) continue;
+      const id = c.id || (typeof c.accessor === 'string' ? c.accessor : undefined);
+      if (id) map[id] = acc;
+      acc += colWidthOf(c);
+    }
     return map;
   }, [allColumns]);
 
@@ -440,6 +521,11 @@ export const FreezeTable = React.forwardRef(function FreezeTable(
     getPinCount: () => effectivePinCount,
     getMaxPinCount: () => maxPinCount,
     setPinCount: (n) => setPinCount(Math.max(0, parseInt(n, 10) || 0)),
+    // Same three for the right-hand block: N = the LAST N caller columns frozen against
+    // the right edge (the Action column, if any, freezes with them).
+    getRightPinCount: () => effectiveRightPinCount,
+    getMaxRightPinCount: () => maxRightPinCount,
+    setRightPinCount: (n) => setRightPinCount(Math.max(0, parseInt(n, 10) || 0)),
     // Move the selection (and the focus) to a row — e.g. a list that re-fetches on a
     // Search click wants the first row selected + focused once the results land, but
     // the table is already mounted so the mount-time focus effect won't fire again.
@@ -464,6 +550,7 @@ export const FreezeTable = React.forwardRef(function FreezeTable(
   // permanently on, `proximity` re-settles the scroll on every wheel notch, which reads
   // as the list stuttering / catching mid-scroll rather than gliding.
   const snapTimerRef = React.useRef(null);
+  const pinScrolledEndRef = React.useRef(false);
   const [scrollTop, setScrollTop] = React.useState(0);
   const scrollTickRef = React.useRef(false);
   const onWrapScroll = React.useCallback(() => {
@@ -474,6 +561,15 @@ export const FreezeTable = React.forwardRef(function FreezeTable(
       pinScrolledRef.current = scrolled;
       if (scrolled) el.setAttribute('data-ct-scrolled', '1');
       else el.removeAttribute('data-ct-scrolled');
+    }
+    // The right block only casts its shadow while columns are still hidden beneath it,
+    // i.e. until the scroll reaches the end.
+    const atEnd = el.scrollLeft >= el.scrollWidth - el.clientWidth - 1;
+    const shadeRight = hasPinnedRight && !atEnd;
+    if (shadeRight !== pinScrolledEndRef.current) {
+      pinScrolledEndRef.current = shadeRight;
+      if (shadeRight) el.setAttribute('data-ct-scrolled-end', '1');
+      else el.removeAttribute('data-ct-scrolled-end');
     }
     if (rowSnap) {
       if (el.style.scrollSnapType !== 'none') el.style.scrollSnapType = 'none';
@@ -492,7 +588,7 @@ export const FreezeTable = React.forwardRef(function FreezeTable(
       syncBarsRef.current();
       setScrollTop(node.scrollTop);
     });
-  }, [hasPinned, rowSnap]);
+  }, [hasPinned, hasPinnedRight, rowSnap]);
 
   React.useEffect(() => () => {
     if (snapTimerRef.current) clearTimeout(snapTimerRef.current);
@@ -655,6 +751,7 @@ export const FreezeTable = React.forwardRef(function FreezeTable(
       selectedIndexRef,
       rowHeight,
       pinnedLeft,
+      pinnedRight,
       rowSnap,
       onSelect: (i) => setSelectedIndex(i),
       // Not read by VirtualRow — included so a pin-boundary change breaks the memo and
@@ -662,7 +759,7 @@ export const FreezeTable = React.forwardRef(function FreezeTable(
       // keep stale pin attributes / sticky offsets).
       allColumns,
     }),
-    [rows, prepareRow, rowStyle, selectedBg, rowNavigation, fontPx, allColumns, rowHeight, pinnedLeft, rowSnap]
+    [rows, prepareRow, rowStyle, selectedBg, rowNavigation, fontPx, allColumns, rowHeight, pinnedLeft, pinnedRight, rowSnap]
   );
 
   // Selection highlight, applied imperatively so only the affected DOM nodes change on
@@ -768,6 +865,7 @@ export const FreezeTable = React.forwardRef(function FreezeTable(
   useIsoLayoutEffect(() => {
     syncBarsRef.current = syncBars;
     syncBars();
+    onWrapScroll(); // sets the pin shadows for the initial (unscrolled) position too
   });
 
   // Dragging a thumb. Snapping is switched off for the duration: `proximity` snapping
@@ -893,16 +991,19 @@ export const FreezeTable = React.forwardRef(function FreezeTable(
                   key={headerKey}
                   {...headerProps}
                   className="ft-th ct-th"
-                  data-ct-pin={column.pinned ? '1' : undefined}
+                  data-ct-pin={column.pinned || column.pinnedRight ? '1' : undefined}
                   data-ct-pin-last={column.pinnedLast ? '1' : undefined}
+                  data-ct-pin-right-first={column.pinnedRightFirst ? '1' : undefined}
                   style={{
                     ...headerProps.style,
                     padding: column.noPadding ? 0 : '7px 12px 9px',
                     boxSizing: 'border-box',
-                    ...(column.pinned
+                    ...(column.pinned || column.pinnedRight
                       ? {
                           position: 'sticky',
-                          left: pinnedLeft[column.id] || 0,
+                          ...(column.pinned
+                            ? { left: pinnedLeft[column.id] || 0 }
+                            : { right: pinnedRight[column.id] || 0 }),
                           // above the scrolling header cells it overlaps
                           zIndex: 5,
                           background: '#ffffff',
@@ -936,8 +1037,15 @@ export const FreezeTable = React.forwardRef(function FreezeTable(
                           indicator of how far the table is frozen. Changing the
                           boundary is done from the caller's toolbar (via the
                           imperative setPinCount), not from the header. */}
-                      {column.pinnedLast && column.pinIndex != null && (
-                        <PinIcon title="Columns up to here are pinned" />
+                      {((column.pinnedLast && column.pinIndex != null) ||
+                        (column.pinnedRightFirst && column.pinIndex != null)) && (
+                        <PinIcon
+                          title={
+                            column.pinnedLast
+                              ? 'Columns up to here are pinned'
+                              : 'Columns from here are pinned to the right'
+                          }
+                        />
                       )}
                     </span>
                     {canSort && column.align !== 'right' && <SortIcon direction={sortDir} />}
@@ -1003,8 +1111,9 @@ export const FreezeTable = React.forwardRef(function FreezeTable(
                       key={footerKey}
                       {...footerProps}
                       className="ft-tf ct-tf"
-                      data-ct-pin={column.pinned ? '1' : undefined}
+                      data-ct-pin={column.pinned || column.pinnedRight ? '1' : undefined}
                       data-ct-pin-last={column.pinnedLast ? '1' : undefined}
+                      data-ct-pin-right-first={column.pinnedRightFirst ? '1' : undefined}
                       style={{
                         ...footerProps.style,
                         display: 'flex',
@@ -1017,10 +1126,12 @@ export const FreezeTable = React.forwardRef(function FreezeTable(
                         whiteSpace: 'nowrap',
                         overflow: 'hidden',
                         textAlign: column.align || 'left',
-                        ...(column.pinned
+                        ...(column.pinned || column.pinnedRight
                           ? {
                               position: 'sticky',
-                              left: pinnedLeft[column.id] || 0,
+                              ...(column.pinned
+                                ? { left: pinnedLeft[column.id] || 0 }
+                                : { right: pinnedRight[column.id] || 0 }),
                               zIndex: 5,
                               background: '#f4f5f7',
                             }

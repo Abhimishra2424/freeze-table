@@ -13,11 +13,15 @@ import React from 'react';
 
 // Separator shadow on the last pinned column while horizontally scrolled.
 export const PIN_SHADOW = '6px 0 6px -4px rgba(0,0,0,0.18)';
+// Mirror of PIN_SHADOW for a right-frozen block: cast leftwards, over the scrolling
+// columns sliding underneath it.
+export const PIN_SHADOW_RIGHT = '-6px 0 6px -4px rgba(0,0,0,0.18)';
 
 const STYLE_ID = 'freeze-table-styles';
 
 const STYLESHEET = `
 .ft-wrap[data-ct-scrolled="1"] [data-ct-pin-last="1"]{box-shadow:${PIN_SHADOW};}
+.ft-wrap[data-ct-scrolled-end="1"] [data-ct-pin-right-first="1"]{box-shadow:${PIN_SHADOW_RIGHT};}
 .ft-filter-input{width:100%;box-sizing:border-box;border:1px solid rgba(34,36,38,.15);border-radius:4px;
   padding:4px 6px 4px 24px;line-height:1.2;outline:0;color:rgba(0,0,0,.87);background:#fff;
   font-family:inherit;-webkit-appearance:none;appearance:none;}

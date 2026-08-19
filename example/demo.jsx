@@ -62,7 +62,7 @@ const COLUMNS = [
   { Header: 'Amount', accessor: 'amount', width: 140, minWidth: 140, align: 'right', Cell: ({ value }) => money(value), Footer: total('amount') },
   { Header: 'GST', accessor: 'gst', width: 130, minWidth: 130, align: 'right', Cell: ({ value }) => money(value), Footer: total('gst') },
   { Header: 'Sales Executive', accessor: 'executive', width: 170, minWidth: 170, Cell: ({ value }) => text(value) },
-  { Header: 'Remarks', accessor: 'remarks', width: 260, minWidth: 260, Cell: ({ value }) => text(value) },
+  { Header: 'Remarks', accessor: 'remarks', width: 260, minWidth: 260, pinned: 'right', Cell: ({ value }) => text(value) },
 ];
 
 const STRIP = { Cancelled: '#e03e3e', Pending: '#e8912d', Posted: '#2aa76a' };
@@ -81,6 +81,7 @@ function Demo() {
   const tableRef = useRef(null);
   const [selected, setSelected] = useState(null);
   const [pin, setPin] = useState(3);
+  const [rightPin, setRightPin] = useState(1);
   const [loading, setLoading] = useState(false);
   const [empty, setEmpty] = useState(false);
 
@@ -95,11 +96,19 @@ function Demo() {
     }
   };
 
+  const applyRightPin = (n) => {
+    setRightPin(n);
+    if (tableRef.current) {
+      tableRef.current.setRightPinCount(n);
+      tableRef.current.focus();
+    }
+  };
+
   return (
     <div style={{ font: '13px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif', color: '#1b2733', padding: 20, background: '#f7f9fb', minHeight: '100vh' }}>
       <h1 style={{ margin: '0 0 4px', fontSize: 20 }}>freeze-table</h1>
       <p style={{ margin: '0 0 14px', color: '#5a6a7a' }}>
-        2,000 rows · 18 columns · horizontal scroll ke waqt pehle {pin} column freeze ·
+        2,000 rows · 18 columns · left se {pin} column aur right se {rightPin} (+ Action) freeze ·
         arrow keys / Home / End / Enter chalte hain (table pe click karke try karo).
       </p>
 
@@ -110,7 +119,14 @@ function Demo() {
             {n === 0 ? 'No pin' : `First ${n}`}
           </button>
         ))}
-        <span style={{ width: 12 }} />
+        <span style={{ width: 16 }} />
+        <span style={{ color: '#5a6a7a' }}>Right pin:</span>
+        {[0, 1, 2].map((n) => (
+          <button key={`r${n}`} type="button" style={rightPin === n ? btnActive : btn} onClick={() => applyRightPin(n)}>
+            {n === 0 ? 'No pin' : `Last ${n}`}
+          </button>
+        ))}
+        <span style={{ width: 16 }} />
         <button type="button" style={loading ? btnActive : btn} onClick={() => setLoading((v) => !v)}>Loading state</button>
         <button type="button" style={empty ? btnActive : btn} onClick={() => setEmpty((v) => !v)}>Empty state</button>
         <span style={{ marginLeft: 'auto', color: '#5a6a7a' }}>
