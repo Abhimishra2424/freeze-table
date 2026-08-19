@@ -254,7 +254,7 @@ is not clipped:
 | `footerLeft`        | `null`                | Static left-aligned footer label (prefer a column `Footer` — §7)     |
 | `showFooter`        | auto                  | Override footer visibility                                           |
 | `rowNavigation`     | `true`                | Keyboard row navigation (§6)                                         |
-| `rowSnap`           | `true`                | Settle vertical scrolling on a row boundary (§6)                     |
+| `rowSnap`           | `false`               | Settle vertical scrolling on a row boundary once it stops (§6)       |
 | `onRowSelect`       | —                     | `(rowData, index)` on every selection change                         |
 | `onRowEnter`        | —                     | `(rowData, index)` on Enter — "open this row"                        |
 | `selectedBg`        | `'#d3e5f8'`           | Selected-row highlight colour                                        |
@@ -309,21 +309,28 @@ user clicks the table.
   (a different logical row). Track ids yourself via `onRowSelect` if you need otherwise.
 - Turn the whole thing off with `rowNavigation={false}`.
 
-### Row-boundary scroll snapping
+### Row-boundary scroll snapping (`rowSnap`, off by default)
 
 Because `ft-wrap` is the single scrollport and the header is `sticky` inside it, rows
-scroll *under* the header — so a freely-scrolled list leaves a half-row sliced off at
-the top. `rowSnap` (on by default) settles the scroll on a row boundary instead, the way
-a spreadsheet does, so the topmost row is always whole.
+scroll *under* the header, so a freely-scrolled list leaves a partial row along the
+header's bottom edge. `rowSnap` settles the scroll on a row boundary instead, the way a
+spreadsheet does, so the topmost row is always whole.
 
-It is pure CSS — `scroll-snap-type: y proximity` plus `scroll-snap-align: start` on each
-row, with `scroll-padding-top` set to the measured header height so a snapped row lands
-just *below* the header rather than at the hidden top of the scrollport. Nothing runs in
-JS, and horizontal scrolling is untouched (the snap axis is `y`).
+**It is off by default**, because snapping and continuous scrolling genuinely trade
+against each other: every wheel notch gets re-settled onto a row, and that reads as the
+list catching and stuttering rather than gliding. Free scrolling feels better to most
+people than a guaranteed whole top row; turn it on if your screen is dense enough for
+the partial row to matter.
+
+When enabled it is CSS — `scroll-snap-type: y proximity` plus `scroll-snap-align: start`
+on each row, with `scroll-padding-top` set to the measured header height so a snapped row
+lands just *below* the header rather than at the hidden top of the scrollport. Snapping
+is suspended while the wheel is turning and restored ~160 ms after it stops, so the
+scroll glides and settles once at the end instead of catching on every notch. Dragging a
+scrollbar thumb suspends it too. The horizontal axis is never snapped.
 
 `proximity`, not `mandatory`: rows are windowed, so snap targets appear and disappear as
-you scroll, and mandatory snapping fights both that and programmatic scrolls. Pass
-`rowSnap={false}` for plain continuous scrolling.
+you scroll, and mandatory snapping fights both that and programmatic scrolls.
 
 **Body states**, in order: `loading` → spinner; `rows.length === 0 && dataFetched` → the
 soft empty state; otherwise the list.

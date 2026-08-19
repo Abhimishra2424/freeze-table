@@ -876,7 +876,7 @@
 	  footerLeft = null,
 	  showFooter,
 	  rowNavigation = true,
-	  rowSnap = true,
+	  rowSnap = false,
 	  onRowSelect,
 	  onRowEnter,
 	  selectedBg = '#d3e5f8',
@@ -1177,6 +1177,10 @@
 	  // for JS here are the separator shadow (flipped once when the scroll crosses 0) and the
 	  // vertical offset that drives the windowing.
 	  const pinScrolledRef = React.useRef(false);
+	  // Snapping is suspended WHILE scrolling and restored a moment after it stops. Left
+	  // permanently on, `proximity` re-settles the scroll on every wheel notch, which reads
+	  // as the list stuttering / catching mid-scroll rather than gliding.
+	  const snapTimerRef = React.useRef(null);
 	  const [scrollTop, setScrollTop] = React.useState(0);
 	  const scrollTickRef = React.useRef(false);
 	  const onWrapScroll = React.useCallback(() => {
@@ -1187,6 +1191,14 @@
 	      pinScrolledRef.current = scrolled;
 	      if (scrolled) el.setAttribute('data-ct-scrolled', '1');else el.removeAttribute('data-ct-scrolled');
 	    }
+	    if (rowSnap) {
+	      if (el.style.scrollSnapType !== 'none') el.style.scrollSnapType = 'none';
+	      if (snapTimerRef.current) clearTimeout(snapTimerRef.current);
+	      snapTimerRef.current = setTimeout(() => {
+	        const node = containerRef.current;
+	        if (node) node.style.scrollSnapType = 'y proximity';
+	      }, 160);
+	    }
 	    if (scrollTickRef.current) return;
 	    scrollTickRef.current = true;
 	    window.requestAnimationFrame(() => {
@@ -1196,7 +1208,10 @@
 	      syncBarsRef.current();
 	      setScrollTop(node.scrollTop);
 	    });
-	  }, [hasPinned]);
+	  }, [hasPinned, rowSnap]);
+	  React.useEffect(() => () => {
+	    if (snapTimerRef.current) clearTimeout(snapTimerRef.current);
+	  }, []);
 
 	  // syncBars is defined after this handler (it needs listH); reach it through a ref so
 	  // the scroll listener does not have to be re-attached whenever it changes.

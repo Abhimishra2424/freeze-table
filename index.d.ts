@@ -89,8 +89,8 @@ export interface FreezeTableProps<D extends object = any> {
   showFooter?: boolean;
   /** Keyboard row navigation. Default true. */
   rowNavigation?: boolean;
-  /** Settle vertical scrolling on a row boundary instead of leaving a half-row cut
-   *  off by the sticky header (spreadsheet behaviour). Default true. */
+  /** Settle vertical scrolling on a row boundary once scrolling stops, so the top row
+   *  is never cut off by the sticky header (spreadsheet behaviour). Default false. */
   rowSnap?: boolean;
   /** Fires on every selection change. */
   onRowSelect?: (rowData: D, index: number) => void;
