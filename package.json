@@ -1,0 +1,66 @@
+{
+  "name": "real-table",
+  "version": "0.1.0",
+  "description": "Virtualized React list table — sortable, per-column filters, frozen (pinned) columns, keyboard row navigation, sticky totals footer. Built on react-table v7. Zero UI-library dependencies.",
+  "keywords": [
+    "react",
+    "table",
+    "datagrid",
+    "data-grid",
+    "virtualized",
+    "virtual-scroll",
+    "sticky-columns",
+    "frozen-columns",
+    "pinned-columns",
+    "react-table",
+    "list"
+  ],
+  "license": "MIT",
+  "author": "abmishra (https://www.npmjs.com/~abmishra)",
+  "main": "dist/real-table.cjs.js",
+  "module": "dist/real-table.esm.js",
+  "types": "index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./dist/real-table.esm.js",
+      "require": "./dist/real-table.cjs.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "src",
+    "index.d.ts",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "rimraf dist && rollup -c",
+    "prepublishOnly": "npm run build",
+    "smoke": "node scripts/smoke.js",
+    "demo": "rollup -c rollup.demo.mjs"
+  },
+  "peerDependencies": {
+    "react": ">=16.8.0",
+    "react-table": "^7.0.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.24.0",
+    "@babel/preset-env": "^7.24.0",
+    "@babel/preset-react": "^7.23.3",
+    "@rollup/plugin-babel": "^6.0.4",
+    "@rollup/plugin-commonjs": "^25.0.8",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-replace": "^5.0.7",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-table": "^7.8.0",
+    "rimraf": "^5.0.5",
+    "rollup": "^4.14.0"
+  },
+  "engines": {
+    "node": ">=14"
+  }
+}

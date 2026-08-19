@@ -1,0 +1,542 @@
+# real-table
+
+A virtualized React list table for **wide, dense, data-entry style screens** — the kind
+with twenty columns, thousands of rows, per-column search boxes, frozen leading columns
+and a totals row pinned to the bottom.
+
+Built on [`react-table`](https://github.com/TanStack/table/tree/v7) **v7**. No UI library,
+no CSS file to import, no theme to configure — every visual is an inline style and the
+handful of glyphs it needs (sort arrows, pin marker, spinner, empty-state icon) are inline
+SVG.
+
+```bash
+npm i real-table react-table@7
+```
+
+```jsx
+import { RealTable } from 'real-table';
+
+<RealTable columns={columns} data={rows} height={560} />
+```
+
+---
+
+## Why
+
+Most grids either give you a plain HTML table that dies at 2,000 rows, or a full
+datagrid framework with its own theming system. This one sits in between: it does
+exactly what an accounting / ERP list screen needs, in ~900 lines you can read.
+
+- **One scrollport, both axes.** Header, body and footer are children of the same wide
+  inner div, so horizontal scrolling moves them together — columns never drift apart.
+- **Frozen columns are real `position: sticky`.** Nothing runs in JS per scroll frame,
+  so the frozen block does not shake or lag behind the rest of the row.
+- **Rows are windowed by hand** (~15 lines) rather than by a virtualization library —
+  which is precisely what keeps the single scrollport, and therefore the sticky freeze,
+  possible.
+- **Keyboard first.** ↑/↓/Home/End/Enter work on mount, without the user clicking in.
+- **Selection repaints imperatively**, so arrow-key navigation does not re-render every
+  visible row.
+
+---
+
+## Table of contents
+
+1. [Quick start](#1-quick-start)
+2. [Layout and scroll model](#2-layout-and-scroll-model)
+3. [Column config](#3-column-config)
+4. [Props](#4-props)
+5. [Imperative ref API](#5-imperative-ref-api)
+6. [Keyboard navigation and body states](#6-keyboard-navigation-and-body-states)
+7. [Footer totals](#7-footer-totals)
+8. [Frozen (pinned) columns](#8-frozen-pinned-columns)
+9. [Per-row status colouring](#9-per-row-status-colouring)
+10. [Restoring position on re-entry](#10-restoring-position-on-re-entry)
+11. [Styling hooks](#11-styling-hooks)
+12. [Gotchas](#12-gotchas)
+13. [Demo, build, compatibility](#13-demo-build-compatibility)
+
+---
+
+## 1. Quick start
+
+```jsx
+import React, { useMemo, useRef } from 'react';
+import { RealTable, ELLIPSIS } from 'real-table';
+
+const COLUMNS = [
+  { Header: '#', id: 'sl', width: 50, minWidth: 50, align: 'right', pinned: true,
+    disableFilters: true, disableSortBy: true,
+    Cell: ({ row, rows }) => rows.indexOf(row) + 1 },
+
+  { Header: 'Customer Name', accessor: 'name', width: 200, minWidth: 200, pinned: true,
+    Cell: ({ value }) => <div style={ELLIPSIS} title={value}>{value}</div>,
+    Footer: (info) => `Count : ${info.rows.length}` },
+
+  { Header: 'Amount', accessor: 'amount', width: 140, minWidth: 140, align: 'right',
+    Footer: (info) => info.rows
+      .reduce((s, r) => s + Number(r.values.amount || 0), 0)
+      .toLocaleString('en-IN', { minimumFractionDigits: 2 }) },
+];
+
+export default function CustomerList({ byId, fetched, openRow }) {
+  const tableRef = useRef(null);
+  const columns = useMemo(() => COLUMNS, []);
+  const data = useMemo(() => Object.values(byId), [byId]);
+
+  return (
+    <RealTable
+      ref={tableRef}
+      columns={columns}
+      data={data}
+      height={560}
+      loading={!fetched}
+      dataFetched={fetched}
+      pinStorageKey="customer-list"
+      onRowEnter={(row) => openRow(row)}
+    />
+  );
+}
+```
+
+Both `columns` and `data` should be memoized — see [Gotchas](#12-gotchas).
+
+### Exports
+
+| Export        | What it is                                                       |
+|---------------|------------------------------------------------------------------|
+| `RealTable`   | The component (also the default export)                          |
+| `CommonTable` | Alias of `RealTable`, for projects migrating off a local copy     |
+| `ELLIPSIS`    | Shared single-line-ellipsis style object for custom `Cell`s       |
+
+TypeScript definitions ship with the package (`index.d.ts`) — `RealTableProps`,
+`RealTableColumn`, `RealTableHandle` are all exported as types.
+
+---
+
+## 2. Layout and scroll model
+
+```
+rt-wrap  (fixed height, overflow: auto)      ← THE scrollport for BOTH axes
+└── inner div (minWidth: totalColumnsWidth, flex column, minHeight 100%)
+    ├── rt-head   (position: sticky; top: 0)     ← labels + sort + search boxes
+    ├── body      (position: relative, height = rows * rowHeight)
+    │   └── rt-row (position: absolute, top = index * rowHeight) → rt-td cells
+    └── rt-foot   (position: sticky; bottom: 0)  ← optional totals row
+```
+
+- **`height` is the TOTAL height** (header + body + footer), not the body height. The
+  band left for rows is measured with a `ResizeObserver`, so rows fill the gap exactly —
+  no clipped last row, no second scrollbar on the page.
+- There is exactly **one vertical and one horizontal scrollbar**, both on `rt-wrap`.
+- Only the rows in `[firstIdx .. lastIdx]` (viewport ± 6) are mounted; each is absolutely
+  positioned inside a container of the full content height, so the native scrollbar still
+  represents the whole list.
+- The header/footer stay put because they are `sticky`, not because anything is
+  repositioned in JS.
+
+---
+
+## 3. Column config
+
+```js
+{
+  Header,           // string | node. A plain string is best (a pin menu can list it)
+  accessor,         // field key, or (row) => value (an accessor fn also needs `id`)
+  id,               // required when accessor is a fn or absent
+  Cell,             // optional renderer; default prints the raw value with ellipsis + title
+  width,            // px (default 1 — i.e. effectively minWidth)
+  minWidth,         // px (default 90) — an unconfigured column is 90px wide
+  maxWidth,         // px
+  align,            // 'left' | 'center' | 'right' — header, cells and footer
+  disableFilters,   // hide this column's search box
+  disableSortBy,    // no sorting on this column
+  Footer,           // string | node | fn(tableInstance) — see §7
+  noPadding,        // drop the default cell/header padding
+  pinned,           // DEFAULT freeze state — see §8
+  Filter,           // custom filter UI (e.g. a dropdown for an enum column)
+  filter,           // custom react-table filter fn (rows, columnIds, filterValue)
+}
+```
+
+### Widths are pixels, not flex weights
+
+react-table computes `totalWidth = min(max(minWidth, width), maxWidth)`, and
+`useFlexLayout` only emits a real `flex-grow` when `column.canResize` is set — which only
+`useResizeColumns` does, and this component does not use it. So every cell renders
+`flex: 0 0 auto` at `totalWidth` px, and **nothing stretches to fill leftover space**.
+
+Give real pixel values. A `width` below `minWidth` is silently ignored
+(`width: 2.4, minWidth: 200` → a 200px column).
+
+### What `Cell` receives
+
+`Cell` gets the **table instance spread**, so:
+
+- custom props you pass to the table are readable — `userList` is forwarded:
+  `Cell: ({ value, userList }) => ...`
+- core instance fields are available too — e.g. a display-order serial column:
+  `Cell: ({ row, rows }) => rows.indexOf(row) + 1`. Using `rows` (the filtered + sorted
+  set) keeps the numbering 1..N after any sort or filter; `row.index` alone would shuffle.
+
+Only `userList` is forwarded, so a `Cell` cannot reach an arbitrary callback. Export the
+columns as a **factory** taking the callback and memoize it in the caller:
+
+```js
+const columns = useMemo(() => makeColumns(openPopup), []);
+```
+
+### Auto-appended columns
+
+- **`__strip`** — prepended when `rowStripColor` is given: the narrow status-bar column
+  (`stripWidth`, default 14px). Unsortable, unfilterable, auto-freezes with the pinned run.
+- **`__actions`** — appended when `Actions` is given: the right-side Action column
+  (`minWidth: actionWidth`, default 110). Renders
+  `<Actions object={row.original} fn={fn} />` — note there is **no row index**. Never frozen.
+
+### Date columns
+
+Format in the `Cell`, and give date-time columns `minWidth: 150` so `DD-MM-YYYY HH:mm:ss`
+is not clipped:
+
+```js
+{ Header: 'Created', accessor: 'created_at', width: 150, minWidth: 150,
+  Cell: ({ value }) => <div style={ELLIPSIS}>{fmt(value)}</div> }
+```
+
+---
+
+## 4. Props
+
+| Prop                | Default               | Meaning                                                              |
+|---------------------|-----------------------|----------------------------------------------------------------------|
+| `columns`           | (required)            | Column config array. **Memoize it**                                  |
+| `data`              | (required)            | Row array. **Memoize it**                                            |
+| `height`            | `500`                 | **Total** table height in px (header + body + footer)                |
+| `rowHeight`         | `44`                  | Row height px (a dense list uses `35`)                               |
+| `fontSize`          | `12`                  | Drives cells, header labels and footer (dense: `11`)                 |
+| `Actions`           | —                     | Component for the auto-appended Action column                        |
+| `fn`                | —                     | Passed straight through to `Actions` as its `fn` prop                |
+| `actionWidth`       | `110`                 | Action column min width px                                           |
+| `userList`          | —                     | Forwarded onto the table instance → readable in every `Cell`         |
+| `sortable`          | `true`                | Master switch for sorting                                            |
+| `searchable`        | `true`                | Master switch for the per-column search boxes                        |
+| `loading`           | `false`               | Spinner + `loadingText` instead of the body                          |
+| `dataFetched`       | `true`                | Gate for the empty state — **always wire both** (§6)                 |
+| `emptyText`         | `'No records found'`  | Empty-state copy                                                     |
+| `loadingText`       | `'Fetching records…'` | Loading-state copy                                                   |
+| `footerLeft`        | `null`                | Static left-aligned footer label (prefer a column `Footer` — §7)     |
+| `showFooter`        | auto                  | Override footer visibility                                           |
+| `rowNavigation`     | `true`                | Keyboard row navigation (§6)                                         |
+| `onRowSelect`       | —                     | `(rowData, index)` on every selection change                         |
+| `onRowEnter`        | —                     | `(rowData, index)` on Enter — "open this row"                        |
+| `selectedBg`        | `'#d3e5f8'`           | Selected-row highlight colour                                        |
+| `rowIdKey`          | `'id'`                | Field `initialSelectedId` matches against                            |
+| `initialSelectedId` | `null`                | Re-select + scroll to this row once, after the rows load             |
+| `initialScrollLeft` | `0`                   | Restore horizontal scroll once, after the rows load                  |
+| `rowStripColor`     | —                     | `(rowData) => color \| null` — coloured status bar column (§9)       |
+| `rowStripTitle`     | —                     | `(rowData) => string` — hover tooltip on the strip cell              |
+| `rowStyle`          | —                     | `(rowData) => ({ backgroundColor?, color? })` — full-row tint (§9)   |
+| `stripWidth`        | `14`                  | Strip column width px                                                |
+| `pinStorageKey`     | —                     | Persist the freeze boundary in `localStorage["ctPin:<key>"]` (§8)    |
+| `className`         | —                     | Extra class on the outer scroller                                    |
+| `style`             | —                     | Extra inline styles merged onto the outer scroller                   |
+
+---
+
+## 5. Imperative ref API
+
+```jsx
+const tableRef = useRef(null);
+<RealTable ref={tableRef} … />
+```
+
+| Method             | Meaning                                                                    |
+|--------------------|----------------------------------------------------------------------------|
+| `focus()`          | Re-focus the table container — e.g. return focus to the selected row after a modal closes |
+| `getScrollLeft()`  | Current horizontal offset — stash it before navigating away (§10)          |
+| `selectRow(i)`     | Select + scroll to + focus row `i`                                          |
+| `getPinCount()`    | Current **effective** (viewport-capped) freeze boundary; 0 = none          |
+| `getMaxPinCount()` | Largest boundary the current viewport allows                               |
+| `setPinCount(n)`   | Set the freeze boundary (persisted when `pinStorageKey` is set)            |
+
+`selectRow(0)` is the one you reach for on a list that **re-fetches on a Search click**:
+the table is already mounted, so the mount-time focus effect will not fire again and
+focus would otherwise stay on the Search button, leaving the arrow keys dead until the
+user clicks the table.
+
+---
+
+## 6. Keyboard navigation and body states
+
+- The first render selects and highlights row 0 and **focuses the table**, so the arrows
+  work immediately.
+- **↑ / ↓** move the selection (auto-scrolling it into view), **Home / End** jump to the
+  first / last row, **click** selects, **Enter** fires `onRowEnter`.
+- Typing inside an `INPUT` / `TEXTAREA` / `SELECT` is never hijacked, so the per-column
+  search boxes behave normally.
+- The selection highlight is painted **imperatively**: rows are a `React.memo` that reads
+  the selected index from a ref, and an effect updates only the affected DOM nodes. Without
+  this, every keypress re-rendered every visible row — visibly laggy on icon-heavy lists.
+- Selection is **index-based**: after a sort the highlight stays at the same *position*
+  (a different logical row). Track ids yourself via `onRowSelect` if you need otherwise.
+- Turn the whole thing off with `rowNavigation={false}`.
+
+**Body states**, in order: `loading` → spinner; `rows.length === 0 && dataFetched` → the
+soft empty state; otherwise the list.
+
+> **Gotcha:** `dataFetched` defaults to `true` and `loading` to `false`, so passing
+> neither flashes "No records found" before the first fetch ever returns. Wire both from
+> your own fetch flag:
+> ```jsx
+> <RealTable loading={!fetched} dataFetched={fetched} … />
+> ```
+
+---
+
+## 7. Footer totals
+
+Any column can define `Footer` (string, node, or a function). A footer **function**
+receives the table instance, so `info.rows` are the **filtered** rows — totals and counts
+update live as the user types in a column search box:
+
+```js
+Footer: (info) => `Voucher Count : ${info.rows.length}`
+
+Footer: (info) => info.rows
+  .reduce((s, r) => s + Number(r.values.debit || 0), 0)
+  .toLocaleString('en-IN', { minimumFractionDigits: 2 })
+```
+
+Use `align: 'right'` on amount columns so the total lines up under the values.
+
+`footerLeft` renders a single left-aligned label, but it is a static overlay **outside**
+react-table — it cannot see the filtered rows. For a live record count, use a `Footer`
+function on the first data column instead.
+
+The footer appears automatically when any column has a `Footer` or `footerLeft` is set;
+override with `showFooter`.
+
+---
+
+## 8. Frozen (pinned) columns
+
+The whole choice is a single number: **how many leading columns are frozen**. Freezing
+only makes sense as a leading run — a frozen middle column would have its left neighbours
+scroll away underneath it.
+
+- `pinned: true` in the column config is the **default** boundary. Only a leading run
+  counts: columns 1..N must all be flagged; a flag after the first unflagged column is
+  ignored.
+- The status strip auto-freezes whenever the boundary is > 0. The Action column never
+  freezes.
+- The user changes the boundary at runtime through `setPinCount(n)` on the ref (0 = none).
+  With `pinStorageKey` set, that choice persists in `localStorage["ctPin:<key>"]` and
+  **beats the config flags** on the next mount.
+- The boundary column shows a small blue pin in its header. That is the only indicator on
+  purpose — an icon on every frozen column ate header width and truncated the labels.
+
+**Viewport cap.** The frozen block is hard-capped to `wrap width − 250px`
+(`getMaxPinCount()`), and a stored-but-too-large boundary is clamped at render, so a
+persisted over-wide choice self-corrects. Freezing wider than the viewport leaves no room
+to actually read the scrolling columns.
+
+### The "Pin Columns" menu is yours to render
+
+The component deliberately renders no picker. Put a dropdown next to your other toolbar
+buttons listing `No pin` plus every column ("pin up to here" semantics), read
+`getPinCount()` when the menu opens, and disable entries past `getMaxPinCount()`:
+
+```jsx
+const openPinMenu = () => {
+  setCurrent(tableRef.current.getPinCount());
+  setMax(tableRef.current.getMaxPinCount());
+  setOpen(true);
+};
+
+const pickPin = (n) => {
+  tableRef.current.setPinCount(n);
+  tableRef.current.focus();   // hand the arrow keys back to the rows
+  setOpen(false);
+};
+```
+
+If your list also has single-letter keyboard shortcuts, include the menu-open state in
+their guard so they do not fire while the menu is up.
+
+### How the freeze works
+
+Plain CSS `position: sticky; left: <cumulative width of the pinned columns before it>`
+on the header, body and footer cells of every frozen column. **Nothing runs in JS per
+scroll frame** — that is the entire point. An earlier design counter-translated every
+frozen cell from the scroll handler, and because JS repositions them a frame *after* the
+compositor has already scrolled the rest, the frozen block visibly shook during
+horizontal scroll.
+
+Sticky only works because `rt-wrap` is the single scrollport for both axes — which is why
+the rows are windowed by hand rather than by a virtualization library whose own
+`overflow` container would become the sticky scrollport for the body cells and break the
+freeze.
+
+Frozen body cells use `background: inherit`, so they track the row's selection / hover /
+status background with no extra bookkeeping. The last frozen column gets a right-hand
+shadow once the table is scrolled.
+
+---
+
+## 9. Per-row status colouring
+
+Two independent, optional props for lists where a row carries a state (cancelled, failed
+to post, …). Both take the raw row object and should be pure functions.
+
+**`rowStripColor(rowData) => color | null`** prepends a narrow column drawing a coloured
+bar at the left edge of the row. Return a falsy value for rows with no state. It is a
+*real* column, so it stays aligned with the header and scrolls with the row.
+
+> **Pick a saturated colour.** A pale tint that reads fine across a whole row
+> (`#ffe6e6`) is invisible in a 4px bar.
+
+**`rowStyle(rowData) => ({ backgroundColor?, color? })`** tints the whole row. A returned
+`backgroundColor` **wins over the selection and hover highlights** — a status colour must
+never be masked by the blue selected-row background (row 0 is auto-selected on mount,
+which would otherwise hide its status the instant the list loads). Rows returning no
+`backgroundColor` highlight as normal.
+
+Prefer the strip when the tint would be loud (a whole orange row is hard to read); use
+both only when the row colour is itself the requirement.
+
+```jsx
+const STRIP = { Cancelled: '#e03e3e', Pending: '#e8912d', Posted: '#2aa76a' };
+
+<RealTable
+  rowStripColor={(r) => STRIP[r.status] || null}
+  rowStripTitle={(r) => r.status}
+  rowStyle={(r) => (r.status === 'Cancelled' ? { color: '#a11' } : undefined)}
+/>
+```
+
+---
+
+## 10. Restoring position on re-entry
+
+When the list unmounts on navigation (list → edit → back), both scroll axes reset. Restore
+them with the pair below — each is applied **once**, after the rows load:
+
+- `initialSelectedId` (+ `rowIdKey`) → vertical scroll + re-highlights the row
+- `initialScrollLeft` → horizontal scroll (without it a wide table always snaps back to
+  column 1)
+
+Stash both in **module-scope variables** — they survive the unmount:
+
+```jsx
+let lastSelectedId = null;
+let lastScrollLeft = 0;
+
+export default function List() {
+  const tableRef = useRef(null);
+
+  const goToEdit = (row) => {
+    lastSelectedId = row.id;
+    lastScrollLeft = tableRef.current ? tableRef.current.getScrollLeft() : 0;
+    navigateToEdit(row.id);
+  };
+
+  return (
+    <RealTable
+      ref={tableRef}
+      initialSelectedId={lastSelectedId}
+      initialScrollLeft={lastScrollLeft}
+      onRowSelect={(row) => { lastSelectedId = row.id; }}
+      onRowEnter={goToEdit}
+    />
+  );
+}
+```
+
+Both restore effects intentionally have **no dependency array** — they retry on each
+render until the rows and the measured body height exist, then latch via a ref.
+
+---
+
+## 11. Styling hooks
+
+There is **no stylesheet to import**. Every visual is an inline style; the one injected
+`<style>` tag carries only what inline styles cannot express (keyframes, `:focus`,
+`::placeholder`, the frozen-column shadow selector).
+
+The class names exist as stable hooks for the component's own imperative repaint and for
+your tests:
+
+| Class / attribute      | On                             | Used for                                |
+|------------------------|--------------------------------|-----------------------------------------|
+| `.rt-wrap`             | outer scroller                 | scroll owner, focus target              |
+| `.rt-head` / `.rt-th`  | header row / cell              | —                                       |
+| `.rt-th-label`         | header label row               | sort toggle click area                  |
+| `.rt-th-filter`        | search-box wrapper             | —                                       |
+| `.rt-row` / `.rt-td`   | row / body cell                | selection repaint                       |
+| `.rt-foot` / `.rt-tf`  | footer row / cell              | —                                       |
+| `data-ct-index`        | `.rt-row`                      | row index (selection repaint)           |
+| `data-ct-bg`           | `.rt-row`                      | the row's base background               |
+| `data-ct-custom`       | `.rt-row`                      | `'1'` when `rowStyle` returned a bg      |
+| `data-ct-pin`          | header / body / footer cell    | `'1'` on frozen cells                   |
+| `data-ct-pin-last`     | same                           | `'1'` on the boundary column            |
+
+Every element also carries the legacy `ct-*` twin of its class (`rt-row ct-row`), so a
+project migrating off a local copy keeps any existing selectors working.
+
+Key values, if you want to re-theme by forking:
+
+- header: white, `borderBottom: 1px solid #e3e8ee`, bold labels
+- row: white, `borderBottom: 1px solid #edf0f3`; hover `#eef4fb`; selected `#d3e5f8`
+- footer: `#f4f5f7`, `borderTop: 1px solid #e3e8ee`, bold
+- cell padding `0 12px`, header `7px 12px 9px`, footer `8px 12px`
+
+---
+
+## 12. Gotchas
+
+1. **Memoize `data`.** react-table's `autoResetSortBy` / `autoResetFilters` are already
+   disabled inside the component (otherwise every `Object.values(byId)` recreation
+   silently cleared the sort, making a header click appear to do nothing), but an
+   un-memoized array still causes needless row churn.
+2. **Memoize `columns`** — and when a `Cell` needs a callback, export the columns as a
+   factory: `const columns = useMemo(() => makeColumns(onOpen), [])`.
+3. **Wire `loading` and `dataFetched` together**, or the empty state flashes before the
+   first fetch.
+4. **Row menus must escape the row's `overflow: hidden`.** Use a portal-based popup, not
+   an inline dropdown, or the menu will be clipped by its row.
+5. **Sorting is three-state** — ascending → descending → unsorted.
+6. `Header` is best kept a plain string: a "pin up to here" menu in your toolbar has to
+   render it as a label.
+7. Custom `Filter` dropdowns that render their menu in a portal need a real CSS rule for
+   the menu font size — inline styles cannot reach portalled nodes.
+
+---
+
+## 13. Demo, build, compatibility
+
+```bash
+npm install
+npm run build     # dist/real-table.esm.js + dist/real-table.cjs.js
+npm run smoke     # server-render the built bundle and assert its shape
+npm run demo      # bundles example/ — then open example/index.html in a browser
+```
+
+The demo renders 2,000 rows × 18 columns with frozen columns, footer totals, status
+strips and the loading / empty states, and bundles React in, so `example/index.html`
+opens straight from the filesystem with no server.
+
+**Peer dependencies:** `react >= 16.8` (hooks + `forwardRef`) and `react-table@7`.
+React 16, 17, 18 and 19 all work; the component is function-based and uses no legacy
+lifecycle APIs.
+
+> react-table **v8** (`@tanstack/react-table`) is a completely different API. This
+> component needs **v7** — `npm i react-table@7`.
+
+Server-side rendering is safe: layout effects degrade to `useEffect` on the server and
+the style tag is only injected in the browser. The body renders empty until the client
+measures it, which is the correct behaviour for a virtualized list.
+
+## License
+
+MIT
