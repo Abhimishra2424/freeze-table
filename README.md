@@ -179,7 +179,7 @@ sticky.
   disableSortBy,    // no sorting on this column
   Footer,           // string | node | fn(tableInstance) — see §7
   noPadding,        // drop the default cell/header padding
-  pinned,           // DEFAULT freeze state — see §8
+  pinned,           // DEFAULT freeze state: true / 'left' / 'right' — see §8
   Filter,           // custom filter UI (e.g. a dropdown for an enum column)
   filter,           // custom react-table filter fn (rows, columnIds, filterValue)
 }
@@ -218,7 +218,8 @@ const columns = useMemo(() => makeColumns(openPopup), []);
   (`stripWidth`, default 14px). Unsortable, unfilterable, auto-freezes with the pinned run.
 - **`__actions`** — appended when `Actions` is given: the right-side Action column
   (`minWidth: actionWidth`, default 110). Renders
-  `<Actions object={row.original} fn={fn} />` — note there is **no row index**. Never frozen.
+  `<Actions object={row.original} fn={fn} />` — note there is **no row index**. Freezes
+  with the right block whenever `rightPinCount > 0`.
 
 ### Date columns
 
@@ -285,7 +286,10 @@ const tableRef = useRef(null);
 | `selectRow(i)`     | Select + scroll to + focus row `i`                                          |
 | `getPinCount()`    | Current **effective** (viewpoft-capped) freeze boundary; 0 = none          |
 | `getMaxPinCount()` | Largest boundary the current viewport allows                               |
-| `setPinCount(n)`   | Set the freeze boundary (persisted when `pinStorageKey` is set)            |
+| `setPinCount(n)`   | Set the left freeze boundary (persisted when `pinStorageKey` is set)       |
+| `getRightPinCount()` | Current **effective** right-hand boundary (0 = none)                      |
+| `getMaxRightPinCount()` | Largest right-hand boundary the current viewport allows                |
+| `setRightPinCount(n)` | Freeze the **last** N caller columns against the right edge              |
 
 `selectRow(0)` is the one you reach for on a list that **re-fetches on a Search click**:
 the table is already mounted, so the mount-time focus effect will not fire again and
@@ -371,31 +375,44 @@ override with `showFooter`.
 
 ## 8. Frozen (pinned) columns
 
-The whole choice is a single number: **how many leading columns are frozen**. Freezing
-only makes sense as a leading run — a frozen middle column would have its left neighbours
-scroll away underneath it.
+Columns freeze against **either edge**, and each side is described by a single number:
 
-- `pinned: true` in the column config is the **default** boundary. Only a leading run
-  counts: columns 1..N must all be flagged; a flag after the first unflagged column is
-  ignored.
-- The status strip auto-freezes whenever the boundary is > 0. The Action column never
-  freezes.
-- The user changes the boundary at runtime through `setPinCount(n)` on the ref (0 = none).
-  With `pinStorageKey` set, that choice persists in `localStorage["ctPin:<key>"]` and
-  **beats the config flags** on the next mount.
-- The boundary column shows a small blue pin in its header. That is the only indicator on
-  purpose — an icon on every frozen column ate header width and truncated the labels.
+| Side | Column config | The count | Rides along |
+|---|---|---|---|
+| Left  | `pinned: true` / `pinned: 'left'` | `pinCount` — how many **leading** columns | the status strip |
+| Right | `pinned: 'right'`                 | `rightPinCount` — how many **trailing** columns | the Action column |
 
-**Viewport cap.** The frozen block is hard-capped to `wrap width − 250px`
-(`getMaxPinCount()`), and a stored-but-too-large boundary is clamped at render, so a
-persisted over-wide choice self-corrects. Freezing wider than the viewport leaves no room
-to actually read the scrolling columns.
+Freezing only makes sense as a run against its own edge — a frozen column in the middle
+would have its neighbours scroll out from under it — so only a **leading** run counts on
+the left and only a **trailing** run on the right. A flag after the first unflagged
+column (or, on the right, before the last one) is ignored.
+
+- The auto-appended columns join the block on their own side: the status strip freezes
+  left whenever `pinCount > 0`, the Action column freezes right whenever
+  `rightPinCount > 0`. Either would otherwise be stranded outside its own block.
+- The user changes the boundaries at runtime through `setPinCount(n)` and
+  `setRightPinCount(n)` on the ref (0 = no freezing on that side). With `pinStorageKey`
+  set, both choices persist — `localStorage["ctPin:<key>"]` and `["ctPinR:<key>"]` — and
+  **beat the config flags** on the next mount.
+- Each boundary column shows a small blue pin in its header: the last frozen column on
+  the left, the first on the right. That is the only indicator on purpose — an icon on
+  every frozen column ate header width and truncated the labels.
+- The left block casts a shadow to its right once the table is scrolled; the right block
+  casts one to its left until the scroll reaches the end.
+
+**Viewport cap.** The frozen blocks are hard-capped so at least 250px of viewport is
+always left for the scrolling columns (`getMaxPinCount()` / `getMaxRightPinCount()`). The
+right block is measured first and the left one funded from what remains, so the two caps
+cannot both claim the same viewport. A stored-but-too-large boundary is clamped at
+render, so a persisted over-wide choice self-corrects. Freezing wider than the viewport
+would leave no room to actually read the scrolling columns.
 
 ### The "Pin Columns" menu is yours to render
 
 The component deliberately renders no picker. Put a dropdown next to your other toolbar
 buttons listing `No pin` plus every column ("pin up to here" semantics), read
-`getPinCount()` when the menu opens, and disable entries past `getMaxPinCount()`:
+`getPinCount()` when the menu opens, and disable entries past `getMaxPinCount()`. The
+right-hand block works the same way through `getRightPinCount()` / `setRightPinCount()`:
 
 ```jsx
 const openPinMenu = () => {
@@ -416,8 +433,9 @@ their guard so they do not fire while the menu is up.
 
 ### How the freeze works
 
-Plain CSS `position: sticky; left: <cumulative width of the pinned columns before it>`
-on the header, body and footer cells of every frozen column. **Nothing runs in JS per
+Plain CSS `position: sticky` on the header, body and footer cells of every frozen
+column — `left: <total width of the frozen columns before it>` for the left block, and
+the mirror image, `right: <total width of the frozen columns beyond it>`, for the right. **Nothing runs in JS per
 scroll frame** — that is the entire point. An earlier design counter-translated every
 frozen cell from the scroll handler, and because JS repositions them a frame *after* the
 compositor has already scrolled the rest, the frozen block visibly shook during
