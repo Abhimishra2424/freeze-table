@@ -17,6 +17,14 @@
   ],
   "license": "MIT",
   "author": "abmishra (https://www.npmjs.com/~abmishra)",
+  "homepage": "https://github.com/Abhimishra2424/real-table#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Abhimishra2424/real-table.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Abhimishra2424/real-table/issues"
+  },
   "main": "dist/real-table.cjs.js",
   "module": "dist/real-table.esm.js",
   "types": "index.d.ts",
