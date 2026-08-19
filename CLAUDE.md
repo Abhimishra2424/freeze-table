@@ -74,35 +74,53 @@ middle column would have its neighbours scroll out from under it.
   viewport for the scrolling columns. Right is budgeted first, then left gets the
   remainder. Getters report the **effective** (capped) count; `getMax…` exposes the cap so
   a menu can disable entries beyond it.
-- The status-strip column auto-joins the left block, the Action column the right one
-  (or on its own via `pinActions`) — each would otherwise be stranded outside its block.
+- The status-strip column auto-joins the left block; the Action column joins whichever
+  block it currently sits inside (or freezes alone at its edge via `pinActions`) — see
+  "Synthetic columns".
 - The 0.6.0 rename left `getPinCount`/`getMaxPinCount`/`setPinCount` as working deprecated
   aliases for the left-edge methods. Keep them.
 
-### Column widths and visibility (0.7.0)
+### Column widths, visibility and order (0.7.0 / 0.8.0)
 
 Same shape as pinning: the column config is only the **default**, the user's choice lives
 in state and is applied on top, and the *menu* is the caller's to render (`getColumnList()`
 feeds it).
 
-- Both are keyed by `colIdOf(c)` (explicit `id`, else a string accessor). A column with an
-  accessor function and no id cannot be hidden or resized.
-- `cols` (hidden dropped, resized widths applied) is derived from the `columns` prop right
-  at the top of the component, and **everything downstream reads `cols`, never `columns`** —
-  pin defaults, pin caps, `pinIndex`, the sticky offsets. Only the layout-state block and
-  `getColumnList()` still look at the raw prop.
+- All three are keyed by `colIdOf(c)` (explicit `id`, else a string accessor). A column
+  with an accessor function and no id cannot be hidden, resized or moved (it rides along
+  under a positional `__col<i>` key so the order list stays complete).
+- The `layout` memo (hidden dropped, resized widths applied, user order applied) is derived
+  from the `columns` prop right at the top of the component and yields `cols` +
+  `actionPos`. **Everything downstream reads `cols`, never `columns`** — pin defaults, pin
+  caps, `pinIndex`, the sticky offsets. Only the layout-state block and `getColumnList()`
+  still look at the raw prop.
 - A resize writes `width`/`minWidth`/`maxWidth` to the same number, because react-table
   renders `min(max(minWidth, width), maxWidth)`.
-- The drag paints a guide line and commits **once, on pointer-up**. Never make it live: the
-  column defs feed `itemData`, so a per-frame width would re-render every visible row.
+- Both drags paint a line and commit **once, on pointer-up**. Never make either live: the
+  column defs feed `itemData`, so a per-frame width or order would re-render every visible
+  row.
+- The order is a complete list of ids (hidden columns included, `__actions` among them),
+  and a stored one is always run through `reconcileOrder` against the config order rather
+  than trusted — otherwise a column added to `columns` later would vanish or land at the
+  end.
+- A header press serves three gestures: click = sort, sideways drag = reorder (arms after
+  `DRAG_SLOP`, then swallows the trailing click in the capture phase), right-edge drag =
+  resize (its own handler stops propagation so it never starts a reorder).
 
 ### Synthetic columns
 
 `allColumns` = optional `__strip` column (prepended when `rowStripColor` is set) +
 caller columns (annotated with `pinIndex`, `pinned`, `pinnedRight`, `pinnedLast`,
-`pinnedRightFirst`) + optional `__actions` column (appended when `Actions` is given).
-Caller columns carry their index among the VISIBLE caller columns as `pinIndex`, so the
-pin UI can talk in terms of the caller's own list (minus whatever is hidden).
+`pinnedRightFirst`) + optional `__actions` column, spliced in at `actionPos` (its config
+default is the `actionIndex` prop; the user can drag it anywhere). Caller columns carry
+their index among the VISIBLE caller columns as `pinIndex`, so the pin UI can talk in
+terms of the caller's own list (minus whatever is hidden).
+
+Because `__actions` is movable, it no longer auto-joins the right block unconditionally:
+it freezes with whichever run it lies INSIDE (`actionPos < leftCount`, or
+`actionPos >= cols.length - rightCount`), and the pin caps only charge its width against
+the budget of the run it is actually in. The `__strip` column is still unconditionally
+part of the left block, and is never a reorder source or drop target.
 
 ### Performance rules that are load-bearing
 

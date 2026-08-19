@@ -76,6 +76,7 @@ const btn = {
   border: '1px solid #c9d2dd', borderRadius: 4, background: '#fff', color: '#1b2733',
 };
 const btnActive = { ...btn, background: '#0070C2', borderColor: '#0070C2', color: '#fff' };
+const miniBtn = { ...btn, padding: '0 5px', lineHeight: '16px', fontSize: 12 };
 
 const menuBox = {
   position: 'absolute', top: 'calc(100% + 4px)', left: 0, zIndex: 20, minWidth: 190,
@@ -95,6 +96,8 @@ function Demo() {
   // re-derive any of that from COLUMNS.
   const [hidden, setHidden] = useState([]);
   const [menuOpen, setMenuOpen] = useState(false);
+  // The table owns the order too; the menu just needs a nudge to re-read it.
+  const [, bumpOrder] = useState(0);
 
   const columns = useMemo(() => COLUMNS, []);
   const data = useMemo(() => (empty ? [] : ROWS), [empty]);
@@ -127,11 +130,24 @@ function Demo() {
     setHidden([]);
   };
 
+  const move = (id, to) => {
+    if (!tableRef.current) return;
+    tableRef.current.moveColumn(id, to);
+    bumpOrder((n) => n + 1);
+  };
+
+  const resetOrder = () => {
+    if (!tableRef.current) return;
+    tableRef.current.resetColumnOrder();
+    bumpOrder((n) => n + 1);
+  };
+
   return (
     <div style={{ font: '13px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif', color: '#1b2733', padding: 20, background: '#f7f9fb', minHeight: '100vh' }}>
       <h1 style={{ margin: '0 0 4px', fontSize: 20 }}>freeze-table</h1>
       <p style={{ margin: '0 0 14px', color: '#5a6a7a' }}>
         2,000 rows · 18 columns · left se {pin} column aur right se {rightPin} (+ Action) freeze ·
+        header ko pakad ke side mein drag karo to column move hota hai (Action column bhi) ·
         header ke right edge ko drag karke column resize karo (double-click = reset) ·
         arrow keys / Home / End / Enter chalte hain (table pe click karke try karo).
       </p>
@@ -157,21 +173,31 @@ function Demo() {
           </button>
           {menuOpen && (
             <div style={menuBox}>
-              {(tableRef.current ? tableRef.current.getColumnList() : []).map((c) => (
-                <label
-                  key={c.id}
-                  style={{ display: 'flex', gap: 6, alignItems: 'center', padding: '3px 2px',
-                           cursor: c.hideable ? 'pointer' : 'default', opacity: c.hideable ? 1 : 0.5 }}
-                >
-                  <input type="checkbox" checked={!c.hidden} disabled={!c.hideable} onChange={() => toggleCol(c.id)} />
-                  <span>{c.header || c.id}</span>
-                </label>
+              {/* getColumnList() comes back in DISPLAY order and includes the Action
+                  column, so the same menu can hide, and re-order, every column. */}
+              {(tableRef.current ? tableRef.current.getColumnList() : []).map((c, i, list) => (
+                <div key={c.id} style={{ display: 'flex', gap: 6, alignItems: 'center', padding: '2px' }}>
+                  <label
+                    style={{ display: 'flex', gap: 6, alignItems: 'center', flex: 1, minWidth: 0,
+                             cursor: c.hideable ? 'pointer' : 'default', opacity: c.hideable ? 1 : 0.5 }}
+                  >
+                    <input type="checkbox" checked={!c.hidden} disabled={!c.hideable} onChange={() => toggleCol(c.id)} />
+                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {c.header || c.id}
+                    </span>
+                  </label>
+                  <button type="button" style={miniBtn} disabled={!c.movable || i === 0}
+                          onClick={() => move(c.id, c.position - 1)} title="Move up">↑</button>
+                  <button type="button" style={miniBtn} disabled={!c.movable || i === list.length - 1}
+                          onClick={() => move(c.id, c.position + 1)} title="Move down">↓</button>
+                </div>
               ))}
-              <div style={{ display: 'flex', gap: 6, marginTop: 6, borderTop: '1px solid #e3e8ee', paddingTop: 6 }}>
+              <div style={{ display: 'flex', gap: 6, marginTop: 6, borderTop: '1px solid #e3e8ee', paddingTop: 6, flexWrap: 'wrap' }}>
                 <button type="button" style={btn} onClick={showAll}>Show all</button>
                 <button type="button" style={btn} onClick={() => tableRef.current && tableRef.current.resetColumnWidths()}>
                   Reset widths
                 </button>
+                <button type="button" style={btn} onClick={resetOrder}>Reset order</button>
               </div>
             </div>
           )}

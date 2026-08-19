@@ -522,6 +522,13 @@
    per frame (see startColResize) — this guide is the only thing that moves. */
 .ft-resize-guide{position:absolute;top:0;bottom:0;left:0;width:2px;background:#0070C2;
   opacity:.7;pointer-events:none;z-index:7;}
+
+/* Column reorder. Same deal as the resize guide: the drop line is the ONLY thing that
+   moves while the pointer is down (see startColReorder), and the header being carried
+   dims so the line reads as "this column lands here" rather than as a second cursor. */
+.ft-th-dragging{opacity:.4;}
+.ft-drop-line{position:absolute;top:0;bottom:0;left:0;width:3px;background:#0070C2;
+  border-radius:2px;pointer-events:none;z-index:7;}
 `;
 	let injected = false;
 
@@ -723,6 +730,45 @@
 	// the filter box have nowhere to go and the column stops being a usable hit target.
 	const COL_MIN_WIDTH = 48;
 
+	// How far the pointer must travel across a header before the press stops being a
+	// click (sort) and becomes a reorder drag. Small enough that a deliberate drag arms
+	// immediately, large enough that the shake in an ordinary click never does.
+	const DRAG_SLOP = 4;
+
+	// Merge a user / stored column order with the CONFIG order. Ids the config no longer
+	// carries are dropped, and ids the order does not mention — a column added to the
+	// caller's array since the layout was saved — are put back where the CONFIG puts them,
+	// next to the neighbour they were configured after. Appending them at the end instead
+	// would make every newly added column look as though the user had dragged it there.
+	const reconcileOrder = (configIds, wanted) => {
+	  if (!wanted || !wanted.length) return configIds.slice();
+	  const known = new Set(configIds);
+	  const placed = new Set();
+	  const out = [];
+	  wanted.forEach(id => {
+	    if (known.has(id) && !placed.has(id)) {
+	      placed.add(id);
+	      out.push(id);
+	    }
+	  });
+	  configIds.forEach((id, i) => {
+	    if (placed.has(id)) return;
+	    placed.add(id);
+	    // Land it just after the nearest preceding config neighbour that is already
+	    // placed; if none of them is, the column is configured first, so it goes first.
+	    let at = 0;
+	    for (let k = i - 1; k >= 0; k--) {
+	      const p = out.indexOf(configIds[k]);
+	      if (p >= 0) {
+	        at = p + 1;
+	        break;
+	      }
+	    }
+	    out.splice(at, 0, id);
+	  });
+	  return out;
+	};
+
 	// How many rows to render above / below the viewport.
 	const OVERSCAN = 6;
 
@@ -854,7 +900,8 @@
 	 *   - sticky header + sticky totals footer, hand-rolled row windowing for large lists
 	 *   - frozen (pinned) leading columns via native `position: sticky`
 	 *   - keyboard row navigation (↑/↓/Home/End/Enter) and hover/selection highlighting
-	 *   - an optional Action column appended on the right
+	 *   - drag-to-resize and drag-to-reorder headers, and hideable columns
+	 *   - an optional Action column, appended on the right but movable like any other
 	 *
 	 * Column config (simple, no CSS classes needed):
 	 *   {
@@ -875,6 +922,10 @@
 	 *     disableResizing?,       // false-y by default: every column but the status strip
 	 *                             // carries a drag grip on its right edge unless `resizable`
 	 *                             // is off. A dragged width persists under `ctW:<pinStorageKey>`.
+	 *     disableReordering?,     // false-y by default: any column (the Action column
+	 *                             // included) can be dragged sideways to a new position
+	 *                             // unless `reorderable` is off. The chosen order persists
+	 *                             // under `ctOrd:<pinStorageKey>`.
 	 *     pinned?,                // DEFAULT freeze state for this column. Only a LEADING
 	 *                             // run counts (col 1..N all pinned); the status strip
 	 *                             // auto-pins with them. The user changes the boundary at
@@ -932,9 +983,12 @@
 	  fontSize = 12,
 	  pinStorageKey,
 	  resizable = true,
+	  reorderable = true,
+	  actionIndex = 'last',
 	  minColumnWidth = COL_MIN_WIDTH,
 	  onColumnResize,
 	  onColumnVisibilityChange,
+	  onColumnOrderChange,
 	  className,
 	  style
 	}, ref) {
@@ -1044,11 +1098,37 @@
 	  });
 	  const hiddenIds = userHidden != null ? userHidden : defaultHidden;
 
+	  // ----- Column order -----
+	  // Third choice on the same pattern: the caller's `columns` ARRAY is the default order,
+	  // the user's order lives here as a list of ids and is applied on top. The Action
+	  // column takes part as `'__actions'` — it is a real column in the layout, so there is
+	  // no reason it should be nailed to the right-hand end; `actionIndex` says where it
+	  // starts out. A column with no id (an accessor function and no `id`) cannot be
+	  // addressed by the user's order, so it rides along under a positional key and simply
+	  // cannot be dragged.
+	  const hasActions = !!Actions;
+	  const configOrder = React.useMemo(() => {
+	    const ids = columns.map((c, i) => colIdOf(c) || `__col${i}`);
+	    if (hasActions) {
+	      const at = actionIndex === 'first' ? 0 : actionIndex === 'last' || actionIndex == null ? ids.length : Math.max(0, Math.min(ids.length, parseInt(actionIndex, 10) || 0));
+	      ids.splice(at, 0, '__actions');
+	    }
+	    return ids;
+	  }, [columns, hasActions, actionIndex]);
+	  const [userOrder, setUserOrder] = React.useState(() => {
+	    const stored = readStoredJson('ctOrd');
+	    return Array.isArray(stored) && stored.length ? stored : null;
+	  });
+	  // Always a complete, de-duplicated list of every configured column — a stored order
+	  // from an older version of the column config is merged, not trusted wholesale.
+	  const order = React.useMemo(() => reconcileOrder(configOrder, userOrder), [configOrder, userOrder]);
+
 	  // The caller's columns as they are actually laid out: hidden ones dropped, resized ones
-	  // carrying their new width. EVERYTHING downstream — the pin defaults, the pin caps,
-	  // `pinIndex`, the sticky offsets — is computed from this list rather than from the
-	  // `columns` prop, so a hidden column simply does not exist as far as freezing and the
-	  // cumulative left/right offsets are concerned.
+	  // carrying their new width, all of them in the user's order. EVERYTHING downstream —
+	  // the pin defaults, the pin caps, `pinIndex`, the sticky offsets — is computed from
+	  // this list rather than from the `columns` prop, so a hidden column simply does not
+	  // exist as far as freezing and the cumulative left/right offsets are concerned, and a
+	  // moved column freezes according to where it now IS.
 	  //
 	  // A resize writes the same number into ALL THREE of width / minWidth / maxWidth,
 	  // because react-table renders a column at `min(max(minWidth, width), maxWidth)`:
@@ -1056,14 +1136,19 @@
 	  // far left it was dragged, and a column with a `maxWidth` could not be widened past it.
 	  // Setting all three collapses that expression to exactly the dragged number — the
 	  // config's floor and ceiling are the DEFAULT, and an explicit drag outranks them.
-	  const cols = React.useMemo(() => {
+	  //
+	  // `actionPos` comes out of the same pass: it is the Action column's insertion index
+	  // among the VISIBLE caller columns, which is what the pin maths below needs (the
+	  // frozen runs are counted in caller columns, and the Action column is inside a run or
+	  // outside it depending on where it now sits).
+	  const layout = React.useMemo(() => {
 	    const hide = new Set(hiddenIds);
-	    const out = [];
-	    columns.forEach(c => {
+	    const byKey = new Map();
+	    columns.forEach((c, i) => {
 	      const id = colIdOf(c);
 	      if (id && c.hideable !== false && hide.has(id)) return;
 	      const w = id ? colWidths[id] : undefined;
-	      out.push(w ? {
+	      byKey.set(id || `__col${i}`, w ? {
 	        ...c,
 	        width: w,
 	        minWidth: w,
@@ -1073,8 +1158,34 @@
 	    // Hiding literally every column would leave react-table with nothing to render — and
 	    // no header row to un-hide anything from. Falling back to the full list keeps the
 	    // table recoverable instead of blank.
-	    return out.length ? out : columns;
-	  }, [columns, hiddenIds, colWidths]);
+	    if (!byKey.size) return {
+	      cols: columns,
+	      actionPos: hasActions ? columns.length : -1
+	    };
+	    const out = [];
+	    let actionPos = -1;
+	    order.forEach(id => {
+	      if (id === '__actions') {
+	        actionPos = out.length;
+	        return;
+	      }
+	      if (byKey.has(id)) {
+	        out.push(byKey.get(id));
+	        byKey.delete(id);
+	      }
+	    });
+	    byKey.forEach(c => out.push(c)); // anything the order somehow missed keeps its place
+	    return {
+	      cols: out,
+	      actionPos: hasActions ? actionPos < 0 ? out.length : actionPos : -1
+	    };
+	  }, [columns, hiddenIds, colWidths, order, hasActions]);
+	  const cols = layout.cols;
+	  const actionPos = layout.actionPos;
+	  // The Action column's rendered width: a dragged width replaces the `actionWidth` prop,
+	  // and both the pin caps and the frozen-block widths have to agree with the column def
+	  // built in `allColumns` below.
+	  const actionColWidth = colWidths.__actions || actionWidth;
 
 	  // Latest-value mirrors: the setters below are called from pointer handlers and from the
 	  // imperative ref, both of which can hold a closure from an older render.
@@ -1082,6 +1193,10 @@
 	  colWidthsRef.current = colWidths;
 	  const hiddenRef = React.useRef(hiddenIds);
 	  hiddenRef.current = hiddenIds;
+	  const orderRef = React.useRef(order);
+	  orderRef.current = order;
+	  const configOrderRef = React.useRef(configOrder);
+	  configOrderRef.current = configOrder;
 	  const setColumnWidth = React.useCallback((id, px) => {
 	    if (!id) return;
 	    const w = Math.max(minColumnWidth, Math.round(parseFloat(px) || 0));
@@ -1123,6 +1238,33 @@
 	    setHiddenColumns(show ? hiddenRef.current.filter(x => x !== id) : hiddenRef.current.concat(id));
 	  }, [setHiddenColumns]);
 
+	  // Replace the whole order. `null` clears the user's choice and falls back to the
+	  // caller's array order. Whatever comes in is reconciled first, so a caller can pass a
+	  // partial list ("these three first") and the rest stays where the config put it.
+	  const setColumnOrder = React.useCallback(ids => {
+	    const next = ids == null ? null : reconcileOrder(configOrderRef.current, ids.slice());
+	    orderRef.current = next || configOrderRef.current;
+	    setUserOrder(next);
+	    // An empty array reads back as "no stored order" — one entry instead of a
+	    // remove/set split, and a reset then behaves the same on a reload as in place.
+	    persist('ctOrd', next || []);
+	    if (onColumnOrderChange) onColumnOrderChange(orderRef.current.slice());
+	  }, [persist, onColumnOrderChange]);
+
+	  // Move one column to a position in the order list — what a menu's ↑ / ↓ buttons want.
+	  // `toIndex` is read AFTER the column has been lifted out, so `position - 1` /
+	  // `position + 1` step it one place either way.
+	  const moveColumn = React.useCallback((id, toIndex) => {
+	    const cur = orderRef.current.slice();
+	    const from = cur.indexOf(id);
+	    if (from < 0) return;
+	    cur.splice(from, 1);
+	    const to = Math.max(0, Math.min(cur.length, parseInt(toIndex, 10) || 0));
+	    if (to === from) return;
+	    cur.splice(to, 0, id);
+	    setColumnOrder(cur);
+	  }, [setColumnOrder]);
+
 	  // ----- Which columns are pinned -----
 	  // The `pinned: true` flags in the column config are only the DEFAULT. The whole
 	  // choice is a single number: how many leading columns are frozen (freezing only
@@ -1158,43 +1300,57 @@
 	  // UX reality of "freeze panes" in any spreadsheet.
 	  // The right block is measured first (it is usually one or two columns, and the Action
 	  // column rides along with it), then whatever viewport is left funds the left block.
+	  // A run of the last n caller columns also carries the Action column whenever the
+	  // Action column sits inside that run — i.e. from `cols.length - n` onwards. Only then
+	  // does its width come out of the right-hand budget.
 	  const maxRightPinCount = React.useMemo(() => {
 	    if (!wrapW) return cols.length;
 	    const budget = wrapW - PIN_MIN_SCROLLABLE;
-	    let used = Actions ? actionWidth : 0;
+	    let used = hasActions && actionPos === cols.length ? actionColWidth : 0;
 	    let n = 0;
 	    for (let i = cols.length - 1; i >= 0; i--) {
 	      used += colWidthOf(cols[i]);
+	      if (hasActions && actionPos === i) used += actionColWidth;
 	      if (used > budget) break;
 	      n++;
 	    }
 	    return n;
-	  }, [cols, wrapW, Actions, actionWidth]);
+	  }, [cols, wrapW, hasActions, actionPos, actionColWidth]);
 	  const effectiveRightPinCount = Math.min(rightPinCount, maxRightPinCount);
 
-	  // The Action column freezes when the right block is non-empty, or on its own via
-	  // `pinActions` — keeping the row's controls reachable is the commonest reason to
-	  // want anything frozen on the right at all.
-	  const actionsPinned = !!Actions && (pinActions || effectiveRightPinCount > 0);
+	  // Where the Action column freezes now that it can be dragged anywhere. It joins
+	  // whichever block it is INSIDE — a frozen run has to stay contiguous, so an Action
+	  // column parked in the middle of the scrolling columns cannot freeze at all, and
+	  // `pinActions` only means anything while it still sits at one end.
+	  //   left run  = the first n caller columns, so it is inside iff actionPos < n
+	  //   right run = the last  m caller columns, so it is inside iff actionPos >= len - m
+	  const actionsPinnedRight = hasActions && (effectiveRightPinCount > 0 && actionPos >= cols.length - effectiveRightPinCount || pinActions && actionPos === cols.length);
 	  const rightBlockWidth = React.useMemo(() => {
-	    let w = actionsPinned ? actionWidth : 0;
+	    let w = actionsPinnedRight ? actionColWidth : 0;
 	    for (let i = cols.length - effectiveRightPinCount; i < cols.length; i++) w += colWidthOf(cols[i]);
 	    return w;
-	  }, [cols, effectiveRightPinCount, actionsPinned, actionWidth]);
+	  }, [cols, effectiveRightPinCount, actionsPinnedRight, actionColWidth]);
 	  const maxPinCount = React.useMemo(() => {
 	    if (!wrapW) return cols.length; // not measured yet — cap kicks in right after mount
 	    const colW = colWidthOf;
 	    const budget = wrapW - PIN_MIN_SCROLLABLE - rightBlockWidth;
 	    let used = rowStripColor ? stripWidth : 0;
 	    let n = 0;
-	    for (const c of cols) {
-	      used += colW(c);
+	    for (let i = 0; i < cols.length; i++) {
+	      if (hasActions && actionPos === i) used += actionColWidth; // swept into this prefix
+	      used += colW(cols[i]);
 	      if (used > budget) break;
 	      n++;
 	    }
 	    return Math.min(n, cols.length - effectiveRightPinCount);
-	  }, [cols, wrapW, rowStripColor, stripWidth, rightBlockWidth, effectiveRightPinCount]);
+	  }, [cols, wrapW, rowStripColor, stripWidth, rightBlockWidth, effectiveRightPinCount, hasActions, actionPos, actionColWidth]);
 	  const effectivePinCount = Math.min(pinCount, maxPinCount);
+
+	  // Mirror of actionsPinnedRight for the left edge — the Action column dragged in front
+	  // of the frozen leading run (or, with `pinActions`, right to the front of the table)
+	  // freezes there instead. Right wins if both somehow claim it; the caps keep the two
+	  // runs from overlapping, so that only happens with a single-column table.
+	  const actionsPinnedLeft = hasActions && !actionsPinnedRight && (effectivePinCount > 0 && actionPos < effectivePinCount || pinActions && actionPos === 0);
 	  const setPinCount = React.useCallback(n => {
 	    setUserPinCount(n);
 	    persist('ctPin', n);
@@ -1262,39 +1418,53 @@
 	    if (Actions) {
 	      // The Action column is resizable like any other; a dragged width replaces the
 	      // `actionWidth` prop for this list (and, with a pinStorageKey, for the next visit).
+	      // It is spliced in at the position the column ORDER gives it — normally the end,
+	      // but it is a real column and can be dragged anywhere the others can.
 	      const actionW = colWidths.__actions;
-	      base.push({
+	      const actionCol = {
 	        id: '__actions',
 	        Header: 'Action',
 	        align: 'center',
 	        width: actionW || 0.6,
 	        minWidth: actionW || actionWidth,
-	        maxWidth: actionW || undefined,
 	        disableFilters: true,
 	        disableSortBy: true,
+	        pinIndex: null,
+	        pinned: actionsPinnedLeft,
+	        pinnedRight: actionsPinnedRight,
+	        pinnedLast: false,
+	        pinnedRightFirst: false,
 	        Cell: ({
 	          row
 	        }) => /*#__PURE__*/React.createElement(Actions, {
 	          object: row.original,
 	          fn: fn
 	        })
-	      });
+	      };
+	      // A dragged width pins all three (see the width note above), but WITHOUT one there
+	      // must be no `maxWidth` KEY at all — react-table merges the column over its
+	      // defaults with Object.assign, which copies an explicit `undefined` straight over
+	      // the default `Number.MAX_SAFE_INTEGER`. The width then resolves as
+	      // `min(max(minWidth, width), undefined)` = NaN, which propagates into
+	      // `totalColumnsWidth` and lands as `min-width: NaN` on the table element.
+	      if (actionW) actionCol.maxWidth = actionW;
+	      base.splice(rowStripColor ? actionPos + 1 : actionPos, 0, actionCol);
 	    }
-	    // The status strip auto-freezes with the leading run (it sits left of everything),
-	    // and the Action column auto-freezes with the trailing one (it sits right of
-	    // everything) — each would otherwise be stranded outside its own block.
+	    // The status strip auto-freezes with the leading run — it sits left of everything,
+	    // and would otherwise be stranded outside the block. (The Action column used to get
+	    // the same treatment on the right; now that it can be moved, it freezes according to
+	    // which run it actually lies in — see actionsPinnedLeft / actionsPinnedRight.)
 	    let lastPinned = null;
 	    let firstPinnedRight = null;
 	    base.forEach(c => {
 	      if (c.id === '__strip') c.pinned = effectivePinCount > 0;
-	      if (c.id === '__actions') c.pinnedRight = actionsPinned;
 	      if (c.pinned) lastPinned = c;
 	      if (c.pinnedRight && !firstPinnedRight) firstPinnedRight = c;
 	    });
 	    if (lastPinned) lastPinned.pinnedLast = true;
 	    if (firstPinnedRight) firstPinnedRight.pinnedRightFirst = true;
 	    return base;
-	  }, [cols, colWidths, Actions, fn, actionWidth, rowStripColor, rowStripTitle, stripWidth, effectivePinCount, effectiveRightPinCount, actionsPinned]);
+	  }, [cols, colWidths, Actions, fn, actionWidth, actionPos, rowStripColor, rowStripTitle, stripWidth, effectivePinCount, effectiveRightPinCount, actionsPinnedLeft, actionsPinnedRight]);
 	  const hasPinned = React.useMemo(() => allColumns.some(c => c.pinned), [allColumns]);
 	  const hasPinnedRight = React.useMemo(() => allColumns.some(c => c.pinnedRight), [allColumns]);
 
@@ -1414,18 +1584,62 @@
 	    setHiddenColumns: ids => setHiddenColumns(ids),
 	    toggleColumn: (id, visible) => toggleColumn(id, visible),
 	    showAllColumns: () => setHiddenColumns([]),
-	    getColumnList: () => columns.map((c, i) => {
-	      const id = colIdOf(c);
-	      return {
-	        id,
-	        index: i,
-	        header: typeof c.Header === 'string' ? c.Header : undefined,
-	        hidden: !!(id && c.hideable !== false && hiddenRef.current.indexOf(id) >= 0),
-	        hideable: !!id && c.hideable !== false,
-	        resizable: !!id && resizable && !c.disableResizing,
-	        width: id && colWidthsRef.current[id] != null ? colWidthsRef.current[id] : colWidthOf(c)
-	      };
-	    }),
+	    // ----- Column order -----
+	    // The order is a flat list of ids in DISPLAY order, hidden columns included (it is a
+	    // layout, not a view) and with `'__actions'` in it whenever an Actions renderer is
+	    // given. A list passed to setColumnOrder does not have to be complete: ids it leaves
+	    // out are slotted back in beside their CONFIGURED neighbours (the same merge a
+	    // stored order gets when the column config has grown since), so pass the full list
+	    // from getColumnOrder() if you want to place every column yourself. `null` drops the
+	    // user's order entirely and goes back to the caller's array order.
+	    getColumnOrder: () => orderRef.current.slice(),
+	    setColumnOrder: ids => setColumnOrder(ids),
+	    moveColumn: (id, toIndex) => moveColumn(id, toIndex),
+	    resetColumnOrder: () => setColumnOrder(null),
+	    // One entry per column IN DISPLAY ORDER — everything a column menu needs, including
+	    // the Action column, so the menu can move that one too. `index` is still the
+	    // column's place in the caller's `columns` array (null for the Action column);
+	    // `position` is its place in getColumnOrder(), which is what moveColumn() takes.
+	    getColumnList: () => {
+	      const byId = new Map();
+	      columns.forEach((c, i) => byId.set(colIdOf(c) || `__col${i}`, {
+	        c,
+	        i
+	      }));
+	      return orderRef.current.map((key, position) => {
+	        if (key === '__actions') {
+	          return {
+	            id: '__actions',
+	            index: null,
+	            position,
+	            header: 'Action',
+	            hidden: false,
+	            hideable: false,
+	            resizable: resizable,
+	            movable: reorderable,
+	            width: colWidthsRef.current.__actions != null ? colWidthsRef.current.__actions : actionWidth
+	          };
+	        }
+	        const entry = byId.get(key);
+	        if (!entry) return null;
+	        const {
+	          c,
+	          i
+	        } = entry;
+	        const id = colIdOf(c);
+	        return {
+	          id,
+	          index: i,
+	          position,
+	          header: typeof c.Header === 'string' ? c.Header : undefined,
+	          hidden: !!(id && c.hideable !== false && hiddenRef.current.indexOf(id) >= 0),
+	          hideable: !!id && c.hideable !== false,
+	          resizable: !!id && resizable && !c.disableResizing,
+	          movable: !!id && reorderable && !c.disableReordering,
+	          width: id && colWidthsRef.current[id] != null ? colWidthsRef.current[id] : colWidthOf(c)
+	        };
+	      }).filter(Boolean);
+	    },
 	    // Move the selection (and the focus) to a row — e.g. a list that re-fetches on a
 	    // Search click wants the first row selected + focused once the results land, but
 	    // the table is already mounted so the mount-time focus effect won't fire again.
@@ -1719,6 +1933,7 @@
 	  // drives the windowing — no React re-render per frame.
 	  const rootRef = React.useRef(null);
 	  const guideRef = React.useRef(null);
+	  const dropRef = React.useRef(null);
 	  const vTrackRef = React.useRef(null);
 	  const vThumbRef = React.useRef(null);
 	  const hTrackRef = React.useRef(null);
@@ -1866,6 +2081,115 @@
 	    window.addEventListener('pointerup', onUp);
 	  }, [minColumnWidth, setColumnWidth]);
 
+	  // ----- Column reorder -----
+	  // Dragging a header sideways moves that column. Like the resize drag, NOTHING is
+	  // written to state per frame — the pointer only moves a drop-indicator line and the
+	  // new order is committed once, on pointer-up. (The column defs are what `itemData`
+	  // hangs off, so a live reorder would re-render every visible row on every frame.)
+	  //
+	  // The press has to serve two gestures: a click sorts, a drag reorders. The drag arms
+	  // itself only after DRAG_SLOP pixels, so a plain click falls straight through to the
+	  // sort toggle; once it HAS armed, the click that the pointer-up fires is swallowed in
+	  // the capture phase, otherwise every reorder would flip the sort on its way out.
+	  const dragEndedRef = React.useRef(false);
+	  const startColReorder = React.useCallback(id => e => {
+	    // Mouse only: on a touch screen, dragging a header sideways is how the user pans a
+	    // wide table, and stealing that gesture would leave the table unscrollable.
+	    if (e.button !== 0 || e.pointerType && e.pointerType !== 'mouse') return;
+	    const tag = e.target && e.target.tagName;
+	    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return; // the filter box
+	    dragEndedRef.current = false; // a previous drag that ended off-target never fired its click
+	    const th = e.currentTarget;
+	    const root = rootRef.current;
+	    const wrap = containerRef.current;
+	    const line = dropRef.current;
+	    if (!root || !wrap) return;
+	    const startX = e.clientX;
+	    const EDGE = 48; // auto-scroll band at either end of the scrollport
+	    let pointerX = startX;
+	    let dragging = false;
+	    let beforeId = null; // the column the dragged one will land in front of; null = last
+	    let raf = 0;
+	    const frame = () => {
+	      if (!dragging) {
+	        raf = 0;
+	        return;
+	      }
+	      const wrapRect = wrap.getBoundingClientRect();
+	      // Auto-scroll while the pointer rests near an edge. On a table wide enough to
+	      // want frozen columns, the place you are dragging TO is usually off screen, and
+	      // without this the drag can only reach as far as the current viewport.
+	      if (pointerX < wrapRect.left + EDGE) wrap.scrollLeft -= Math.ceil((wrapRect.left + EDGE - pointerX) / 4);else if (pointerX > wrapRect.right - EDGE) wrap.scrollLeft += Math.ceil((pointerX - (wrapRect.right - EDGE)) / 4);
+
+	      // Live rects every frame rather than a snapshot taken at pointer-down: a frozen
+	      // header sits nowhere near its layout position, and the auto-scroll above moves
+	      // every unfrozen one under the pointer.
+	      const rootRect = root.getBoundingClientRect();
+	      const heads = root.querySelectorAll('.ft-th[data-ct-col]');
+	      let edgeX = null;
+	      let lastRight = null;
+	      beforeId = null;
+	      for (let i = 0; i < heads.length; i++) {
+	        const cid = heads[i].getAttribute('data-ct-col');
+	        if (cid === '__strip') continue; // the status strip is never a drop target
+	        const r = heads[i].getBoundingClientRect();
+	        lastRight = r.right;
+	        if (beforeId == null && pointerX < r.left + r.width / 2) {
+	          beforeId = cid;
+	          edgeX = r.left;
+	        }
+	      }
+	      if (beforeId == null) edgeX = lastRight; // past the midpoint of the last one = drop at the end
+	      if (line && edgeX != null) {
+	        line.style.display = 'block';
+	        // Clamped to the table box, exactly like the resize guide: the pointer can
+	        // travel far outside it and a line drawn there would streak across the page.
+	        line.style.transform = `translateX(${Math.min(Math.max(0, edgeX - rootRect.left), rootRect.width - 3)}px)`;
+	      }
+	      raf = window.requestAnimationFrame(frame);
+	    };
+	    const onMove = ev => {
+	      pointerX = ev.clientX;
+	      if (!dragging) {
+	        if (Math.abs(pointerX - startX) < DRAG_SLOP) return;
+	        dragging = true;
+	        th.classList.add('ft-th-dragging');
+	        document.body.style.userSelect = 'none';
+	        document.body.style.cursor = 'grabbing';
+	      }
+	      if (!raf) raf = window.requestAnimationFrame(frame);
+	    };
+	    const onUp = () => {
+	      window.removeEventListener('pointermove', onMove);
+	      window.removeEventListener('pointerup', onUp);
+	      if (raf) window.cancelAnimationFrame(raf);
+	      if (!dragging) return; // never armed — leave the click alone, it is a sort
+	      dragging = false;
+	      th.classList.remove('ft-th-dragging');
+	      if (line) line.style.display = 'none';
+	      document.body.style.userSelect = '';
+	      document.body.style.cursor = '';
+	      dragEndedRef.current = true;
+	      const cur = orderRef.current.filter(x => x !== id);
+	      const at = beforeId && beforeId !== id ? cur.indexOf(beforeId) : -1;
+	      cur.splice(at < 0 ? cur.length : at, 0, id);
+	      // Dropping a column back where it started is a no-op, not a layout change worth
+	      // persisting or telling the caller about.
+	      if (cur.some((x, i) => x !== orderRef.current[i])) setColumnOrder(cur);
+	    };
+	    window.addEventListener('pointermove', onMove);
+	    window.addEventListener('pointerup', onUp);
+	  }, [setColumnOrder]);
+
+	  // Swallow the click a completed reorder drag leaves behind (it would reach the
+	  // header's sort toggle). Capture phase, because the toggle's own onClick sits deeper.
+	  const onHeaderClickCapture = React.useCallback(e => {
+	    if (!dragEndedRef.current) return;
+	    dragEndedRef.current = false;
+	    e.stopPropagation();
+	    e.preventDefault();
+	  }, []);
+
 	  // Which rows are actually rendered. The frozen columns are sticky, so this can lag a
 	  // frame behind the scroll without ever pulling them out of place.
 	  const firstIdx = Math.max(0, Math.floor(scrollTop / rowHeight) - OVERSCAN);
@@ -1934,6 +2258,8 @@
 	      const canSearch = searchable && column.canFilter && !column.disableFilters;
 	      // The status strip is a fixed 4px bar — there is nothing in it to resize.
 	      const canResize = resizable && !column.disableResizing && column.id !== '__strip';
+	      // …and nothing to move: it belongs to the row, not to the caller's columns.
+	      const canReorder = reorderable && !column.disableReordering && column.id !== '__strip';
 	      const {
 	        key: headerKey,
 	        ...headerProps
@@ -1943,6 +2269,9 @@
 	        key: headerKey
 	      }, headerProps, {
 	        className: "ft-th ct-th",
+	        "data-ct-col": column.id,
+	        onPointerDown: canReorder ? startColReorder(column.id) : undefined,
+	        onClickCapture: canReorder ? onHeaderClickCapture : undefined,
 	        "data-ct-pin": column.pinned || column.pinnedRight ? '1' : undefined,
 	        "data-ct-pin-last": column.pinnedLast ? '1' : undefined,
 	        "data-ct-pin-right-first": column.pinnedRightFirst ? '1' : undefined,
@@ -2152,6 +2481,12 @@
 	  })), /*#__PURE__*/React.createElement("div", {
 	    className: "ft-resize-guide",
 	    ref: guideRef,
+	    style: {
+	      display: 'none'
+	    }
+	  }), /*#__PURE__*/React.createElement("div", {
+	    className: "ft-drop-line",
+	    ref: dropRef,
 	    style: {
 	      display: 'none'
 	    }
@@ -2395,6 +2730,12 @@
 	  borderColor: '#0070C2',
 	  color: '#fff'
 	};
+	const miniBtn = {
+	  ...btn,
+	  padding: '0 5px',
+	  lineHeight: '16px',
+	  fontSize: 12
+	};
 	const menuBox = {
 	  position: 'absolute',
 	  top: 'calc(100% + 4px)',
@@ -2422,6 +2763,8 @@
 	  // re-derive any of that from COLUMNS.
 	  const [hidden, setHidden] = reactExports.useState([]);
 	  const [menuOpen, setMenuOpen] = reactExports.useState(false);
+	  // The table owns the order too; the menu just needs a nudge to re-read it.
+	  const [, bumpOrder] = reactExports.useState(0);
 	  const columns = reactExports.useMemo(() => COLUMNS, []);
 	  const data = reactExports.useMemo(() => empty ? [] : ROWS, [empty]);
 	  const applyPin = n => {
@@ -2448,6 +2791,16 @@
 	    tableRef.current.showAllColumns();
 	    setHidden([]);
 	  };
+	  const move = (id, to) => {
+	    if (!tableRef.current) return;
+	    tableRef.current.moveColumn(id, to);
+	    bumpOrder(n => n + 1);
+	  };
+	  const resetOrder = () => {
+	    if (!tableRef.current) return;
+	    tableRef.current.resetColumnOrder();
+	    bumpOrder(n => n + 1);
+	  };
 	  return /*#__PURE__*/React.createElement("div", {
 	    style: {
 	      font: '13px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
@@ -2466,7 +2819,7 @@
 	      margin: '0 0 14px',
 	      color: '#5a6a7a'
 	    }
-	  }, "2,000 rows \xB7 18 columns \xB7 left se ", pin, " column aur right se ", rightPin, " (+ Action) freeze \xB7 header ke right edge ko drag karke column resize karo (double-click = reset) \xB7 arrow keys / Home / End / Enter chalte hain (table pe click karke try karo)."), /*#__PURE__*/React.createElement("div", {
+	  }, "2,000 rows \xB7 18 columns \xB7 left se ", pin, " column aur right se ", rightPin, " (+ Action) freeze \xB7 header ko pakad ke side mein drag karo to column move hota hai (Action column bhi) \xB7 header ke right edge ko drag karke column resize karo (double-click = reset) \xB7 arrow keys / Home / End / Enter chalte hain (table pe click karke try karo)."), /*#__PURE__*/React.createElement("div", {
 	    style: {
 	      display: 'flex',
 	      gap: 8,
@@ -2510,13 +2863,21 @@
 	    onClick: () => setMenuOpen(v => !v)
 	  }, "Columns", hidden.length ? ` (${hidden.length} hidden)` : ''), menuOpen && /*#__PURE__*/React.createElement("div", {
 	    style: menuBox
-	  }, (tableRef.current ? tableRef.current.getColumnList() : []).map(c => /*#__PURE__*/React.createElement("label", {
+	  }, (tableRef.current ? tableRef.current.getColumnList() : []).map((c, i, list) => /*#__PURE__*/React.createElement("div", {
 	    key: c.id,
 	    style: {
 	      display: 'flex',
 	      gap: 6,
 	      alignItems: 'center',
-	      padding: '3px 2px',
+	      padding: '2px'
+	    }
+	  }, /*#__PURE__*/React.createElement("label", {
+	    style: {
+	      display: 'flex',
+	      gap: 6,
+	      alignItems: 'center',
+	      flex: 1,
+	      minWidth: 0,
 	      cursor: c.hideable ? 'pointer' : 'default',
 	      opacity: c.hideable ? 1 : 0.5
 	    }
@@ -2525,13 +2886,32 @@
 	    checked: !c.hidden,
 	    disabled: !c.hideable,
 	    onChange: () => toggleCol(c.id)
-	  }), /*#__PURE__*/React.createElement("span", null, c.header || c.id))), /*#__PURE__*/React.createElement("div", {
+	  }), /*#__PURE__*/React.createElement("span", {
+	    style: {
+	      overflow: 'hidden',
+	      textOverflow: 'ellipsis',
+	      whiteSpace: 'nowrap'
+	    }
+	  }, c.header || c.id)), /*#__PURE__*/React.createElement("button", {
+	    type: "button",
+	    style: miniBtn,
+	    disabled: !c.movable || i === 0,
+	    onClick: () => move(c.id, c.position - 1),
+	    title: "Move up"
+	  }, "\u2191"), /*#__PURE__*/React.createElement("button", {
+	    type: "button",
+	    style: miniBtn,
+	    disabled: !c.movable || i === list.length - 1,
+	    onClick: () => move(c.id, c.position + 1),
+	    title: "Move down"
+	  }, "\u2193"))), /*#__PURE__*/React.createElement("div", {
 	    style: {
 	      display: 'flex',
 	      gap: 6,
 	      marginTop: 6,
 	      borderTop: '1px solid #e3e8ee',
-	      paddingTop: 6
+	      paddingTop: 6,
+	      flexWrap: 'wrap'
 	    }
 	  }, /*#__PURE__*/React.createElement("button", {
 	    type: "button",
@@ -2541,7 +2921,11 @@
 	    type: "button",
 	    style: btn,
 	    onClick: () => tableRef.current && tableRef.current.resetColumnWidths()
-	  }, "Reset widths")))), /*#__PURE__*/React.createElement("span", {
+	  }, "Reset widths"), /*#__PURE__*/React.createElement("button", {
+	    type: "button",
+	    style: btn,
+	    onClick: resetOrder
+	  }, "Reset order")))), /*#__PURE__*/React.createElement("span", {
 	    style: {
 	      width: 16
 	    }

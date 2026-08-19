@@ -61,6 +61,13 @@ const STYLESHEET = `
    per frame (see startColResize) — this guide is the only thing that moves. */
 .ft-resize-guide{position:absolute;top:0;bottom:0;left:0;width:2px;background:#0070C2;
   opacity:.7;pointer-events:none;z-index:7;}
+
+/* Column reorder. Same deal as the resize guide: the drop line is the ONLY thing that
+   moves while the pointer is down (see startColReorder), and the header being carried
+   dims so the line reads as "this column lands here" rather than as a second cursor. */
+.ft-th-dragging{opacity:.4;}
+.ft-drop-line{position:absolute;top:0;bottom:0;left:0;width:3px;background:#0070C2;
+  border-radius:2px;pointer-events:none;z-index:7;}
 `;
 
 let injected = false;

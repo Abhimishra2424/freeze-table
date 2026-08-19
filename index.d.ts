@@ -50,6 +50,8 @@ export interface FreezeTableColumn<D extends object = any> {
   hideable?: boolean;
   /** Drop this column's drag-to-resize grip. */
   disableResizing?: boolean;
+  /** Lock this column in place — its header cannot be dragged to a new position. */
+  disableReordering?: boolean;
   [key: string]: any;
 }
 
@@ -92,10 +94,15 @@ export interface FreezeTableProps<D extends object = any> {
   loadingText?: React.ReactNode;
   /** Action column min width in px. Default 110. */
   actionWidth?: number;
-  /** Freeze the Action column against the right edge on its own, without pinning any
-   *  data column. (It also freezes automatically whenever `rightPinCount > 0`.)
-   *  Default false. */
+  /** Freeze the Action column against the edge it sits at, without pinning any data
+   *  column. (It also freezes automatically whenever it lies inside a frozen run.)
+   *  Ignored while the column sits in the middle of the scrolling columns — a frozen
+   *  run has to stay contiguous. Default false. */
   pinActions?: boolean;
+  /** DEFAULT position of the Action column among the caller's columns: `'last'`
+   *  (default), `'first'`, or an index into `columns`. The user's own order (drag, or
+   *  the ref methods) overrides it and persists under `ctOrd:<pinStorageKey>`. */
+  actionIndex?: number | 'first' | 'last';
   /** Static left-aligned footer label — cannot see filtered rows (prefer a column `Footer`). */
   footerLeft?: React.ReactNode;
   /** Override footer visibility (auto = any column `Footer` or `footerLeft` set). */
@@ -126,12 +133,15 @@ export interface FreezeTableProps<D extends object = any> {
   /** Strip column width in px. Default 14. */
   stripWidth?: number;
   /** Persist the user's layout in `localStorage`: pin boundaries (`ctPin:<key>` /
-   *  `ctPinR:<key>`), dragged column widths (`ctW:<key>`) and hidden columns
-   *  (`ctHide:<key>`). */
+   *  `ctPinR:<key>`), dragged column widths (`ctW:<key>`), hidden columns
+   *  (`ctHide:<key>`) and the column order (`ctOrd:<key>`). */
   pinStorageKey?: string;
   /** Drag-to-resize grip on every header's right edge (the status strip never gets one).
    *  Default true. */
   resizable?: boolean;
+  /** Drag a header sideways to move that column (the Action column included).
+   *  Default true. */
+  reorderable?: boolean;
   /** Floor for a drag-resized column, in px. Default 48. */
   minColumnWidth?: number;
   /** Fires when a column is resized or reset. `width` is null on a reset; `widths` is the
@@ -139,6 +149,9 @@ export interface FreezeTableProps<D extends object = any> {
   onColumnResize?: (id: string | null, width: number | null, widths: Record<string, number>) => void;
   /** Fires whenever the hidden-column set changes. */
   onColumnVisibilityChange?: (hiddenIds: string[]) => void;
+  /** Fires whenever the column order changes, with the full order (hidden columns
+   *  included, and `'__actions'` when there is an Action column). */
+  onColumnOrderChange?: (order: string[]) => void;
   /** Extra class on the root element. */
   className?: string;
   /** Extra inline styles merged onto the root element. */
@@ -147,10 +160,14 @@ export interface FreezeTableProps<D extends object = any> {
 
 /** One row of {@link FreezeTableHandle.getColumnList} — enough to render a column menu. */
 export interface FreezeTableColumnInfo {
-  /** react-table id: the explicit `id`, else the string `accessor`. */
+  /** react-table id: the explicit `id`, else the string `accessor`. `'__actions'` for
+   *  the Action column. */
   id?: string;
-  /** Position in the caller's `columns` array. */
-  index: number;
+  /** Position in the caller's `columns` array — null for the Action column. */
+  index: number | null;
+  /** Position in the current display order, i.e. the index {@link
+   *  FreezeTableHandle.moveColumn} takes. */
+  position: number;
   /** The `Header` when it is a plain string (a node cannot be listed in a menu). */
   header?: string;
   /** Currently hidden. */
@@ -159,6 +176,8 @@ export interface FreezeTableColumnInfo {
   hideable: boolean;
   /** Carries a resize grip. */
   resizable: boolean;
+  /** Can be dragged / moved to another position. */
+  movable: boolean;
   /** Current width in px — the user's override if there is one, else the configured one. */
   width: number;
 }
@@ -198,7 +217,22 @@ export interface FreezeTableHandle {
   toggleColumn(id: string, visible?: boolean): void;
   /** Un-hide everything. */
   showAllColumns(): void;
-  /** Everything a column menu needs, in the caller's own column order. */
+
+  /** The current order as a flat list of ids — DISPLAY order, hidden columns included,
+   *  and `'__actions'` in it whenever there is an Action column. */
+  getColumnOrder(): string[];
+  /** Replace the order. Ids left out of the list are slotted back in beside their
+   *  configured neighbours; `null` drops the user's order and restores the config one. */
+  setColumnOrder(ids: string[] | null): void;
+  /** Move one column to a position in {@link getColumnOrder} — the index is read after
+   *  the column has been lifted out, so `position - 1` / `position + 1` step it one
+   *  place either way. */
+  moveColumn(id: string, toIndex: number): void;
+  /** Back to the order of the caller's `columns` array. */
+  resetColumnOrder(): void;
+
+  /** Everything a column menu needs, in the current DISPLAY order, with the Action
+   *  column included so the menu can move that one too. */
   getColumnList(): FreezeTableColumnInfo[];
 
   /** @deprecated Pre-0.6 name for {@link getLeftPinCount}. */

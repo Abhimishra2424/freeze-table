@@ -40,8 +40,9 @@ exactly what an accounting / ERP list screen needs, in ~900 lines you can read.
   which is precisely what keeps the single scrollport, and therefore the sticky freeze,
   possible.
 - **Keyboard first.** ↑/↓/Home/End/Enter work on mount, without the user clicking in.
-- **The user's layout is theirs.** Freeze boundary, column widths and hidden columns are
-  all draggable / toggleable at runtime and survive a reload (one `pinStorageKey`).
+- **The user's layout is theirs.** Freeze boundary, column widths, column order and
+  hidden columns are all draggable / toggleable at runtime and survive a reload (one
+  `pinStorageKey`). Even the Action column can be dragged out of the right-hand end.
 - **Selection repaints imperatively**, so arrow-key navigation does not re-render every
   visible row.
 
@@ -57,7 +58,7 @@ exactly what an accounting / ERP list screen needs, in ~900 lines you can read.
 6. [Keyboard navigation and body states](#6-keyboard-navigation-and-body-states)
 7. [Footer totals](#7-footer-totals)
 8. [Frozen (pinned) columns](#8-frozen-pinned-columns)
-9. [Column resizing and hiding](#9-column-resizing-and-hiding)
+9. [Column resizing, hiding and reordering](#9-column-resizing-hiding-and-reordering)
 10. [Per-row status colouring](#10-per-row-status-colouring)
 11. [Restoring position on re-entry](#11-restoring-position-on-re-entry)
 12. [Styling hooks](#12-styling-hooks)
@@ -228,10 +229,11 @@ const columns = useMemo(() => makeColumns(openPopup), []);
 
 - **`__strip`** — prepended when `rowStripColor` is given: the narrow status-bar column
   (`stripWidth`, default 14px). Unsortable, unfilterable, auto-freezes with the pinned run.
-- **`__actions`** — appended when `Actions` is given: the right-side Action column
+- **`__actions`** — added when `Actions` is given: the Action column
   (`minWidth: actionWidth`, default 110). Renders
-  `<Actions object={row.original} fn={fn} />` — note there is **no row index**. Freezes
-  with the right block whenever `rightPinCount > 0`.
+  `<Actions object={row.original} fn={fn} />` — note there is **no row index**. It starts
+  at the right-hand end (`actionIndex`), but it is a real column: the user can drag it
+  anywhere, and it freezes with whichever frozen run it ends up inside (§8, §9).
 
 ### Date columns
 
@@ -257,7 +259,8 @@ is not clipped:
 | `Actions`           | —                     | Component for the auto-appended Action column                        |
 | `fn`                | —                     | Passed straight through to `Actions` as its `fn` prop                |
 | `actionWidth`       | `110`                 | Action column min width px                                           |
-| `pinActions`        | `false`               | Freeze just the Action column against the right edge (§8)            |
+| `pinActions`        | `false`               | Freeze just the Action column against the edge it sits at (§8)       |
+| `actionIndex`       | `'last'`              | Where the Action column **starts** — `'first'`, `'last'` or an index (§9) |
 | `userList`          | —                     | Forwarded onto the table instance → readable in every `Cell`         |
 | `sortable`          | `true`                | Master switch for sorting                                            |
 | `searchable`        | `true`                | Master switch for the per-column search boxes                        |
@@ -279,11 +282,13 @@ is not clipped:
 | `rowStripTitle`     | —                     | `(rowData) => string` — hover tooltip on the strip cell              |
 | `rowStyle`          | —                     | `(rowData) => ({ backgroundColor?, color? })` — full-row tint (§10)   |
 | `stripWidth`        | `14`                  | Strip column width px                                                |
-| `pinStorageKey`     | —                     | Persist the freeze boundaries, column widths and hidden columns in `localStorage` (§8, §9) |
+| `pinStorageKey`     | —                     | Persist the freeze boundaries, column widths, hidden columns and column order in `localStorage` (§8, §9) |
 | `resizable`         | `true`                | Drag-to-resize grip on every header's right edge (§9)                |
+| `reorderable`       | `true`                | Drag a header sideways to move that column (§9)                      |
 | `minColumnWidth`    | `48`                  | Floor for a drag-resized column, px (§9)                             |
 | `onColumnResize`    | —                     | `(id, width, widths)` — `width` is `null` on a reset (§9)            |
 | `onColumnVisibilityChange` | —              | `(hiddenIds)` whenever a column is hidden or shown (§9)              |
+| `onColumnOrderChange` | —                   | `(order)` whenever the column order changes (§9)                     |
 | `className`         | —                     | Extra class on the root element                                      |
 | `style`             | —                     | Extra inline styles merged onto the root element                     |
 
@@ -314,7 +319,11 @@ const tableRef = useRef(null);
 | `setHiddenColumns(ids)` | Replace the hidden set (`hideable: false` ids are ignored)             |
 | `toggleColumn(id, visible?)` | Hide/show one column — omit `visible` to flip it                 |
 | `showAllColumns()` | Un-hide everything                                                         |
-| `getColumnList()`  | `[{ id, index, header, hidden, hideable, resizable, width }]` — everything a column menu needs |
+| `getColumnOrder()` | The current order as a flat list of ids — display order, hidden columns included, `'__actions'` among them (§9) |
+| `setColumnOrder(ids)` | Replace the order; ids you leave out are slotted back in beside their configured neighbours. `null` restores the config order |
+| `moveColumn(id, i)` | Move one column to position `i` of `getColumnOrder()`                     |
+| `resetColumnOrder()` | Back to the order of your `columns` array                                |
+| `getColumnList()`  | `[{ id, index, position, header, hidden, hideable, resizable, movable, width }]` — everything a column menu needs, in **display order**, Action column included |
 
 Both boundaries persist when `pinStorageKey` is set. `getPinCount` / `getMaxPinCount` /
 `setPinCount` are the pre-0.6 names for the three left-hand methods — they still work,
@@ -420,13 +429,16 @@ Both counts speak in terms of the columns **currently on screen**: a hidden colu
 is not counted, so "first 3" with the second column hidden freezes the 1st, 3rd and 4th
 of your `columns` array.
 
-- The auto-appended columns join the block on their own side: the status strip freezes
-  left whenever `pinCount > 0`, the Action column freezes right whenever
-  `rightPinCount > 0`. Either would otherwise be stranded outside its own block.
+- The status strip freezes left whenever `pinCount > 0` — it sits left of everything and
+  would otherwise be stranded outside the block.
+- The Action column freezes with **whichever run it lies inside**. Left at its default
+  position that means the right-hand one, exactly as before; drag it (§9) in front of a
+  left-frozen run and it freezes there instead; park it in the middle of the scrolling
+  columns and it cannot freeze at all, because a frozen run has to stay contiguous.
 - **To freeze only the row's actions**, pass `pinActions` and leave `rightPinCount` at
   0. Keeping the row controls reachable without scrolling back is the commonest reason
   to want anything frozen on the right, and it should not force a data column along with
-  it:
+  it (this too follows the column wherever it sits, and is ignored in the middle):
 
   ```jsx
   <FreezeTable columns={columns} data={rows} Actions={RowActions} pinActions />
@@ -494,11 +506,11 @@ shadow once the table is scrolled.
 
 ---
 
-## 9. Column resizing and hiding
+## 9. Column resizing, hiding and reordering
 
-Two more per-user layout choices, built the same way as the freeze boundary (§8): the
+Three more per-user layout choices, built the same way as the freeze boundary (§8): the
 column config carries the **default**, the user's choice lives in the table's own state,
-and the caller drives it through the ref. Both persist under `pinStorageKey`.
+and the caller drives it through the ref. All three persist under `pinStorageKey`.
 
 ### Resizing
 
@@ -578,6 +590,59 @@ Things worth knowing:
 - `hideable: false` locks a column visible even against `hidden: true`, and hiding *every*
   column falls back to showing them all — a blank table has no header to un-hide from.
 
+### Reordering
+
+**Drag a header sideways** to move that column. The drag arms only after a few pixels, so
+an ordinary click still sorts; while it is armed the header dims and a blue line shows
+where the column will land, and the order is committed on release. Dragging near either
+edge of the table auto-scrolls, so a column can be carried across a table far wider than
+the screen.
+
+The **Action column moves like any other column** — `actionIndex` only says where it
+starts:
+
+```jsx
+<FreezeTable
+  columns={columns}
+  data={rows}
+  Actions={RowActions}
+  actionIndex="first"      // 'last' (default) | 'first' | an index into `columns`
+  reorderable              // default true — pass false to lock every header
+  pinStorageKey="sales-invoice-list"
+  onColumnOrderChange={(order) => log(order)}
+/>
+```
+
+- Per column: `disableReordering: true` locks that one in place.
+- The status strip is never movable — it belongs to the row, not to your columns.
+- Reordering is a **mouse gesture**. On a touch screen, dragging a header sideways is how
+  the table is panned, and hijacking it would leave a wide table unscrollable.
+- A moved column keeps its sort, its filter and its width; what changes is where it sits,
+  which is also what the freeze counts and the sticky offsets are computed from. Drag a
+  column into the frozen run and it is frozen.
+
+Driving it from a menu instead — `getColumnList()` comes back in display order, with a
+`position` (the index `moveColumn` takes) and a `movable` flag, and includes the Action
+column:
+
+```jsx
+{tableRef.current?.getColumnList().map((c, i, list) => (
+  <div key={c.id}>
+    {c.header || c.id}
+    <button disabled={!c.movable || i === 0}
+            onClick={() => { tableRef.current.moveColumn(c.id, c.position - 1); forceUpdate(); }}>↑</button>
+    <button disabled={!c.movable || i === list.length - 1}
+            onClick={() => { tableRef.current.moveColumn(c.id, c.position + 1); forceUpdate(); }}>↓</button>
+  </div>
+))}
+```
+
+`getColumnOrder()` / `setColumnOrder(ids)` deal in the whole list at once, and
+`resetColumnOrder()` goes back to your `columns` array. A stored order is **merged** with
+the current config rather than trusted wholesale: ids the config no longer has are
+dropped, and a column you have since added lands next to the neighbour you configured it
+after — not dumped at the end as though the user had moved it there.
+
 ### What gets persisted
 
 With `pinStorageKey="sales-invoice-list"`:
@@ -588,6 +653,7 @@ With `pinStorageKey="sales-invoice-list"`:
 | `ctPinR:sales-invoice-list`      | right freeze count                       |
 | `ctW:sales-invoice-list`         | `{"<columnId>": <px>}` — resized columns only |
 | `ctHide:sales-invoice-list`      | `["<columnId>", …]` — hidden columns     |
+| `ctOrd:sales-invoice-list`       | `["<columnId>", …]` — the column order, `"__actions"` included |
 
 Without the key nothing is stored and every choice lasts until unmount.
 
@@ -687,8 +753,11 @@ your tests:
 | `.ft-th-filter`        | search-box wrapper             | —                                       |
 | `.ft-resizer`          | grip on the header's right edge | the hover line (§9)                    |
 | `.ft-resize-guide`     | root element                   | the line that follows a resize drag      |
+| `.ft-drop-line`        | root element                   | where a dragged column will land (§9)    |
+| `.ft-th-dragging`      | `.ft-th` being dragged         | the dimmed header during a reorder       |
 | `.ft-row` / `.ft-td`   | row / body cell                | selection repaint                       |
 | `.ft-foot` / `.ft-tf`  | footer row / cell              | —                                       |
+| `data-ct-col`          | `.ft-th`                       | the column's id (reorder drop targets)  |
 | `data-ct-index`        | `.ft-row`                      | row index (selection repaint)           |
 | `data-ct-bg`           | `.ft-row`                      | the row's base background               |
 | `data-ct-custom`       | `.ft-row`                      | `'1'` when `rowStyle` returned a bg      |
@@ -720,9 +789,12 @@ Key values, if you want to re-theme by forking:
 4. **Row menus must escape the row's `overflow: hidden`.** Use a portal-based popup, not
    an inline dropdown, or the menu will be clipped by its row.
 5. **Sorting is three-state** — ascending → descending → unsorted.
-6. `Header` is best kept a plain string: a "pin up to here" menu in your toolbar has to
-   render it as a label.
-7. Custom `Filter` dropdowns that render their menu in a portal need a real CSS rule for
+6. `Header` is best kept a plain string: a "pin up to here" or column menu in your
+   toolbar has to render it as a label.
+7. **A header press is two gestures.** Click = sort, drag sideways = reorder, drag the
+   right edge = resize. If you put an interactive control inside a `Header`, give it its
+   own `onPointerDown` stopPropagation, or dragging it will move the column.
+8. Custom `Filter` dropdowns that render their menu in a portal need a real CSS rule for
    the menu font size — inline styles cannot reach portalled nodes.
 
 ---

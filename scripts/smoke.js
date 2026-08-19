@@ -6,8 +6,17 @@ const React = require('react');
 const { renderToStaticMarkup } = require('react-dom/server');
 const { FreezeTable, CommonTable, ELLIPSIS } = require('../dist/freeze-table.cjs.js');
 
+// React reports invalid style values, key warnings and the like through console.error
+// during render. They are collected rather than printed so the run can ASSERT there
+// were none: an `undefined` slipping into a column def resolves to a NaN width and only
+// ever showed up as one of these lines. (0.7.0 shipped exactly that on the Action
+// column.)
+const consoleError = console.error.bind(console);
+const reactWarnings = [];
+console.error = (...args) => reactWarnings.push(args.map(String).join(' ').split('\n')[0]);
+
 const fail = (msg) => {
-  console.error('FAIL: ' + msg);
+  consoleError('FAIL: ' + msg);
   process.exitCode = 1;
 };
 const ok = (msg) => console.log('ok  - ' + msg);
@@ -93,6 +102,51 @@ const someResize = renderToStaticMarkup(
 );
 assert((someResize.match(/ft-resizer/g) || []).length === 4, 'disableResizing drops that column\'s grip');
 
+// ----- Column order -----
+// The Action column takes part in the ordering like any other column; `actionIndex`
+// says where it starts out (the user drags it from there).
+const actionFirst = renderToStaticMarkup(
+  React.createElement(FreezeTable, { columns, data, Actions, actionIndex: 'first' })
+);
+assert(
+  actionFirst.indexOf('>Action<') < actionFirst.indexOf('>Name<'),
+  'actionIndex:"first" renders the Action column ahead of the caller columns'
+);
+assert(html.indexOf('>Action<') > html.indexOf('>Amount<'), 'the default position is still last');
+assert(html.includes('data-ct-col="sl"'), 'headers carry their column id for the reorder drag');
+// Action column dragged to the front of a LEFT-frozen run: it freezes with that run
+// instead of the right-hand one. Left block = strip (14px) + Action (110px) + '#' (45px)
+// + Name (200px), so the offsets run 0, 14, 124, 169.
+const actionPinnedLeft = renderToStaticMarkup(
+  React.createElement(FreezeTable, {
+    columns,
+    data,
+    Actions,
+    actionIndex: 0,
+    rowStripColor: () => '#e03e3e',
+  })
+);
+assert(actionPinnedLeft.includes('left:14px'), 'the Action column takes the strip-width offset');
+assert(actionPinnedLeft.includes('left:124px') && actionPinnedLeft.includes('left:169px'),
+  'a left-frozen Action column widens the left block and shifts the columns after it');
+assert(/right:0[;"]/.test(actionPinnedLeft), 'the right-pinned data column now sits flush right');
+assert(!actionPinnedLeft.includes('right:110px'), 'the Action column no longer rides with the right block');
+// In the middle of the scrolling columns it cannot freeze at all — a frozen run has to
+// stay contiguous — so pinActions is ignored there.
+const actionMiddle = renderToStaticMarkup(
+  React.createElement(FreezeTable, {
+    columns: columns.map((c) => ({ ...c, pinned: c.pinned === 'right' ? undefined : c.pinned })),
+    data,
+    Actions,
+    actionIndex: 2,
+    pinActions: true,
+  })
+);
+assert(actionMiddle.indexOf('>Action<') > actionMiddle.indexOf('>Name<')
+  && actionMiddle.indexOf('>Action<') < actionMiddle.indexOf('>City<'),
+  'actionIndex places the Action column between two caller columns');
+assert(!actionMiddle.includes('data-ct-pin-right-first'), 'pinActions is ignored in the middle of the table');
+
 // ----- Column visibility -----
 // Hiding the pinned 'Name' column leaves the pinned run as strip (14px) + '#' (45px),
 // so the third offset (59px) must be gone and 'City' must slide into its place.
@@ -125,6 +179,12 @@ const empty = renderToStaticMarkup(React.createElement(FreezeTable, { columns, d
 assert(empty.includes('No records found'), 'empty state renders');
 const busy = renderToStaticMarkup(React.createElement(FreezeTable, { columns, data: [], loading: true }));
 assert(busy.includes('ft-spinner') && busy.includes('Fetching records'), 'loading state renders');
+
+console.error = consoleError;
+assert(
+  reactWarnings.length === 0,
+  'React logged no warnings while rendering' + (reactWarnings.length ? ':\n      ' + reactWarnings.join('\n      ') : '')
+);
 
 if (process.exitCode) console.error('\nsmoke test FAILED');
 else console.log('\nall smoke checks passed');
