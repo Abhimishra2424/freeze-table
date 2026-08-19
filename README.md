@@ -285,12 +285,16 @@ const tableRef = useRef(null);
 | `focus()`          | Re-focus the table container — e.g. return focus to the selected row after a modal closes |
 | `getScrollLeft()`  | Current horizontal offset — stash it before navigating away (§10)          |
 | `selectRow(i)`     | Select + scroll to + focus row `i`                                          |
-| `getPinCount()`    | Current **effective** (viewpoft-capped) freeze boundary; 0 = none          |
-| `getMaxPinCount()` | Largest boundary the current viewport allows                               |
-| `setPinCount(n)`   | Set the left freeze boundary (persisted when `pinStorageKey` is set)       |
-| `getRightPinCount()` | Current **effective** right-hand boundary (0 = none)                      |
-| `getMaxRightPinCount()` | Largest right-hand boundary the current viewport allows                |
+| `getLeftPinCount()` | Current **effective** (viewport-capped) left boundary; 0 = none            |
+| `getMaxLeftPinCount()` | Largest left boundary the viewport allows — disable menu entries beyond it |
+| `setLeftPinCount(n)` | Freeze the **first** N caller columns against the left edge               |
+| `getRightPinCount()` | Current **effective** right boundary; 0 = none                            |
+| `getMaxRightPinCount()` | Largest right boundary the viewport allows                             |
 | `setRightPinCount(n)` | Freeze the **last** N caller columns against the right edge              |
+
+Both boundaries persist when `pinStorageKey` is set. `getPinCount` / `getMaxPinCount` /
+`setPinCount` are the pre-0.6 names for the three left-hand methods — they still work,
+but nothing in those names said which edge they meant, hence the rename.
 
 `selectRow(0)` is the one you reach for on a list that **re-fetches on a Search click**:
 the table is already mounted, so the mount-time focus effect will not fire again and
@@ -399,7 +403,7 @@ column (or, on the right, before the last one) is ignored.
   ```jsx
   <FreezeTable columns={columns} data={rows} Actions={RowActions} pinActions />
   ```
-- The user changes the boundaries at runtime through `setPinCount(n)` and
+- The user changes the boundaries at runtime through `setLeftPinCount(n)` and
   `setRightPinCount(n)` on the ref (0 = no freezing on that side). With `pinStorageKey`
   set, both choices persist — `localStorage["ctPin:<key>"]` and `["ctPinR:<key>"]` — and
   **beat the config flags** on the next mount.
@@ -410,7 +414,7 @@ column (or, on the right, before the last one) is ignored.
   casts one to its left until the scroll reaches the end.
 
 **Viewport cap.** The frozen blocks are hard-capped so at least 250px of viewport is
-always left for the scrolling columns (`getMaxPinCount()` / `getMaxRightPinCount()`). The
+always left for the scrolling columns (`getMaxLeftPinCount()` / `getMaxRightPinCount()`). The
 right block is measured first and the left one funded from what remains, so the two caps
 cannot both claim the same viewport. A stored-but-too-large boundary is clamped at
 render, so a persisted over-wide choice self-corrects. Freezing wider than the viewport
@@ -420,18 +424,19 @@ would leave no room to actually read the scrolling columns.
 
 The component deliberately renders no picker. Put a dropdown next to your other toolbar
 buttons listing `No pin` plus every column ("pin up to here" semantics), read
-`getPinCount()` when the menu opens, and disable entries past `getMaxPinCount()`. The
-right-hand block works the same way through `getRightPinCount()` / `setRightPinCount()`:
+`getLeftPinCount()` when the menu opens, and disable entries past `getMaxLeftPinCount()`.
+The right-hand block works the same way through `getRightPinCount()` /
+`setRightPinCount()`:
 
 ```jsx
 const openPinMenu = () => {
-  setCurrent(tableRef.current.getPinCount());
-  setMax(tableRef.current.getMaxPinCount());
+  setCurrent(tableRef.current.getLeftPinCount());
+  setMax(tableRef.current.getMaxLeftPinCount());
   setOpen(true);
 };
 
 const pickPin = (n) => {
-  tableRef.current.setPinCount(n);
+  tableRef.current.setLeftPinCount(n);
   tableRef.current.focus();   // hand the arrow keys back to the rows
   setOpen(false);
 };

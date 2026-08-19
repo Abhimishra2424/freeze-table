@@ -91,7 +91,7 @@ function Demo() {
   const applyPin = (n) => {
     setPin(n);
     if (tableRef.current) {
-      tableRef.current.setPinCount(n);
+      tableRef.current.setLeftPinCount(n);
       tableRef.current.focus();
     }
   };

@@ -132,19 +132,26 @@ export interface FreezeTableHandle {
   focus(): void;
   /** Current horizontal offset — stash it before navigating away. */
   getScrollLeft(): number;
-  /** Current EFFECTIVE freeze boundary (viewpoft-capped; 0 = none). */
-  getPinCount(): number;
-  /** Largest boundary the current viewport allows — disable menu entries beyond it. */
-  getMaxPinCount(): number;
-  /** Set the freeze boundary (0 = none, N = first N caller columns). */
-  setPinCount(n: number): void;
+  /** Current EFFECTIVE left-hand freeze boundary (viewport-capped; 0 = none). */
+  getLeftPinCount(): number;
+  /** Largest left-hand boundary the viewport allows — disable menu entries beyond it. */
+  getMaxLeftPinCount(): number;
+  /** Freeze the FIRST N caller columns against the left edge (0 = none). */
+  setLeftPinCount(n: number): void;
   /** Current EFFECTIVE right-hand freeze boundary (viewport-capped; 0 = none). */
   getRightPinCount(): number;
-  /** Largest right-hand boundary the current viewport allows. */
+  /** Largest right-hand boundary the viewport allows. */
   getMaxRightPinCount(): number;
-  /** Set the right-hand boundary (0 = none, N = LAST N caller columns; the Action
+  /** Freeze the LAST N caller columns against the right edge (0 = none; the Action
    *  column, if any, freezes with them). */
   setRightPinCount(n: number): void;
+
+  /** @deprecated Pre-0.6 name for {@link getLeftPinCount}. */
+  getPinCount(): number;
+  /** @deprecated Pre-0.6 name for {@link getMaxLeftPinCount}. */
+  getMaxPinCount(): number;
+  /** @deprecated Pre-0.6 name for {@link setLeftPinCount}. */
+  setPinCount(n: number): void;
   /** Select + scroll to + focus a row. */
   selectRow(index: number): void;
 }

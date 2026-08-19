@@ -888,6 +888,7 @@
 	  showFooter,
 	  rowNavigation = true,
 	  rowSnap = false,
+	  pinActions = false,
 	  onRowSelect,
 	  onRowEnter,
 	  selectedBg = '#d3e5f8',
@@ -1020,12 +1021,16 @@
 	    return n;
 	  }, [columns, wrapW, Actions, actionWidth]);
 	  const effectiveRightPinCount = Math.min(rightPinCount, maxRightPinCount);
+
+	  // The Action column freezes when the right block is non-empty, or on its own via
+	  // `pinActions` — keeping the row's controls reachable is the commonest reason to
+	  // want anything frozen on the right at all.
+	  const actionsPinned = !!Actions && (pinActions || effectiveRightPinCount > 0);
 	  const rightBlockWidth = React.useMemo(() => {
-	    if (effectiveRightPinCount <= 0) return 0;
-	    let w = Actions ? actionWidth : 0;
+	    let w = actionsPinned ? actionWidth : 0;
 	    for (let i = columns.length - effectiveRightPinCount; i < columns.length; i++) w += colWidthOf(columns[i]);
 	    return w;
-	  }, [columns, effectiveRightPinCount, Actions, actionWidth]);
+	  }, [columns, effectiveRightPinCount, actionsPinned, actionWidth]);
 	  const maxPinCount = React.useMemo(() => {
 	    if (!wrapW) return columns.length; // not measured yet — cap kicks in right after mount
 	    const colW = colWidthOf;
@@ -1132,14 +1137,14 @@
 	    let firstPinnedRight = null;
 	    base.forEach(c => {
 	      if (c.id === '__strip') c.pinned = effectivePinCount > 0;
-	      if (c.id === '__actions') c.pinnedRight = effectiveRightPinCount > 0;
+	      if (c.id === '__actions') c.pinnedRight = actionsPinned;
 	      if (c.pinned) lastPinned = c;
 	      if (c.pinnedRight && !firstPinnedRight) firstPinnedRight = c;
 	    });
 	    if (lastPinned) lastPinned.pinnedLast = true;
 	    if (firstPinnedRight) firstPinnedRight.pinnedRightFirst = true;
 	    return base;
-	  }, [columns, Actions, fn, actionWidth, rowStripColor, rowStripTitle, stripWidth, effectivePinCount, effectiveRightPinCount]);
+	  }, [columns, Actions, fn, actionWidth, rowStripColor, rowStripTitle, stripWidth, effectivePinCount, effectiveRightPinCount, actionsPinned]);
 	  const hasPinned = React.useMemo(() => allColumns.some(c => c.pinned), [allColumns]);
 	  const hasPinnedRight = React.useMemo(() => allColumns.some(c => c.pinnedRight), [allColumns]);
 
@@ -1218,19 +1223,25 @@
 	      preventScroll: true
 	    }),
 	    getScrollLeft: () => containerRef.current ? containerRef.current.scrollLeft : 0,
-	    // Column pinning is driven from the caller's toolbar (e.g. a "Pin Columns"
-	    // dropdown): read the current freeze boundary and set a new one (0 = no pinning;
-	    // N = the first N caller columns frozen). Persisted via pinStorageKey.
-	    // getPinCount reports the EFFECTIVE (viewpoft-capped) boundary; getMaxPinCount
-	    // is the cap — the dropdown disables entries beyond it.
-	    getPinCount: () => effectivePinCount,
-	    getMaxPinCount: () => maxPinCount,
-	    setPinCount: n => setPinCount(Math.max(0, parseInt(n, 10) || 0)),
-	    // Same three for the right-hand block: N = the LAST N caller columns frozen against
-	    // the right edge (the Action column, if any, freezes with them).
+	    // Column freezing is driven from the caller's toolbar (e.g. a "Pin columns" menu):
+	    // read the current boundary for an edge, or set a new one. 0 = nothing frozen on
+	    // that edge; N = the FIRST N caller columns on the left, the LAST N on the right
+	    // (the Action column, if any, freezes with the right-hand block). Both boundaries
+	    // are persisted via pinStorageKey.
+	    //
+	    // The getters report the EFFECTIVE (viewport-capped) boundary; getMax… is the cap
+	    // itself, so a menu can disable the entries beyond it.
+	    getLeftPinCount: () => effectivePinCount,
+	    getMaxLeftPinCount: () => maxPinCount,
+	    setLeftPinCount: n => setPinCount(Math.max(0, parseInt(n, 10) || 0)),
 	    getRightPinCount: () => effectiveRightPinCount,
 	    getMaxRightPinCount: () => maxRightPinCount,
 	    setRightPinCount: n => setRightPinCount(Math.max(0, parseInt(n, 10) || 0)),
+	    // Pre-0.6 names for the left edge, kept working so existing callers do not break.
+	    // They were renamed precisely because nothing in the name said which edge they meant.
+	    getPinCount: () => effectivePinCount,
+	    getMaxPinCount: () => maxPinCount,
+	    setPinCount: n => setPinCount(Math.max(0, parseInt(n, 10) || 0)),
 	    // Move the selection (and the focus) to a row — e.g. a list that re-fetches on a
 	    // Search click wants the first row selected + focused once the results land, but
 	    // the table is already mounted so the mount-time focus effect won't fire again.
@@ -1744,7 +1755,7 @@
 	          overflow: 'hidden',
 	          textOverflow: 'ellipsis'
 	        }
-	      }, column.render('Header')), (column.pinnedLast && column.pinIndex != null || column.pinnedRightFirst && column.pinIndex != null) && /*#__PURE__*/React.createElement(PinIcon, {
+	      }, column.render('Header')), (column.pinnedLast && column.pinIndex != null || column.pinnedRightFirst) && /*#__PURE__*/React.createElement(PinIcon, {
 	        title: column.pinnedLast ? 'Columns up to here are pinned' : 'Columns from here are pinned to the right'
 	      })), canSort && column.align !== 'right' && /*#__PURE__*/React.createElement(SortIcon, {
 	        direction: sortDir
@@ -2143,7 +2154,7 @@
 	  const applyPin = n => {
 	    setPin(n);
 	    if (tableRef.current) {
-	      tableRef.current.setPinCount(n);
+	      tableRef.current.setLeftPinCount(n);
 	      tableRef.current.focus();
 	    }
 	  };

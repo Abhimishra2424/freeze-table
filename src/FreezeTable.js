@@ -518,19 +518,25 @@ export const FreezeTable = React.forwardRef(function FreezeTable(
   React.useImperativeHandle(ref, () => ({
     focus: () => containerRef.current && containerRef.current.focus({ preventScroll: true }),
     getScrollLeft: () => (containerRef.current ? containerRef.current.scrollLeft : 0),
-    // Column pinning is driven from the caller's toolbar (e.g. a "Pin Columns"
-    // dropdown): read the current freeze boundary and set a new one (0 = no pinning;
-    // N = the first N caller columns frozen). Persisted via pinStorageKey.
-    // getPinCount reports the EFFECTIVE (viewpoft-capped) boundary; getMaxPinCount
-    // is the cap — the dropdown disables entries beyond it.
-    getPinCount: () => effectivePinCount,
-    getMaxPinCount: () => maxPinCount,
-    setPinCount: (n) => setPinCount(Math.max(0, parseInt(n, 10) || 0)),
-    // Same three for the right-hand block: N = the LAST N caller columns frozen against
-    // the right edge (the Action column, if any, freezes with them).
+    // Column freezing is driven from the caller's toolbar (e.g. a "Pin columns" menu):
+    // read the current boundary for an edge, or set a new one. 0 = nothing frozen on
+    // that edge; N = the FIRST N caller columns on the left, the LAST N on the right
+    // (the Action column, if any, freezes with the right-hand block). Both boundaries
+    // are persisted via pinStorageKey.
+    //
+    // The getters report the EFFECTIVE (viewport-capped) boundary; getMax… is the cap
+    // itself, so a menu can disable the entries beyond it.
+    getLeftPinCount: () => effectivePinCount,
+    getMaxLeftPinCount: () => maxPinCount,
+    setLeftPinCount: (n) => setPinCount(Math.max(0, parseInt(n, 10) || 0)),
     getRightPinCount: () => effectiveRightPinCount,
     getMaxRightPinCount: () => maxRightPinCount,
     setRightPinCount: (n) => setRightPinCount(Math.max(0, parseInt(n, 10) || 0)),
+    // Pre-0.6 names for the left edge, kept working so existing callers do not break.
+    // They were renamed precisely because nothing in the name said which edge they meant.
+    getPinCount: () => effectivePinCount,
+    getMaxPinCount: () => maxPinCount,
+    setPinCount: (n) => setPinCount(Math.max(0, parseInt(n, 10) || 0)),
     // Move the selection (and the focus) to a row — e.g. a list that re-fetches on a
     // Search click wants the first row selected + focused once the results land, but
     // the table is already mounted so the mount-time focus effect won't fire again.
