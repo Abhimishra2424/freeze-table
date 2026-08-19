@@ -187,6 +187,7 @@ export const FreezeTable = React.forwardRef(function FreezeTable(
     showFooter,
     rowNavigation = true,
     rowSnap = false,
+    pinActions = false,
     onRowSelect,
     onRowEnter,
     selectedBg = '#d3e5f8',
@@ -319,12 +320,16 @@ export const FreezeTable = React.forwardRef(function FreezeTable(
   }, [columns, wrapW, Actions, actionWidth]);
   const effectiveRightPinCount = Math.min(rightPinCount, maxRightPinCount);
 
+  // The Action column freezes when the right block is non-empty, or on its own via
+  // `pinActions` — keeping the row's controls reachable is the commonest reason to
+  // want anything frozen on the right at all.
+  const actionsPinned = !!Actions && (pinActions || effectiveRightPinCount > 0);
+
   const rightBlockWidth = React.useMemo(() => {
-    if (effectiveRightPinCount <= 0) return 0;
-    let w = Actions ? actionWidth : 0;
+    let w = actionsPinned ? actionWidth : 0;
     for (let i = columns.length - effectiveRightPinCount; i < columns.length; i++) w += colWidthOf(columns[i]);
     return w;
-  }, [columns, effectiveRightPinCount, Actions, actionWidth]);
+  }, [columns, effectiveRightPinCount, actionsPinned, actionWidth]);
 
   const maxPinCount = React.useMemo(() => {
     if (!wrapW) return columns.length; // not measured yet — cap kicks in right after mount
@@ -428,14 +433,14 @@ export const FreezeTable = React.forwardRef(function FreezeTable(
     let firstPinnedRight = null;
     base.forEach((c) => {
       if (c.id === '__strip') c.pinned = effectivePinCount > 0;
-      if (c.id === '__actions') c.pinnedRight = effectiveRightPinCount > 0;
+      if (c.id === '__actions') c.pinnedRight = actionsPinned;
       if (c.pinned) lastPinned = c;
       if (c.pinnedRight && !firstPinnedRight) firstPinnedRight = c;
     });
     if (lastPinned) lastPinned.pinnedLast = true;
     if (firstPinnedRight) firstPinnedRight.pinnedRightFirst = true;
     return base;
-  }, [columns, Actions, fn, actionWidth, rowStripColor, rowStripTitle, stripWidth, effectivePinCount, effectiveRightPinCount]);
+  }, [columns, Actions, fn, actionWidth, rowStripColor, rowStripTitle, stripWidth, effectivePinCount, effectiveRightPinCount, actionsPinned]);
 
   const hasPinned = React.useMemo(() => allColumns.some((c) => c.pinned), [allColumns]);
   const hasPinnedRight = React.useMemo(() => allColumns.some((c) => c.pinnedRight), [allColumns]);
@@ -1037,8 +1042,7 @@ export const FreezeTable = React.forwardRef(function FreezeTable(
                           indicator of how far the table is frozen. Changing the
                           boundary is done from the caller's toolbar (via the
                           imperative setPinCount), not from the header. */}
-                      {((column.pinnedLast && column.pinIndex != null) ||
-                        (column.pinnedRightFirst && column.pinIndex != null)) && (
+                      {((column.pinnedLast && column.pinIndex != null) || column.pinnedRightFirst) && (
                         <PinIcon
                           title={
                             column.pinnedLast

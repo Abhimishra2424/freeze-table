@@ -245,6 +245,7 @@ is not clipped:
 | `Actions`           | —                     | Component for the auto-appended Action column                        |
 | `fn`                | —                     | Passed straight through to `Actions` as its `fn` prop                |
 | `actionWidth`       | `110`                 | Action column min width px                                           |
+| `pinActions`        | `false`               | Freeze just the Action column against the right edge (§8)            |
 | `userList`          | —                     | Forwarded onto the table instance → readable in every `Cell`         |
 | `sortable`          | `true`                | Master switch for sorting                                            |
 | `searchable`        | `true`                | Master switch for the per-column search boxes                        |
@@ -390,6 +391,14 @@ column (or, on the right, before the last one) is ignored.
 - The auto-appended columns join the block on their own side: the status strip freezes
   left whenever `pinCount > 0`, the Action column freezes right whenever
   `rightPinCount > 0`. Either would otherwise be stranded outside its own block.
+- **To freeze only the row's actions**, pass `pinActions` and leave `rightPinCount` at
+  0. Keeping the row controls reachable without scrolling back is the commonest reason
+  to want anything frozen on the right, and it should not force a data column along with
+  it:
+
+  ```jsx
+  <FreezeTable columns={columns} data={rows} Actions={RowActions} pinActions />
+  ```
 - The user changes the boundaries at runtime through `setPinCount(n)` and
   `setRightPinCount(n)` on the ref (0 = no freezing on that side). With `pinStorageKey`
   set, both choices persist — `localStorage["ctPin:<key>"]` and `["ctPinR:<key>"]` — and

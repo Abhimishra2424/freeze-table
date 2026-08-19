@@ -66,6 +66,19 @@ assert(html.includes('data-ct-pin-right-first="1"'), 'right freeze boundary is m
 assert(html.includes('<svg'), 'inline SVG icons render (no Semantic UI)');
 assert(!/semantic/i.test(html), 'no semantic-ui markup in the output');
 
+// Action column frozen on its own, with no data column pinned right.
+const actionsOnly = renderToStaticMarkup(
+  React.createElement(FreezeTable, {
+    columns: columns.map((c) => ({ ...c, pinned: c.pinned === 'right' ? undefined : c.pinned })),
+    data,
+    Actions,
+    pinActions: true,
+  })
+);
+assert(/right:0[;"]/.test(actionsOnly), 'pinActions freezes the Action column on its own');
+assert(actionsOnly.includes('data-ct-pin-right-first="1"'), 'the Action column becomes the right boundary');
+assert(!actionsOnly.includes('right:110px'), 'no data column is dragged into the right block');
+
 const empty = renderToStaticMarkup(React.createElement(FreezeTable, { columns, data: [], dataFetched: true }));
 assert(empty.includes('No records found'), 'empty state renders');
 const busy = renderToStaticMarkup(React.createElement(FreezeTable, { columns, data: [], loading: true }));

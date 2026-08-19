@@ -84,6 +84,10 @@ export interface FreezeTableProps<D extends object = any> {
   loadingText?: React.ReactNode;
   /** Action column min width in px. Default 110. */
   actionWidth?: number;
+  /** Freeze the Action column against the right edge on its own, without pinning any
+   *  data column. (It also freezes automatically whenever `rightPinCount > 0`.)
+   *  Default false. */
+  pinActions?: boolean;
   /** Static left-aligned footer label — cannot see filtered rows (prefer a column `Footer`). */
   footerLeft?: React.ReactNode;
   /** Override footer visibility (auto = any column `Footer` or `footerLeft` set). */
