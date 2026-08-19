@@ -1,7 +1,7 @@
 {
-  "name": "real-table",
+  "name": "freeze-table",
   "version": "0.1.0",
-  "description": "Virtualized React list table — sortable, per-column filters, frozen (pinned) columns, keyboard row navigation, sticky totals footer. Built on react-table v7. Zero UI-library dependencies.",
+  "description": "Virtualized React list table \u2014 sortable, per-column filters, frozen (pinned) columns, keyboard row navigation, sticky totals footer. Built on react-table v7. Zero UI-library dependencies.",
   "keywords": [
     "react",
     "table",
@@ -25,14 +25,14 @@
   "bugs": {
     "url": "https://github.com/Abhimishra2424/real-table/issues"
   },
-  "main": "dist/real-table.cjs.js",
-  "module": "dist/real-table.esm.js",
+  "main": "dist/freeze-table.cjs.js",
+  "module": "dist/freeze-table.esm.js",
   "types": "index.d.ts",
   "exports": {
     ".": {
       "types": "./index.d.ts",
-      "import": "./dist/real-table.esm.js",
-      "require": "./dist/real-table.cjs.js"
+      "import": "./dist/freeze-table.esm.js",
+      "require": "./dist/freeze-table.cjs.js"
     },
     "./package.json": "./package.json"
   },

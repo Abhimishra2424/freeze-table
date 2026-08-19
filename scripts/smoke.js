@@ -4,7 +4,7 @@
    pinned-column offsets. Run with `npm run smoke` after `npm run build`. */
 const React = require('react');
 const { renderToStaticMarkup } = require('react-dom/server');
-const { RealTable, CommonTable, ELLIPSIS } = require('../dist/real-table.cjs.js');
+const { FreezeTable, CommonTable, ELLIPSIS } = require('../dist/freeze-table.cjs.js');
 
 const fail = (msg) => {
   console.error('FAIL: ' + msg);
@@ -29,7 +29,7 @@ const data = [
 const Actions = ({ object }) => React.createElement('span', null, 'edit:' + object.id);
 
 const html = renderToStaticMarkup(
-  React.createElement(RealTable, {
+  React.createElement(FreezeTable, {
     columns,
     data,
     Actions,
@@ -40,14 +40,14 @@ const html = renderToStaticMarkup(
   })
 );
 
-assert(typeof RealTable === 'function' || typeof RealTable === 'object', 'RealTable is exported');
-assert(CommonTable === RealTable, 'CommonTable alias points at RealTable');
+assert(typeof FreezeTable === 'function' || typeof FreezeTable === 'object', 'FreezeTable is exported');
+assert(CommonTable === FreezeTable, 'CommonTable alias points at FreezeTable');
 assert(ELLIPSIS && ELLIPSIS.textOverflow === 'ellipsis', 'ELLIPSIS style is exported');
-assert(html.includes('rt-wrap'), 'outer scroller renders');
+assert(html.includes('ft-wrap'), 'outer scroller renders');
 assert(html.includes('ct-wrap'), 'legacy ct-* class kept for drop-in compat');
 assert(html.includes('>Name<') && html.includes('>City<') && html.includes('>Amount<'), 'all headers render');
 assert(html.includes('>Action<'), 'Action column is auto-appended');
-assert((html.match(/rt-th /g) || []).length === 6, 'header cell count = 4 columns + strip + action');
+assert((html.match(/ft-th /g) || []).length === 6, 'header cell count = 4 columns + strip + action');
 assert(html.includes('position:sticky;top:0'), 'header is sticky');
 assert(html.includes('bottom:0'), 'footer is sticky');
 assert(html.includes('Count : 3'), 'footer function sees the rows');
@@ -60,10 +60,10 @@ assert(html.includes('data-ct-pin-last="1"'), 'freeze boundary is marked');
 assert(html.includes('<svg'), 'inline SVG icons render (no Semantic UI)');
 assert(!/semantic/i.test(html), 'no semantic-ui markup in the output');
 
-const empty = renderToStaticMarkup(React.createElement(RealTable, { columns, data: [], dataFetched: true }));
+const empty = renderToStaticMarkup(React.createElement(FreezeTable, { columns, data: [], dataFetched: true }));
 assert(empty.includes('No records found'), 'empty state renders');
-const busy = renderToStaticMarkup(React.createElement(RealTable, { columns, data: [], loading: true }));
-assert(busy.includes('rt-spinner') && busy.includes('Fetching records'), 'loading state renders');
+const busy = renderToStaticMarkup(React.createElement(FreezeTable, { columns, data: [], loading: true }));
+assert(busy.includes('ft-spinner') && busy.includes('Fetching records'), 'loading state renders');
 
 if (process.exitCode) console.error('\nsmoke test FAILED');
 else console.log('\nall smoke checks passed');

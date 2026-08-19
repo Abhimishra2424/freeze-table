@@ -1,4 +1,4 @@
-# real-table
+# freeze-table
 
 A virtualized React list table for **wide, dense, data-entry style screens** — the kind
 with twenty columns, thousands of rows, per-column search boxes, frozen leading columns
@@ -10,13 +10,13 @@ handful of glyphs it needs (sort arrows, pin marker, spinner, empty-state icon) 
 SVG.
 
 ```bash
-npm i real-table react-table@7
+npm i freeze-table react-table@7
 ```
 
 ```jsx
-import { RealTable } from 'real-table';
+import { FreezeTable } from 'freeze-table';
 
-<RealTable columns={columns} data={rows} height={560} />
+<FreezeTable columns={columns} data={rows} height={560} />
 ```
 
 ---
@@ -62,7 +62,7 @@ exactly what an accounting / ERP list screen needs, in ~900 lines you can read.
 
 ```jsx
 import React, { useMemo, useRef } from 'react';
-import { RealTable, ELLIPSIS } from 'real-table';
+import { FreezeTable, ELLIPSIS } from 'freeze-table';
 
 const COLUMNS = [
   { Header: '#', id: 'sl', width: 50, minWidth: 50, align: 'right', pinned: true,
@@ -85,7 +85,7 @@ export default function CustomerList({ byId, fetched, openRow }) {
   const data = useMemo(() => Object.values(byId), [byId]);
 
   return (
-    <RealTable
+    <FreezeTable
       ref={tableRef}
       columns={columns}
       data={data}
@@ -105,30 +105,30 @@ Both `columns` and `data` should be memoized — see [Gotchas](#12-gotchas).
 
 | Export        | What it is                                                       |
 |---------------|------------------------------------------------------------------|
-| `RealTable`   | The component (also the default export)                          |
-| `CommonTable` | Alias of `RealTable`, for projects migrating off a local copy     |
+| `FreezeTable`   | The component (also the default export)                          |
+| `CommonTable` | Alias of `FreezeTable`, for projects migrating off a local copy     |
 | `ELLIPSIS`    | Shared single-line-ellipsis style object for custom `Cell`s       |
 
-TypeScript definitions ship with the package (`index.d.ts`) — `RealTableProps`,
-`RealTableColumn`, `RealTableHandle` are all exported as types.
+TypeScript definitions ship with the package (`index.d.ts`) — `FreezeTableProps`,
+`FreezeTableColumn`, `FreezeTableHandle` are all exported as types.
 
 ---
 
 ## 2. Layout and scroll model
 
 ```
-rt-wrap  (fixed height, overflow: auto)      ← THE scrollport for BOTH axes
+ft-wrap  (fixed height, overflow: auto)      ← THE scrollport for BOTH axes
 └── inner div (minWidth: totalColumnsWidth, flex column, minHeight 100%)
-    ├── rt-head   (position: sticky; top: 0)     ← labels + sort + search boxes
+    ├── ft-head   (position: sticky; top: 0)     ← labels + sort + search boxes
     ├── body      (position: relative, height = rows * rowHeight)
-    │   └── rt-row (position: absolute, top = index * rowHeight) → rt-td cells
-    └── rt-foot   (position: sticky; bottom: 0)  ← optional totals row
+    │   └── ft-row (position: absolute, top = index * rowHeight) → ft-td cells
+    └── ft-foot   (position: sticky; bottom: 0)  ← optional totals row
 ```
 
 - **`height` is the TOTAL height** (header + body + footer), not the body height. The
   band left for rows is measured with a `ResizeObserver`, so rows fill the gap exactly —
   no clipped last row, no second scrollbar on the page.
-- There is exactly **one vertical and one horizontal scrollbar**, both on `rt-wrap`.
+- There is exactly **one vertical and one horizontal scrollbar**, both on `ft-wrap`.
 - Only the rows in `[firstIdx .. lastIdx]` (viewport ± 6) are mounted; each is absolutely
   positioned inside a container of the full content height, so the native scrollbar still
   represents the whole list.
@@ -248,7 +248,7 @@ is not clipped:
 
 ```jsx
 const tableRef = useRef(null);
-<RealTable ref={tableRef} … />
+<FreezeTable ref={tableRef} … />
 ```
 
 | Method             | Meaning                                                                    |
@@ -256,7 +256,7 @@ const tableRef = useRef(null);
 | `focus()`          | Re-focus the table container — e.g. return focus to the selected row after a modal closes |
 | `getScrollLeft()`  | Current horizontal offset — stash it before navigating away (§10)          |
 | `selectRow(i)`     | Select + scroll to + focus row `i`                                          |
-| `getPinCount()`    | Current **effective** (viewport-capped) freeze boundary; 0 = none          |
+| `getPinCount()`    | Current **effective** (viewpoft-capped) freeze boundary; 0 = none          |
 | `getMaxPinCount()` | Largest boundary the current viewport allows                               |
 | `setPinCount(n)`   | Set the freeze boundary (persisted when `pinStorageKey` is set)            |
 
@@ -289,7 +289,7 @@ soft empty state; otherwise the list.
 > neither flashes "No records found" before the first fetch ever returns. Wire both from
 > your own fetch flag:
 > ```jsx
-> <RealTable loading={!fetched} dataFetched={fetched} … />
+> <FreezeTable loading={!fetched} dataFetched={fetched} … />
 > ```
 
 ---
@@ -373,7 +373,7 @@ frozen cell from the scroll handler, and because JS repositions them a frame *af
 compositor has already scrolled the rest, the frozen block visibly shook during
 horizontal scroll.
 
-Sticky only works because `rt-wrap` is the single scrollport for both axes — which is why
+Sticky only works because `ft-wrap` is the single scrollport for both axes — which is why
 the rows are windowed by hand rather than by a virtualization library whose own
 `overflow` container would become the sticky scrollport for the body cells and break the
 freeze.
@@ -408,7 +408,7 @@ both only when the row colour is itself the requirement.
 ```jsx
 const STRIP = { Cancelled: '#e03e3e', Pending: '#e8912d', Posted: '#2aa76a' };
 
-<RealTable
+<FreezeTable
   rowStripColor={(r) => STRIP[r.status] || null}
   rowStripTitle={(r) => r.status}
   rowStyle={(r) => (r.status === 'Cancelled' ? { color: '#a11' } : undefined)}
@@ -442,7 +442,7 @@ export default function List() {
   };
 
   return (
-    <RealTable
+    <FreezeTable
       ref={tableRef}
       initialSelectedId={lastSelectedId}
       initialScrollLeft={lastScrollLeft}
@@ -469,19 +469,19 @@ your tests:
 
 | Class / attribute      | On                             | Used for                                |
 |------------------------|--------------------------------|-----------------------------------------|
-| `.rt-wrap`             | outer scroller                 | scroll owner, focus target              |
-| `.rt-head` / `.rt-th`  | header row / cell              | —                                       |
-| `.rt-th-label`         | header label row               | sort toggle click area                  |
-| `.rt-th-filter`        | search-box wrapper             | —                                       |
-| `.rt-row` / `.rt-td`   | row / body cell                | selection repaint                       |
-| `.rt-foot` / `.rt-tf`  | footer row / cell              | —                                       |
-| `data-ct-index`        | `.rt-row`                      | row index (selection repaint)           |
-| `data-ct-bg`           | `.rt-row`                      | the row's base background               |
-| `data-ct-custom`       | `.rt-row`                      | `'1'` when `rowStyle` returned a bg      |
+| `.ft-wrap`             | outer scroller                 | scroll owner, focus target              |
+| `.ft-head` / `.ft-th`  | header row / cell              | —                                       |
+| `.ft-th-label`         | header label row               | sort toggle click area                  |
+| `.ft-th-filter`        | search-box wrapper             | —                                       |
+| `.ft-row` / `.ft-td`   | row / body cell                | selection repaint                       |
+| `.ft-foot` / `.ft-tf`  | footer row / cell              | —                                       |
+| `data-ct-index`        | `.ft-row`                      | row index (selection repaint)           |
+| `data-ct-bg`           | `.ft-row`                      | the row's base background               |
+| `data-ct-custom`       | `.ft-row`                      | `'1'` when `rowStyle` returned a bg      |
 | `data-ct-pin`          | header / body / footer cell    | `'1'` on frozen cells                   |
 | `data-ct-pin-last`     | same                           | `'1'` on the boundary column            |
 
-Every element also carries the legacy `ct-*` twin of its class (`rt-row ct-row`), so a
+Every element also carries the legacy `ct-*` twin of its class (`ft-row ct-row`), so a
 project migrating off a local copy keeps any existing selectors working.
 
 Key values, if you want to re-theme by forking:
@@ -517,7 +517,7 @@ Key values, if you want to re-theme by forking:
 
 ```bash
 npm install
-npm run build     # dist/real-table.esm.js + dist/real-table.cjs.js
+npm run build     # dist/freeze-table.esm.js + dist/freeze-table.cjs.js
 npm run smoke     # server-render the built bundle and assert its shape
 npm run demo      # bundles example/ — then open example/index.html in a browser
 ```

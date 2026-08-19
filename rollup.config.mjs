@@ -7,8 +7,8 @@ export default {
   input: 'src/index.js',
   external,
   output: [
-    { file: 'dist/real-table.cjs.js', format: 'cjs', exports: 'named', sourcemap: true, interop: 'auto' },
-    { file: 'dist/real-table.esm.js', format: 'es', sourcemap: true },
+    { file: 'dist/freeze-table.cjs.js', format: 'cjs', exports: 'named', sourcemap: true, interop: 'auto' },
+    { file: 'dist/freeze-table.esm.js', format: 'es', sourcemap: true },
   ],
   plugins: [
     nodeResolve({ extensions: ['.js', '.jsx'] }),

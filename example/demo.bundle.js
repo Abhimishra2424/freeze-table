@@ -476,19 +476,19 @@
 
 	// Separator shadow on the last pinned column while horizontally scrolled.
 	const PIN_SHADOW = '6px 0 6px -4px rgba(0,0,0,0.18)';
-	const STYLE_ID = 'real-table-styles';
+	const STYLE_ID = 'freeze-table-styles';
 	const STYLESHEET = `
-.rt-wrap[data-ct-scrolled="1"] [data-ct-pin-last="1"]{box-shadow:${PIN_SHADOW};}
-.rt-filter-input{width:100%;box-sizing:border-box;border:1px solid rgba(34,36,38,.15);border-radius:4px;
+.ft-wrap[data-ct-scrolled="1"] [data-ct-pin-last="1"]{box-shadow:${PIN_SHADOW};}
+.ft-filter-input{width:100%;box-sizing:border-box;border:1px solid rgba(34,36,38,.15);border-radius:4px;
   padding:4px 6px 4px 24px;line-height:1.2;outline:0;color:rgba(0,0,0,.87);background:#fff;
   font-family:inherit;-webkit-appearance:none;appearance:none;}
-.rt-filter-input:focus{border-color:#85b7d9;background:#fff;}
-.rt-filter-input::placeholder{color:rgba(0,0,0,.35);}
-.rt-filter-input::-ms-clear{display:none;}
-.rt-spinner{display:inline-block;box-sizing:border-box;border-radius:50%;
-  border:2px solid rgba(0,0,0,.10);border-top-color:#0070C2;animation:rt-spin .6s linear infinite;}
-@keyframes rt-spin{to{transform:rotate(360deg);}}
-@media (prefers-reduced-motion: reduce){.rt-spinner{animation-duration:2s;}}
+.ft-filter-input:focus{border-color:#85b7d9;background:#fff;}
+.ft-filter-input::placeholder{color:rgba(0,0,0,.35);}
+.ft-filter-input::-ms-clear{display:none;}
+.ft-spinner{display:inline-block;box-sizing:border-box;border-radius:50%;
+  border:2px solid rgba(0,0,0,.10);border-top-color:#0070C2;animation:ft-spin .6s linear infinite;}
+@keyframes ft-spin{to{transform:rotate(360deg);}}
+@media (prefers-reduced-motion: reduce){.ft-spinner{animation-duration:2s;}}
 `;
 	let injected = false;
 
@@ -631,7 +631,7 @@
 	  size: Math.max(10, fontSize)
 	})), /*#__PURE__*/React.createElement("input", {
 	  type: "text",
-	  className: "rt-filter-input",
+	  className: "ft-filter-input",
 	  value: value,
 	  onClick: onClick,
 	  onChange: onChange,
@@ -654,7 +654,7 @@
 	    gap: 10
 	  }
 	}, /*#__PURE__*/React.createElement("span", {
-	  className: "rt-spinner",
+	  className: "ft-spinner",
 	  style: {
 	    width: size,
 	    height: size,
@@ -690,7 +690,7 @@
 
 	// Memoized windowed row. Selection changes do NOT re-render rows: the row reads the
 	// selected index from a ref for its initial paint, and the selection-highlight effect in
-	// RealTable updates row backgrounds imperatively (via data-ct-* attributes). Without
+	// FreezeTable updates row backgrounds imperatively (via data-ct-* attributes). Without
 	// this, every ↑/↓ press re-rendered all visible rows (each with icon-heavy action
 	// cells), which made arrow navigation visibly laggy on wide lists.
 	const VirtualRow = /*#__PURE__*/React.memo(function VirtualRow({
@@ -733,7 +733,7 @@
 	  return /*#__PURE__*/React.createElement("div", _extends({
 	    key: rowKey
 	  }, rowProps, {
-	    className: "rt-row ct-row",
+	    className: "ft-row ct-row",
 	    "data-ct-index": index,
 	    "data-ct-bg": customBg || '#ffffff',
 	    "data-ct-custom": customBg ? '1' : '',
@@ -758,12 +758,12 @@
 	      ...cellProps
 	    } = cell.getCellProps();
 	    const pinned = cell.column.pinned;
-	    // Frozen by the browser, not by JS: sticky offsets are resolved against .rt-wrap,
+	    // Frozen by the browser, not by JS: sticky offsets are resolved against .ft-wrap,
 	    // the single scrollport for both axes.
 	    return /*#__PURE__*/React.createElement("div", _extends({
 	      key: cellKey
 	    }, cellProps, {
-	      className: "rt-td ct-td",
+	      className: "ft-td ct-td",
 	      "data-ct-pin": pinned ? '1' : undefined,
 	      "data-ct-pin-last": pinned && cell.column.pinnedLast ? '1' : undefined,
 	      style: {
@@ -789,7 +789,7 @@
 	});
 
 	/**
-	 * RealTable — a single, self-contained virtualized react-table list component.
+	 * FreezeTable — a single, self-contained virtualized react-table list component.
 	 *
 	 * Layout is flexbox + inline styles only, and the few UI atoms it needs (sort arrows,
 	 * pin marker, filter box, spinner, empty-state glyph) are inline SVG, so the package
@@ -839,7 +839,7 @@
 	 * one. Both apply once, after the rows load. Read the current horizontal offset to
 	 * stash with the imperative `getScrollLeft()` before navigating away.
 	 */
-	const RealTable = /*#__PURE__*/React.forwardRef(function RealTable({
+	const FreezeTable = /*#__PURE__*/React.forwardRef(function FreezeTable({
 	  columns,
 	  data,
 	  Actions,
@@ -1123,7 +1123,7 @@
 	    // Column pinning is driven from the caller's toolbar (e.g. a "Pin Columns"
 	    // dropdown): read the current freeze boundary and set a new one (0 = no pinning;
 	    // N = the first N caller columns frozen). Persisted via pinStorageKey.
-	    // getPinCount reports the EFFECTIVE (viewport-capped) boundary; getMaxPinCount
+	    // getPinCount reports the EFFECTIVE (viewpoft-capped) boundary; getMaxPinCount
 	    // is the cap — the dropdown disables entries beyond it.
 	    getPinCount: () => effectivePinCount,
 	    getMaxPinCount: () => maxPinCount,
@@ -1147,7 +1147,7 @@
 	  // ----- Horizontal scroll bookkeeping -----
 	  // Pinned columns are frozen with plain CSS `position: sticky`, so the browser keeps
 	  // them in place on the compositor — NOTHING runs in JS per scroll frame. That is only
-	  // possible because `.rt-wrap` is the ONE scrollport for both axes (hence the hand-rolled
+	  // possible because `.ft-wrap` is the ONE scrollport for both axes (hence the hand-rolled
 	  // row windowing below instead of react-window, whose outer div would otherwise become
 	  // the sticky scrollport for the body cells and break the freeze). The only things left
 	  // for JS here are the separator shadow (flipped once when the scroll crosses 0) and the
@@ -1204,7 +1204,7 @@
 	    }
 	  }, [rows, initialSelectedId, rowIdKey]);
 
-	  // Scroll a row into view inside .rt-wrap. Row i occupies [i*rowHeight, (i+1)*rowHeight]
+	  // Scroll a row into view inside .ft-wrap. Row i occupies [i*rowHeight, (i+1)*rowHeight]
 	  // in body coordinates, and the sticky header/footer eat listH's worth of viewport, so
 	  // the visible band is exactly [scrollTop, scrollTop + listH].
 	  const scrollToRow = React.useCallback((index, align_) => {
@@ -1336,7 +1336,7 @@
 	    selectedIndexRef.current = selectedIndex;
 	    const el = containerRef.current;
 	    if (!el || !rowNavigation) return;
-	    el.querySelectorAll('.rt-row').forEach(r => {
+	    el.querySelectorAll('.ft-row').forEach(r => {
 	      const idx = parseInt(r.getAttribute('data-ct-index'), 10);
 	      const hasCustomBg = r.getAttribute('data-ct-custom') === '1';
 	      const baseBg = r.getAttribute('data-ct-bg') || '#ffffff';
@@ -1379,7 +1379,7 @@
 	  const lastIdx = Math.min(rows.length - 1, Math.ceil((scrollTop + (listH || 0)) / rowHeight) + OVERSCAN);
 	  const tableProps = getTableProps();
 	  return /*#__PURE__*/React.createElement("div", {
-	    className: `rt-wrap ct-wrap${className ? ` ${className}` : ''}`,
+	    className: `ft-wrap ct-wrap${className ? ` ${className}` : ''}`,
 	    ref: containerRef,
 	    tabIndex: rowNavigation ? 0 : undefined,
 	    onKeyDown: onKeyDown,
@@ -1407,7 +1407,7 @@
 	      key: headerGroupKey
 	    }, headerGroupProps, {
 	      ref: headRef,
-	      className: "rt-head ct-head",
+	      className: "ft-head ct-head",
 	      style: {
 	        ...headerGroupProps.style,
 	        flex: '0 0 auto',
@@ -1428,7 +1428,7 @@
 	      return /*#__PURE__*/React.createElement("div", _extends({
 	        key: headerKey
 	      }, headerProps, {
-	        className: "rt-th ct-th",
+	        className: "ft-th ct-th",
 	        "data-ct-pin": column.pinned ? '1' : undefined,
 	        "data-ct-pin-last": column.pinnedLast ? '1' : undefined,
 	        style: {
@@ -1446,7 +1446,7 @@
 	      }), /*#__PURE__*/React.createElement("div", _extends({}, canSort ? column.getSortByToggleProps({
 	        title: undefined
 	      }) : {}, {
-	        className: "rt-th-label ct-th-label",
+	        className: "ft-th-label ct-th-label",
 	        style: {
 	          display: 'flex',
 	          alignItems: 'center',
@@ -1480,7 +1480,7 @@
 	      })), canSort && column.align !== 'right' && /*#__PURE__*/React.createElement(SortIcon, {
 	        direction: sortDir
 	      })), canSearch && /*#__PURE__*/React.createElement("div", {
-	        className: "rt-th-filter ct-th-filter",
+	        className: "ft-th-filter ct-th-filter",
 	        style: {
 	          marginTop: 4
 	        }
@@ -1533,7 +1533,7 @@
 	      key: footerGroupKey
 	    }, footerGroupProps, {
 	      ref: footRef,
-	      className: "rt-foot ct-foot",
+	      className: "ft-foot ct-foot",
 	      style: {
 	        ...footerGroupProps.style,
 	        flex: '0 0 auto',
@@ -1551,7 +1551,7 @@
 	      return /*#__PURE__*/React.createElement("div", _extends({
 	        key: footerKey
 	      }, footerProps, {
-	        className: "rt-tf ct-tf",
+	        className: "ft-tf ct-tf",
 	        "data-ct-pin": column.pinned ? '1' : undefined,
 	        "data-ct-pin-last": column.pinnedLast ? '1' : undefined,
 	        style: {
@@ -1856,7 +1856,7 @@
 	      margin: '0 0 4px',
 	      fontSize: 20
 	    }
-	  }, "real-table"), /*#__PURE__*/React.createElement("p", {
+	  }, "freeze-table"), /*#__PURE__*/React.createElement("p", {
 	    style: {
 	      margin: '0 0 14px',
 	      color: '#5a6a7a'
@@ -1902,7 +1902,7 @@
 	      borderRadius: 6,
 	      overflow: 'hidden'
 	    }
-	  }, /*#__PURE__*/React.createElement(RealTable, {
+	  }, /*#__PURE__*/React.createElement(FreezeTable, {
 	    ref: tableRef,
 	    columns: columns,
 	    data: data,
@@ -1911,7 +1911,7 @@
 	    fontSize: 12,
 	    loading: loading,
 	    dataFetched: !loading,
-	    pinStorageKey: "real-table-demo",
+	    pinStorageKey: "freeze-table-demo",
 	    Actions: Actions,
 	    fn: row => setSelected(row),
 	    rowStripColor: r => STRIP[r.status] || null,

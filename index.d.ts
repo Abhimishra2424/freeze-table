@@ -4,13 +4,13 @@ import type { Column as RTColumn, Row, TableInstance } from 'react-table';
 /** Reusable single-line ellipsis style for custom `Cell` renderers. */
 export declare const ELLIPSIS: React.CSSProperties;
 
-export type RealTableAlign = 'left' | 'center' | 'right';
+export type FreezeTableAlign = 'left' | 'center' | 'right';
 
 /**
  * Column config. Extends react-table v7's column with the layout/pinning extras
- * RealTable adds. `width` / `minWidth` are **pixels**, not flex weights.
+ * FreezeTable adds. `width` / `minWidth` are **pixels**, not flex weights.
  */
-export interface RealTableColumn<D extends object = any> {
+export interface FreezeTableColumn<D extends object = any> {
   /** Header content. A plain string is recommended (a toolbar pin menu can list it). */
   Header?: React.ReactNode;
   /** Field key, or `(row) => value` (an accessor fn also needs an `id`). */
@@ -32,7 +32,7 @@ export interface RealTableColumn<D extends object = any> {
   /** Maximum width in px. */
   maxWidth?: number;
   /** Applies to header, cells and footer. */
-  align?: RealTableAlign;
+  align?: FreezeTableAlign;
   /** Hide this column's search box. */
   disableFilters?: boolean;
   /** Disable sorting on this column. */
@@ -45,20 +45,20 @@ export interface RealTableColumn<D extends object = any> {
 }
 
 /** Props passed to the component rendered in the auto-appended Action column. */
-export interface RealTableActionsProps<D extends object = any> {
+export interface FreezeTableActionsProps<D extends object = any> {
   /** The raw row object. Note: no row index is passed. */
   object: D;
   /** Whatever was passed as the table's `fn` prop. */
   fn?: any;
 }
 
-export interface RealTableProps<D extends object = any> {
+export interface FreezeTableProps<D extends object = any> {
   /** Column config array. `useMemo` it in the caller. */
-  columns: RealTableColumn<D>[];
+  columns: FreezeTableColumn<D>[];
   /** Row array. `useMemo` it in the caller. */
   data: D[];
   /** Component rendered in an auto-appended right-side Action column. */
-  Actions?: React.ComponentType<RealTableActionsProps<D>>;
+  Actions?: React.ComponentType<FreezeTableActionsProps<D>>;
   /** Passed straight through to `Actions` as its `fn` prop. */
   fn?: any;
   /** TOTAL table height in px (header + body + footer). Default 500. */
@@ -118,12 +118,12 @@ export interface RealTableProps<D extends object = any> {
 }
 
 /** Imperative API exposed through `ref`. */
-export interface RealTableHandle {
+export interface FreezeTableHandle {
   /** Re-focus the table container (e.g. after a modal closes). */
   focus(): void;
   /** Current horizontal offset — stash it before navigating away. */
   getScrollLeft(): number;
-  /** Current EFFECTIVE freeze boundary (viewport-capped; 0 = none). */
+  /** Current EFFECTIVE freeze boundary (viewpoft-capped; 0 = none). */
   getPinCount(): number;
   /** Largest boundary the current viewport allows — disable menu entries beyond it. */
   getMaxPinCount(): number;
@@ -133,13 +133,13 @@ export interface RealTableHandle {
   selectRow(index: number): void;
 }
 
-export declare const RealTable: React.ForwardRefExoticComponent<
-  RealTableProps<any> & React.RefAttributes<RealTableHandle>
+export declare const FreezeTable: React.ForwardRefExoticComponent<
+  FreezeTableProps<any> & React.RefAttributes<FreezeTableHandle>
 >;
 
 /** Drop-in alias for projects migrating off a local `CommonTable`. */
-export declare const CommonTable: typeof RealTable;
+export declare const CommonTable: typeof FreezeTable;
 
-export default RealTable;
+export default FreezeTable;
 
 export type { RTColumn, Row, TableInstance };

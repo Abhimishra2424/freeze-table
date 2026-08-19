@@ -14,20 +14,20 @@ import React from 'react';
 // Separator shadow on the last pinned column while horizontally scrolled.
 export const PIN_SHADOW = '6px 0 6px -4px rgba(0,0,0,0.18)';
 
-const STYLE_ID = 'real-table-styles';
+const STYLE_ID = 'freeze-table-styles';
 
 const STYLESHEET = `
-.rt-wrap[data-ct-scrolled="1"] [data-ct-pin-last="1"]{box-shadow:${PIN_SHADOW};}
-.rt-filter-input{width:100%;box-sizing:border-box;border:1px solid rgba(34,36,38,.15);border-radius:4px;
+.ft-wrap[data-ct-scrolled="1"] [data-ct-pin-last="1"]{box-shadow:${PIN_SHADOW};}
+.ft-filter-input{width:100%;box-sizing:border-box;border:1px solid rgba(34,36,38,.15);border-radius:4px;
   padding:4px 6px 4px 24px;line-height:1.2;outline:0;color:rgba(0,0,0,.87);background:#fff;
   font-family:inherit;-webkit-appearance:none;appearance:none;}
-.rt-filter-input:focus{border-color:#85b7d9;background:#fff;}
-.rt-filter-input::placeholder{color:rgba(0,0,0,.35);}
-.rt-filter-input::-ms-clear{display:none;}
-.rt-spinner{display:inline-block;box-sizing:border-box;border-radius:50%;
-  border:2px solid rgba(0,0,0,.10);border-top-color:#0070C2;animation:rt-spin .6s linear infinite;}
-@keyframes rt-spin{to{transform:rotate(360deg);}}
-@media (prefers-reduced-motion: reduce){.rt-spinner{animation-duration:2s;}}
+.ft-filter-input:focus{border-color:#85b7d9;background:#fff;}
+.ft-filter-input::placeholder{color:rgba(0,0,0,.35);}
+.ft-filter-input::-ms-clear{display:none;}
+.ft-spinner{display:inline-block;box-sizing:border-box;border-radius:50%;
+  border:2px solid rgba(0,0,0,.10);border-top-color:#0070C2;animation:ft-spin .6s linear infinite;}
+@keyframes ft-spin{to{transform:rotate(360deg);}}
+@media (prefers-reduced-motion: reduce){.ft-spinner{animation-duration:2s;}}
 `;
 
 let injected = false;
@@ -102,7 +102,7 @@ export const FilterInput = ({ value, onChange, onClick, placeholder, fontSize = 
     </span>
     <input
       type="text"
-      className="rt-filter-input"
+      className="ft-filter-input"
       value={value}
       onClick={onClick}
       onChange={onChange}
@@ -115,7 +115,7 @@ export const FilterInput = ({ value, onChange, onClick, placeholder, fontSize = 
 /** Centred loading spinner + caption. */
 export const Spinner = ({ text, size = 32, color = '#0070C2' }) => (
   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
-    <span className="rt-spinner" style={{ width: size, height: size, borderTopColor: color }} />
+    <span className="ft-spinner" style={{ width: size, height: size, borderTopColor: color }} />
     {text ? <span style={{ color, fontSize: '13px' }}>{text}</span> : null}
   </div>
 );

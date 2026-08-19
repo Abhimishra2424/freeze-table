@@ -30,7 +30,7 @@ const PIN_MIN_SCROLLABLE = 250;
 
 // Memoized windowed row. Selection changes do NOT re-render rows: the row reads the
 // selected index from a ref for its initial paint, and the selection-highlight effect in
-// RealTable updates row backgrounds imperatively (via data-ct-* attributes). Without
+// FreezeTable updates row backgrounds imperatively (via data-ct-* attributes). Without
 // this, every ↑/↓ press re-rendered all visible rows (each with icon-heavy action
 // cells), which made arrow navigation visibly laggy on wide lists.
 const VirtualRow = React.memo(function VirtualRow({ data, index }) {
@@ -49,7 +49,7 @@ const VirtualRow = React.memo(function VirtualRow({ data, index }) {
     <div
       key={rowKey}
       {...rowProps}
-      className="rt-row ct-row"
+      className="ft-row ct-row"
       data-ct-index={index}
       data-ct-bg={customBg || '#ffffff'}
       data-ct-custom={customBg ? '1' : ''}
@@ -72,13 +72,13 @@ const VirtualRow = React.memo(function VirtualRow({ data, index }) {
       {row.cells.map((cell) => {
         const { key: cellKey, ...cellProps } = cell.getCellProps();
         const pinned = cell.column.pinned;
-        // Frozen by the browser, not by JS: sticky offsets are resolved against .rt-wrap,
+        // Frozen by the browser, not by JS: sticky offsets are resolved against .ft-wrap,
         // the single scrollport for both axes.
         return (
           <div
             key={cellKey}
             {...cellProps}
-            className="rt-td ct-td"
+            className="ft-td ct-td"
             data-ct-pin={pinned ? '1' : undefined}
             data-ct-pin-last={pinned && cell.column.pinnedLast ? '1' : undefined}
             style={{
@@ -111,7 +111,7 @@ const VirtualRow = React.memo(function VirtualRow({ data, index }) {
 });
 
 /**
- * RealTable — a single, self-contained virtualized react-table list component.
+ * FreezeTable — a single, self-contained virtualized react-table list component.
  *
  * Layout is flexbox + inline styles only, and the few UI atoms it needs (sort arrows,
  * pin marker, filter box, spinner, empty-state glyph) are inline SVG, so the package
@@ -161,7 +161,7 @@ const VirtualRow = React.memo(function VirtualRow({ data, index }) {
  * one. Both apply once, after the rows load. Read the current horizontal offset to
  * stash with the imperative `getScrollLeft()` before navigating away.
  */
-export const RealTable = React.forwardRef(function RealTable(
+export const FreezeTable = React.forwardRef(function FreezeTable(
   {
     columns,
     data,
@@ -428,7 +428,7 @@ export const RealTable = React.forwardRef(function RealTable(
     // Column pinning is driven from the caller's toolbar (e.g. a "Pin Columns"
     // dropdown): read the current freeze boundary and set a new one (0 = no pinning;
     // N = the first N caller columns frozen). Persisted via pinStorageKey.
-    // getPinCount reports the EFFECTIVE (viewport-capped) boundary; getMaxPinCount
+    // getPinCount reports the EFFECTIVE (viewpoft-capped) boundary; getMaxPinCount
     // is the cap — the dropdown disables entries beyond it.
     getPinCount: () => effectivePinCount,
     getMaxPinCount: () => maxPinCount,
@@ -447,7 +447,7 @@ export const RealTable = React.forwardRef(function RealTable(
   // ----- Horizontal scroll bookkeeping -----
   // Pinned columns are frozen with plain CSS `position: sticky`, so the browser keeps
   // them in place on the compositor — NOTHING runs in JS per scroll frame. That is only
-  // possible because `.rt-wrap` is the ONE scrollport for both axes (hence the hand-rolled
+  // possible because `.ft-wrap` is the ONE scrollport for both axes (hence the hand-rolled
   // row windowing below instead of react-window, whose outer div would otherwise become
   // the sticky scrollport for the body cells and break the freeze). The only things left
   // for JS here are the separator shadow (flipped once when the scroll crosses 0) and the
@@ -500,7 +500,7 @@ export const RealTable = React.forwardRef(function RealTable(
     }
   }, [rows, initialSelectedId, rowIdKey]);
 
-  // Scroll a row into view inside .rt-wrap. Row i occupies [i*rowHeight, (i+1)*rowHeight]
+  // Scroll a row into view inside .ft-wrap. Row i occupies [i*rowHeight, (i+1)*rowHeight]
   // in body coordinates, and the sticky header/footer eat listH's worth of viewport, so
   // the visible band is exactly [scrollTop, scrollTop + listH].
   const scrollToRow = React.useCallback(
@@ -641,7 +641,7 @@ export const RealTable = React.forwardRef(function RealTable(
     selectedIndexRef.current = selectedIndex;
     const el = containerRef.current;
     if (!el || !rowNavigation) return;
-    el.querySelectorAll('.rt-row').forEach((r) => {
+    el.querySelectorAll('.ft-row').forEach((r) => {
       const idx = parseInt(r.getAttribute('data-ct-index'), 10);
       const hasCustomBg = r.getAttribute('data-ct-custom') === '1';
       const baseBg = r.getAttribute('data-ct-bg') || '#ffffff';
@@ -686,7 +686,7 @@ export const RealTable = React.forwardRef(function RealTable(
   const tableProps = getTableProps();
   return (
     <div
-      className={`rt-wrap ct-wrap${className ? ` ${className}` : ''}`}
+      className={`ft-wrap ct-wrap${className ? ` ${className}` : ''}`}
       ref={containerRef}
       tabIndex={rowNavigation ? 0 : undefined}
       onKeyDown={onKeyDown}
@@ -704,7 +704,7 @@ export const RealTable = React.forwardRef(function RealTable(
             key={headerGroupKey}
             {...headerGroupProps}
             ref={headRef}
-            className="rt-head ct-head"
+            className="ft-head ct-head"
             style={{
               ...headerGroupProps.style,
               flex: '0 0 auto',
@@ -724,7 +724,7 @@ export const RealTable = React.forwardRef(function RealTable(
                 <div
                   key={headerKey}
                   {...headerProps}
-                  className="rt-th ct-th"
+                  className="ft-th ct-th"
                   data-ct-pin={column.pinned ? '1' : undefined}
                   data-ct-pin-last={column.pinnedLast ? '1' : undefined}
                   style={{
@@ -744,7 +744,7 @@ export const RealTable = React.forwardRef(function RealTable(
                 >
                   <div
                     {...(canSort ? column.getSortByToggleProps({ title: undefined }) : {})}
-                    className="rt-th-label ct-th-label"
+                    className="ft-th-label ct-th-label"
                     style={{
                       display: 'flex',
                       alignItems: 'center',
@@ -774,7 +774,7 @@ export const RealTable = React.forwardRef(function RealTable(
                     </span>
                     {canSort && column.align !== 'right' && <SortIcon direction={sortDir} />}
                   </div>
-                  {canSearch && <div className="rt-th-filter ct-th-filter" style={{ marginTop: 4 }}>{column.render('Filter')}</div>}
+                  {canSearch && <div className="ft-th-filter ct-th-filter" style={{ marginTop: 4 }}>{column.render('Filter')}</div>}
                 </div>
               );
             })}
@@ -817,7 +817,7 @@ export const RealTable = React.forwardRef(function RealTable(
                 key={footerGroupKey}
                 {...footerGroupProps}
                 ref={footRef}
-                className="rt-foot ct-foot"
+                className="ft-foot ct-foot"
                 style={{
                   ...footerGroupProps.style,
                   flex: '0 0 auto',
@@ -834,7 +834,7 @@ export const RealTable = React.forwardRef(function RealTable(
                     <div
                       key={footerKey}
                       {...footerProps}
-                      className="rt-tf ct-tf"
+                      className="ft-tf ct-tf"
                       data-ct-pin={column.pinned ? '1' : undefined}
                       data-ct-pin-last={column.pinnedLast ? '1' : undefined}
                       style={{
@@ -890,4 +890,4 @@ export const RealTable = React.forwardRef(function RealTable(
   );
 });
 
-export default RealTable;
+export default FreezeTable;

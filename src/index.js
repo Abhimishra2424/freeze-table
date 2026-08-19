@@ -1,3 +1,3 @@
-export { RealTable, ELLIPSIS, default } from './RealTable';
+export { FreezeTable, ELLIPSIS, default } from './FreezeTable';
 // Drop-in alias for projects migrating off a local `CommonTable`.
-export { RealTable as CommonTable } from './RealTable';
+export { FreezeTable as CommonTable } from './FreezeTable';

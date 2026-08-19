@@ -1,6 +1,6 @@
 import React, { useMemo, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { RealTable, ELLIPSIS } from '../src';
+import { FreezeTable, ELLIPSIS } from '../src';
 
 const FIRST = ['Ramesh', 'Sunita', 'Imran', 'Priya', 'Arjun', 'Fatima', 'Rakesh', 'Neha', 'Vikram', 'Anjali'];
 const LAST = ['Kumar', 'Devi', 'Ali', 'Sharma', 'Singh', 'Khan', 'Verma', 'Gupta', 'Reddy', 'Nair'];
@@ -97,7 +97,7 @@ function Demo() {
 
   return (
     <div style={{ font: '13px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif', color: '#1b2733', padding: 20, background: '#f7f9fb', minHeight: '100vh' }}>
-      <h1 style={{ margin: '0 0 4px', fontSize: 20 }}>real-table</h1>
+      <h1 style={{ margin: '0 0 4px', fontSize: 20 }}>freeze-table</h1>
       <p style={{ margin: '0 0 14px', color: '#5a6a7a' }}>
         2,000 rows · 18 columns · horizontal scroll ke waqt pehle {pin} column freeze ·
         arrow keys / Home / End / Enter chalte hain (table pe click karke try karo).
@@ -119,7 +119,7 @@ function Demo() {
       </div>
 
       <div style={{ background: '#fff', border: '1px solid #e3e8ee', borderRadius: 6, overflow: 'hidden' }}>
-        <RealTable
+        <FreezeTable
           ref={tableRef}
           columns={columns}
           data={data}
@@ -128,7 +128,7 @@ function Demo() {
           fontSize={12}
           loading={loading}
           dataFetched={!loading}
-          pinStorageKey="real-table-demo"
+          pinStorageKey="freeze-table-demo"
           Actions={Actions}
           fn={(row) => setSelected(row)}
           rowStripColor={(r) => STRIP[r.status] || null}
