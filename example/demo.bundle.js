@@ -1,496 +1,846 @@
 (function () {
-	'use strict';
+  'use strict';
 
-	var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
+  function _extends() {
+    return _extends = Object.assign ? Object.assign.bind() : function (n) {
+      for (var e = 1; e < arguments.length; e++) {
+        var t = arguments[e];
+        for (var r in t) ({}).hasOwnProperty.call(t, r) && (n[r] = t[r]);
+      }
+      return n;
+    }, _extends.apply(null, arguments);
+  }
 
-	function getDefaultExportFromCjs (x) {
-		return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
-	}
+  var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
-	var react = {exports: {}};
+  function getDefaultExportFromCjs (x) {
+  	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
+  }
 
-	var react_production_min = {};
+  var react = {exports: {}};
 
-	/**
-	 * @license React
-	 * react.production.min.js
-	 *
-	 * Copyright (c) Facebook, Inc. and its affiliates.
-	 *
-	 * This source code is licensed under the MIT license found in the
-	 * LICENSE file in the root directory of this source tree.
-	 */
-	var l=Symbol.for("react.element"),n=Symbol.for("react.portal"),p$1=Symbol.for("react.fragment"),q=Symbol.for("react.strict_mode"),r=Symbol.for("react.profiler"),t=Symbol.for("react.provider"),u=Symbol.for("react.context"),v$1=Symbol.for("react.forward_ref"),w=Symbol.for("react.suspense"),x=Symbol.for("react.memo"),y=Symbol.for("react.lazy"),z$1=Symbol.iterator;function A$1(a){if(null===a||"object"!==typeof a)return null;a=z$1&&a[z$1]||a["@@iterator"];return "function"===typeof a?a:null}
-	var B$1={isMounted:function(){return  false},enqueueForceUpdate:function(){},enqueueReplaceState:function(){},enqueueSetState:function(){}},C$1=Object.assign,D$1={};function E$1(a,b,e){this.props=a;this.context=b;this.refs=D$1;this.updater=e||B$1;}E$1.prototype.isReactComponent={};
-	E$1.prototype.setState=function(a,b){if("object"!==typeof a&&"function"!==typeof a&&null!=a)throw Error("setState(...): takes an object of state variables to update or a function which returns an object of state variables.");this.updater.enqueueSetState(this,a,b,"setState");};E$1.prototype.forceUpdate=function(a){this.updater.enqueueForceUpdate(this,a,"forceUpdate");};function F(){}F.prototype=E$1.prototype;function G$1(a,b,e){this.props=a;this.context=b;this.refs=D$1;this.updater=e||B$1;}var H$1=G$1.prototype=new F;
-	H$1.constructor=G$1;C$1(H$1,E$1.prototype);H$1.isPureReactComponent=true;var I$1=Array.isArray,J=Object.prototype.hasOwnProperty,K$1={current:null},L$1={key:true,ref:true,__self:true,__source:true};
-	function M$1(a,b,e){var d,c={},k=null,h=null;if(null!=b)for(d in void 0!==b.ref&&(h=b.ref),void 0!==b.key&&(k=""+b.key),b)J.call(b,d)&&!L$1.hasOwnProperty(d)&&(c[d]=b[d]);var g=arguments.length-2;if(1===g)c.children=e;else if(1<g){for(var f=Array(g),m=0;m<g;m++)f[m]=arguments[m+2];c.children=f;}if(a&&a.defaultProps)for(d in g=a.defaultProps,g) void 0===c[d]&&(c[d]=g[d]);return {$$typeof:l,type:a,key:k,ref:h,props:c,_owner:K$1.current}}
-	function N$1(a,b){return {$$typeof:l,type:a.type,key:b,ref:a.ref,props:a.props,_owner:a._owner}}function O$1(a){return "object"===typeof a&&null!==a&&a.$$typeof===l}function escape(a){var b={"=":"=0",":":"=2"};return "$"+a.replace(/[=:]/g,function(a){return b[a]})}var P$1=/\/+/g;function Q$1(a,b){return "object"===typeof a&&null!==a&&null!=a.key?escape(""+a.key):b.toString(36)}
-	function R$1(a,b,e,d,c){var k=typeof a;if("undefined"===k||"boolean"===k)a=null;var h=false;if(null===a)h=true;else switch(k){case "string":case "number":h=true;break;case "object":switch(a.$$typeof){case l:case n:h=true;}}if(h)return h=a,c=c(h),a=""===d?"."+Q$1(h,0):d,I$1(c)?(e="",null!=a&&(e=a.replace(P$1,"$&/")+"/"),R$1(c,b,e,"",function(a){return a})):null!=c&&(O$1(c)&&(c=N$1(c,e+(!c.key||h&&h.key===c.key?"":(""+c.key).replace(P$1,"$&/")+"/")+a)),b.push(c)),1;h=0;d=""===d?".":d+":";if(I$1(a))for(var g=0;g<a.length;g++){k=
-	a[g];var f=d+Q$1(k,g);h+=R$1(k,b,e,f,c);}else if(f=A$1(a),"function"===typeof f)for(a=f.call(a),g=0;!(k=a.next()).done;)k=k.value,f=d+Q$1(k,g++),h+=R$1(k,b,e,f,c);else if("object"===k)throw b=String(a),Error("Objects are not valid as a React child (found: "+("[object Object]"===b?"object with keys {"+Object.keys(a).join(", ")+"}":b)+"). If you meant to render a collection of children, use an array instead.");return h}
-	function S$1(a,b,e){if(null==a)return a;var d=[],c=0;R$1(a,d,"","",function(a){return b.call(e,a,c++)});return d}function T$1(a){if(-1===a._status){var b=a._result;b=b();b.then(function(b){if(0===a._status||-1===a._status)a._status=1,a._result=b;},function(b){if(0===a._status||-1===a._status)a._status=2,a._result=b;});-1===a._status&&(a._status=0,a._result=b);}if(1===a._status)return a._result.default;throw a._result;}
-	var U$1={current:null},V$1={transition:null},W$1={ReactCurrentDispatcher:U$1,ReactCurrentBatchConfig:V$1,ReactCurrentOwner:K$1};function X$1(){throw Error("act(...) is not supported in production builds of React.");}
-	react_production_min.Children={map:S$1,forEach:function(a,b,e){S$1(a,function(){b.apply(this,arguments);},e);},count:function(a){var b=0;S$1(a,function(){b++;});return b},toArray:function(a){return S$1(a,function(a){return a})||[]},only:function(a){if(!O$1(a))throw Error("React.Children.only expected to receive a single React element child.");return a}};react_production_min.Component=E$1;react_production_min.Fragment=p$1;react_production_min.Profiler=r;react_production_min.PureComponent=G$1;react_production_min.StrictMode=q;react_production_min.Suspense=w;
-	react_production_min.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED=W$1;react_production_min.act=X$1;
-	react_production_min.cloneElement=function(a,b,e){if(null===a||void 0===a)throw Error("React.cloneElement(...): The argument must be a React element, but you passed "+a+".");var d=C$1({},a.props),c=a.key,k=a.ref,h=a._owner;if(null!=b){ void 0!==b.ref&&(k=b.ref,h=K$1.current);void 0!==b.key&&(c=""+b.key);if(a.type&&a.type.defaultProps)var g=a.type.defaultProps;for(f in b)J.call(b,f)&&!L$1.hasOwnProperty(f)&&(d[f]=void 0===b[f]&&void 0!==g?g[f]:b[f]);}var f=arguments.length-2;if(1===f)d.children=e;else if(1<f){g=Array(f);
-	for(var m=0;m<f;m++)g[m]=arguments[m+2];d.children=g;}return {$$typeof:l,type:a.type,key:c,ref:k,props:d,_owner:h}};react_production_min.createContext=function(a){a={$$typeof:u,_currentValue:a,_currentValue2:a,_threadCount:0,Provider:null,Consumer:null,_defaultValue:null,_globalName:null};a.Provider={$$typeof:t,_context:a};return a.Consumer=a};react_production_min.createElement=M$1;react_production_min.createFactory=function(a){var b=M$1.bind(null,a);b.type=a;return b};react_production_min.createRef=function(){return {current:null}};
-	react_production_min.forwardRef=function(a){return {$$typeof:v$1,render:a}};react_production_min.isValidElement=O$1;react_production_min.lazy=function(a){return {$$typeof:y,_payload:{_status:-1,_result:a},_init:T$1}};react_production_min.memo=function(a,b){return {$$typeof:x,type:a,compare:void 0===b?null:b}};react_production_min.startTransition=function(a){var b=V$1.transition;V$1.transition={};try{a();}finally{V$1.transition=b;}};react_production_min.unstable_act=X$1;react_production_min.useCallback=function(a,b){return U$1.current.useCallback(a,b)};react_production_min.useContext=function(a){return U$1.current.useContext(a)};
-	react_production_min.useDebugValue=function(){};react_production_min.useDeferredValue=function(a){return U$1.current.useDeferredValue(a)};react_production_min.useEffect=function(a,b){return U$1.current.useEffect(a,b)};react_production_min.useId=function(){return U$1.current.useId()};react_production_min.useImperativeHandle=function(a,b,e){return U$1.current.useImperativeHandle(a,b,e)};react_production_min.useInsertionEffect=function(a,b){return U$1.current.useInsertionEffect(a,b)};react_production_min.useLayoutEffect=function(a,b){return U$1.current.useLayoutEffect(a,b)};
-	react_production_min.useMemo=function(a,b){return U$1.current.useMemo(a,b)};react_production_min.useReducer=function(a,b,e){return U$1.current.useReducer(a,b,e)};react_production_min.useRef=function(a){return U$1.current.useRef(a)};react_production_min.useState=function(a){return U$1.current.useState(a)};react_production_min.useSyncExternalStore=function(a,b,e){return U$1.current.useSyncExternalStore(a,b,e)};react_production_min.useTransition=function(){return U$1.current.useTransition()};react_production_min.version="18.3.1";
+  var react_production_min = {};
 
-	{
-	  react.exports = react_production_min;
-	}
+  /**
+   * @license React
+   * react.production.min.js
+   *
+   * Copyright (c) Facebook, Inc. and its affiliates.
+   *
+   * This source code is licensed under the MIT license found in the
+   * LICENSE file in the root directory of this source tree.
+   */
+  var l=Symbol.for("react.element"),n=Symbol.for("react.portal"),p$1=Symbol.for("react.fragment"),q=Symbol.for("react.strict_mode"),r=Symbol.for("react.profiler"),t=Symbol.for("react.provider"),u=Symbol.for("react.context"),v$2=Symbol.for("react.forward_ref"),w=Symbol.for("react.suspense"),x=Symbol.for("react.memo"),y=Symbol.for("react.lazy"),z$1=Symbol.iterator;function A$1(a){if(null===a||"object"!==typeof a)return null;a=z$1&&a[z$1]||a["@@iterator"];return "function"===typeof a?a:null}
+  var B$1={isMounted:function(){return  false},enqueueForceUpdate:function(){},enqueueReplaceState:function(){},enqueueSetState:function(){}},C$1=Object.assign,D$1={};function E$1(a,b,e){this.props=a;this.context=b;this.refs=D$1;this.updater=e||B$1;}E$1.prototype.isReactComponent={};
+  E$1.prototype.setState=function(a,b){if("object"!==typeof a&&"function"!==typeof a&&null!=a)throw Error("setState(...): takes an object of state variables to update or a function which returns an object of state variables.");this.updater.enqueueSetState(this,a,b,"setState");};E$1.prototype.forceUpdate=function(a){this.updater.enqueueForceUpdate(this,a,"forceUpdate");};function F(){}F.prototype=E$1.prototype;function G$1(a,b,e){this.props=a;this.context=b;this.refs=D$1;this.updater=e||B$1;}var H$1=G$1.prototype=new F;
+  H$1.constructor=G$1;C$1(H$1,E$1.prototype);H$1.isPureReactComponent=true;var I$1=Array.isArray,J=Object.prototype.hasOwnProperty,K$1={current:null},L$1={key:true,ref:true,__self:true,__source:true};
+  function M$1(a,b,e){var d,c={},k=null,h=null;if(null!=b)for(d in void 0!==b.ref&&(h=b.ref),void 0!==b.key&&(k=""+b.key),b)J.call(b,d)&&!L$1.hasOwnProperty(d)&&(c[d]=b[d]);var g=arguments.length-2;if(1===g)c.children=e;else if(1<g){for(var f=Array(g),m=0;m<g;m++)f[m]=arguments[m+2];c.children=f;}if(a&&a.defaultProps)for(d in g=a.defaultProps,g) void 0===c[d]&&(c[d]=g[d]);return {$$typeof:l,type:a,key:k,ref:h,props:c,_owner:K$1.current}}
+  function N$1(a,b){return {$$typeof:l,type:a.type,key:b,ref:a.ref,props:a.props,_owner:a._owner}}function O$1(a){return "object"===typeof a&&null!==a&&a.$$typeof===l}function escape(a){var b={"=":"=0",":":"=2"};return "$"+a.replace(/[=:]/g,function(a){return b[a]})}var P$1=/\/+/g;function Q$1(a,b){return "object"===typeof a&&null!==a&&null!=a.key?escape(""+a.key):b.toString(36)}
+  function R$1(a,b,e,d,c){var k=typeof a;if("undefined"===k||"boolean"===k)a=null;var h=false;if(null===a)h=true;else switch(k){case "string":case "number":h=true;break;case "object":switch(a.$$typeof){case l:case n:h=true;}}if(h)return h=a,c=c(h),a=""===d?"."+Q$1(h,0):d,I$1(c)?(e="",null!=a&&(e=a.replace(P$1,"$&/")+"/"),R$1(c,b,e,"",function(a){return a})):null!=c&&(O$1(c)&&(c=N$1(c,e+(!c.key||h&&h.key===c.key?"":(""+c.key).replace(P$1,"$&/")+"/")+a)),b.push(c)),1;h=0;d=""===d?".":d+":";if(I$1(a))for(var g=0;g<a.length;g++){k=
+  a[g];var f=d+Q$1(k,g);h+=R$1(k,b,e,f,c);}else if(f=A$1(a),"function"===typeof f)for(a=f.call(a),g=0;!(k=a.next()).done;)k=k.value,f=d+Q$1(k,g++),h+=R$1(k,b,e,f,c);else if("object"===k)throw b=String(a),Error("Objects are not valid as a React child (found: "+("[object Object]"===b?"object with keys {"+Object.keys(a).join(", ")+"}":b)+"). If you meant to render a collection of children, use an array instead.");return h}
+  function S$1(a,b,e){if(null==a)return a;var d=[],c=0;R$1(a,d,"","",function(a){return b.call(e,a,c++)});return d}function T$1(a){if(-1===a._status){var b=a._result;b=b();b.then(function(b){if(0===a._status||-1===a._status)a._status=1,a._result=b;},function(b){if(0===a._status||-1===a._status)a._status=2,a._result=b;});-1===a._status&&(a._status=0,a._result=b);}if(1===a._status)return a._result.default;throw a._result;}
+  var U$1={current:null},V$1={transition:null},W$1={ReactCurrentDispatcher:U$1,ReactCurrentBatchConfig:V$1,ReactCurrentOwner:K$1};function X$1(){throw Error("act(...) is not supported in production builds of React.");}
+  react_production_min.Children={map:S$1,forEach:function(a,b,e){S$1(a,function(){b.apply(this,arguments);},e);},count:function(a){var b=0;S$1(a,function(){b++;});return b},toArray:function(a){return S$1(a,function(a){return a})||[]},only:function(a){if(!O$1(a))throw Error("React.Children.only expected to receive a single React element child.");return a}};react_production_min.Component=E$1;react_production_min.Fragment=p$1;react_production_min.Profiler=r;react_production_min.PureComponent=G$1;react_production_min.StrictMode=q;react_production_min.Suspense=w;
+  react_production_min.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED=W$1;react_production_min.act=X$1;
+  react_production_min.cloneElement=function(a,b,e){if(null===a||void 0===a)throw Error("React.cloneElement(...): The argument must be a React element, but you passed "+a+".");var d=C$1({},a.props),c=a.key,k=a.ref,h=a._owner;if(null!=b){ void 0!==b.ref&&(k=b.ref,h=K$1.current);void 0!==b.key&&(c=""+b.key);if(a.type&&a.type.defaultProps)var g=a.type.defaultProps;for(f in b)J.call(b,f)&&!L$1.hasOwnProperty(f)&&(d[f]=void 0===b[f]&&void 0!==g?g[f]:b[f]);}var f=arguments.length-2;if(1===f)d.children=e;else if(1<f){g=Array(f);
+  for(var m=0;m<f;m++)g[m]=arguments[m+2];d.children=g;}return {$$typeof:l,type:a.type,key:c,ref:k,props:d,_owner:h}};react_production_min.createContext=function(a){a={$$typeof:u,_currentValue:a,_currentValue2:a,_threadCount:0,Provider:null,Consumer:null,_defaultValue:null,_globalName:null};a.Provider={$$typeof:t,_context:a};return a.Consumer=a};react_production_min.createElement=M$1;react_production_min.createFactory=function(a){var b=M$1.bind(null,a);b.type=a;return b};react_production_min.createRef=function(){return {current:null}};
+  react_production_min.forwardRef=function(a){return {$$typeof:v$2,render:a}};react_production_min.isValidElement=O$1;react_production_min.lazy=function(a){return {$$typeof:y,_payload:{_status:-1,_result:a},_init:T$1}};react_production_min.memo=function(a,b){return {$$typeof:x,type:a,compare:void 0===b?null:b}};react_production_min.startTransition=function(a){var b=V$1.transition;V$1.transition={};try{a();}finally{V$1.transition=b;}};react_production_min.unstable_act=X$1;react_production_min.useCallback=function(a,b){return U$1.current.useCallback(a,b)};react_production_min.useContext=function(a){return U$1.current.useContext(a)};
+  react_production_min.useDebugValue=function(){};react_production_min.useDeferredValue=function(a){return U$1.current.useDeferredValue(a)};react_production_min.useEffect=function(a,b){return U$1.current.useEffect(a,b)};react_production_min.useId=function(){return U$1.current.useId()};react_production_min.useImperativeHandle=function(a,b,e){return U$1.current.useImperativeHandle(a,b,e)};react_production_min.useInsertionEffect=function(a,b){return U$1.current.useInsertionEffect(a,b)};react_production_min.useLayoutEffect=function(a,b){return U$1.current.useLayoutEffect(a,b)};
+  react_production_min.useMemo=function(a,b){return U$1.current.useMemo(a,b)};react_production_min.useReducer=function(a,b,e){return U$1.current.useReducer(a,b,e)};react_production_min.useRef=function(a){return U$1.current.useRef(a)};react_production_min.useState=function(a){return U$1.current.useState(a)};react_production_min.useSyncExternalStore=function(a,b,e){return U$1.current.useSyncExternalStore(a,b,e)};react_production_min.useTransition=function(){return U$1.current.useTransition()};react_production_min.version="18.3.1";
 
-	var reactExports = react.exports;
-	var React = /*@__PURE__*/getDefaultExportFromCjs(reactExports);
+  {
+    react.exports = react_production_min;
+  }
 
-	var reactDom = {exports: {}};
+  var reactExports = react.exports;
+  var React = /*@__PURE__*/getDefaultExportFromCjs(reactExports);
 
-	var reactDom_production_min = {};
+  var reactDom = {exports: {}};
 
-	var scheduler = {exports: {}};
+  var reactDom_production_min = {};
 
-	var scheduler_production_min = {};
+  var scheduler = {exports: {}};
 
-	/**
-	 * @license React
-	 * scheduler.production.min.js
-	 *
-	 * Copyright (c) Facebook, Inc. and its affiliates.
-	 *
-	 * This source code is licensed under the MIT license found in the
-	 * LICENSE file in the root directory of this source tree.
-	 */
+  var scheduler_production_min = {};
 
-	(function (exports) {
-	function f(a,b){var c=a.length;a.push(b);a:for(;0<c;){var d=c-1>>>1,e=a[d];if(0<g(e,b))a[d]=b,a[c]=e,c=d;else break a}}function h(a){return 0===a.length?null:a[0]}function k(a){if(0===a.length)return null;var b=a[0],c=a.pop();if(c!==b){a[0]=c;a:for(var d=0,e=a.length,w=e>>>1;d<w;){var m=2*(d+1)-1,C=a[m],n=m+1,x=a[n];if(0>g(C,c))n<e&&0>g(x,C)?(a[d]=x,a[n]=c,d=n):(a[d]=C,a[m]=c,d=m);else if(n<e&&0>g(x,c))a[d]=x,a[n]=c,d=n;else break a}}return b}
-		function g(a,b){var c=a.sortIndex-b.sortIndex;return 0!==c?c:a.id-b.id}if("object"===typeof performance&&"function"===typeof performance.now){var l=performance;exports.unstable_now=function(){return l.now()};}else {var p=Date,q=p.now();exports.unstable_now=function(){return p.now()-q};}var r=[],t=[],u=1,v=null,y=3,z=false,A=false,B=false,D="function"===typeof setTimeout?setTimeout:null,E="function"===typeof clearTimeout?clearTimeout:null,F="undefined"!==typeof setImmediate?setImmediate:null;
-		"undefined"!==typeof navigator&&void 0!==navigator.scheduling&&void 0!==navigator.scheduling.isInputPending&&navigator.scheduling.isInputPending.bind(navigator.scheduling);function G(a){for(var b=h(t);null!==b;){if(null===b.callback)k(t);else if(b.startTime<=a)k(t),b.sortIndex=b.expirationTime,f(r,b);else break;b=h(t);}}function H(a){B=false;G(a);if(!A)if(null!==h(r))A=true,I(J);else {var b=h(t);null!==b&&K(H,b.startTime-a);}}
-		function J(a,b){A=false;B&&(B=false,E(L),L=-1);z=true;var c=y;try{G(b);for(v=h(r);null!==v&&(!(v.expirationTime>b)||a&&!M());){var d=v.callback;if("function"===typeof d){v.callback=null;y=v.priorityLevel;var e=d(v.expirationTime<=b);b=exports.unstable_now();"function"===typeof e?v.callback=e:v===h(r)&&k(r);G(b);}else k(r);v=h(r);}if(null!==v)var w=!0;else {var m=h(t);null!==m&&K(H,m.startTime-b);w=!1;}return w}finally{v=null,y=c,z=false;}}var N=false,O=null,L=-1,P=5,Q=-1;
-		function M(){return exports.unstable_now()-Q<P?false:true}function R(){if(null!==O){var a=exports.unstable_now();Q=a;var b=true;try{b=O(!0,a);}finally{b?S():(N=false,O=null);}}else N=false;}var S;if("function"===typeof F)S=function(){F(R);};else if("undefined"!==typeof MessageChannel){var T=new MessageChannel,U=T.port2;T.port1.onmessage=R;S=function(){U.postMessage(null);};}else S=function(){D(R,0);};function I(a){O=a;N||(N=true,S());}function K(a,b){L=D(function(){a(exports.unstable_now());},b);}
-		exports.unstable_IdlePriority=5;exports.unstable_ImmediatePriority=1;exports.unstable_LowPriority=4;exports.unstable_NormalPriority=3;exports.unstable_Profiling=null;exports.unstable_UserBlockingPriority=2;exports.unstable_cancelCallback=function(a){a.callback=null;};exports.unstable_continueExecution=function(){A||z||(A=true,I(J));};
-		exports.unstable_forceFrameRate=function(a){0>a||125<a?console.error("forceFrameRate takes a positive int between 0 and 125, forcing frame rates higher than 125 fps is not supported"):P=0<a?Math.floor(1E3/a):5;};exports.unstable_getCurrentPriorityLevel=function(){return y};exports.unstable_getFirstCallbackNode=function(){return h(r)};exports.unstable_next=function(a){switch(y){case 1:case 2:case 3:var b=3;break;default:b=y;}var c=y;y=b;try{return a()}finally{y=c;}};exports.unstable_pauseExecution=function(){};
-		exports.unstable_requestPaint=function(){};exports.unstable_runWithPriority=function(a,b){switch(a){case 1:case 2:case 3:case 4:case 5:break;default:a=3;}var c=y;y=a;try{return b()}finally{y=c;}};
-		exports.unstable_scheduleCallback=function(a,b,c){var d=exports.unstable_now();"object"===typeof c&&null!==c?(c=c.delay,c="number"===typeof c&&0<c?d+c:d):c=d;switch(a){case 1:var e=-1;break;case 2:e=250;break;case 5:e=1073741823;break;case 4:e=1E4;break;default:e=5E3;}e=c+e;a={id:u++,callback:b,priorityLevel:a,startTime:c,expirationTime:e,sortIndex:-1};c>d?(a.sortIndex=c,f(t,a),null===h(r)&&a===h(t)&&(B?(E(L),L=-1):B=true,K(H,c-d))):(a.sortIndex=e,f(r,a),A||z||(A=true,I(J)));return a};
-		exports.unstable_shouldYield=M;exports.unstable_wrapCallback=function(a){var b=y;return function(){var c=y;y=b;try{return a.apply(this,arguments)}finally{y=c;}}}; 
-	} (scheduler_production_min));
+  /**
+   * @license React
+   * scheduler.production.min.js
+   *
+   * Copyright (c) Facebook, Inc. and its affiliates.
+   *
+   * This source code is licensed under the MIT license found in the
+   * LICENSE file in the root directory of this source tree.
+   */
 
-	{
-	  scheduler.exports = scheduler_production_min;
-	}
+  (function (exports) {
+  function f(a,b){var c=a.length;a.push(b);a:for(;0<c;){var d=c-1>>>1,e=a[d];if(0<g(e,b))a[d]=b,a[c]=e,c=d;else break a}}function h(a){return 0===a.length?null:a[0]}function k(a){if(0===a.length)return null;var b=a[0],c=a.pop();if(c!==b){a[0]=c;a:for(var d=0,e=a.length,w=e>>>1;d<w;){var m=2*(d+1)-1,C=a[m],n=m+1,x=a[n];if(0>g(C,c))n<e&&0>g(x,C)?(a[d]=x,a[n]=c,d=n):(a[d]=C,a[m]=c,d=m);else if(n<e&&0>g(x,c))a[d]=x,a[n]=c,d=n;else break a}}return b}
+  	function g(a,b){var c=a.sortIndex-b.sortIndex;return 0!==c?c:a.id-b.id}if("object"===typeof performance&&"function"===typeof performance.now){var l=performance;exports.unstable_now=function(){return l.now()};}else {var p=Date,q=p.now();exports.unstable_now=function(){return p.now()-q};}var r=[],t=[],u=1,v=null,y=3,z=false,A=false,B=false,D="function"===typeof setTimeout?setTimeout:null,E="function"===typeof clearTimeout?clearTimeout:null,F="undefined"!==typeof setImmediate?setImmediate:null;
+  	"undefined"!==typeof navigator&&void 0!==navigator.scheduling&&void 0!==navigator.scheduling.isInputPending&&navigator.scheduling.isInputPending.bind(navigator.scheduling);function G(a){for(var b=h(t);null!==b;){if(null===b.callback)k(t);else if(b.startTime<=a)k(t),b.sortIndex=b.expirationTime,f(r,b);else break;b=h(t);}}function H(a){B=false;G(a);if(!A)if(null!==h(r))A=true,I(J);else {var b=h(t);null!==b&&K(H,b.startTime-a);}}
+  	function J(a,b){A=false;B&&(B=false,E(L),L=-1);z=true;var c=y;try{G(b);for(v=h(r);null!==v&&(!(v.expirationTime>b)||a&&!M());){var d=v.callback;if("function"===typeof d){v.callback=null;y=v.priorityLevel;var e=d(v.expirationTime<=b);b=exports.unstable_now();"function"===typeof e?v.callback=e:v===h(r)&&k(r);G(b);}else k(r);v=h(r);}if(null!==v)var w=!0;else {var m=h(t);null!==m&&K(H,m.startTime-b);w=!1;}return w}finally{v=null,y=c,z=false;}}var N=false,O=null,L=-1,P=5,Q=-1;
+  	function M(){return exports.unstable_now()-Q<P?false:true}function R(){if(null!==O){var a=exports.unstable_now();Q=a;var b=true;try{b=O(!0,a);}finally{b?S():(N=false,O=null);}}else N=false;}var S;if("function"===typeof F)S=function(){F(R);};else if("undefined"!==typeof MessageChannel){var T=new MessageChannel,U=T.port2;T.port1.onmessage=R;S=function(){U.postMessage(null);};}else S=function(){D(R,0);};function I(a){O=a;N||(N=true,S());}function K(a,b){L=D(function(){a(exports.unstable_now());},b);}
+  	exports.unstable_IdlePriority=5;exports.unstable_ImmediatePriority=1;exports.unstable_LowPriority=4;exports.unstable_NormalPriority=3;exports.unstable_Profiling=null;exports.unstable_UserBlockingPriority=2;exports.unstable_cancelCallback=function(a){a.callback=null;};exports.unstable_continueExecution=function(){A||z||(A=true,I(J));};
+  	exports.unstable_forceFrameRate=function(a){0>a||125<a?console.error("forceFrameRate takes a positive int between 0 and 125, forcing frame rates higher than 125 fps is not supported"):P=0<a?Math.floor(1E3/a):5;};exports.unstable_getCurrentPriorityLevel=function(){return y};exports.unstable_getFirstCallbackNode=function(){return h(r)};exports.unstable_next=function(a){switch(y){case 1:case 2:case 3:var b=3;break;default:b=y;}var c=y;y=b;try{return a()}finally{y=c;}};exports.unstable_pauseExecution=function(){};
+  	exports.unstable_requestPaint=function(){};exports.unstable_runWithPriority=function(a,b){switch(a){case 1:case 2:case 3:case 4:case 5:break;default:a=3;}var c=y;y=a;try{return b()}finally{y=c;}};
+  	exports.unstable_scheduleCallback=function(a,b,c){var d=exports.unstable_now();"object"===typeof c&&null!==c?(c=c.delay,c="number"===typeof c&&0<c?d+c:d):c=d;switch(a){case 1:var e=-1;break;case 2:e=250;break;case 5:e=1073741823;break;case 4:e=1E4;break;default:e=5E3;}e=c+e;a={id:u++,callback:b,priorityLevel:a,startTime:c,expirationTime:e,sortIndex:-1};c>d?(a.sortIndex=c,f(t,a),null===h(r)&&a===h(t)&&(B?(E(L),L=-1):B=true,K(H,c-d))):(a.sortIndex=e,f(r,a),A||z||(A=true,I(J)));return a};
+  	exports.unstable_shouldYield=M;exports.unstable_wrapCallback=function(a){var b=y;return function(){var c=y;y=b;try{return a.apply(this,arguments)}finally{y=c;}}}; 
+  } (scheduler_production_min));
 
-	var schedulerExports = scheduler.exports;
+  {
+    scheduler.exports = scheduler_production_min;
+  }
 
-	/**
-	 * @license React
-	 * react-dom.production.min.js
-	 *
-	 * Copyright (c) Facebook, Inc. and its affiliates.
-	 *
-	 * This source code is licensed under the MIT license found in the
-	 * LICENSE file in the root directory of this source tree.
-	 */
-	var aa=reactExports,ca=schedulerExports;function p(a){for(var b="https://reactjs.org/docs/error-decoder.html?invariant="+a,c=1;c<arguments.length;c++)b+="&args[]="+encodeURIComponent(arguments[c]);return "Minified React error #"+a+"; visit "+b+" for the full message or use the non-minified dev environment for full errors and additional helpful warnings."}var da=new Set,ea={};function fa(a,b){ha(a,b);ha(a+"Capture",b);}
-	function ha(a,b){ea[a]=b;for(a=0;a<b.length;a++)da.add(b[a]);}
-	var ia=!("undefined"===typeof window||"undefined"===typeof window.document||"undefined"===typeof window.document.createElement),ja=Object.prototype.hasOwnProperty,ka=/^[:A-Z_a-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD][:A-Z_a-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD\-.0-9\u00B7\u0300-\u036F\u203F-\u2040]*$/,la=
-	{},ma={};function oa(a){if(ja.call(ma,a))return  true;if(ja.call(la,a))return  false;if(ka.test(a))return ma[a]=true;la[a]=true;return  false}function pa(a,b,c,d){if(null!==c&&0===c.type)return  false;switch(typeof b){case "function":case "symbol":return  true;case "boolean":if(d)return  false;if(null!==c)return !c.acceptsBooleans;a=a.toLowerCase().slice(0,5);return "data-"!==a&&"aria-"!==a;default:return  false}}
-	function qa(a,b,c,d){if(null===b||"undefined"===typeof b||pa(a,b,c,d))return  true;if(d)return  false;if(null!==c)switch(c.type){case 3:return !b;case 4:return  false===b;case 5:return isNaN(b);case 6:return isNaN(b)||1>b}return  false}function v(a,b,c,d,e,f,g){this.acceptsBooleans=2===b||3===b||4===b;this.attributeName=d;this.attributeNamespace=e;this.mustUseProperty=c;this.propertyName=a;this.type=b;this.sanitizeURL=f;this.removeEmptyString=g;}var z={};
-	"children dangerouslySetInnerHTML defaultValue defaultChecked innerHTML suppressContentEditableWarning suppressHydrationWarning style".split(" ").forEach(function(a){z[a]=new v(a,0,false,a,null,false,false);});[["acceptCharset","accept-charset"],["className","class"],["htmlFor","for"],["httpEquiv","http-equiv"]].forEach(function(a){var b=a[0];z[b]=new v(b,1,false,a[1],null,false,false);});["contentEditable","draggable","spellCheck","value"].forEach(function(a){z[a]=new v(a,2,false,a.toLowerCase(),null,false,false);});
-	["autoReverse","externalResourcesRequired","focusable","preserveAlpha"].forEach(function(a){z[a]=new v(a,2,false,a,null,false,false);});"allowFullScreen async autoFocus autoPlay controls default defer disabled disablePictureInPicture disableRemotePlayback formNoValidate hidden loop noModule noValidate open playsInline readOnly required reversed scoped seamless itemScope".split(" ").forEach(function(a){z[a]=new v(a,3,false,a.toLowerCase(),null,false,false);});
-	["checked","multiple","muted","selected"].forEach(function(a){z[a]=new v(a,3,true,a,null,false,false);});["capture","download"].forEach(function(a){z[a]=new v(a,4,false,a,null,false,false);});["cols","rows","size","span"].forEach(function(a){z[a]=new v(a,6,false,a,null,false,false);});["rowSpan","start"].forEach(function(a){z[a]=new v(a,5,false,a.toLowerCase(),null,false,false);});var ra=/[\-:]([a-z])/g;function sa(a){return a[1].toUpperCase()}
-	"accent-height alignment-baseline arabic-form baseline-shift cap-height clip-path clip-rule color-interpolation color-interpolation-filters color-profile color-rendering dominant-baseline enable-background fill-opacity fill-rule flood-color flood-opacity font-family font-size font-size-adjust font-stretch font-style font-variant font-weight glyph-name glyph-orientation-horizontal glyph-orientation-vertical horiz-adv-x horiz-origin-x image-rendering letter-spacing lighting-color marker-end marker-mid marker-start overline-position overline-thickness paint-order panose-1 pointer-events rendering-intent shape-rendering stop-color stop-opacity strikethrough-position strikethrough-thickness stroke-dasharray stroke-dashoffset stroke-linecap stroke-linejoin stroke-miterlimit stroke-opacity stroke-width text-anchor text-decoration text-rendering underline-position underline-thickness unicode-bidi unicode-range units-per-em v-alphabetic v-hanging v-ideographic v-mathematical vector-effect vert-adv-y vert-origin-x vert-origin-y word-spacing writing-mode xmlns:xlink x-height".split(" ").forEach(function(a){var b=a.replace(ra,
-	sa);z[b]=new v(b,1,false,a,null,false,false);});"xlink:actuate xlink:arcrole xlink:role xlink:show xlink:title xlink:type".split(" ").forEach(function(a){var b=a.replace(ra,sa);z[b]=new v(b,1,false,a,"http://www.w3.org/1999/xlink",false,false);});["xml:base","xml:lang","xml:space"].forEach(function(a){var b=a.replace(ra,sa);z[b]=new v(b,1,false,a,"http://www.w3.org/XML/1998/namespace",false,false);});["tabIndex","crossOrigin"].forEach(function(a){z[a]=new v(a,1,false,a.toLowerCase(),null,false,false);});
-	z.xlinkHref=new v("xlinkHref",1,false,"xlink:href","http://www.w3.org/1999/xlink",true,false);["src","href","action","formAction"].forEach(function(a){z[a]=new v(a,1,false,a.toLowerCase(),null,true,true);});
-	function ta(a,b,c,d){var e=z.hasOwnProperty(b)?z[b]:null;if(null!==e?0!==e.type:d||!(2<b.length)||"o"!==b[0]&&"O"!==b[0]||"n"!==b[1]&&"N"!==b[1])qa(b,c,e,d)&&(c=null),d||null===e?oa(b)&&(null===c?a.removeAttribute(b):a.setAttribute(b,""+c)):e.mustUseProperty?a[e.propertyName]=null===c?3===e.type?false:"":c:(b=e.attributeName,d=e.attributeNamespace,null===c?a.removeAttribute(b):(e=e.type,c=3===e||4===e&&true===c?"":""+c,d?a.setAttributeNS(d,b,c):a.setAttribute(b,c)));}
-	var ua=aa.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED,va=Symbol.for("react.element"),wa=Symbol.for("react.portal"),ya=Symbol.for("react.fragment"),za=Symbol.for("react.strict_mode"),Aa=Symbol.for("react.profiler"),Ba=Symbol.for("react.provider"),Ca=Symbol.for("react.context"),Da=Symbol.for("react.forward_ref"),Ea=Symbol.for("react.suspense"),Fa=Symbol.for("react.suspense_list"),Ga=Symbol.for("react.memo"),Ha=Symbol.for("react.lazy");var Ia=Symbol.for("react.offscreen");var Ja=Symbol.iterator;function Ka(a){if(null===a||"object"!==typeof a)return null;a=Ja&&a[Ja]||a["@@iterator"];return "function"===typeof a?a:null}var A=Object.assign,La;function Ma(a){if(void 0===La)try{throw Error();}catch(c){var b=c.stack.trim().match(/\n( *(at )?)/);La=b&&b[1]||"";}return "\n"+La+a}var Na=false;
-	function Oa(a,b){if(!a||Na)return "";Na=true;var c=Error.prepareStackTrace;Error.prepareStackTrace=void 0;try{if(b)if(b=function(){throw Error();},Object.defineProperty(b.prototype,"props",{set:function(){throw Error();}}),"object"===typeof Reflect&&Reflect.construct){try{Reflect.construct(b,[]);}catch(l){var d=l;}Reflect.construct(a,[],b);}else {try{b.call();}catch(l){d=l;}a.call(b.prototype);}else {try{throw Error();}catch(l){d=l;}a();}}catch(l){if(l&&d&&"string"===typeof l.stack){for(var e=l.stack.split("\n"),
-	f=d.stack.split("\n"),g=e.length-1,h=f.length-1;1<=g&&0<=h&&e[g]!==f[h];)h--;for(;1<=g&&0<=h;g--,h--)if(e[g]!==f[h]){if(1!==g||1!==h){do if(g--,h--,0>h||e[g]!==f[h]){var k="\n"+e[g].replace(" at new "," at ");a.displayName&&k.includes("<anonymous>")&&(k=k.replace("<anonymous>",a.displayName));return k}while(1<=g&&0<=h)}break}}}finally{Na=false,Error.prepareStackTrace=c;}return (a=a?a.displayName||a.name:"")?Ma(a):""}
-	function Pa(a){switch(a.tag){case 5:return Ma(a.type);case 16:return Ma("Lazy");case 13:return Ma("Suspense");case 19:return Ma("SuspenseList");case 0:case 2:case 15:return a=Oa(a.type,false),a;case 11:return a=Oa(a.type.render,false),a;case 1:return a=Oa(a.type,true),a;default:return ""}}
-	function Qa(a){if(null==a)return null;if("function"===typeof a)return a.displayName||a.name||null;if("string"===typeof a)return a;switch(a){case ya:return "Fragment";case wa:return "Portal";case Aa:return "Profiler";case za:return "StrictMode";case Ea:return "Suspense";case Fa:return "SuspenseList"}if("object"===typeof a)switch(a.$$typeof){case Ca:return (a.displayName||"Context")+".Consumer";case Ba:return (a._context.displayName||"Context")+".Provider";case Da:var b=a.render;a=a.displayName;a||(a=b.displayName||
-	b.name||"",a=""!==a?"ForwardRef("+a+")":"ForwardRef");return a;case Ga:return b=a.displayName||null,null!==b?b:Qa(a.type)||"Memo";case Ha:b=a._payload;a=a._init;try{return Qa(a(b))}catch(c){}}return null}
-	function Ra(a){var b=a.type;switch(a.tag){case 24:return "Cache";case 9:return (b.displayName||"Context")+".Consumer";case 10:return (b._context.displayName||"Context")+".Provider";case 18:return "DehydratedFragment";case 11:return a=b.render,a=a.displayName||a.name||"",b.displayName||(""!==a?"ForwardRef("+a+")":"ForwardRef");case 7:return "Fragment";case 5:return b;case 4:return "Portal";case 3:return "Root";case 6:return "Text";case 16:return Qa(b);case 8:return b===za?"StrictMode":"Mode";case 22:return "Offscreen";
-	case 12:return "Profiler";case 21:return "Scope";case 13:return "Suspense";case 19:return "SuspenseList";case 25:return "TracingMarker";case 1:case 0:case 17:case 2:case 14:case 15:if("function"===typeof b)return b.displayName||b.name||null;if("string"===typeof b)return b}return null}function Sa(a){switch(typeof a){case "boolean":case "number":case "string":case "undefined":return a;case "object":return a;default:return ""}}
-	function Ta(a){var b=a.type;return (a=a.nodeName)&&"input"===a.toLowerCase()&&("checkbox"===b||"radio"===b)}
-	function Ua(a){var b=Ta(a)?"checked":"value",c=Object.getOwnPropertyDescriptor(a.constructor.prototype,b),d=""+a[b];if(!a.hasOwnProperty(b)&&"undefined"!==typeof c&&"function"===typeof c.get&&"function"===typeof c.set){var e=c.get,f=c.set;Object.defineProperty(a,b,{configurable:true,get:function(){return e.call(this)},set:function(a){d=""+a;f.call(this,a);}});Object.defineProperty(a,b,{enumerable:c.enumerable});return {getValue:function(){return d},setValue:function(a){d=""+a;},stopTracking:function(){a._valueTracker=
-	null;delete a[b];}}}}function Va(a){a._valueTracker||(a._valueTracker=Ua(a));}function Wa(a){if(!a)return  false;var b=a._valueTracker;if(!b)return  true;var c=b.getValue();var d="";a&&(d=Ta(a)?a.checked?"true":"false":a.value);a=d;return a!==c?(b.setValue(a),true):false}function Xa(a){a=a||("undefined"!==typeof document?document:void 0);if("undefined"===typeof a)return null;try{return a.activeElement||a.body}catch(b){return a.body}}
-	function Ya(a,b){var c=b.checked;return A({},b,{defaultChecked:void 0,defaultValue:void 0,value:void 0,checked:null!=c?c:a._wrapperState.initialChecked})}function Za(a,b){var c=null==b.defaultValue?"":b.defaultValue,d=null!=b.checked?b.checked:b.defaultChecked;c=Sa(null!=b.value?b.value:c);a._wrapperState={initialChecked:d,initialValue:c,controlled:"checkbox"===b.type||"radio"===b.type?null!=b.checked:null!=b.value};}function ab(a,b){b=b.checked;null!=b&&ta(a,"checked",b,false);}
-	function bb(a,b){ab(a,b);var c=Sa(b.value),d=b.type;if(null!=c)if("number"===d){if(0===c&&""===a.value||a.value!=c)a.value=""+c;}else a.value!==""+c&&(a.value=""+c);else if("submit"===d||"reset"===d){a.removeAttribute("value");return}b.hasOwnProperty("value")?cb(a,b.type,c):b.hasOwnProperty("defaultValue")&&cb(a,b.type,Sa(b.defaultValue));null==b.checked&&null!=b.defaultChecked&&(a.defaultChecked=!!b.defaultChecked);}
-	function db(a,b,c){if(b.hasOwnProperty("value")||b.hasOwnProperty("defaultValue")){var d=b.type;if(!("submit"!==d&&"reset"!==d||void 0!==b.value&&null!==b.value))return;b=""+a._wrapperState.initialValue;c||b===a.value||(a.value=b);a.defaultValue=b;}c=a.name;""!==c&&(a.name="");a.defaultChecked=!!a._wrapperState.initialChecked;""!==c&&(a.name=c);}
-	function cb(a,b,c){if("number"!==b||Xa(a.ownerDocument)!==a)null==c?a.defaultValue=""+a._wrapperState.initialValue:a.defaultValue!==""+c&&(a.defaultValue=""+c);}var eb=Array.isArray;
-	function fb(a,b,c,d){a=a.options;if(b){b={};for(var e=0;e<c.length;e++)b["$"+c[e]]=true;for(c=0;c<a.length;c++)e=b.hasOwnProperty("$"+a[c].value),a[c].selected!==e&&(a[c].selected=e),e&&d&&(a[c].defaultSelected=true);}else {c=""+Sa(c);b=null;for(e=0;e<a.length;e++){if(a[e].value===c){a[e].selected=true;d&&(a[e].defaultSelected=true);return}null!==b||a[e].disabled||(b=a[e]);}null!==b&&(b.selected=true);}}
-	function gb(a,b){if(null!=b.dangerouslySetInnerHTML)throw Error(p(91));return A({},b,{value:void 0,defaultValue:void 0,children:""+a._wrapperState.initialValue})}function hb(a,b){var c=b.value;if(null==c){c=b.children;b=b.defaultValue;if(null!=c){if(null!=b)throw Error(p(92));if(eb(c)){if(1<c.length)throw Error(p(93));c=c[0];}b=c;}null==b&&(b="");c=b;}a._wrapperState={initialValue:Sa(c)};}
-	function ib(a,b){var c=Sa(b.value),d=Sa(b.defaultValue);null!=c&&(c=""+c,c!==a.value&&(a.value=c),null==b.defaultValue&&a.defaultValue!==c&&(a.defaultValue=c));null!=d&&(a.defaultValue=""+d);}function jb(a){var b=a.textContent;b===a._wrapperState.initialValue&&""!==b&&null!==b&&(a.value=b);}function kb(a){switch(a){case "svg":return "http://www.w3.org/2000/svg";case "math":return "http://www.w3.org/1998/Math/MathML";default:return "http://www.w3.org/1999/xhtml"}}
-	function lb(a,b){return null==a||"http://www.w3.org/1999/xhtml"===a?kb(b):"http://www.w3.org/2000/svg"===a&&"foreignObject"===b?"http://www.w3.org/1999/xhtml":a}
-	var mb,nb=function(a){return "undefined"!==typeof MSApp&&MSApp.execUnsafeLocalFunction?function(b,c,d,e){MSApp.execUnsafeLocalFunction(function(){return a(b,c,d,e)});}:a}(function(a,b){if("http://www.w3.org/2000/svg"!==a.namespaceURI||"innerHTML"in a)a.innerHTML=b;else {mb=mb||document.createElement("div");mb.innerHTML="<svg>"+b.valueOf().toString()+"</svg>";for(b=mb.firstChild;a.firstChild;)a.removeChild(a.firstChild);for(;b.firstChild;)a.appendChild(b.firstChild);}});
-	function ob(a,b){if(b){var c=a.firstChild;if(c&&c===a.lastChild&&3===c.nodeType){c.nodeValue=b;return}}a.textContent=b;}
-	var pb={animationIterationCount:true,aspectRatio:true,borderImageOutset:true,borderImageSlice:true,borderImageWidth:true,boxFlex:true,boxFlexGroup:true,boxOrdinalGroup:true,columnCount:true,columns:true,flex:true,flexGrow:true,flexPositive:true,flexShrink:true,flexNegative:true,flexOrder:true,gridArea:true,gridRow:true,gridRowEnd:true,gridRowSpan:true,gridRowStart:true,gridColumn:true,gridColumnEnd:true,gridColumnSpan:true,gridColumnStart:true,fontWeight:true,lineClamp:true,lineHeight:true,opacity:true,order:true,orphans:true,tabSize:true,widows:true,zIndex:true,
-	zoom:true,fillOpacity:true,floodOpacity:true,stopOpacity:true,strokeDasharray:true,strokeDashoffset:true,strokeMiterlimit:true,strokeOpacity:true,strokeWidth:true},qb=["Webkit","ms","Moz","O"];Object.keys(pb).forEach(function(a){qb.forEach(function(b){b=b+a.charAt(0).toUpperCase()+a.substring(1);pb[b]=pb[a];});});function rb(a,b,c){return null==b||"boolean"===typeof b||""===b?"":c||"number"!==typeof b||0===b||pb.hasOwnProperty(a)&&pb[a]?(""+b).trim():b+"px"}
-	function sb(a,b){a=a.style;for(var c in b)if(b.hasOwnProperty(c)){var d=0===c.indexOf("--"),e=rb(c,b[c],d);"float"===c&&(c="cssFloat");d?a.setProperty(c,e):a[c]=e;}}var tb=A({menuitem:true},{area:true,base:true,br:true,col:true,embed:true,hr:true,img:true,input:true,keygen:true,link:true,meta:true,param:true,source:true,track:true,wbr:true});
-	function ub(a,b){if(b){if(tb[a]&&(null!=b.children||null!=b.dangerouslySetInnerHTML))throw Error(p(137,a));if(null!=b.dangerouslySetInnerHTML){if(null!=b.children)throw Error(p(60));if("object"!==typeof b.dangerouslySetInnerHTML||!("__html"in b.dangerouslySetInnerHTML))throw Error(p(61));}if(null!=b.style&&"object"!==typeof b.style)throw Error(p(62));}}
-	function vb(a,b){if(-1===a.indexOf("-"))return "string"===typeof b.is;switch(a){case "annotation-xml":case "color-profile":case "font-face":case "font-face-src":case "font-face-uri":case "font-face-format":case "font-face-name":case "missing-glyph":return  false;default:return  true}}var wb=null;function xb(a){a=a.target||a.srcElement||window;a.correspondingUseElement&&(a=a.correspondingUseElement);return 3===a.nodeType?a.parentNode:a}var yb=null,zb=null,Ab=null;
-	function Bb(a){if(a=Cb(a)){if("function"!==typeof yb)throw Error(p(280));var b=a.stateNode;b&&(b=Db(b),yb(a.stateNode,a.type,b));}}function Eb(a){zb?Ab?Ab.push(a):Ab=[a]:zb=a;}function Fb(){if(zb){var a=zb,b=Ab;Ab=zb=null;Bb(a);if(b)for(a=0;a<b.length;a++)Bb(b[a]);}}function Gb(a,b){return a(b)}function Hb(){}var Ib=false;function Jb(a,b,c){if(Ib)return a(b,c);Ib=true;try{return Gb(a,b,c)}finally{if(Ib=false,null!==zb||null!==Ab)Hb(),Fb();}}
-	function Kb(a,b){var c=a.stateNode;if(null===c)return null;var d=Db(c);if(null===d)return null;c=d[b];a:switch(b){case "onClick":case "onClickCapture":case "onDoubleClick":case "onDoubleClickCapture":case "onMouseDown":case "onMouseDownCapture":case "onMouseMove":case "onMouseMoveCapture":case "onMouseUp":case "onMouseUpCapture":case "onMouseEnter":(d=!d.disabled)||(a=a.type,d=!("button"===a||"input"===a||"select"===a||"textarea"===a));a=!d;break a;default:a=false;}if(a)return null;if(c&&"function"!==
-	typeof c)throw Error(p(231,b,typeof c));return c}var Lb=false;if(ia)try{var Mb={};Object.defineProperty(Mb,"passive",{get:function(){Lb=!0;}});window.addEventListener("test",Mb,Mb);window.removeEventListener("test",Mb,Mb);}catch(a){Lb=false;}function Nb(a,b,c,d,e,f,g,h,k){var l=Array.prototype.slice.call(arguments,3);try{b.apply(c,l);}catch(m){this.onError(m);}}var Ob=false,Pb=null,Qb=false,Rb=null,Sb={onError:function(a){Ob=true;Pb=a;}};function Tb(a,b,c,d,e,f,g,h,k){Ob=false;Pb=null;Nb.apply(Sb,arguments);}
-	function Ub(a,b,c,d,e,f,g,h,k){Tb.apply(this,arguments);if(Ob){if(Ob){var l=Pb;Ob=false;Pb=null;}else throw Error(p(198));Qb||(Qb=true,Rb=l);}}function Vb(a){var b=a,c=a;if(a.alternate)for(;b.return;)b=b.return;else {a=b;do b=a,0!==(b.flags&4098)&&(c=b.return),a=b.return;while(a)}return 3===b.tag?c:null}function Wb(a){if(13===a.tag){var b=a.memoizedState;null===b&&(a=a.alternate,null!==a&&(b=a.memoizedState));if(null!==b)return b.dehydrated}return null}function Xb(a){if(Vb(a)!==a)throw Error(p(188));}
-	function Yb(a){var b=a.alternate;if(!b){b=Vb(a);if(null===b)throw Error(p(188));return b!==a?null:a}for(var c=a,d=b;;){var e=c.return;if(null===e)break;var f=e.alternate;if(null===f){d=e.return;if(null!==d){c=d;continue}break}if(e.child===f.child){for(f=e.child;f;){if(f===c)return Xb(e),a;if(f===d)return Xb(e),b;f=f.sibling;}throw Error(p(188));}if(c.return!==d.return)c=e,d=f;else {for(var g=false,h=e.child;h;){if(h===c){g=true;c=e;d=f;break}if(h===d){g=true;d=e;c=f;break}h=h.sibling;}if(!g){for(h=f.child;h;){if(h===
-	c){g=true;c=f;d=e;break}if(h===d){g=true;d=f;c=e;break}h=h.sibling;}if(!g)throw Error(p(189));}}if(c.alternate!==d)throw Error(p(190));}if(3!==c.tag)throw Error(p(188));return c.stateNode.current===c?a:b}function Zb(a){a=Yb(a);return null!==a?$b(a):null}function $b(a){if(5===a.tag||6===a.tag)return a;for(a=a.child;null!==a;){var b=$b(a);if(null!==b)return b;a=a.sibling;}return null}
-	var ac=ca.unstable_scheduleCallback,bc=ca.unstable_cancelCallback,cc=ca.unstable_shouldYield,dc=ca.unstable_requestPaint,B=ca.unstable_now,ec=ca.unstable_getCurrentPriorityLevel,fc=ca.unstable_ImmediatePriority,gc=ca.unstable_UserBlockingPriority,hc=ca.unstable_NormalPriority,ic=ca.unstable_LowPriority,jc=ca.unstable_IdlePriority,kc=null,lc=null;function mc(a){if(lc&&"function"===typeof lc.onCommitFiberRoot)try{lc.onCommitFiberRoot(kc,a,void 0,128===(a.current.flags&128));}catch(b){}}
-	var oc=Math.clz32?Math.clz32:nc,pc=Math.log,qc=Math.LN2;function nc(a){a>>>=0;return 0===a?32:31-(pc(a)/qc|0)|0}var rc=64,sc=4194304;
-	function tc(a){switch(a&-a){case 1:return 1;case 2:return 2;case 4:return 4;case 8:return 8;case 16:return 16;case 32:return 32;case 64:case 128:case 256:case 512:case 1024:case 2048:case 4096:case 8192:case 16384:case 32768:case 65536:case 131072:case 262144:case 524288:case 1048576:case 2097152:return a&4194240;case 4194304:case 8388608:case 16777216:case 33554432:case 67108864:return a&130023424;case 134217728:return 134217728;case 268435456:return 268435456;case 536870912:return 536870912;case 1073741824:return 1073741824;
-	default:return a}}function uc(a,b){var c=a.pendingLanes;if(0===c)return 0;var d=0,e=a.suspendedLanes,f=a.pingedLanes,g=c&268435455;if(0!==g){var h=g&~e;0!==h?d=tc(h):(f&=g,0!==f&&(d=tc(f)));}else g=c&~e,0!==g?d=tc(g):0!==f&&(d=tc(f));if(0===d)return 0;if(0!==b&&b!==d&&0===(b&e)&&(e=d&-d,f=b&-b,e>=f||16===e&&0!==(f&4194240)))return b;0!==(d&4)&&(d|=c&16);b=a.entangledLanes;if(0!==b)for(a=a.entanglements,b&=d;0<b;)c=31-oc(b),e=1<<c,d|=a[c],b&=~e;return d}
-	function vc(a,b){switch(a){case 1:case 2:case 4:return b+250;case 8:case 16:case 32:case 64:case 128:case 256:case 512:case 1024:case 2048:case 4096:case 8192:case 16384:case 32768:case 65536:case 131072:case 262144:case 524288:case 1048576:case 2097152:return b+5E3;case 4194304:case 8388608:case 16777216:case 33554432:case 67108864:return  -1;case 134217728:case 268435456:case 536870912:case 1073741824:return  -1;default:return  -1}}
-	function wc(a,b){for(var c=a.suspendedLanes,d=a.pingedLanes,e=a.expirationTimes,f=a.pendingLanes;0<f;){var g=31-oc(f),h=1<<g,k=e[g];if(-1===k){if(0===(h&c)||0!==(h&d))e[g]=vc(h,b);}else k<=b&&(a.expiredLanes|=h);f&=~h;}}function xc(a){a=a.pendingLanes&-1073741825;return 0!==a?a:a&1073741824?1073741824:0}function yc(){var a=rc;rc<<=1;0===(rc&4194240)&&(rc=64);return a}function zc(a){for(var b=[],c=0;31>c;c++)b.push(a);return b}
-	function Ac(a,b,c){a.pendingLanes|=b;536870912!==b&&(a.suspendedLanes=0,a.pingedLanes=0);a=a.eventTimes;b=31-oc(b);a[b]=c;}function Bc(a,b){var c=a.pendingLanes&~b;a.pendingLanes=b;a.suspendedLanes=0;a.pingedLanes=0;a.expiredLanes&=b;a.mutableReadLanes&=b;a.entangledLanes&=b;b=a.entanglements;var d=a.eventTimes;for(a=a.expirationTimes;0<c;){var e=31-oc(c),f=1<<e;b[e]=0;d[e]=-1;a[e]=-1;c&=~f;}}
-	function Cc(a,b){var c=a.entangledLanes|=b;for(a=a.entanglements;c;){var d=31-oc(c),e=1<<d;e&b|a[d]&b&&(a[d]|=b);c&=~e;}}var C=0;function Dc(a){a&=-a;return 1<a?4<a?0!==(a&268435455)?16:536870912:4:1}var Ec,Fc,Gc,Hc,Ic,Jc=false,Kc=[],Lc=null,Mc=null,Nc=null,Oc=new Map,Pc=new Map,Qc=[],Rc="mousedown mouseup touchcancel touchend touchstart auxclick dblclick pointercancel pointerdown pointerup dragend dragstart drop compositionend compositionstart keydown keypress keyup input textInput copy cut paste click change contextmenu reset submit".split(" ");
-	function Sc(a,b){switch(a){case "focusin":case "focusout":Lc=null;break;case "dragenter":case "dragleave":Mc=null;break;case "mouseover":case "mouseout":Nc=null;break;case "pointerover":case "pointerout":Oc.delete(b.pointerId);break;case "gotpointercapture":case "lostpointercapture":Pc.delete(b.pointerId);}}
-	function Tc(a,b,c,d,e,f){if(null===a||a.nativeEvent!==f)return a={blockedOn:b,domEventName:c,eventSystemFlags:d,nativeEvent:f,targetContainers:[e]},null!==b&&(b=Cb(b),null!==b&&Fc(b)),a;a.eventSystemFlags|=d;b=a.targetContainers;null!==e&&-1===b.indexOf(e)&&b.push(e);return a}
-	function Uc(a,b,c,d,e){switch(b){case "focusin":return Lc=Tc(Lc,a,b,c,d,e),true;case "dragenter":return Mc=Tc(Mc,a,b,c,d,e),true;case "mouseover":return Nc=Tc(Nc,a,b,c,d,e),true;case "pointerover":var f=e.pointerId;Oc.set(f,Tc(Oc.get(f)||null,a,b,c,d,e));return  true;case "gotpointercapture":return f=e.pointerId,Pc.set(f,Tc(Pc.get(f)||null,a,b,c,d,e)),true}return  false}
-	function Vc(a){var b=Wc(a.target);if(null!==b){var c=Vb(b);if(null!==c)if(b=c.tag,13===b){if(b=Wb(c),null!==b){a.blockedOn=b;Ic(a.priority,function(){Gc(c);});return}}else if(3===b&&c.stateNode.current.memoizedState.isDehydrated){a.blockedOn=3===c.tag?c.stateNode.containerInfo:null;return}}a.blockedOn=null;}
-	function Xc(a){if(null!==a.blockedOn)return  false;for(var b=a.targetContainers;0<b.length;){var c=Yc(a.domEventName,a.eventSystemFlags,b[0],a.nativeEvent);if(null===c){c=a.nativeEvent;var d=new c.constructor(c.type,c);wb=d;c.target.dispatchEvent(d);wb=null;}else return b=Cb(c),null!==b&&Fc(b),a.blockedOn=c,false;b.shift();}return  true}function Zc(a,b,c){Xc(a)&&c.delete(b);}function $c(){Jc=false;null!==Lc&&Xc(Lc)&&(Lc=null);null!==Mc&&Xc(Mc)&&(Mc=null);null!==Nc&&Xc(Nc)&&(Nc=null);Oc.forEach(Zc);Pc.forEach(Zc);}
-	function ad(a,b){a.blockedOn===b&&(a.blockedOn=null,Jc||(Jc=true,ca.unstable_scheduleCallback(ca.unstable_NormalPriority,$c)));}
-	function bd(a){function b(b){return ad(b,a)}if(0<Kc.length){ad(Kc[0],a);for(var c=1;c<Kc.length;c++){var d=Kc[c];d.blockedOn===a&&(d.blockedOn=null);}}null!==Lc&&ad(Lc,a);null!==Mc&&ad(Mc,a);null!==Nc&&ad(Nc,a);Oc.forEach(b);Pc.forEach(b);for(c=0;c<Qc.length;c++)d=Qc[c],d.blockedOn===a&&(d.blockedOn=null);for(;0<Qc.length&&(c=Qc[0],null===c.blockedOn);)Vc(c),null===c.blockedOn&&Qc.shift();}var cd=ua.ReactCurrentBatchConfig,dd=true;
-	function ed(a,b,c,d){var e=C,f=cd.transition;cd.transition=null;try{C=1,fd(a,b,c,d);}finally{C=e,cd.transition=f;}}function gd(a,b,c,d){var e=C,f=cd.transition;cd.transition=null;try{C=4,fd(a,b,c,d);}finally{C=e,cd.transition=f;}}
-	function fd(a,b,c,d){if(dd){var e=Yc(a,b,c,d);if(null===e)hd(a,b,d,id,c),Sc(a,d);else if(Uc(e,a,b,c,d))d.stopPropagation();else if(Sc(a,d),b&4&&-1<Rc.indexOf(a)){for(;null!==e;){var f=Cb(e);null!==f&&Ec(f);f=Yc(a,b,c,d);null===f&&hd(a,b,d,id,c);if(f===e)break;e=f;}null!==e&&d.stopPropagation();}else hd(a,b,d,null,c);}}var id=null;
-	function Yc(a,b,c,d){id=null;a=xb(d);a=Wc(a);if(null!==a)if(b=Vb(a),null===b)a=null;else if(c=b.tag,13===c){a=Wb(b);if(null!==a)return a;a=null;}else if(3===c){if(b.stateNode.current.memoizedState.isDehydrated)return 3===b.tag?b.stateNode.containerInfo:null;a=null;}else b!==a&&(a=null);id=a;return null}
-	function jd(a){switch(a){case "cancel":case "click":case "close":case "contextmenu":case "copy":case "cut":case "auxclick":case "dblclick":case "dragend":case "dragstart":case "drop":case "focusin":case "focusout":case "input":case "invalid":case "keydown":case "keypress":case "keyup":case "mousedown":case "mouseup":case "paste":case "pause":case "play":case "pointercancel":case "pointerdown":case "pointerup":case "ratechange":case "reset":case "resize":case "seeked":case "submit":case "touchcancel":case "touchend":case "touchstart":case "volumechange":case "change":case "selectionchange":case "textInput":case "compositionstart":case "compositionend":case "compositionupdate":case "beforeblur":case "afterblur":case "beforeinput":case "blur":case "fullscreenchange":case "focus":case "hashchange":case "popstate":case "select":case "selectstart":return 1;case "drag":case "dragenter":case "dragexit":case "dragleave":case "dragover":case "mousemove":case "mouseout":case "mouseover":case "pointermove":case "pointerout":case "pointerover":case "scroll":case "toggle":case "touchmove":case "wheel":case "mouseenter":case "mouseleave":case "pointerenter":case "pointerleave":return 4;
-	case "message":switch(ec()){case fc:return 1;case gc:return 4;case hc:case ic:return 16;case jc:return 536870912;default:return 16}default:return 16}}var kd=null,ld=null,md=null;function nd(){if(md)return md;var a,b=ld,c=b.length,d,e="value"in kd?kd.value:kd.textContent,f=e.length;for(a=0;a<c&&b[a]===e[a];a++);var g=c-a;for(d=1;d<=g&&b[c-d]===e[f-d];d++);return md=e.slice(a,1<d?1-d:void 0)}
-	function od(a){var b=a.keyCode;"charCode"in a?(a=a.charCode,0===a&&13===b&&(a=13)):a=b;10===a&&(a=13);return 32<=a||13===a?a:0}function pd(){return  true}function qd(){return  false}
-	function rd(a){function b(b,d,e,f,g){this._reactName=b;this._targetInst=e;this.type=d;this.nativeEvent=f;this.target=g;this.currentTarget=null;for(var c in a)a.hasOwnProperty(c)&&(b=a[c],this[c]=b?b(f):f[c]);this.isDefaultPrevented=(null!=f.defaultPrevented?f.defaultPrevented:false===f.returnValue)?pd:qd;this.isPropagationStopped=qd;return this}A(b.prototype,{preventDefault:function(){this.defaultPrevented=true;var a=this.nativeEvent;a&&(a.preventDefault?a.preventDefault():"unknown"!==typeof a.returnValue&&
-	(a.returnValue=false),this.isDefaultPrevented=pd);},stopPropagation:function(){var a=this.nativeEvent;a&&(a.stopPropagation?a.stopPropagation():"unknown"!==typeof a.cancelBubble&&(a.cancelBubble=true),this.isPropagationStopped=pd);},persist:function(){},isPersistent:pd});return b}
-	var sd={eventPhase:0,bubbles:0,cancelable:0,timeStamp:function(a){return a.timeStamp||Date.now()},defaultPrevented:0,isTrusted:0},td=rd(sd),ud=A({},sd,{view:0,detail:0}),vd=rd(ud),wd,xd,yd,Ad=A({},ud,{screenX:0,screenY:0,clientX:0,clientY:0,pageX:0,pageY:0,ctrlKey:0,shiftKey:0,altKey:0,metaKey:0,getModifierState:zd,button:0,buttons:0,relatedTarget:function(a){return void 0===a.relatedTarget?a.fromElement===a.srcElement?a.toElement:a.fromElement:a.relatedTarget},movementX:function(a){if("movementX"in
-	a)return a.movementX;a!==yd&&(yd&&"mousemove"===a.type?(wd=a.screenX-yd.screenX,xd=a.screenY-yd.screenY):xd=wd=0,yd=a);return wd},movementY:function(a){return "movementY"in a?a.movementY:xd}}),Bd=rd(Ad),Cd=A({},Ad,{dataTransfer:0}),Dd=rd(Cd),Ed=A({},ud,{relatedTarget:0}),Fd=rd(Ed),Gd=A({},sd,{animationName:0,elapsedTime:0,pseudoElement:0}),Hd=rd(Gd),Id=A({},sd,{clipboardData:function(a){return "clipboardData"in a?a.clipboardData:window.clipboardData}}),Jd=rd(Id),Kd=A({},sd,{data:0}),Ld=rd(Kd),Md={Esc:"Escape",
-	Spacebar:" ",Left:"ArrowLeft",Up:"ArrowUp",Right:"ArrowRight",Down:"ArrowDown",Del:"Delete",Win:"OS",Menu:"ContextMenu",Apps:"ContextMenu",Scroll:"ScrollLock",MozPrintableKey:"Unidentified"},Nd={8:"Backspace",9:"Tab",12:"Clear",13:"Enter",16:"Shift",17:"Control",18:"Alt",19:"Pause",20:"CapsLock",27:"Escape",32:" ",33:"PageUp",34:"PageDown",35:"End",36:"Home",37:"ArrowLeft",38:"ArrowUp",39:"ArrowRight",40:"ArrowDown",45:"Insert",46:"Delete",112:"F1",113:"F2",114:"F3",115:"F4",116:"F5",117:"F6",118:"F7",
-	119:"F8",120:"F9",121:"F10",122:"F11",123:"F12",144:"NumLock",145:"ScrollLock",224:"Meta"},Od={Alt:"altKey",Control:"ctrlKey",Meta:"metaKey",Shift:"shiftKey"};function Pd(a){var b=this.nativeEvent;return b.getModifierState?b.getModifierState(a):(a=Od[a])?!!b[a]:false}function zd(){return Pd}
-	var Qd=A({},ud,{key:function(a){if(a.key){var b=Md[a.key]||a.key;if("Unidentified"!==b)return b}return "keypress"===a.type?(a=od(a),13===a?"Enter":String.fromCharCode(a)):"keydown"===a.type||"keyup"===a.type?Nd[a.keyCode]||"Unidentified":""},code:0,location:0,ctrlKey:0,shiftKey:0,altKey:0,metaKey:0,repeat:0,locale:0,getModifierState:zd,charCode:function(a){return "keypress"===a.type?od(a):0},keyCode:function(a){return "keydown"===a.type||"keyup"===a.type?a.keyCode:0},which:function(a){return "keypress"===
-	a.type?od(a):"keydown"===a.type||"keyup"===a.type?a.keyCode:0}}),Rd=rd(Qd),Sd=A({},Ad,{pointerId:0,width:0,height:0,pressure:0,tangentialPressure:0,tiltX:0,tiltY:0,twist:0,pointerType:0,isPrimary:0}),Td=rd(Sd),Ud=A({},ud,{touches:0,targetTouches:0,changedTouches:0,altKey:0,metaKey:0,ctrlKey:0,shiftKey:0,getModifierState:zd}),Vd=rd(Ud),Wd=A({},sd,{propertyName:0,elapsedTime:0,pseudoElement:0}),Xd=rd(Wd),Yd=A({},Ad,{deltaX:function(a){return "deltaX"in a?a.deltaX:"wheelDeltaX"in a?-a.wheelDeltaX:0},
-	deltaY:function(a){return "deltaY"in a?a.deltaY:"wheelDeltaY"in a?-a.wheelDeltaY:"wheelDelta"in a?-a.wheelDelta:0},deltaZ:0,deltaMode:0}),Zd=rd(Yd),$d=[9,13,27,32],ae=ia&&"CompositionEvent"in window,be=null;ia&&"documentMode"in document&&(be=document.documentMode);var ce=ia&&"TextEvent"in window&&!be,de=ia&&(!ae||be&&8<be&&11>=be),ee=String.fromCharCode(32),fe=false;
-	function ge(a,b){switch(a){case "keyup":return  -1!==$d.indexOf(b.keyCode);case "keydown":return 229!==b.keyCode;case "keypress":case "mousedown":case "focusout":return  true;default:return  false}}function he(a){a=a.detail;return "object"===typeof a&&"data"in a?a.data:null}var ie=false;function je(a,b){switch(a){case "compositionend":return he(b);case "keypress":if(32!==b.which)return null;fe=true;return ee;case "textInput":return a=b.data,a===ee&&fe?null:a;default:return null}}
-	function ke(a,b){if(ie)return "compositionend"===a||!ae&&ge(a,b)?(a=nd(),md=ld=kd=null,ie=false,a):null;switch(a){case "paste":return null;case "keypress":if(!(b.ctrlKey||b.altKey||b.metaKey)||b.ctrlKey&&b.altKey){if(b.char&&1<b.char.length)return b.char;if(b.which)return String.fromCharCode(b.which)}return null;case "compositionend":return de&&"ko"!==b.locale?null:b.data;default:return null}}
-	var le={color:true,date:true,datetime:true,"datetime-local":true,email:true,month:true,number:true,password:true,range:true,search:true,tel:true,text:true,time:true,url:true,week:true};function me(a){var b=a&&a.nodeName&&a.nodeName.toLowerCase();return "input"===b?!!le[a.type]:"textarea"===b?true:false}function ne(a,b,c,d){Eb(d);b=oe(b,"onChange");0<b.length&&(c=new td("onChange","change",null,c,d),a.push({event:c,listeners:b}));}var pe=null,qe=null;function re(a){se(a,0);}function te(a){var b=ue(a);if(Wa(b))return a}
-	function ve(a,b){if("change"===a)return b}var we=false;if(ia){var xe;if(ia){var ye="oninput"in document;if(!ye){var ze=document.createElement("div");ze.setAttribute("oninput","return;");ye="function"===typeof ze.oninput;}xe=ye;}else xe=false;we=xe&&(!document.documentMode||9<document.documentMode);}function Ae(){pe&&(pe.detachEvent("onpropertychange",Be),qe=pe=null);}function Be(a){if("value"===a.propertyName&&te(qe)){var b=[];ne(b,qe,a,xb(a));Jb(re,b);}}
-	function Ce(a,b,c){"focusin"===a?(Ae(),pe=b,qe=c,pe.attachEvent("onpropertychange",Be)):"focusout"===a&&Ae();}function De(a){if("selectionchange"===a||"keyup"===a||"keydown"===a)return te(qe)}function Ee(a,b){if("click"===a)return te(b)}function Fe(a,b){if("input"===a||"change"===a)return te(b)}function Ge(a,b){return a===b&&(0!==a||1/a===1/b)||a!==a&&b!==b}var He="function"===typeof Object.is?Object.is:Ge;
-	function Ie(a,b){if(He(a,b))return  true;if("object"!==typeof a||null===a||"object"!==typeof b||null===b)return  false;var c=Object.keys(a),d=Object.keys(b);if(c.length!==d.length)return  false;for(d=0;d<c.length;d++){var e=c[d];if(!ja.call(b,e)||!He(a[e],b[e]))return  false}return  true}function Je(a){for(;a&&a.firstChild;)a=a.firstChild;return a}
-	function Ke(a,b){var c=Je(a);a=0;for(var d;c;){if(3===c.nodeType){d=a+c.textContent.length;if(a<=b&&d>=b)return {node:c,offset:b-a};a=d;}a:{for(;c;){if(c.nextSibling){c=c.nextSibling;break a}c=c.parentNode;}c=void 0;}c=Je(c);}}function Le(a,b){return a&&b?a===b?true:a&&3===a.nodeType?false:b&&3===b.nodeType?Le(a,b.parentNode):"contains"in a?a.contains(b):a.compareDocumentPosition?!!(a.compareDocumentPosition(b)&16):false:false}
-	function Me(){for(var a=window,b=Xa();b instanceof a.HTMLIFrameElement;){try{var c="string"===typeof b.contentWindow.location.href;}catch(d){c=false;}if(c)a=b.contentWindow;else break;b=Xa(a.document);}return b}function Ne(a){var b=a&&a.nodeName&&a.nodeName.toLowerCase();return b&&("input"===b&&("text"===a.type||"search"===a.type||"tel"===a.type||"url"===a.type||"password"===a.type)||"textarea"===b||"true"===a.contentEditable)}
-	function Oe(a){var b=Me(),c=a.focusedElem,d=a.selectionRange;if(b!==c&&c&&c.ownerDocument&&Le(c.ownerDocument.documentElement,c)){if(null!==d&&Ne(c))if(b=d.start,a=d.end,void 0===a&&(a=b),"selectionStart"in c)c.selectionStart=b,c.selectionEnd=Math.min(a,c.value.length);else if(a=(b=c.ownerDocument||document)&&b.defaultView||window,a.getSelection){a=a.getSelection();var e=c.textContent.length,f=Math.min(d.start,e);d=void 0===d.end?f:Math.min(d.end,e);!a.extend&&f>d&&(e=d,d=f,f=e);e=Ke(c,f);var g=Ke(c,
-	d);e&&g&&(1!==a.rangeCount||a.anchorNode!==e.node||a.anchorOffset!==e.offset||a.focusNode!==g.node||a.focusOffset!==g.offset)&&(b=b.createRange(),b.setStart(e.node,e.offset),a.removeAllRanges(),f>d?(a.addRange(b),a.extend(g.node,g.offset)):(b.setEnd(g.node,g.offset),a.addRange(b)));}b=[];for(a=c;a=a.parentNode;)1===a.nodeType&&b.push({element:a,left:a.scrollLeft,top:a.scrollTop});"function"===typeof c.focus&&c.focus();for(c=0;c<b.length;c++)a=b[c],a.element.scrollLeft=a.left,a.element.scrollTop=a.top;}}
-	var Pe=ia&&"documentMode"in document&&11>=document.documentMode,Qe=null,Re=null,Se=null,Te=false;
-	function Ue(a,b,c){var d=c.window===c?c.document:9===c.nodeType?c:c.ownerDocument;Te||null==Qe||Qe!==Xa(d)||(d=Qe,"selectionStart"in d&&Ne(d)?d={start:d.selectionStart,end:d.selectionEnd}:(d=(d.ownerDocument&&d.ownerDocument.defaultView||window).getSelection(),d={anchorNode:d.anchorNode,anchorOffset:d.anchorOffset,focusNode:d.focusNode,focusOffset:d.focusOffset}),Se&&Ie(Se,d)||(Se=d,d=oe(Re,"onSelect"),0<d.length&&(b=new td("onSelect","select",null,b,c),a.push({event:b,listeners:d}),b.target=Qe)));}
-	function Ve(a,b){var c={};c[a.toLowerCase()]=b.toLowerCase();c["Webkit"+a]="webkit"+b;c["Moz"+a]="moz"+b;return c}var We={animationend:Ve("Animation","AnimationEnd"),animationiteration:Ve("Animation","AnimationIteration"),animationstart:Ve("Animation","AnimationStart"),transitionend:Ve("Transition","TransitionEnd")},Xe={},Ye={};
-	ia&&(Ye=document.createElement("div").style,"AnimationEvent"in window||(delete We.animationend.animation,delete We.animationiteration.animation,delete We.animationstart.animation),"TransitionEvent"in window||delete We.transitionend.transition);function Ze(a){if(Xe[a])return Xe[a];if(!We[a])return a;var b=We[a],c;for(c in b)if(b.hasOwnProperty(c)&&c in Ye)return Xe[a]=b[c];return a}var $e=Ze("animationend"),af=Ze("animationiteration"),bf=Ze("animationstart"),cf=Ze("transitionend"),df=new Map,ef="abort auxClick cancel canPlay canPlayThrough click close contextMenu copy cut drag dragEnd dragEnter dragExit dragLeave dragOver dragStart drop durationChange emptied encrypted ended error gotPointerCapture input invalid keyDown keyPress keyUp load loadedData loadedMetadata loadStart lostPointerCapture mouseDown mouseMove mouseOut mouseOver mouseUp paste pause play playing pointerCancel pointerDown pointerMove pointerOut pointerOver pointerUp progress rateChange reset resize seeked seeking stalled submit suspend timeUpdate touchCancel touchEnd touchStart volumeChange scroll toggle touchMove waiting wheel".split(" ");
-	function ff(a,b){df.set(a,b);fa(b,[a]);}for(var gf=0;gf<ef.length;gf++){var hf=ef[gf],jf=hf.toLowerCase(),kf=hf[0].toUpperCase()+hf.slice(1);ff(jf,"on"+kf);}ff($e,"onAnimationEnd");ff(af,"onAnimationIteration");ff(bf,"onAnimationStart");ff("dblclick","onDoubleClick");ff("focusin","onFocus");ff("focusout","onBlur");ff(cf,"onTransitionEnd");ha("onMouseEnter",["mouseout","mouseover"]);ha("onMouseLeave",["mouseout","mouseover"]);ha("onPointerEnter",["pointerout","pointerover"]);
-	ha("onPointerLeave",["pointerout","pointerover"]);fa("onChange","change click focusin focusout input keydown keyup selectionchange".split(" "));fa("onSelect","focusout contextmenu dragend focusin keydown keyup mousedown mouseup selectionchange".split(" "));fa("onBeforeInput",["compositionend","keypress","textInput","paste"]);fa("onCompositionEnd","compositionend focusout keydown keypress keyup mousedown".split(" "));fa("onCompositionStart","compositionstart focusout keydown keypress keyup mousedown".split(" "));
-	fa("onCompositionUpdate","compositionupdate focusout keydown keypress keyup mousedown".split(" "));var lf="abort canplay canplaythrough durationchange emptied encrypted ended error loadeddata loadedmetadata loadstart pause play playing progress ratechange resize seeked seeking stalled suspend timeupdate volumechange waiting".split(" "),mf=new Set("cancel close invalid load scroll toggle".split(" ").concat(lf));
-	function nf(a,b,c){var d=a.type||"unknown-event";a.currentTarget=c;Ub(d,b,void 0,a);a.currentTarget=null;}
-	function se(a,b){b=0!==(b&4);for(var c=0;c<a.length;c++){var d=a[c],e=d.event;d=d.listeners;a:{var f=void 0;if(b)for(var g=d.length-1;0<=g;g--){var h=d[g],k=h.instance,l=h.currentTarget;h=h.listener;if(k!==f&&e.isPropagationStopped())break a;nf(e,h,l);f=k;}else for(g=0;g<d.length;g++){h=d[g];k=h.instance;l=h.currentTarget;h=h.listener;if(k!==f&&e.isPropagationStopped())break a;nf(e,h,l);f=k;}}}if(Qb)throw a=Rb,Qb=false,Rb=null,a;}
-	function D(a,b){var c=b[of];void 0===c&&(c=b[of]=new Set);var d=a+"__bubble";c.has(d)||(pf(b,a,2,false),c.add(d));}function qf(a,b,c){var d=0;b&&(d|=4);pf(c,a,d,b);}var rf="_reactListening"+Math.random().toString(36).slice(2);function sf(a){if(!a[rf]){a[rf]=true;da.forEach(function(b){"selectionchange"!==b&&(mf.has(b)||qf(b,false,a),qf(b,true,a));});var b=9===a.nodeType?a:a.ownerDocument;null===b||b[rf]||(b[rf]=true,qf("selectionchange",false,b));}}
-	function pf(a,b,c,d){switch(jd(b)){case 1:var e=ed;break;case 4:e=gd;break;default:e=fd;}c=e.bind(null,b,c,a);e=void 0;!Lb||"touchstart"!==b&&"touchmove"!==b&&"wheel"!==b||(e=true);d?void 0!==e?a.addEventListener(b,c,{capture:true,passive:e}):a.addEventListener(b,c,true):void 0!==e?a.addEventListener(b,c,{passive:e}):a.addEventListener(b,c,false);}
-	function hd(a,b,c,d,e){var f=d;if(0===(b&1)&&0===(b&2)&&null!==d)a:for(;;){if(null===d)return;var g=d.tag;if(3===g||4===g){var h=d.stateNode.containerInfo;if(h===e||8===h.nodeType&&h.parentNode===e)break;if(4===g)for(g=d.return;null!==g;){var k=g.tag;if(3===k||4===k)if(k=g.stateNode.containerInfo,k===e||8===k.nodeType&&k.parentNode===e)return;g=g.return;}for(;null!==h;){g=Wc(h);if(null===g)return;k=g.tag;if(5===k||6===k){d=f=g;continue a}h=h.parentNode;}}d=d.return;}Jb(function(){var d=f,e=xb(c),g=[];
-	a:{var h=df.get(a);if(void 0!==h){var k=td,n=a;switch(a){case "keypress":if(0===od(c))break a;case "keydown":case "keyup":k=Rd;break;case "focusin":n="focus";k=Fd;break;case "focusout":n="blur";k=Fd;break;case "beforeblur":case "afterblur":k=Fd;break;case "click":if(2===c.button)break a;case "auxclick":case "dblclick":case "mousedown":case "mousemove":case "mouseup":case "mouseout":case "mouseover":case "contextmenu":k=Bd;break;case "drag":case "dragend":case "dragenter":case "dragexit":case "dragleave":case "dragover":case "dragstart":case "drop":k=
-	Dd;break;case "touchcancel":case "touchend":case "touchmove":case "touchstart":k=Vd;break;case $e:case af:case bf:k=Hd;break;case cf:k=Xd;break;case "scroll":k=vd;break;case "wheel":k=Zd;break;case "copy":case "cut":case "paste":k=Jd;break;case "gotpointercapture":case "lostpointercapture":case "pointercancel":case "pointerdown":case "pointermove":case "pointerout":case "pointerover":case "pointerup":k=Td;}var t=0!==(b&4),J=!t&&"scroll"===a,x=t?null!==h?h+"Capture":null:h;t=[];for(var w=d,u;null!==
-	w;){u=w;var F=u.stateNode;5===u.tag&&null!==F&&(u=F,null!==x&&(F=Kb(w,x),null!=F&&t.push(tf(w,F,u))));if(J)break;w=w.return;}0<t.length&&(h=new k(h,n,null,c,e),g.push({event:h,listeners:t}));}}if(0===(b&7)){a:{h="mouseover"===a||"pointerover"===a;k="mouseout"===a||"pointerout"===a;if(h&&c!==wb&&(n=c.relatedTarget||c.fromElement)&&(Wc(n)||n[uf]))break a;if(k||h){h=e.window===e?e:(h=e.ownerDocument)?h.defaultView||h.parentWindow:window;if(k){if(n=c.relatedTarget||c.toElement,k=d,n=n?Wc(n):null,null!==
-	n&&(J=Vb(n),n!==J||5!==n.tag&&6!==n.tag))n=null;}else k=null,n=d;if(k!==n){t=Bd;F="onMouseLeave";x="onMouseEnter";w="mouse";if("pointerout"===a||"pointerover"===a)t=Td,F="onPointerLeave",x="onPointerEnter",w="pointer";J=null==k?h:ue(k);u=null==n?h:ue(n);h=new t(F,w+"leave",k,c,e);h.target=J;h.relatedTarget=u;F=null;Wc(e)===d&&(t=new t(x,w+"enter",n,c,e),t.target=u,t.relatedTarget=J,F=t);J=F;if(k&&n)b:{t=k;x=n;w=0;for(u=t;u;u=vf(u))w++;u=0;for(F=x;F;F=vf(F))u++;for(;0<w-u;)t=vf(t),w--;for(;0<u-w;)x=
-	vf(x),u--;for(;w--;){if(t===x||null!==x&&t===x.alternate)break b;t=vf(t);x=vf(x);}t=null;}else t=null;null!==k&&wf(g,h,k,t,false);null!==n&&null!==J&&wf(g,J,n,t,true);}}}a:{h=d?ue(d):window;k=h.nodeName&&h.nodeName.toLowerCase();if("select"===k||"input"===k&&"file"===h.type)var na=ve;else if(me(h))if(we)na=Fe;else {na=De;var xa=Ce;}else (k=h.nodeName)&&"input"===k.toLowerCase()&&("checkbox"===h.type||"radio"===h.type)&&(na=Ee);if(na&&(na=na(a,d))){ne(g,na,c,e);break a}xa&&xa(a,h,d);"focusout"===a&&(xa=h._wrapperState)&&
-	xa.controlled&&"number"===h.type&&cb(h,"number",h.value);}xa=d?ue(d):window;switch(a){case "focusin":if(me(xa)||"true"===xa.contentEditable)Qe=xa,Re=d,Se=null;break;case "focusout":Se=Re=Qe=null;break;case "mousedown":Te=true;break;case "contextmenu":case "mouseup":case "dragend":Te=false;Ue(g,c,e);break;case "selectionchange":if(Pe)break;case "keydown":case "keyup":Ue(g,c,e);}var $a;if(ae)b:{switch(a){case "compositionstart":var ba="onCompositionStart";break b;case "compositionend":ba="onCompositionEnd";
-	break b;case "compositionupdate":ba="onCompositionUpdate";break b}ba=void 0;}else ie?ge(a,c)&&(ba="onCompositionEnd"):"keydown"===a&&229===c.keyCode&&(ba="onCompositionStart");ba&&(de&&"ko"!==c.locale&&(ie||"onCompositionStart"!==ba?"onCompositionEnd"===ba&&ie&&($a=nd()):(kd=e,ld="value"in kd?kd.value:kd.textContent,ie=true)),xa=oe(d,ba),0<xa.length&&(ba=new Ld(ba,a,null,c,e),g.push({event:ba,listeners:xa}),$a?ba.data=$a:($a=he(c),null!==$a&&(ba.data=$a))));if($a=ce?je(a,c):ke(a,c))d=oe(d,"onBeforeInput"),
-	0<d.length&&(e=new Ld("onBeforeInput","beforeinput",null,c,e),g.push({event:e,listeners:d}),e.data=$a);}se(g,b);});}function tf(a,b,c){return {instance:a,listener:b,currentTarget:c}}function oe(a,b){for(var c=b+"Capture",d=[];null!==a;){var e=a,f=e.stateNode;5===e.tag&&null!==f&&(e=f,f=Kb(a,c),null!=f&&d.unshift(tf(a,f,e)),f=Kb(a,b),null!=f&&d.push(tf(a,f,e)));a=a.return;}return d}function vf(a){if(null===a)return null;do a=a.return;while(a&&5!==a.tag);return a?a:null}
-	function wf(a,b,c,d,e){for(var f=b._reactName,g=[];null!==c&&c!==d;){var h=c,k=h.alternate,l=h.stateNode;if(null!==k&&k===d)break;5===h.tag&&null!==l&&(h=l,e?(k=Kb(c,f),null!=k&&g.unshift(tf(c,k,h))):e||(k=Kb(c,f),null!=k&&g.push(tf(c,k,h))));c=c.return;}0!==g.length&&a.push({event:b,listeners:g});}var xf=/\r\n?/g,yf=/\u0000|\uFFFD/g;function zf(a){return ("string"===typeof a?a:""+a).replace(xf,"\n").replace(yf,"")}function Af(a,b,c){b=zf(b);if(zf(a)!==b&&c)throw Error(p(425));}function Bf(){}
-	var Cf=null,Df=null;function Ef(a,b){return "textarea"===a||"noscript"===a||"string"===typeof b.children||"number"===typeof b.children||"object"===typeof b.dangerouslySetInnerHTML&&null!==b.dangerouslySetInnerHTML&&null!=b.dangerouslySetInnerHTML.__html}
-	var Ff="function"===typeof setTimeout?setTimeout:void 0,Gf="function"===typeof clearTimeout?clearTimeout:void 0,Hf="function"===typeof Promise?Promise:void 0,Jf="function"===typeof queueMicrotask?queueMicrotask:"undefined"!==typeof Hf?function(a){return Hf.resolve(null).then(a).catch(If)}:Ff;function If(a){setTimeout(function(){throw a;});}
-	function Kf(a,b){var c=b,d=0;do{var e=c.nextSibling;a.removeChild(c);if(e&&8===e.nodeType)if(c=e.data,"/$"===c){if(0===d){a.removeChild(e);bd(b);return}d--;}else "$"!==c&&"$?"!==c&&"$!"!==c||d++;c=e;}while(c);bd(b);}function Lf(a){for(;null!=a;a=a.nextSibling){var b=a.nodeType;if(1===b||3===b)break;if(8===b){b=a.data;if("$"===b||"$!"===b||"$?"===b)break;if("/$"===b)return null}}return a}
-	function Mf(a){a=a.previousSibling;for(var b=0;a;){if(8===a.nodeType){var c=a.data;if("$"===c||"$!"===c||"$?"===c){if(0===b)return a;b--;}else "/$"===c&&b++;}a=a.previousSibling;}return null}var Nf=Math.random().toString(36).slice(2),Of="__reactFiber$"+Nf,Pf="__reactProps$"+Nf,uf="__reactContainer$"+Nf,of="__reactEvents$"+Nf,Qf="__reactListeners$"+Nf,Rf="__reactHandles$"+Nf;
-	function Wc(a){var b=a[Of];if(b)return b;for(var c=a.parentNode;c;){if(b=c[uf]||c[Of]){c=b.alternate;if(null!==b.child||null!==c&&null!==c.child)for(a=Mf(a);null!==a;){if(c=a[Of])return c;a=Mf(a);}return b}a=c;c=a.parentNode;}return null}function Cb(a){a=a[Of]||a[uf];return !a||5!==a.tag&&6!==a.tag&&13!==a.tag&&3!==a.tag?null:a}function ue(a){if(5===a.tag||6===a.tag)return a.stateNode;throw Error(p(33));}function Db(a){return a[Pf]||null}var Sf=[],Tf=-1;function Uf(a){return {current:a}}
-	function E(a){0>Tf||(a.current=Sf[Tf],Sf[Tf]=null,Tf--);}function G(a,b){Tf++;Sf[Tf]=a.current;a.current=b;}var Vf={},H=Uf(Vf),Wf=Uf(false),Xf=Vf;function Yf(a,b){var c=a.type.contextTypes;if(!c)return Vf;var d=a.stateNode;if(d&&d.__reactInternalMemoizedUnmaskedChildContext===b)return d.__reactInternalMemoizedMaskedChildContext;var e={},f;for(f in c)e[f]=b[f];d&&(a=a.stateNode,a.__reactInternalMemoizedUnmaskedChildContext=b,a.__reactInternalMemoizedMaskedChildContext=e);return e}
-	function Zf(a){a=a.childContextTypes;return null!==a&&void 0!==a}function $f(){E(Wf);E(H);}function ag(a,b,c){if(H.current!==Vf)throw Error(p(168));G(H,b);G(Wf,c);}function bg(a,b,c){var d=a.stateNode;b=b.childContextTypes;if("function"!==typeof d.getChildContext)return c;d=d.getChildContext();for(var e in d)if(!(e in b))throw Error(p(108,Ra(a)||"Unknown",e));return A({},c,d)}
-	function cg(a){a=(a=a.stateNode)&&a.__reactInternalMemoizedMergedChildContext||Vf;Xf=H.current;G(H,a);G(Wf,Wf.current);return  true}function dg(a,b,c){var d=a.stateNode;if(!d)throw Error(p(169));c?(a=bg(a,b,Xf),d.__reactInternalMemoizedMergedChildContext=a,E(Wf),E(H),G(H,a)):E(Wf);G(Wf,c);}var eg=null,fg=false,gg=false;function hg(a){null===eg?eg=[a]:eg.push(a);}function ig(a){fg=true;hg(a);}
-	function jg(){if(!gg&&null!==eg){gg=true;var a=0,b=C;try{var c=eg;for(C=1;a<c.length;a++){var d=c[a];do d=d(!0);while(null!==d)}eg=null;fg=!1;}catch(e){throw null!==eg&&(eg=eg.slice(a+1)),ac(fc,jg),e;}finally{C=b,gg=false;}}return null}var kg=[],lg=0,mg=null,ng=0,og=[],pg=0,qg=null,rg=1,sg="";function tg(a,b){kg[lg++]=ng;kg[lg++]=mg;mg=a;ng=b;}
-	function ug(a,b,c){og[pg++]=rg;og[pg++]=sg;og[pg++]=qg;qg=a;var d=rg;a=sg;var e=32-oc(d)-1;d&=~(1<<e);c+=1;var f=32-oc(b)+e;if(30<f){var g=e-e%5;f=(d&(1<<g)-1).toString(32);d>>=g;e-=g;rg=1<<32-oc(b)+e|c<<e|d;sg=f+a;}else rg=1<<f|c<<e|d,sg=a;}function vg(a){null!==a.return&&(tg(a,1),ug(a,1,0));}function wg(a){for(;a===mg;)mg=kg[--lg],kg[lg]=null,ng=kg[--lg],kg[lg]=null;for(;a===qg;)qg=og[--pg],og[pg]=null,sg=og[--pg],og[pg]=null,rg=og[--pg],og[pg]=null;}var xg=null,yg=null,I=false,zg=null;
-	function Ag(a,b){var c=Bg(5,null,null,0);c.elementType="DELETED";c.stateNode=b;c.return=a;b=a.deletions;null===b?(a.deletions=[c],a.flags|=16):b.push(c);}
-	function Cg(a,b){switch(a.tag){case 5:var c=a.type;b=1!==b.nodeType||c.toLowerCase()!==b.nodeName.toLowerCase()?null:b;return null!==b?(a.stateNode=b,xg=a,yg=Lf(b.firstChild),true):false;case 6:return b=""===a.pendingProps||3!==b.nodeType?null:b,null!==b?(a.stateNode=b,xg=a,yg=null,true):false;case 13:return b=8!==b.nodeType?null:b,null!==b?(c=null!==qg?{id:rg,overflow:sg}:null,a.memoizedState={dehydrated:b,treeContext:c,retryLane:1073741824},c=Bg(18,null,null,0),c.stateNode=b,c.return=a,a.child=c,xg=a,yg=
-	null,true):false;default:return  false}}function Dg(a){return 0!==(a.mode&1)&&0===(a.flags&128)}function Eg(a){if(I){var b=yg;if(b){var c=b;if(!Cg(a,b)){if(Dg(a))throw Error(p(418));b=Lf(c.nextSibling);var d=xg;b&&Cg(a,b)?Ag(d,c):(a.flags=a.flags&-4097|2,I=false,xg=a);}}else {if(Dg(a))throw Error(p(418));a.flags=a.flags&-4097|2;I=false;xg=a;}}}function Fg(a){for(a=a.return;null!==a&&5!==a.tag&&3!==a.tag&&13!==a.tag;)a=a.return;xg=a;}
-	function Gg(a){if(a!==xg)return  false;if(!I)return Fg(a),I=true,false;var b;(b=3!==a.tag)&&!(b=5!==a.tag)&&(b=a.type,b="head"!==b&&"body"!==b&&!Ef(a.type,a.memoizedProps));if(b&&(b=yg)){if(Dg(a))throw Hg(),Error(p(418));for(;b;)Ag(a,b),b=Lf(b.nextSibling);}Fg(a);if(13===a.tag){a=a.memoizedState;a=null!==a?a.dehydrated:null;if(!a)throw Error(p(317));a:{a=a.nextSibling;for(b=0;a;){if(8===a.nodeType){var c=a.data;if("/$"===c){if(0===b){yg=Lf(a.nextSibling);break a}b--;}else "$"!==c&&"$!"!==c&&"$?"!==c||b++;}a=a.nextSibling;}yg=
-	null;}}else yg=xg?Lf(a.stateNode.nextSibling):null;return  true}function Hg(){for(var a=yg;a;)a=Lf(a.nextSibling);}function Ig(){yg=xg=null;I=false;}function Jg(a){null===zg?zg=[a]:zg.push(a);}var Kg=ua.ReactCurrentBatchConfig;
-	function Lg(a,b,c){a=c.ref;if(null!==a&&"function"!==typeof a&&"object"!==typeof a){if(c._owner){c=c._owner;if(c){if(1!==c.tag)throw Error(p(309));var d=c.stateNode;}if(!d)throw Error(p(147,a));var e=d,f=""+a;if(null!==b&&null!==b.ref&&"function"===typeof b.ref&&b.ref._stringRef===f)return b.ref;b=function(a){var b=e.refs;null===a?delete b[f]:b[f]=a;};b._stringRef=f;return b}if("string"!==typeof a)throw Error(p(284));if(!c._owner)throw Error(p(290,a));}return a}
-	function Mg(a,b){a=Object.prototype.toString.call(b);throw Error(p(31,"[object Object]"===a?"object with keys {"+Object.keys(b).join(", ")+"}":a));}function Ng(a){var b=a._init;return b(a._payload)}
-	function Og(a){function b(b,c){if(a){var d=b.deletions;null===d?(b.deletions=[c],b.flags|=16):d.push(c);}}function c(c,d){if(!a)return null;for(;null!==d;)b(c,d),d=d.sibling;return null}function d(a,b){for(a=new Map;null!==b;)null!==b.key?a.set(b.key,b):a.set(b.index,b),b=b.sibling;return a}function e(a,b){a=Pg(a,b);a.index=0;a.sibling=null;return a}function f(b,c,d){b.index=d;if(!a)return b.flags|=1048576,c;d=b.alternate;if(null!==d)return d=d.index,d<c?(b.flags|=2,c):d;b.flags|=2;return c}function g(b){a&&
-	null===b.alternate&&(b.flags|=2);return b}function h(a,b,c,d){if(null===b||6!==b.tag)return b=Qg(c,a.mode,d),b.return=a,b;b=e(b,c);b.return=a;return b}function k(a,b,c,d){var f=c.type;if(f===ya)return m(a,b,c.props.children,d,c.key);if(null!==b&&(b.elementType===f||"object"===typeof f&&null!==f&&f.$$typeof===Ha&&Ng(f)===b.type))return d=e(b,c.props),d.ref=Lg(a,b,c),d.return=a,d;d=Rg(c.type,c.key,c.props,null,a.mode,d);d.ref=Lg(a,b,c);d.return=a;return d}function l(a,b,c,d){if(null===b||4!==b.tag||
-	b.stateNode.containerInfo!==c.containerInfo||b.stateNode.implementation!==c.implementation)return b=Sg(c,a.mode,d),b.return=a,b;b=e(b,c.children||[]);b.return=a;return b}function m(a,b,c,d,f){if(null===b||7!==b.tag)return b=Tg(c,a.mode,d,f),b.return=a,b;b=e(b,c);b.return=a;return b}function q(a,b,c){if("string"===typeof b&&""!==b||"number"===typeof b)return b=Qg(""+b,a.mode,c),b.return=a,b;if("object"===typeof b&&null!==b){switch(b.$$typeof){case va:return c=Rg(b.type,b.key,b.props,null,a.mode,c),
-	c.ref=Lg(a,null,b),c.return=a,c;case wa:return b=Sg(b,a.mode,c),b.return=a,b;case Ha:var d=b._init;return q(a,d(b._payload),c)}if(eb(b)||Ka(b))return b=Tg(b,a.mode,c,null),b.return=a,b;Mg(a,b);}return null}function r(a,b,c,d){var e=null!==b?b.key:null;if("string"===typeof c&&""!==c||"number"===typeof c)return null!==e?null:h(a,b,""+c,d);if("object"===typeof c&&null!==c){switch(c.$$typeof){case va:return c.key===e?k(a,b,c,d):null;case wa:return c.key===e?l(a,b,c,d):null;case Ha:return e=c._init,r(a,
-	b,e(c._payload),d)}if(eb(c)||Ka(c))return null!==e?null:m(a,b,c,d,null);Mg(a,c);}return null}function y(a,b,c,d,e){if("string"===typeof d&&""!==d||"number"===typeof d)return a=a.get(c)||null,h(b,a,""+d,e);if("object"===typeof d&&null!==d){switch(d.$$typeof){case va:return a=a.get(null===d.key?c:d.key)||null,k(b,a,d,e);case wa:return a=a.get(null===d.key?c:d.key)||null,l(b,a,d,e);case Ha:var f=d._init;return y(a,b,c,f(d._payload),e)}if(eb(d)||Ka(d))return a=a.get(c)||null,m(b,a,d,e,null);Mg(b,d);}return null}
-	function n(e,g,h,k){for(var l=null,m=null,u=g,w=g=0,x=null;null!==u&&w<h.length;w++){u.index>w?(x=u,u=null):x=u.sibling;var n=r(e,u,h[w],k);if(null===n){null===u&&(u=x);break}a&&u&&null===n.alternate&&b(e,u);g=f(n,g,w);null===m?l=n:m.sibling=n;m=n;u=x;}if(w===h.length)return c(e,u),I&&tg(e,w),l;if(null===u){for(;w<h.length;w++)u=q(e,h[w],k),null!==u&&(g=f(u,g,w),null===m?l=u:m.sibling=u,m=u);I&&tg(e,w);return l}for(u=d(e,u);w<h.length;w++)x=y(u,e,w,h[w],k),null!==x&&(a&&null!==x.alternate&&u.delete(null===
-	x.key?w:x.key),g=f(x,g,w),null===m?l=x:m.sibling=x,m=x);a&&u.forEach(function(a){return b(e,a)});I&&tg(e,w);return l}function t(e,g,h,k){var l=Ka(h);if("function"!==typeof l)throw Error(p(150));h=l.call(h);if(null==h)throw Error(p(151));for(var u=l=null,m=g,w=g=0,x=null,n=h.next();null!==m&&!n.done;w++,n=h.next()){m.index>w?(x=m,m=null):x=m.sibling;var t=r(e,m,n.value,k);if(null===t){null===m&&(m=x);break}a&&m&&null===t.alternate&&b(e,m);g=f(t,g,w);null===u?l=t:u.sibling=t;u=t;m=x;}if(n.done)return c(e,
-	m),I&&tg(e,w),l;if(null===m){for(;!n.done;w++,n=h.next())n=q(e,n.value,k),null!==n&&(g=f(n,g,w),null===u?l=n:u.sibling=n,u=n);I&&tg(e,w);return l}for(m=d(e,m);!n.done;w++,n=h.next())n=y(m,e,w,n.value,k),null!==n&&(a&&null!==n.alternate&&m.delete(null===n.key?w:n.key),g=f(n,g,w),null===u?l=n:u.sibling=n,u=n);a&&m.forEach(function(a){return b(e,a)});I&&tg(e,w);return l}function J(a,d,f,h){"object"===typeof f&&null!==f&&f.type===ya&&null===f.key&&(f=f.props.children);if("object"===typeof f&&null!==f){switch(f.$$typeof){case va:a:{for(var k=
-	f.key,l=d;null!==l;){if(l.key===k){k=f.type;if(k===ya){if(7===l.tag){c(a,l.sibling);d=e(l,f.props.children);d.return=a;a=d;break a}}else if(l.elementType===k||"object"===typeof k&&null!==k&&k.$$typeof===Ha&&Ng(k)===l.type){c(a,l.sibling);d=e(l,f.props);d.ref=Lg(a,l,f);d.return=a;a=d;break a}c(a,l);break}else b(a,l);l=l.sibling;}f.type===ya?(d=Tg(f.props.children,a.mode,h,f.key),d.return=a,a=d):(h=Rg(f.type,f.key,f.props,null,a.mode,h),h.ref=Lg(a,d,f),h.return=a,a=h);}return g(a);case wa:a:{for(l=f.key;null!==
-	d;){if(d.key===l)if(4===d.tag&&d.stateNode.containerInfo===f.containerInfo&&d.stateNode.implementation===f.implementation){c(a,d.sibling);d=e(d,f.children||[]);d.return=a;a=d;break a}else {c(a,d);break}else b(a,d);d=d.sibling;}d=Sg(f,a.mode,h);d.return=a;a=d;}return g(a);case Ha:return l=f._init,J(a,d,l(f._payload),h)}if(eb(f))return n(a,d,f,h);if(Ka(f))return t(a,d,f,h);Mg(a,f);}return "string"===typeof f&&""!==f||"number"===typeof f?(f=""+f,null!==d&&6===d.tag?(c(a,d.sibling),d=e(d,f),d.return=a,a=d):
-	(c(a,d),d=Qg(f,a.mode,h),d.return=a,a=d),g(a)):c(a,d)}return J}var Ug=Og(true),Vg=Og(false),Wg=Uf(null),Xg=null,Yg=null,Zg=null;function $g(){Zg=Yg=Xg=null;}function ah(a){var b=Wg.current;E(Wg);a._currentValue=b;}function bh(a,b,c){for(;null!==a;){var d=a.alternate;(a.childLanes&b)!==b?(a.childLanes|=b,null!==d&&(d.childLanes|=b)):null!==d&&(d.childLanes&b)!==b&&(d.childLanes|=b);if(a===c)break;a=a.return;}}
-	function ch(a,b){Xg=a;Zg=Yg=null;a=a.dependencies;null!==a&&null!==a.firstContext&&(0!==(a.lanes&b)&&(dh=true),a.firstContext=null);}function eh(a){var b=a._currentValue;if(Zg!==a)if(a={context:a,memoizedValue:b,next:null},null===Yg){if(null===Xg)throw Error(p(308));Yg=a;Xg.dependencies={lanes:0,firstContext:a};}else Yg=Yg.next=a;return b}var fh=null;function gh(a){null===fh?fh=[a]:fh.push(a);}
-	function hh(a,b,c,d){var e=b.interleaved;null===e?(c.next=c,gh(b)):(c.next=e.next,e.next=c);b.interleaved=c;return ih(a,d)}function ih(a,b){a.lanes|=b;var c=a.alternate;null!==c&&(c.lanes|=b);c=a;for(a=a.return;null!==a;)a.childLanes|=b,c=a.alternate,null!==c&&(c.childLanes|=b),c=a,a=a.return;return 3===c.tag?c.stateNode:null}var jh=false;function kh(a){a.updateQueue={baseState:a.memoizedState,firstBaseUpdate:null,lastBaseUpdate:null,shared:{pending:null,interleaved:null,lanes:0},effects:null};}
-	function lh(a,b){a=a.updateQueue;b.updateQueue===a&&(b.updateQueue={baseState:a.baseState,firstBaseUpdate:a.firstBaseUpdate,lastBaseUpdate:a.lastBaseUpdate,shared:a.shared,effects:a.effects});}function mh(a,b){return {eventTime:a,lane:b,tag:0,payload:null,callback:null,next:null}}
-	function nh(a,b,c){var d=a.updateQueue;if(null===d)return null;d=d.shared;if(0!==(K&2)){var e=d.pending;null===e?b.next=b:(b.next=e.next,e.next=b);d.pending=b;return ih(a,c)}e=d.interleaved;null===e?(b.next=b,gh(d)):(b.next=e.next,e.next=b);d.interleaved=b;return ih(a,c)}function oh(a,b,c){b=b.updateQueue;if(null!==b&&(b=b.shared,0!==(c&4194240))){var d=b.lanes;d&=a.pendingLanes;c|=d;b.lanes=c;Cc(a,c);}}
-	function ph(a,b){var c=a.updateQueue,d=a.alternate;if(null!==d&&(d=d.updateQueue,c===d)){var e=null,f=null;c=c.firstBaseUpdate;if(null!==c){do{var g={eventTime:c.eventTime,lane:c.lane,tag:c.tag,payload:c.payload,callback:c.callback,next:null};null===f?e=f=g:f=f.next=g;c=c.next;}while(null!==c);null===f?e=f=b:f=f.next=b;}else e=f=b;c={baseState:d.baseState,firstBaseUpdate:e,lastBaseUpdate:f,shared:d.shared,effects:d.effects};a.updateQueue=c;return}a=c.lastBaseUpdate;null===a?c.firstBaseUpdate=b:a.next=
-	b;c.lastBaseUpdate=b;}
-	function qh(a,b,c,d){var e=a.updateQueue;jh=false;var f=e.firstBaseUpdate,g=e.lastBaseUpdate,h=e.shared.pending;if(null!==h){e.shared.pending=null;var k=h,l=k.next;k.next=null;null===g?f=l:g.next=l;g=k;var m=a.alternate;null!==m&&(m=m.updateQueue,h=m.lastBaseUpdate,h!==g&&(null===h?m.firstBaseUpdate=l:h.next=l,m.lastBaseUpdate=k));}if(null!==f){var q=e.baseState;g=0;m=l=k=null;h=f;do{var r=h.lane,y=h.eventTime;if((d&r)===r){null!==m&&(m=m.next={eventTime:y,lane:0,tag:h.tag,payload:h.payload,callback:h.callback,
-	next:null});a:{var n=a,t=h;r=b;y=c;switch(t.tag){case 1:n=t.payload;if("function"===typeof n){q=n.call(y,q,r);break a}q=n;break a;case 3:n.flags=n.flags&-65537|128;case 0:n=t.payload;r="function"===typeof n?n.call(y,q,r):n;if(null===r||void 0===r)break a;q=A({},q,r);break a;case 2:jh=true;}}null!==h.callback&&0!==h.lane&&(a.flags|=64,r=e.effects,null===r?e.effects=[h]:r.push(h));}else y={eventTime:y,lane:r,tag:h.tag,payload:h.payload,callback:h.callback,next:null},null===m?(l=m=y,k=q):m=m.next=y,g|=r;
-	h=h.next;if(null===h)if(h=e.shared.pending,null===h)break;else r=h,h=r.next,r.next=null,e.lastBaseUpdate=r,e.shared.pending=null;}while(1);null===m&&(k=q);e.baseState=k;e.firstBaseUpdate=l;e.lastBaseUpdate=m;b=e.shared.interleaved;if(null!==b){e=b;do g|=e.lane,e=e.next;while(e!==b)}else null===f&&(e.shared.lanes=0);rh|=g;a.lanes=g;a.memoizedState=q;}}
-	function sh(a,b,c){a=b.effects;b.effects=null;if(null!==a)for(b=0;b<a.length;b++){var d=a[b],e=d.callback;if(null!==e){d.callback=null;d=c;if("function"!==typeof e)throw Error(p(191,e));e.call(d);}}}var th={},uh=Uf(th),vh=Uf(th),wh=Uf(th);function xh(a){if(a===th)throw Error(p(174));return a}
-	function yh(a,b){G(wh,b);G(vh,a);G(uh,th);a=b.nodeType;switch(a){case 9:case 11:b=(b=b.documentElement)?b.namespaceURI:lb(null,"");break;default:a=8===a?b.parentNode:b,b=a.namespaceURI||null,a=a.tagName,b=lb(b,a);}E(uh);G(uh,b);}function zh(){E(uh);E(vh);E(wh);}function Ah(a){xh(wh.current);var b=xh(uh.current);var c=lb(b,a.type);b!==c&&(G(vh,a),G(uh,c));}function Bh(a){vh.current===a&&(E(uh),E(vh));}var L=Uf(0);
-	function Ch(a){for(var b=a;null!==b;){if(13===b.tag){var c=b.memoizedState;if(null!==c&&(c=c.dehydrated,null===c||"$?"===c.data||"$!"===c.data))return b}else if(19===b.tag&&void 0!==b.memoizedProps.revealOrder){if(0!==(b.flags&128))return b}else if(null!==b.child){b.child.return=b;b=b.child;continue}if(b===a)break;for(;null===b.sibling;){if(null===b.return||b.return===a)return null;b=b.return;}b.sibling.return=b.return;b=b.sibling;}return null}var Dh=[];
-	function Eh(){for(var a=0;a<Dh.length;a++)Dh[a]._workInProgressVersionPrimary=null;Dh.length=0;}var Fh=ua.ReactCurrentDispatcher,Gh=ua.ReactCurrentBatchConfig,Hh=0,M=null,N=null,O=null,Ih=false,Jh=false,Kh=0,Lh=0;function P(){throw Error(p(321));}function Mh(a,b){if(null===b)return  false;for(var c=0;c<b.length&&c<a.length;c++)if(!He(a[c],b[c]))return  false;return  true}
-	function Nh(a,b,c,d,e,f){Hh=f;M=b;b.memoizedState=null;b.updateQueue=null;b.lanes=0;Fh.current=null===a||null===a.memoizedState?Oh:Ph;a=c(d,e);if(Jh){f=0;do{Jh=false;Kh=0;if(25<=f)throw Error(p(301));f+=1;O=N=null;b.updateQueue=null;Fh.current=Qh;a=c(d,e);}while(Jh)}Fh.current=Rh;b=null!==N&&null!==N.next;Hh=0;O=N=M=null;Ih=false;if(b)throw Error(p(300));return a}function Sh(){var a=0!==Kh;Kh=0;return a}
-	function Th(){var a={memoizedState:null,baseState:null,baseQueue:null,queue:null,next:null};null===O?M.memoizedState=O=a:O=O.next=a;return O}function Uh(){if(null===N){var a=M.alternate;a=null!==a?a.memoizedState:null;}else a=N.next;var b=null===O?M.memoizedState:O.next;if(null!==b)O=b,N=a;else {if(null===a)throw Error(p(310));N=a;a={memoizedState:N.memoizedState,baseState:N.baseState,baseQueue:N.baseQueue,queue:N.queue,next:null};null===O?M.memoizedState=O=a:O=O.next=a;}return O}
-	function Vh(a,b){return "function"===typeof b?b(a):b}
-	function Wh(a){var b=Uh(),c=b.queue;if(null===c)throw Error(p(311));c.lastRenderedReducer=a;var d=N,e=d.baseQueue,f=c.pending;if(null!==f){if(null!==e){var g=e.next;e.next=f.next;f.next=g;}d.baseQueue=e=f;c.pending=null;}if(null!==e){f=e.next;d=d.baseState;var h=g=null,k=null,l=f;do{var m=l.lane;if((Hh&m)===m)null!==k&&(k=k.next={lane:0,action:l.action,hasEagerState:l.hasEagerState,eagerState:l.eagerState,next:null}),d=l.hasEagerState?l.eagerState:a(d,l.action);else {var q={lane:m,action:l.action,hasEagerState:l.hasEagerState,
-	eagerState:l.eagerState,next:null};null===k?(h=k=q,g=d):k=k.next=q;M.lanes|=m;rh|=m;}l=l.next;}while(null!==l&&l!==f);null===k?g=d:k.next=h;He(d,b.memoizedState)||(dh=true);b.memoizedState=d;b.baseState=g;b.baseQueue=k;c.lastRenderedState=d;}a=c.interleaved;if(null!==a){e=a;do f=e.lane,M.lanes|=f,rh|=f,e=e.next;while(e!==a)}else null===e&&(c.lanes=0);return [b.memoizedState,c.dispatch]}
-	function Xh(a){var b=Uh(),c=b.queue;if(null===c)throw Error(p(311));c.lastRenderedReducer=a;var d=c.dispatch,e=c.pending,f=b.memoizedState;if(null!==e){c.pending=null;var g=e=e.next;do f=a(f,g.action),g=g.next;while(g!==e);He(f,b.memoizedState)||(dh=true);b.memoizedState=f;null===b.baseQueue&&(b.baseState=f);c.lastRenderedState=f;}return [f,d]}function Yh(){}
-	function Zh(a,b){var c=M,d=Uh(),e=b(),f=!He(d.memoizedState,e);f&&(d.memoizedState=e,dh=true);d=d.queue;$h(ai.bind(null,c,d,a),[a]);if(d.getSnapshot!==b||f||null!==O&&O.memoizedState.tag&1){c.flags|=2048;bi(9,ci.bind(null,c,d,e,b),void 0,null);if(null===Q)throw Error(p(349));0!==(Hh&30)||di(c,b,e);}return e}function di(a,b,c){a.flags|=16384;a={getSnapshot:b,value:c};b=M.updateQueue;null===b?(b={lastEffect:null,stores:null},M.updateQueue=b,b.stores=[a]):(c=b.stores,null===c?b.stores=[a]:c.push(a));}
-	function ci(a,b,c,d){b.value=c;b.getSnapshot=d;ei(b)&&fi(a);}function ai(a,b,c){return c(function(){ei(b)&&fi(a);})}function ei(a){var b=a.getSnapshot;a=a.value;try{var c=b();return !He(a,c)}catch(d){return  true}}function fi(a){var b=ih(a,1);null!==b&&gi(b,a,1,-1);}
-	function hi(a){var b=Th();"function"===typeof a&&(a=a());b.memoizedState=b.baseState=a;a={pending:null,interleaved:null,lanes:0,dispatch:null,lastRenderedReducer:Vh,lastRenderedState:a};b.queue=a;a=a.dispatch=ii.bind(null,M,a);return [b.memoizedState,a]}
-	function bi(a,b,c,d){a={tag:a,create:b,destroy:c,deps:d,next:null};b=M.updateQueue;null===b?(b={lastEffect:null,stores:null},M.updateQueue=b,b.lastEffect=a.next=a):(c=b.lastEffect,null===c?b.lastEffect=a.next=a:(d=c.next,c.next=a,a.next=d,b.lastEffect=a));return a}function ji(){return Uh().memoizedState}function ki(a,b,c,d){var e=Th();M.flags|=a;e.memoizedState=bi(1|b,c,void 0,void 0===d?null:d);}
-	function li(a,b,c,d){var e=Uh();d=void 0===d?null:d;var f=void 0;if(null!==N){var g=N.memoizedState;f=g.destroy;if(null!==d&&Mh(d,g.deps)){e.memoizedState=bi(b,c,f,d);return}}M.flags|=a;e.memoizedState=bi(1|b,c,f,d);}function mi(a,b){return ki(8390656,8,a,b)}function $h(a,b){return li(2048,8,a,b)}function ni(a,b){return li(4,2,a,b)}function oi(a,b){return li(4,4,a,b)}
-	function pi(a,b){if("function"===typeof b)return a=a(),b(a),function(){b(null);};if(null!==b&&void 0!==b)return a=a(),b.current=a,function(){b.current=null;}}function qi(a,b,c){c=null!==c&&void 0!==c?c.concat([a]):null;return li(4,4,pi.bind(null,b,a),c)}function ri(){}function si(a,b){var c=Uh();b=void 0===b?null:b;var d=c.memoizedState;if(null!==d&&null!==b&&Mh(b,d[1]))return d[0];c.memoizedState=[a,b];return a}
-	function ti(a,b){var c=Uh();b=void 0===b?null:b;var d=c.memoizedState;if(null!==d&&null!==b&&Mh(b,d[1]))return d[0];a=a();c.memoizedState=[a,b];return a}function ui(a,b,c){if(0===(Hh&21))return a.baseState&&(a.baseState=false,dh=true),a.memoizedState=c;He(c,b)||(c=yc(),M.lanes|=c,rh|=c,a.baseState=true);return b}function vi(a,b){var c=C;C=0!==c&&4>c?c:4;a(true);var d=Gh.transition;Gh.transition={};try{a(!1),b();}finally{C=c,Gh.transition=d;}}function wi(){return Uh().memoizedState}
-	function xi(a,b,c){var d=yi(a);c={lane:d,action:c,hasEagerState:false,eagerState:null,next:null};if(zi(a))Ai(b,c);else if(c=hh(a,b,c,d),null!==c){var e=R();gi(c,a,d,e);Bi(c,b,d);}}
-	function ii(a,b,c){var d=yi(a),e={lane:d,action:c,hasEagerState:false,eagerState:null,next:null};if(zi(a))Ai(b,e);else {var f=a.alternate;if(0===a.lanes&&(null===f||0===f.lanes)&&(f=b.lastRenderedReducer,null!==f))try{var g=b.lastRenderedState,h=f(g,c);e.hasEagerState=!0;e.eagerState=h;if(He(h,g)){var k=b.interleaved;null===k?(e.next=e,gh(b)):(e.next=k.next,k.next=e);b.interleaved=e;return}}catch(l){}finally{}c=hh(a,b,e,d);null!==c&&(e=R(),gi(c,a,d,e),Bi(c,b,d));}}
-	function zi(a){var b=a.alternate;return a===M||null!==b&&b===M}function Ai(a,b){Jh=Ih=true;var c=a.pending;null===c?b.next=b:(b.next=c.next,c.next=b);a.pending=b;}function Bi(a,b,c){if(0!==(c&4194240)){var d=b.lanes;d&=a.pendingLanes;c|=d;b.lanes=c;Cc(a,c);}}
-	var Rh={readContext:eh,useCallback:P,useContext:P,useEffect:P,useImperativeHandle:P,useInsertionEffect:P,useLayoutEffect:P,useMemo:P,useReducer:P,useRef:P,useState:P,useDebugValue:P,useDeferredValue:P,useTransition:P,useMutableSource:P,useSyncExternalStore:P,useId:P,unstable_isNewReconciler:false},Oh={readContext:eh,useCallback:function(a,b){Th().memoizedState=[a,void 0===b?null:b];return a},useContext:eh,useEffect:mi,useImperativeHandle:function(a,b,c){c=null!==c&&void 0!==c?c.concat([a]):null;return ki(4194308,
-	4,pi.bind(null,b,a),c)},useLayoutEffect:function(a,b){return ki(4194308,4,a,b)},useInsertionEffect:function(a,b){return ki(4,2,a,b)},useMemo:function(a,b){var c=Th();b=void 0===b?null:b;a=a();c.memoizedState=[a,b];return a},useReducer:function(a,b,c){var d=Th();b=void 0!==c?c(b):b;d.memoizedState=d.baseState=b;a={pending:null,interleaved:null,lanes:0,dispatch:null,lastRenderedReducer:a,lastRenderedState:b};d.queue=a;a=a.dispatch=xi.bind(null,M,a);return [d.memoizedState,a]},useRef:function(a){var b=
-	Th();a={current:a};return b.memoizedState=a},useState:hi,useDebugValue:ri,useDeferredValue:function(a){return Th().memoizedState=a},useTransition:function(){var a=hi(false),b=a[0];a=vi.bind(null,a[1]);Th().memoizedState=a;return [b,a]},useMutableSource:function(){},useSyncExternalStore:function(a,b,c){var d=M,e=Th();if(I){if(void 0===c)throw Error(p(407));c=c();}else {c=b();if(null===Q)throw Error(p(349));0!==(Hh&30)||di(d,b,c);}e.memoizedState=c;var f={value:c,getSnapshot:b};e.queue=f;mi(ai.bind(null,d,
-	f,a),[a]);d.flags|=2048;bi(9,ci.bind(null,d,f,c,b),void 0,null);return c},useId:function(){var a=Th(),b=Q.identifierPrefix;if(I){var c=sg;var d=rg;c=(d&~(1<<32-oc(d)-1)).toString(32)+c;b=":"+b+"R"+c;c=Kh++;0<c&&(b+="H"+c.toString(32));b+=":";}else c=Lh++,b=":"+b+"r"+c.toString(32)+":";return a.memoizedState=b},unstable_isNewReconciler:false},Ph={readContext:eh,useCallback:si,useContext:eh,useEffect:$h,useImperativeHandle:qi,useInsertionEffect:ni,useLayoutEffect:oi,useMemo:ti,useReducer:Wh,useRef:ji,useState:function(){return Wh(Vh)},
-	useDebugValue:ri,useDeferredValue:function(a){var b=Uh();return ui(b,N.memoizedState,a)},useTransition:function(){var a=Wh(Vh)[0],b=Uh().memoizedState;return [a,b]},useMutableSource:Yh,useSyncExternalStore:Zh,useId:wi,unstable_isNewReconciler:false},Qh={readContext:eh,useCallback:si,useContext:eh,useEffect:$h,useImperativeHandle:qi,useInsertionEffect:ni,useLayoutEffect:oi,useMemo:ti,useReducer:Xh,useRef:ji,useState:function(){return Xh(Vh)},useDebugValue:ri,useDeferredValue:function(a){var b=Uh();return null===
-	N?b.memoizedState=a:ui(b,N.memoizedState,a)},useTransition:function(){var a=Xh(Vh)[0],b=Uh().memoizedState;return [a,b]},useMutableSource:Yh,useSyncExternalStore:Zh,useId:wi,unstable_isNewReconciler:false};function Ci(a,b){if(a&&a.defaultProps){b=A({},b);a=a.defaultProps;for(var c in a) void 0===b[c]&&(b[c]=a[c]);return b}return b}function Di(a,b,c,d){b=a.memoizedState;c=c(d,b);c=null===c||void 0===c?b:A({},b,c);a.memoizedState=c;0===a.lanes&&(a.updateQueue.baseState=c);}
-	var Ei={isMounted:function(a){return (a=a._reactInternals)?Vb(a)===a:false},enqueueSetState:function(a,b,c){a=a._reactInternals;var d=R(),e=yi(a),f=mh(d,e);f.payload=b;void 0!==c&&null!==c&&(f.callback=c);b=nh(a,f,e);null!==b&&(gi(b,a,e,d),oh(b,a,e));},enqueueReplaceState:function(a,b,c){a=a._reactInternals;var d=R(),e=yi(a),f=mh(d,e);f.tag=1;f.payload=b;void 0!==c&&null!==c&&(f.callback=c);b=nh(a,f,e);null!==b&&(gi(b,a,e,d),oh(b,a,e));},enqueueForceUpdate:function(a,b){a=a._reactInternals;var c=R(),d=
-	yi(a),e=mh(c,d);e.tag=2;void 0!==b&&null!==b&&(e.callback=b);b=nh(a,e,d);null!==b&&(gi(b,a,d,c),oh(b,a,d));}};function Fi(a,b,c,d,e,f,g){a=a.stateNode;return "function"===typeof a.shouldComponentUpdate?a.shouldComponentUpdate(d,f,g):b.prototype&&b.prototype.isPureReactComponent?!Ie(c,d)||!Ie(e,f):true}
-	function Gi(a,b,c){var d=false,e=Vf;var f=b.contextType;"object"===typeof f&&null!==f?f=eh(f):(e=Zf(b)?Xf:H.current,d=b.contextTypes,f=(d=null!==d&&void 0!==d)?Yf(a,e):Vf);b=new b(c,f);a.memoizedState=null!==b.state&&void 0!==b.state?b.state:null;b.updater=Ei;a.stateNode=b;b._reactInternals=a;d&&(a=a.stateNode,a.__reactInternalMemoizedUnmaskedChildContext=e,a.__reactInternalMemoizedMaskedChildContext=f);return b}
-	function Hi(a,b,c,d){a=b.state;"function"===typeof b.componentWillReceiveProps&&b.componentWillReceiveProps(c,d);"function"===typeof b.UNSAFE_componentWillReceiveProps&&b.UNSAFE_componentWillReceiveProps(c,d);b.state!==a&&Ei.enqueueReplaceState(b,b.state,null);}
-	function Ii(a,b,c,d){var e=a.stateNode;e.props=c;e.state=a.memoizedState;e.refs={};kh(a);var f=b.contextType;"object"===typeof f&&null!==f?e.context=eh(f):(f=Zf(b)?Xf:H.current,e.context=Yf(a,f));e.state=a.memoizedState;f=b.getDerivedStateFromProps;"function"===typeof f&&(Di(a,b,f,c),e.state=a.memoizedState);"function"===typeof b.getDerivedStateFromProps||"function"===typeof e.getSnapshotBeforeUpdate||"function"!==typeof e.UNSAFE_componentWillMount&&"function"!==typeof e.componentWillMount||(b=e.state,
-	"function"===typeof e.componentWillMount&&e.componentWillMount(),"function"===typeof e.UNSAFE_componentWillMount&&e.UNSAFE_componentWillMount(),b!==e.state&&Ei.enqueueReplaceState(e,e.state,null),qh(a,c,e,d),e.state=a.memoizedState);"function"===typeof e.componentDidMount&&(a.flags|=4194308);}function Ji(a,b){try{var c="",d=b;do c+=Pa(d),d=d.return;while(d);var e=c;}catch(f){e="\nError generating stack: "+f.message+"\n"+f.stack;}return {value:a,source:b,stack:e,digest:null}}
-	function Ki(a,b,c){return {value:a,source:null,stack:null!=c?c:null,digest:null!=b?b:null}}function Li(a,b){try{console.error(b.value);}catch(c){setTimeout(function(){throw c;});}}var Mi="function"===typeof WeakMap?WeakMap:Map;function Ni(a,b,c){c=mh(-1,c);c.tag=3;c.payload={element:null};var d=b.value;c.callback=function(){Oi||(Oi=true,Pi=d);Li(a,b);};return c}
-	function Qi(a,b,c){c=mh(-1,c);c.tag=3;var d=a.type.getDerivedStateFromError;if("function"===typeof d){var e=b.value;c.payload=function(){return d(e)};c.callback=function(){Li(a,b);};}var f=a.stateNode;null!==f&&"function"===typeof f.componentDidCatch&&(c.callback=function(){Li(a,b);"function"!==typeof d&&(null===Ri?Ri=new Set([this]):Ri.add(this));var c=b.stack;this.componentDidCatch(b.value,{componentStack:null!==c?c:""});});return c}
-	function Si(a,b,c){var d=a.pingCache;if(null===d){d=a.pingCache=new Mi;var e=new Set;d.set(b,e);}else e=d.get(b),void 0===e&&(e=new Set,d.set(b,e));e.has(c)||(e.add(c),a=Ti.bind(null,a,b,c),b.then(a,a));}function Ui(a){do{var b;if(b=13===a.tag)b=a.memoizedState,b=null!==b?null!==b.dehydrated?true:false:true;if(b)return a;a=a.return;}while(null!==a);return null}
-	function Vi(a,b,c,d,e){if(0===(a.mode&1))return a===b?a.flags|=65536:(a.flags|=128,c.flags|=131072,c.flags&=-52805,1===c.tag&&(null===c.alternate?c.tag=17:(b=mh(-1,1),b.tag=2,nh(c,b,1))),c.lanes|=1),a;a.flags|=65536;a.lanes=e;return a}var Wi=ua.ReactCurrentOwner,dh=false;function Xi(a,b,c,d){b.child=null===a?Vg(b,null,c,d):Ug(b,a.child,c,d);}
-	function Yi(a,b,c,d,e){c=c.render;var f=b.ref;ch(b,e);d=Nh(a,b,c,d,f,e);c=Sh();if(null!==a&&!dh)return b.updateQueue=a.updateQueue,b.flags&=-2053,a.lanes&=~e,Zi(a,b,e);I&&c&&vg(b);b.flags|=1;Xi(a,b,d,e);return b.child}
-	function $i(a,b,c,d,e){if(null===a){var f=c.type;if("function"===typeof f&&!aj(f)&&void 0===f.defaultProps&&null===c.compare&&void 0===c.defaultProps)return b.tag=15,b.type=f,bj(a,b,f,d,e);a=Rg(c.type,null,d,b,b.mode,e);a.ref=b.ref;a.return=b;return b.child=a}f=a.child;if(0===(a.lanes&e)){var g=f.memoizedProps;c=c.compare;c=null!==c?c:Ie;if(c(g,d)&&a.ref===b.ref)return Zi(a,b,e)}b.flags|=1;a=Pg(f,d);a.ref=b.ref;a.return=b;return b.child=a}
-	function bj(a,b,c,d,e){if(null!==a){var f=a.memoizedProps;if(Ie(f,d)&&a.ref===b.ref)if(dh=false,b.pendingProps=d=f,0!==(a.lanes&e))0!==(a.flags&131072)&&(dh=true);else return b.lanes=a.lanes,Zi(a,b,e)}return cj(a,b,c,d,e)}
-	function dj(a,b,c){var d=b.pendingProps,e=d.children,f=null!==a?a.memoizedState:null;if("hidden"===d.mode)if(0===(b.mode&1))b.memoizedState={baseLanes:0,cachePool:null,transitions:null},G(ej,fj),fj|=c;else {if(0===(c&1073741824))return a=null!==f?f.baseLanes|c:c,b.lanes=b.childLanes=1073741824,b.memoizedState={baseLanes:a,cachePool:null,transitions:null},b.updateQueue=null,G(ej,fj),fj|=a,null;b.memoizedState={baseLanes:0,cachePool:null,transitions:null};d=null!==f?f.baseLanes:c;G(ej,fj);fj|=d;}else null!==
-	f?(d=f.baseLanes|c,b.memoizedState=null):d=c,G(ej,fj),fj|=d;Xi(a,b,e,c);return b.child}function gj(a,b){var c=b.ref;if(null===a&&null!==c||null!==a&&a.ref!==c)b.flags|=512,b.flags|=2097152;}function cj(a,b,c,d,e){var f=Zf(c)?Xf:H.current;f=Yf(b,f);ch(b,e);c=Nh(a,b,c,d,f,e);d=Sh();if(null!==a&&!dh)return b.updateQueue=a.updateQueue,b.flags&=-2053,a.lanes&=~e,Zi(a,b,e);I&&d&&vg(b);b.flags|=1;Xi(a,b,c,e);return b.child}
-	function hj(a,b,c,d,e){if(Zf(c)){var f=true;cg(b);}else f=false;ch(b,e);if(null===b.stateNode)ij(a,b),Gi(b,c,d),Ii(b,c,d,e),d=true;else if(null===a){var g=b.stateNode,h=b.memoizedProps;g.props=h;var k=g.context,l=c.contextType;"object"===typeof l&&null!==l?l=eh(l):(l=Zf(c)?Xf:H.current,l=Yf(b,l));var m=c.getDerivedStateFromProps,q="function"===typeof m||"function"===typeof g.getSnapshotBeforeUpdate;q||"function"!==typeof g.UNSAFE_componentWillReceiveProps&&"function"!==typeof g.componentWillReceiveProps||
-	(h!==d||k!==l)&&Hi(b,g,d,l);jh=false;var r=b.memoizedState;g.state=r;qh(b,d,g,e);k=b.memoizedState;h!==d||r!==k||Wf.current||jh?("function"===typeof m&&(Di(b,c,m,d),k=b.memoizedState),(h=jh||Fi(b,c,h,d,r,k,l))?(q||"function"!==typeof g.UNSAFE_componentWillMount&&"function"!==typeof g.componentWillMount||("function"===typeof g.componentWillMount&&g.componentWillMount(),"function"===typeof g.UNSAFE_componentWillMount&&g.UNSAFE_componentWillMount()),"function"===typeof g.componentDidMount&&(b.flags|=4194308)):
-	("function"===typeof g.componentDidMount&&(b.flags|=4194308),b.memoizedProps=d,b.memoizedState=k),g.props=d,g.state=k,g.context=l,d=h):("function"===typeof g.componentDidMount&&(b.flags|=4194308),d=false);}else {g=b.stateNode;lh(a,b);h=b.memoizedProps;l=b.type===b.elementType?h:Ci(b.type,h);g.props=l;q=b.pendingProps;r=g.context;k=c.contextType;"object"===typeof k&&null!==k?k=eh(k):(k=Zf(c)?Xf:H.current,k=Yf(b,k));var y=c.getDerivedStateFromProps;(m="function"===typeof y||"function"===typeof g.getSnapshotBeforeUpdate)||
-	"function"!==typeof g.UNSAFE_componentWillReceiveProps&&"function"!==typeof g.componentWillReceiveProps||(h!==q||r!==k)&&Hi(b,g,d,k);jh=false;r=b.memoizedState;g.state=r;qh(b,d,g,e);var n=b.memoizedState;h!==q||r!==n||Wf.current||jh?("function"===typeof y&&(Di(b,c,y,d),n=b.memoizedState),(l=jh||Fi(b,c,l,d,r,n,k)||false)?(m||"function"!==typeof g.UNSAFE_componentWillUpdate&&"function"!==typeof g.componentWillUpdate||("function"===typeof g.componentWillUpdate&&g.componentWillUpdate(d,n,k),"function"===typeof g.UNSAFE_componentWillUpdate&&
-	g.UNSAFE_componentWillUpdate(d,n,k)),"function"===typeof g.componentDidUpdate&&(b.flags|=4),"function"===typeof g.getSnapshotBeforeUpdate&&(b.flags|=1024)):("function"!==typeof g.componentDidUpdate||h===a.memoizedProps&&r===a.memoizedState||(b.flags|=4),"function"!==typeof g.getSnapshotBeforeUpdate||h===a.memoizedProps&&r===a.memoizedState||(b.flags|=1024),b.memoizedProps=d,b.memoizedState=n),g.props=d,g.state=n,g.context=k,d=l):("function"!==typeof g.componentDidUpdate||h===a.memoizedProps&&r===
-	a.memoizedState||(b.flags|=4),"function"!==typeof g.getSnapshotBeforeUpdate||h===a.memoizedProps&&r===a.memoizedState||(b.flags|=1024),d=false);}return jj(a,b,c,d,f,e)}
-	function jj(a,b,c,d,e,f){gj(a,b);var g=0!==(b.flags&128);if(!d&&!g)return e&&dg(b,c,false),Zi(a,b,f);d=b.stateNode;Wi.current=b;var h=g&&"function"!==typeof c.getDerivedStateFromError?null:d.render();b.flags|=1;null!==a&&g?(b.child=Ug(b,a.child,null,f),b.child=Ug(b,null,h,f)):Xi(a,b,h,f);b.memoizedState=d.state;e&&dg(b,c,true);return b.child}function kj(a){var b=a.stateNode;b.pendingContext?ag(a,b.pendingContext,b.pendingContext!==b.context):b.context&&ag(a,b.context,false);yh(a,b.containerInfo);}
-	function lj(a,b,c,d,e){Ig();Jg(e);b.flags|=256;Xi(a,b,c,d);return b.child}var mj={dehydrated:null,treeContext:null,retryLane:0};function nj(a){return {baseLanes:a,cachePool:null,transitions:null}}
-	function oj(a,b,c){var d=b.pendingProps,e=L.current,f=false,g=0!==(b.flags&128),h;(h=g)||(h=null!==a&&null===a.memoizedState?false:0!==(e&2));if(h)f=true,b.flags&=-129;else if(null===a||null!==a.memoizedState)e|=1;G(L,e&1);if(null===a){Eg(b);a=b.memoizedState;if(null!==a&&(a=a.dehydrated,null!==a))return 0===(b.mode&1)?b.lanes=1:"$!"===a.data?b.lanes=8:b.lanes=1073741824,null;g=d.children;a=d.fallback;return f?(d=b.mode,f=b.child,g={mode:"hidden",children:g},0===(d&1)&&null!==f?(f.childLanes=0,f.pendingProps=
-	g):f=pj(g,d,0,null),a=Tg(a,d,c,null),f.return=b,a.return=b,f.sibling=a,b.child=f,b.child.memoizedState=nj(c),b.memoizedState=mj,a):qj(b,g)}e=a.memoizedState;if(null!==e&&(h=e.dehydrated,null!==h))return rj(a,b,g,d,h,e,c);if(f){f=d.fallback;g=b.mode;e=a.child;h=e.sibling;var k={mode:"hidden",children:d.children};0===(g&1)&&b.child!==e?(d=b.child,d.childLanes=0,d.pendingProps=k,b.deletions=null):(d=Pg(e,k),d.subtreeFlags=e.subtreeFlags&14680064);null!==h?f=Pg(h,f):(f=Tg(f,g,c,null),f.flags|=2);f.return=
-	b;d.return=b;d.sibling=f;b.child=d;d=f;f=b.child;g=a.child.memoizedState;g=null===g?nj(c):{baseLanes:g.baseLanes|c,cachePool:null,transitions:g.transitions};f.memoizedState=g;f.childLanes=a.childLanes&~c;b.memoizedState=mj;return d}f=a.child;a=f.sibling;d=Pg(f,{mode:"visible",children:d.children});0===(b.mode&1)&&(d.lanes=c);d.return=b;d.sibling=null;null!==a&&(c=b.deletions,null===c?(b.deletions=[a],b.flags|=16):c.push(a));b.child=d;b.memoizedState=null;return d}
-	function qj(a,b){b=pj({mode:"visible",children:b},a.mode,0,null);b.return=a;return a.child=b}function sj(a,b,c,d){null!==d&&Jg(d);Ug(b,a.child,null,c);a=qj(b,b.pendingProps.children);a.flags|=2;b.memoizedState=null;return a}
-	function rj(a,b,c,d,e,f,g){if(c){if(b.flags&256)return b.flags&=-257,d=Ki(Error(p(422))),sj(a,b,g,d);if(null!==b.memoizedState)return b.child=a.child,b.flags|=128,null;f=d.fallback;e=b.mode;d=pj({mode:"visible",children:d.children},e,0,null);f=Tg(f,e,g,null);f.flags|=2;d.return=b;f.return=b;d.sibling=f;b.child=d;0!==(b.mode&1)&&Ug(b,a.child,null,g);b.child.memoizedState=nj(g);b.memoizedState=mj;return f}if(0===(b.mode&1))return sj(a,b,g,null);if("$!"===e.data){d=e.nextSibling&&e.nextSibling.dataset;
-	if(d)var h=d.dgst;d=h;f=Error(p(419));d=Ki(f,d,void 0);return sj(a,b,g,d)}h=0!==(g&a.childLanes);if(dh||h){d=Q;if(null!==d){switch(g&-g){case 4:e=2;break;case 16:e=8;break;case 64:case 128:case 256:case 512:case 1024:case 2048:case 4096:case 8192:case 16384:case 32768:case 65536:case 131072:case 262144:case 524288:case 1048576:case 2097152:case 4194304:case 8388608:case 16777216:case 33554432:case 67108864:e=32;break;case 536870912:e=268435456;break;default:e=0;}e=0!==(e&(d.suspendedLanes|g))?0:e;
-	0!==e&&e!==f.retryLane&&(f.retryLane=e,ih(a,e),gi(d,a,e,-1));}tj();d=Ki(Error(p(421)));return sj(a,b,g,d)}if("$?"===e.data)return b.flags|=128,b.child=a.child,b=uj.bind(null,a),e._reactRetry=b,null;a=f.treeContext;yg=Lf(e.nextSibling);xg=b;I=true;zg=null;null!==a&&(og[pg++]=rg,og[pg++]=sg,og[pg++]=qg,rg=a.id,sg=a.overflow,qg=b);b=qj(b,d.children);b.flags|=4096;return b}function vj(a,b,c){a.lanes|=b;var d=a.alternate;null!==d&&(d.lanes|=b);bh(a.return,b,c);}
-	function wj(a,b,c,d,e){var f=a.memoizedState;null===f?a.memoizedState={isBackwards:b,rendering:null,renderingStartTime:0,last:d,tail:c,tailMode:e}:(f.isBackwards=b,f.rendering=null,f.renderingStartTime=0,f.last=d,f.tail=c,f.tailMode=e);}
-	function xj(a,b,c){var d=b.pendingProps,e=d.revealOrder,f=d.tail;Xi(a,b,d.children,c);d=L.current;if(0!==(d&2))d=d&1|2,b.flags|=128;else {if(null!==a&&0!==(a.flags&128))a:for(a=b.child;null!==a;){if(13===a.tag)null!==a.memoizedState&&vj(a,c,b);else if(19===a.tag)vj(a,c,b);else if(null!==a.child){a.child.return=a;a=a.child;continue}if(a===b)break a;for(;null===a.sibling;){if(null===a.return||a.return===b)break a;a=a.return;}a.sibling.return=a.return;a=a.sibling;}d&=1;}G(L,d);if(0===(b.mode&1))b.memoizedState=
-	null;else switch(e){case "forwards":c=b.child;for(e=null;null!==c;)a=c.alternate,null!==a&&null===Ch(a)&&(e=c),c=c.sibling;c=e;null===c?(e=b.child,b.child=null):(e=c.sibling,c.sibling=null);wj(b,false,e,c,f);break;case "backwards":c=null;e=b.child;for(b.child=null;null!==e;){a=e.alternate;if(null!==a&&null===Ch(a)){b.child=e;break}a=e.sibling;e.sibling=c;c=e;e=a;}wj(b,true,c,null,f);break;case "together":wj(b,false,null,null,void 0);break;default:b.memoizedState=null;}return b.child}
-	function ij(a,b){0===(b.mode&1)&&null!==a&&(a.alternate=null,b.alternate=null,b.flags|=2);}function Zi(a,b,c){null!==a&&(b.dependencies=a.dependencies);rh|=b.lanes;if(0===(c&b.childLanes))return null;if(null!==a&&b.child!==a.child)throw Error(p(153));if(null!==b.child){a=b.child;c=Pg(a,a.pendingProps);b.child=c;for(c.return=b;null!==a.sibling;)a=a.sibling,c=c.sibling=Pg(a,a.pendingProps),c.return=b;c.sibling=null;}return b.child}
-	function yj(a,b,c){switch(b.tag){case 3:kj(b);Ig();break;case 5:Ah(b);break;case 1:Zf(b.type)&&cg(b);break;case 4:yh(b,b.stateNode.containerInfo);break;case 10:var d=b.type._context,e=b.memoizedProps.value;G(Wg,d._currentValue);d._currentValue=e;break;case 13:d=b.memoizedState;if(null!==d){if(null!==d.dehydrated)return G(L,L.current&1),b.flags|=128,null;if(0!==(c&b.child.childLanes))return oj(a,b,c);G(L,L.current&1);a=Zi(a,b,c);return null!==a?a.sibling:null}G(L,L.current&1);break;case 19:d=0!==(c&
-	b.childLanes);if(0!==(a.flags&128)){if(d)return xj(a,b,c);b.flags|=128;}e=b.memoizedState;null!==e&&(e.rendering=null,e.tail=null,e.lastEffect=null);G(L,L.current);if(d)break;else return null;case 22:case 23:return b.lanes=0,dj(a,b,c)}return Zi(a,b,c)}var zj,Aj,Bj,Cj;
-	zj=function(a,b){for(var c=b.child;null!==c;){if(5===c.tag||6===c.tag)a.appendChild(c.stateNode);else if(4!==c.tag&&null!==c.child){c.child.return=c;c=c.child;continue}if(c===b)break;for(;null===c.sibling;){if(null===c.return||c.return===b)return;c=c.return;}c.sibling.return=c.return;c=c.sibling;}};Aj=function(){};
-	Bj=function(a,b,c,d){var e=a.memoizedProps;if(e!==d){a=b.stateNode;xh(uh.current);var f=null;switch(c){case "input":e=Ya(a,e);d=Ya(a,d);f=[];break;case "select":e=A({},e,{value:void 0});d=A({},d,{value:void 0});f=[];break;case "textarea":e=gb(a,e);d=gb(a,d);f=[];break;default:"function"!==typeof e.onClick&&"function"===typeof d.onClick&&(a.onclick=Bf);}ub(c,d);var g;c=null;for(l in e)if(!d.hasOwnProperty(l)&&e.hasOwnProperty(l)&&null!=e[l])if("style"===l){var h=e[l];for(g in h)h.hasOwnProperty(g)&&
-	(c||(c={}),c[g]="");}else "dangerouslySetInnerHTML"!==l&&"children"!==l&&"suppressContentEditableWarning"!==l&&"suppressHydrationWarning"!==l&&"autoFocus"!==l&&(ea.hasOwnProperty(l)?f||(f=[]):(f=f||[]).push(l,null));for(l in d){var k=d[l];h=null!=e?e[l]:void 0;if(d.hasOwnProperty(l)&&k!==h&&(null!=k||null!=h))if("style"===l)if(h){for(g in h)!h.hasOwnProperty(g)||k&&k.hasOwnProperty(g)||(c||(c={}),c[g]="");for(g in k)k.hasOwnProperty(g)&&h[g]!==k[g]&&(c||(c={}),c[g]=k[g]);}else c||(f||(f=[]),f.push(l,
-	c)),c=k;else "dangerouslySetInnerHTML"===l?(k=k?k.__html:void 0,h=h?h.__html:void 0,null!=k&&h!==k&&(f=f||[]).push(l,k)):"children"===l?"string"!==typeof k&&"number"!==typeof k||(f=f||[]).push(l,""+k):"suppressContentEditableWarning"!==l&&"suppressHydrationWarning"!==l&&(ea.hasOwnProperty(l)?(null!=k&&"onScroll"===l&&D("scroll",a),f||h===k||(f=[])):(f=f||[]).push(l,k));}c&&(f=f||[]).push("style",c);var l=f;if(b.updateQueue=l)b.flags|=4;}};Cj=function(a,b,c,d){c!==d&&(b.flags|=4);};
-	function Dj(a,b){if(!I)switch(a.tailMode){case "hidden":b=a.tail;for(var c=null;null!==b;)null!==b.alternate&&(c=b),b=b.sibling;null===c?a.tail=null:c.sibling=null;break;case "collapsed":c=a.tail;for(var d=null;null!==c;)null!==c.alternate&&(d=c),c=c.sibling;null===d?b||null===a.tail?a.tail=null:a.tail.sibling=null:d.sibling=null;}}
-	function S(a){var b=null!==a.alternate&&a.alternate.child===a.child,c=0,d=0;if(b)for(var e=a.child;null!==e;)c|=e.lanes|e.childLanes,d|=e.subtreeFlags&14680064,d|=e.flags&14680064,e.return=a,e=e.sibling;else for(e=a.child;null!==e;)c|=e.lanes|e.childLanes,d|=e.subtreeFlags,d|=e.flags,e.return=a,e=e.sibling;a.subtreeFlags|=d;a.childLanes=c;return b}
-	function Ej(a,b,c){var d=b.pendingProps;wg(b);switch(b.tag){case 2:case 16:case 15:case 0:case 11:case 7:case 8:case 12:case 9:case 14:return S(b),null;case 1:return Zf(b.type)&&$f(),S(b),null;case 3:d=b.stateNode;zh();E(Wf);E(H);Eh();d.pendingContext&&(d.context=d.pendingContext,d.pendingContext=null);if(null===a||null===a.child)Gg(b)?b.flags|=4:null===a||a.memoizedState.isDehydrated&&0===(b.flags&256)||(b.flags|=1024,null!==zg&&(Fj(zg),zg=null));Aj(a,b);S(b);return null;case 5:Bh(b);var e=xh(wh.current);
-	c=b.type;if(null!==a&&null!=b.stateNode)Bj(a,b,c,d,e),a.ref!==b.ref&&(b.flags|=512,b.flags|=2097152);else {if(!d){if(null===b.stateNode)throw Error(p(166));S(b);return null}a=xh(uh.current);if(Gg(b)){d=b.stateNode;c=b.type;var f=b.memoizedProps;d[Of]=b;d[Pf]=f;a=0!==(b.mode&1);switch(c){case "dialog":D("cancel",d);D("close",d);break;case "iframe":case "object":case "embed":D("load",d);break;case "video":case "audio":for(e=0;e<lf.length;e++)D(lf[e],d);break;case "source":D("error",d);break;case "img":case "image":case "link":D("error",
-	d);D("load",d);break;case "details":D("toggle",d);break;case "input":Za(d,f);D("invalid",d);break;case "select":d._wrapperState={wasMultiple:!!f.multiple};D("invalid",d);break;case "textarea":hb(d,f),D("invalid",d);}ub(c,f);e=null;for(var g in f)if(f.hasOwnProperty(g)){var h=f[g];"children"===g?"string"===typeof h?d.textContent!==h&&(true!==f.suppressHydrationWarning&&Af(d.textContent,h,a),e=["children",h]):"number"===typeof h&&d.textContent!==""+h&&(true!==f.suppressHydrationWarning&&Af(d.textContent,
-	h,a),e=["children",""+h]):ea.hasOwnProperty(g)&&null!=h&&"onScroll"===g&&D("scroll",d);}switch(c){case "input":Va(d);db(d,f,true);break;case "textarea":Va(d);jb(d);break;case "select":case "option":break;default:"function"===typeof f.onClick&&(d.onclick=Bf);}d=e;b.updateQueue=d;null!==d&&(b.flags|=4);}else {g=9===e.nodeType?e:e.ownerDocument;"http://www.w3.org/1999/xhtml"===a&&(a=kb(c));"http://www.w3.org/1999/xhtml"===a?"script"===c?(a=g.createElement("div"),a.innerHTML="<script>\x3c/script>",a=a.removeChild(a.firstChild)):
-	"string"===typeof d.is?a=g.createElement(c,{is:d.is}):(a=g.createElement(c),"select"===c&&(g=a,d.multiple?g.multiple=true:d.size&&(g.size=d.size))):a=g.createElementNS(a,c);a[Of]=b;a[Pf]=d;zj(a,b,false,false);b.stateNode=a;a:{g=vb(c,d);switch(c){case "dialog":D("cancel",a);D("close",a);e=d;break;case "iframe":case "object":case "embed":D("load",a);e=d;break;case "video":case "audio":for(e=0;e<lf.length;e++)D(lf[e],a);e=d;break;case "source":D("error",a);e=d;break;case "img":case "image":case "link":D("error",
-	a);D("load",a);e=d;break;case "details":D("toggle",a);e=d;break;case "input":Za(a,d);e=Ya(a,d);D("invalid",a);break;case "option":e=d;break;case "select":a._wrapperState={wasMultiple:!!d.multiple};e=A({},d,{value:void 0});D("invalid",a);break;case "textarea":hb(a,d);e=gb(a,d);D("invalid",a);break;default:e=d;}ub(c,e);h=e;for(f in h)if(h.hasOwnProperty(f)){var k=h[f];"style"===f?sb(a,k):"dangerouslySetInnerHTML"===f?(k=k?k.__html:void 0,null!=k&&nb(a,k)):"children"===f?"string"===typeof k?("textarea"!==
-	c||""!==k)&&ob(a,k):"number"===typeof k&&ob(a,""+k):"suppressContentEditableWarning"!==f&&"suppressHydrationWarning"!==f&&"autoFocus"!==f&&(ea.hasOwnProperty(f)?null!=k&&"onScroll"===f&&D("scroll",a):null!=k&&ta(a,f,k,g));}switch(c){case "input":Va(a);db(a,d,false);break;case "textarea":Va(a);jb(a);break;case "option":null!=d.value&&a.setAttribute("value",""+Sa(d.value));break;case "select":a.multiple=!!d.multiple;f=d.value;null!=f?fb(a,!!d.multiple,f,false):null!=d.defaultValue&&fb(a,!!d.multiple,d.defaultValue,
-	true);break;default:"function"===typeof e.onClick&&(a.onclick=Bf);}switch(c){case "button":case "input":case "select":case "textarea":d=!!d.autoFocus;break a;case "img":d=true;break a;default:d=false;}}d&&(b.flags|=4);}null!==b.ref&&(b.flags|=512,b.flags|=2097152);}S(b);return null;case 6:if(a&&null!=b.stateNode)Cj(a,b,a.memoizedProps,d);else {if("string"!==typeof d&&null===b.stateNode)throw Error(p(166));c=xh(wh.current);xh(uh.current);if(Gg(b)){d=b.stateNode;c=b.memoizedProps;d[Of]=b;if(f=d.nodeValue!==c)if(a=
-	xg,null!==a)switch(a.tag){case 3:Af(d.nodeValue,c,0!==(a.mode&1));break;case 5:true!==a.memoizedProps.suppressHydrationWarning&&Af(d.nodeValue,c,0!==(a.mode&1));}f&&(b.flags|=4);}else d=(9===c.nodeType?c:c.ownerDocument).createTextNode(d),d[Of]=b,b.stateNode=d;}S(b);return null;case 13:E(L);d=b.memoizedState;if(null===a||null!==a.memoizedState&&null!==a.memoizedState.dehydrated){if(I&&null!==yg&&0!==(b.mode&1)&&0===(b.flags&128))Hg(),Ig(),b.flags|=98560,f=false;else if(f=Gg(b),null!==d&&null!==d.dehydrated){if(null===
-	a){if(!f)throw Error(p(318));f=b.memoizedState;f=null!==f?f.dehydrated:null;if(!f)throw Error(p(317));f[Of]=b;}else Ig(),0===(b.flags&128)&&(b.memoizedState=null),b.flags|=4;S(b);f=false;}else null!==zg&&(Fj(zg),zg=null),f=true;if(!f)return b.flags&65536?b:null}if(0!==(b.flags&128))return b.lanes=c,b;d=null!==d;d!==(null!==a&&null!==a.memoizedState)&&d&&(b.child.flags|=8192,0!==(b.mode&1)&&(null===a||0!==(L.current&1)?0===T&&(T=3):tj()));null!==b.updateQueue&&(b.flags|=4);S(b);return null;case 4:return zh(),
-	Aj(a,b),null===a&&sf(b.stateNode.containerInfo),S(b),null;case 10:return ah(b.type._context),S(b),null;case 17:return Zf(b.type)&&$f(),S(b),null;case 19:E(L);f=b.memoizedState;if(null===f)return S(b),null;d=0!==(b.flags&128);g=f.rendering;if(null===g)if(d)Dj(f,false);else {if(0!==T||null!==a&&0!==(a.flags&128))for(a=b.child;null!==a;){g=Ch(a);if(null!==g){b.flags|=128;Dj(f,false);d=g.updateQueue;null!==d&&(b.updateQueue=d,b.flags|=4);b.subtreeFlags=0;d=c;for(c=b.child;null!==c;)f=c,a=d,f.flags&=14680066,
-	g=f.alternate,null===g?(f.childLanes=0,f.lanes=a,f.child=null,f.subtreeFlags=0,f.memoizedProps=null,f.memoizedState=null,f.updateQueue=null,f.dependencies=null,f.stateNode=null):(f.childLanes=g.childLanes,f.lanes=g.lanes,f.child=g.child,f.subtreeFlags=0,f.deletions=null,f.memoizedProps=g.memoizedProps,f.memoizedState=g.memoizedState,f.updateQueue=g.updateQueue,f.type=g.type,a=g.dependencies,f.dependencies=null===a?null:{lanes:a.lanes,firstContext:a.firstContext}),c=c.sibling;G(L,L.current&1|2);return b.child}a=
-	a.sibling;}null!==f.tail&&B()>Gj&&(b.flags|=128,d=true,Dj(f,false),b.lanes=4194304);}else {if(!d)if(a=Ch(g),null!==a){if(b.flags|=128,d=true,c=a.updateQueue,null!==c&&(b.updateQueue=c,b.flags|=4),Dj(f,true),null===f.tail&&"hidden"===f.tailMode&&!g.alternate&&!I)return S(b),null}else 2*B()-f.renderingStartTime>Gj&&1073741824!==c&&(b.flags|=128,d=true,Dj(f,false),b.lanes=4194304);f.isBackwards?(g.sibling=b.child,b.child=g):(c=f.last,null!==c?c.sibling=g:b.child=g,f.last=g);}if(null!==f.tail)return b=f.tail,f.rendering=
-	b,f.tail=b.sibling,f.renderingStartTime=B(),b.sibling=null,c=L.current,G(L,d?c&1|2:c&1),b;S(b);return null;case 22:case 23:return Hj(),d=null!==b.memoizedState,null!==a&&null!==a.memoizedState!==d&&(b.flags|=8192),d&&0!==(b.mode&1)?0!==(fj&1073741824)&&(S(b),b.subtreeFlags&6&&(b.flags|=8192)):S(b),null;case 24:return null;case 25:return null}throw Error(p(156,b.tag));}
-	function Ij(a,b){wg(b);switch(b.tag){case 1:return Zf(b.type)&&$f(),a=b.flags,a&65536?(b.flags=a&-65537|128,b):null;case 3:return zh(),E(Wf),E(H),Eh(),a=b.flags,0!==(a&65536)&&0===(a&128)?(b.flags=a&-65537|128,b):null;case 5:return Bh(b),null;case 13:E(L);a=b.memoizedState;if(null!==a&&null!==a.dehydrated){if(null===b.alternate)throw Error(p(340));Ig();}a=b.flags;return a&65536?(b.flags=a&-65537|128,b):null;case 19:return E(L),null;case 4:return zh(),null;case 10:return ah(b.type._context),null;case 22:case 23:return Hj(),
-	null;case 24:return null;default:return null}}var Jj=false,U=false,Kj="function"===typeof WeakSet?WeakSet:Set,V=null;function Lj(a,b){var c=a.ref;if(null!==c)if("function"===typeof c)try{c(null);}catch(d){W(a,b,d);}else c.current=null;}function Mj(a,b,c){try{c();}catch(d){W(a,b,d);}}var Nj=false;
-	function Oj(a,b){Cf=dd;a=Me();if(Ne(a)){if("selectionStart"in a)var c={start:a.selectionStart,end:a.selectionEnd};else a:{c=(c=a.ownerDocument)&&c.defaultView||window;var d=c.getSelection&&c.getSelection();if(d&&0!==d.rangeCount){c=d.anchorNode;var e=d.anchorOffset,f=d.focusNode;d=d.focusOffset;try{c.nodeType,f.nodeType;}catch(F){c=null;break a}var g=0,h=-1,k=-1,l=0,m=0,q=a,r=null;b:for(;;){for(var y;;){q!==c||0!==e&&3!==q.nodeType||(h=g+e);q!==f||0!==d&&3!==q.nodeType||(k=g+d);3===q.nodeType&&(g+=
-	q.nodeValue.length);if(null===(y=q.firstChild))break;r=q;q=y;}for(;;){if(q===a)break b;r===c&&++l===e&&(h=g);r===f&&++m===d&&(k=g);if(null!==(y=q.nextSibling))break;q=r;r=q.parentNode;}q=y;}c=-1===h||-1===k?null:{start:h,end:k};}else c=null;}c=c||{start:0,end:0};}else c=null;Df={focusedElem:a,selectionRange:c};dd=false;for(V=b;null!==V;)if(b=V,a=b.child,0!==(b.subtreeFlags&1028)&&null!==a)a.return=b,V=a;else for(;null!==V;){b=V;try{var n=b.alternate;if(0!==(b.flags&1024))switch(b.tag){case 0:case 11:case 15:break;
-	case 1:if(null!==n){var t=n.memoizedProps,J=n.memoizedState,x=b.stateNode,w=x.getSnapshotBeforeUpdate(b.elementType===b.type?t:Ci(b.type,t),J);x.__reactInternalSnapshotBeforeUpdate=w;}break;case 3:var u=b.stateNode.containerInfo;1===u.nodeType?u.textContent="":9===u.nodeType&&u.documentElement&&u.removeChild(u.documentElement);break;case 5:case 6:case 4:case 17:break;default:throw Error(p(163));}}catch(F){W(b,b.return,F);}a=b.sibling;if(null!==a){a.return=b.return;V=a;break}V=b.return;}n=Nj;Nj=false;return n}
-	function Pj(a,b,c){var d=b.updateQueue;d=null!==d?d.lastEffect:null;if(null!==d){var e=d=d.next;do{if((e.tag&a)===a){var f=e.destroy;e.destroy=void 0;void 0!==f&&Mj(b,c,f);}e=e.next;}while(e!==d)}}function Qj(a,b){b=b.updateQueue;b=null!==b?b.lastEffect:null;if(null!==b){var c=b=b.next;do{if((c.tag&a)===a){var d=c.create;c.destroy=d();}c=c.next;}while(c!==b)}}function Rj(a){var b=a.ref;if(null!==b){var c=a.stateNode;switch(a.tag){case 5:a=c;break;default:a=c;}"function"===typeof b?b(a):b.current=a;}}
-	function Sj(a){var b=a.alternate;null!==b&&(a.alternate=null,Sj(b));a.child=null;a.deletions=null;a.sibling=null;5===a.tag&&(b=a.stateNode,null!==b&&(delete b[Of],delete b[Pf],delete b[of],delete b[Qf],delete b[Rf]));a.stateNode=null;a.return=null;a.dependencies=null;a.memoizedProps=null;a.memoizedState=null;a.pendingProps=null;a.stateNode=null;a.updateQueue=null;}function Tj(a){return 5===a.tag||3===a.tag||4===a.tag}
-	function Uj(a){a:for(;;){for(;null===a.sibling;){if(null===a.return||Tj(a.return))return null;a=a.return;}a.sibling.return=a.return;for(a=a.sibling;5!==a.tag&&6!==a.tag&&18!==a.tag;){if(a.flags&2)continue a;if(null===a.child||4===a.tag)continue a;else a.child.return=a,a=a.child;}if(!(a.flags&2))return a.stateNode}}
-	function Vj(a,b,c){var d=a.tag;if(5===d||6===d)a=a.stateNode,b?8===c.nodeType?c.parentNode.insertBefore(a,b):c.insertBefore(a,b):(8===c.nodeType?(b=c.parentNode,b.insertBefore(a,c)):(b=c,b.appendChild(a)),c=c._reactRootContainer,null!==c&&void 0!==c||null!==b.onclick||(b.onclick=Bf));else if(4!==d&&(a=a.child,null!==a))for(Vj(a,b,c),a=a.sibling;null!==a;)Vj(a,b,c),a=a.sibling;}
-	function Wj(a,b,c){var d=a.tag;if(5===d||6===d)a=a.stateNode,b?c.insertBefore(a,b):c.appendChild(a);else if(4!==d&&(a=a.child,null!==a))for(Wj(a,b,c),a=a.sibling;null!==a;)Wj(a,b,c),a=a.sibling;}var X=null,Xj=false;function Yj(a,b,c){for(c=c.child;null!==c;)Zj(a,b,c),c=c.sibling;}
-	function Zj(a,b,c){if(lc&&"function"===typeof lc.onCommitFiberUnmount)try{lc.onCommitFiberUnmount(kc,c);}catch(h){}switch(c.tag){case 5:U||Lj(c,b);case 6:var d=X,e=Xj;X=null;Yj(a,b,c);X=d;Xj=e;null!==X&&(Xj?(a=X,c=c.stateNode,8===a.nodeType?a.parentNode.removeChild(c):a.removeChild(c)):X.removeChild(c.stateNode));break;case 18:null!==X&&(Xj?(a=X,c=c.stateNode,8===a.nodeType?Kf(a.parentNode,c):1===a.nodeType&&Kf(a,c),bd(a)):Kf(X,c.stateNode));break;case 4:d=X;e=Xj;X=c.stateNode.containerInfo;Xj=true;
-	Yj(a,b,c);X=d;Xj=e;break;case 0:case 11:case 14:case 15:if(!U&&(d=c.updateQueue,null!==d&&(d=d.lastEffect,null!==d))){e=d=d.next;do{var f=e,g=f.destroy;f=f.tag;void 0!==g&&(0!==(f&2)?Mj(c,b,g):0!==(f&4)&&Mj(c,b,g));e=e.next;}while(e!==d)}Yj(a,b,c);break;case 1:if(!U&&(Lj(c,b),d=c.stateNode,"function"===typeof d.componentWillUnmount))try{d.props=c.memoizedProps,d.state=c.memoizedState,d.componentWillUnmount();}catch(h){W(c,b,h);}Yj(a,b,c);break;case 21:Yj(a,b,c);break;case 22:c.mode&1?(U=(d=U)||null!==
-	c.memoizedState,Yj(a,b,c),U=d):Yj(a,b,c);break;default:Yj(a,b,c);}}function ak(a){var b=a.updateQueue;if(null!==b){a.updateQueue=null;var c=a.stateNode;null===c&&(c=a.stateNode=new Kj);b.forEach(function(b){var d=bk.bind(null,a,b);c.has(b)||(c.add(b),b.then(d,d));});}}
-	function ck(a,b){var c=b.deletions;if(null!==c)for(var d=0;d<c.length;d++){var e=c[d];try{var f=a,g=b,h=g;a:for(;null!==h;){switch(h.tag){case 5:X=h.stateNode;Xj=!1;break a;case 3:X=h.stateNode.containerInfo;Xj=!0;break a;case 4:X=h.stateNode.containerInfo;Xj=!0;break a}h=h.return;}if(null===X)throw Error(p(160));Zj(f,g,e);X=null;Xj=!1;var k=e.alternate;null!==k&&(k.return=null);e.return=null;}catch(l){W(e,b,l);}}if(b.subtreeFlags&12854)for(b=b.child;null!==b;)dk(b,a),b=b.sibling;}
-	function dk(a,b){var c=a.alternate,d=a.flags;switch(a.tag){case 0:case 11:case 14:case 15:ck(b,a);ek(a);if(d&4){try{Pj(3,a,a.return),Qj(3,a);}catch(t){W(a,a.return,t);}try{Pj(5,a,a.return);}catch(t){W(a,a.return,t);}}break;case 1:ck(b,a);ek(a);d&512&&null!==c&&Lj(c,c.return);break;case 5:ck(b,a);ek(a);d&512&&null!==c&&Lj(c,c.return);if(a.flags&32){var e=a.stateNode;try{ob(e,"");}catch(t){W(a,a.return,t);}}if(d&4&&(e=a.stateNode,null!=e)){var f=a.memoizedProps,g=null!==c?c.memoizedProps:f,h=a.type,k=a.updateQueue;
-	a.updateQueue=null;if(null!==k)try{"input"===h&&"radio"===f.type&&null!=f.name&&ab(e,f);vb(h,g);var l=vb(h,f);for(g=0;g<k.length;g+=2){var m=k[g],q=k[g+1];"style"===m?sb(e,q):"dangerouslySetInnerHTML"===m?nb(e,q):"children"===m?ob(e,q):ta(e,m,q,l);}switch(h){case "input":bb(e,f);break;case "textarea":ib(e,f);break;case "select":var r=e._wrapperState.wasMultiple;e._wrapperState.wasMultiple=!!f.multiple;var y=f.value;null!=y?fb(e,!!f.multiple,y,!1):r!==!!f.multiple&&(null!=f.defaultValue?fb(e,!!f.multiple,
-	f.defaultValue,!0):fb(e,!!f.multiple,f.multiple?[]:"",!1));}e[Pf]=f;}catch(t){W(a,a.return,t);}}break;case 6:ck(b,a);ek(a);if(d&4){if(null===a.stateNode)throw Error(p(162));e=a.stateNode;f=a.memoizedProps;try{e.nodeValue=f;}catch(t){W(a,a.return,t);}}break;case 3:ck(b,a);ek(a);if(d&4&&null!==c&&c.memoizedState.isDehydrated)try{bd(b.containerInfo);}catch(t){W(a,a.return,t);}break;case 4:ck(b,a);ek(a);break;case 13:ck(b,a);ek(a);e=a.child;e.flags&8192&&(f=null!==e.memoizedState,e.stateNode.isHidden=f,!f||
-	null!==e.alternate&&null!==e.alternate.memoizedState||(fk=B()));d&4&&ak(a);break;case 22:m=null!==c&&null!==c.memoizedState;a.mode&1?(U=(l=U)||m,ck(b,a),U=l):ck(b,a);ek(a);if(d&8192){l=null!==a.memoizedState;if((a.stateNode.isHidden=l)&&!m&&0!==(a.mode&1))for(V=a,m=a.child;null!==m;){for(q=V=m;null!==V;){r=V;y=r.child;switch(r.tag){case 0:case 11:case 14:case 15:Pj(4,r,r.return);break;case 1:Lj(r,r.return);var n=r.stateNode;if("function"===typeof n.componentWillUnmount){d=r;c=r.return;try{b=d,n.props=
-	b.memoizedProps,n.state=b.memoizedState,n.componentWillUnmount();}catch(t){W(d,c,t);}}break;case 5:Lj(r,r.return);break;case 22:if(null!==r.memoizedState){gk(q);continue}}null!==y?(y.return=r,V=y):gk(q);}m=m.sibling;}a:for(m=null,q=a;;){if(5===q.tag){if(null===m){m=q;try{e=q.stateNode,l?(f=e.style,"function"===typeof f.setProperty?f.setProperty("display","none","important"):f.display="none"):(h=q.stateNode,k=q.memoizedProps.style,g=void 0!==k&&null!==k&&k.hasOwnProperty("display")?k.display:null,h.style.display=
-	rb("display",g));}catch(t){W(a,a.return,t);}}}else if(6===q.tag){if(null===m)try{q.stateNode.nodeValue=l?"":q.memoizedProps;}catch(t){W(a,a.return,t);}}else if((22!==q.tag&&23!==q.tag||null===q.memoizedState||q===a)&&null!==q.child){q.child.return=q;q=q.child;continue}if(q===a)break a;for(;null===q.sibling;){if(null===q.return||q.return===a)break a;m===q&&(m=null);q=q.return;}m===q&&(m=null);q.sibling.return=q.return;q=q.sibling;}}break;case 19:ck(b,a);ek(a);d&4&&ak(a);break;case 21:break;default:ck(b,
-	a),ek(a);}}function ek(a){var b=a.flags;if(b&2){try{a:{for(var c=a.return;null!==c;){if(Tj(c)){var d=c;break a}c=c.return;}throw Error(p(160));}switch(d.tag){case 5:var e=d.stateNode;d.flags&32&&(ob(e,""),d.flags&=-33);var f=Uj(a);Wj(a,f,e);break;case 3:case 4:var g=d.stateNode.containerInfo,h=Uj(a);Vj(a,h,g);break;default:throw Error(p(161));}}catch(k){W(a,a.return,k);}a.flags&=-3;}b&4096&&(a.flags&=-4097);}function hk(a,b,c){V=a;ik(a);}
-	function ik(a,b,c){for(var d=0!==(a.mode&1);null!==V;){var e=V,f=e.child;if(22===e.tag&&d){var g=null!==e.memoizedState||Jj;if(!g){var h=e.alternate,k=null!==h&&null!==h.memoizedState||U;h=Jj;var l=U;Jj=g;if((U=k)&&!l)for(V=e;null!==V;)g=V,k=g.child,22===g.tag&&null!==g.memoizedState?jk(e):null!==k?(k.return=g,V=k):jk(e);for(;null!==f;)V=f,ik(f),f=f.sibling;V=e;Jj=h;U=l;}kk(a);}else 0!==(e.subtreeFlags&8772)&&null!==f?(f.return=e,V=f):kk(a);}}
-	function kk(a){for(;null!==V;){var b=V;if(0!==(b.flags&8772)){var c=b.alternate;try{if(0!==(b.flags&8772))switch(b.tag){case 0:case 11:case 15:U||Qj(5,b);break;case 1:var d=b.stateNode;if(b.flags&4&&!U)if(null===c)d.componentDidMount();else {var e=b.elementType===b.type?c.memoizedProps:Ci(b.type,c.memoizedProps);d.componentDidUpdate(e,c.memoizedState,d.__reactInternalSnapshotBeforeUpdate);}var f=b.updateQueue;null!==f&&sh(b,f,d);break;case 3:var g=b.updateQueue;if(null!==g){c=null;if(null!==b.child)switch(b.child.tag){case 5:c=
-	b.child.stateNode;break;case 1:c=b.child.stateNode;}sh(b,g,c);}break;case 5:var h=b.stateNode;if(null===c&&b.flags&4){c=h;var k=b.memoizedProps;switch(b.type){case "button":case "input":case "select":case "textarea":k.autoFocus&&c.focus();break;case "img":k.src&&(c.src=k.src);}}break;case 6:break;case 4:break;case 12:break;case 13:if(null===b.memoizedState){var l=b.alternate;if(null!==l){var m=l.memoizedState;if(null!==m){var q=m.dehydrated;null!==q&&bd(q);}}}break;case 19:case 17:case 21:case 22:case 23:case 25:break;
-	default:throw Error(p(163));}U||b.flags&512&&Rj(b);}catch(r){W(b,b.return,r);}}if(b===a){V=null;break}c=b.sibling;if(null!==c){c.return=b.return;V=c;break}V=b.return;}}function gk(a){for(;null!==V;){var b=V;if(b===a){V=null;break}var c=b.sibling;if(null!==c){c.return=b.return;V=c;break}V=b.return;}}
-	function jk(a){for(;null!==V;){var b=V;try{switch(b.tag){case 0:case 11:case 15:var c=b.return;try{Qj(4,b);}catch(k){W(b,c,k);}break;case 1:var d=b.stateNode;if("function"===typeof d.componentDidMount){var e=b.return;try{d.componentDidMount();}catch(k){W(b,e,k);}}var f=b.return;try{Rj(b);}catch(k){W(b,f,k);}break;case 5:var g=b.return;try{Rj(b);}catch(k){W(b,g,k);}}}catch(k){W(b,b.return,k);}if(b===a){V=null;break}var h=b.sibling;if(null!==h){h.return=b.return;V=h;break}V=b.return;}}
-	var lk=Math.ceil,mk=ua.ReactCurrentDispatcher,nk=ua.ReactCurrentOwner,ok=ua.ReactCurrentBatchConfig,K=0,Q=null,Y=null,Z=0,fj=0,ej=Uf(0),T=0,pk=null,rh=0,qk=0,rk=0,sk=null,tk=null,fk=0,Gj=Infinity,uk=null,Oi=false,Pi=null,Ri=null,vk=false,wk=null,xk=0,yk=0,zk=null,Ak=-1,Bk=0;function R(){return 0!==(K&6)?B():-1!==Ak?Ak:Ak=B()}
-	function yi(a){if(0===(a.mode&1))return 1;if(0!==(K&2)&&0!==Z)return Z&-Z;if(null!==Kg.transition)return 0===Bk&&(Bk=yc()),Bk;a=C;if(0!==a)return a;a=window.event;a=void 0===a?16:jd(a.type);return a}function gi(a,b,c,d){if(50<yk)throw yk=0,zk=null,Error(p(185));Ac(a,c,d);if(0===(K&2)||a!==Q)a===Q&&(0===(K&2)&&(qk|=c),4===T&&Ck(a,Z)),Dk(a,d),1===c&&0===K&&0===(b.mode&1)&&(Gj=B()+500,fg&&jg());}
-	function Dk(a,b){var c=a.callbackNode;wc(a,b);var d=uc(a,a===Q?Z:0);if(0===d)null!==c&&bc(c),a.callbackNode=null,a.callbackPriority=0;else if(b=d&-d,a.callbackPriority!==b){null!=c&&bc(c);if(1===b)0===a.tag?ig(Ek.bind(null,a)):hg(Ek.bind(null,a)),Jf(function(){0===(K&6)&&jg();}),c=null;else {switch(Dc(d)){case 1:c=fc;break;case 4:c=gc;break;case 16:c=hc;break;case 536870912:c=jc;break;default:c=hc;}c=Fk(c,Gk.bind(null,a));}a.callbackPriority=b;a.callbackNode=c;}}
-	function Gk(a,b){Ak=-1;Bk=0;if(0!==(K&6))throw Error(p(327));var c=a.callbackNode;if(Hk()&&a.callbackNode!==c)return null;var d=uc(a,a===Q?Z:0);if(0===d)return null;if(0!==(d&30)||0!==(d&a.expiredLanes)||b)b=Ik(a,d);else {b=d;var e=K;K|=2;var f=Jk();if(Q!==a||Z!==b)uk=null,Gj=B()+500,Kk(a,b);do try{Lk();break}catch(h){Mk(a,h);}while(1);$g();mk.current=f;K=e;null!==Y?b=0:(Q=null,Z=0,b=T);}if(0!==b){2===b&&(e=xc(a),0!==e&&(d=e,b=Nk(a,e)));if(1===b)throw c=pk,Kk(a,0),Ck(a,d),Dk(a,B()),c;if(6===b)Ck(a,d);
-	else {e=a.current.alternate;if(0===(d&30)&&!Ok(e)&&(b=Ik(a,d),2===b&&(f=xc(a),0!==f&&(d=f,b=Nk(a,f))),1===b))throw c=pk,Kk(a,0),Ck(a,d),Dk(a,B()),c;a.finishedWork=e;a.finishedLanes=d;switch(b){case 0:case 1:throw Error(p(345));case 2:Pk(a,tk,uk);break;case 3:Ck(a,d);if((d&130023424)===d&&(b=fk+500-B(),10<b)){if(0!==uc(a,0))break;e=a.suspendedLanes;if((e&d)!==d){R();a.pingedLanes|=a.suspendedLanes&e;break}a.timeoutHandle=Ff(Pk.bind(null,a,tk,uk),b);break}Pk(a,tk,uk);break;case 4:Ck(a,d);if((d&4194240)===
-	d)break;b=a.eventTimes;for(e=-1;0<d;){var g=31-oc(d);f=1<<g;g=b[g];g>e&&(e=g);d&=~f;}d=e;d=B()-d;d=(120>d?120:480>d?480:1080>d?1080:1920>d?1920:3E3>d?3E3:4320>d?4320:1960*lk(d/1960))-d;if(10<d){a.timeoutHandle=Ff(Pk.bind(null,a,tk,uk),d);break}Pk(a,tk,uk);break;case 5:Pk(a,tk,uk);break;default:throw Error(p(329));}}}Dk(a,B());return a.callbackNode===c?Gk.bind(null,a):null}
-	function Nk(a,b){var c=sk;a.current.memoizedState.isDehydrated&&(Kk(a,b).flags|=256);a=Ik(a,b);2!==a&&(b=tk,tk=c,null!==b&&Fj(b));return a}function Fj(a){null===tk?tk=a:tk.push.apply(tk,a);}
-	function Ok(a){for(var b=a;;){if(b.flags&16384){var c=b.updateQueue;if(null!==c&&(c=c.stores,null!==c))for(var d=0;d<c.length;d++){var e=c[d],f=e.getSnapshot;e=e.value;try{if(!He(f(),e))return !1}catch(g){return  false}}}c=b.child;if(b.subtreeFlags&16384&&null!==c)c.return=b,b=c;else {if(b===a)break;for(;null===b.sibling;){if(null===b.return||b.return===a)return  true;b=b.return;}b.sibling.return=b.return;b=b.sibling;}}return  true}
-	function Ck(a,b){b&=~rk;b&=~qk;a.suspendedLanes|=b;a.pingedLanes&=~b;for(a=a.expirationTimes;0<b;){var c=31-oc(b),d=1<<c;a[c]=-1;b&=~d;}}function Ek(a){if(0!==(K&6))throw Error(p(327));Hk();var b=uc(a,0);if(0===(b&1))return Dk(a,B()),null;var c=Ik(a,b);if(0!==a.tag&&2===c){var d=xc(a);0!==d&&(b=d,c=Nk(a,d));}if(1===c)throw c=pk,Kk(a,0),Ck(a,b),Dk(a,B()),c;if(6===c)throw Error(p(345));a.finishedWork=a.current.alternate;a.finishedLanes=b;Pk(a,tk,uk);Dk(a,B());return null}
-	function Qk(a,b){var c=K;K|=1;try{return a(b)}finally{K=c,0===K&&(Gj=B()+500,fg&&jg());}}function Rk(a){null!==wk&&0===wk.tag&&0===(K&6)&&Hk();var b=K;K|=1;var c=ok.transition,d=C;try{if(ok.transition=null,C=1,a)return a()}finally{C=d,ok.transition=c,K=b,0===(K&6)&&jg();}}function Hj(){fj=ej.current;E(ej);}
-	function Kk(a,b){a.finishedWork=null;a.finishedLanes=0;var c=a.timeoutHandle;-1!==c&&(a.timeoutHandle=-1,Gf(c));if(null!==Y)for(c=Y.return;null!==c;){var d=c;wg(d);switch(d.tag){case 1:d=d.type.childContextTypes;null!==d&&void 0!==d&&$f();break;case 3:zh();E(Wf);E(H);Eh();break;case 5:Bh(d);break;case 4:zh();break;case 13:E(L);break;case 19:E(L);break;case 10:ah(d.type._context);break;case 22:case 23:Hj();}c=c.return;}Q=a;Y=a=Pg(a.current,null);Z=fj=b;T=0;pk=null;rk=qk=rh=0;tk=sk=null;if(null!==fh){for(b=
-	0;b<fh.length;b++)if(c=fh[b],d=c.interleaved,null!==d){c.interleaved=null;var e=d.next,f=c.pending;if(null!==f){var g=f.next;f.next=e;d.next=g;}c.pending=d;}fh=null;}return a}
-	function Mk(a,b){do{var c=Y;try{$g();Fh.current=Rh;if(Ih){for(var d=M.memoizedState;null!==d;){var e=d.queue;null!==e&&(e.pending=null);d=d.next;}Ih=!1;}Hh=0;O=N=M=null;Jh=!1;Kh=0;nk.current=null;if(null===c||null===c.return){T=1;pk=b;Y=null;break}a:{var f=a,g=c.return,h=c,k=b;b=Z;h.flags|=32768;if(null!==k&&"object"===typeof k&&"function"===typeof k.then){var l=k,m=h,q=m.tag;if(0===(m.mode&1)&&(0===q||11===q||15===q)){var r=m.alternate;r?(m.updateQueue=r.updateQueue,m.memoizedState=r.memoizedState,
-	m.lanes=r.lanes):(m.updateQueue=null,m.memoizedState=null);}var y=Ui(g);if(null!==y){y.flags&=-257;Vi(y,g,h,f,b);y.mode&1&&Si(f,l,b);b=y;k=l;var n=b.updateQueue;if(null===n){var t=new Set;t.add(k);b.updateQueue=t;}else n.add(k);break a}else {if(0===(b&1)){Si(f,l,b);tj();break a}k=Error(p(426));}}else if(I&&h.mode&1){var J=Ui(g);if(null!==J){0===(J.flags&65536)&&(J.flags|=256);Vi(J,g,h,f,b);Jg(Ji(k,h));break a}}f=k=Ji(k,h);4!==T&&(T=2);null===sk?sk=[f]:sk.push(f);f=g;do{switch(f.tag){case 3:f.flags|=65536;
-	b&=-b;f.lanes|=b;var x=Ni(f,k,b);ph(f,x);break a;case 1:h=k;var w=f.type,u=f.stateNode;if(0===(f.flags&128)&&("function"===typeof w.getDerivedStateFromError||null!==u&&"function"===typeof u.componentDidCatch&&(null===Ri||!Ri.has(u)))){f.flags|=65536;b&=-b;f.lanes|=b;var F=Qi(f,h,b);ph(f,F);break a}}f=f.return;}while(null!==f)}Sk(c);}catch(na){b=na;Y===c&&null!==c&&(Y=c=c.return);continue}break}while(1)}function Jk(){var a=mk.current;mk.current=Rh;return null===a?Rh:a}
-	function tj(){if(0===T||3===T||2===T)T=4;null===Q||0===(rh&268435455)&&0===(qk&268435455)||Ck(Q,Z);}function Ik(a,b){var c=K;K|=2;var d=Jk();if(Q!==a||Z!==b)uk=null,Kk(a,b);do try{Tk();break}catch(e){Mk(a,e);}while(1);$g();K=c;mk.current=d;if(null!==Y)throw Error(p(261));Q=null;Z=0;return T}function Tk(){for(;null!==Y;)Uk(Y);}function Lk(){for(;null!==Y&&!cc();)Uk(Y);}function Uk(a){var b=Vk(a.alternate,a,fj);a.memoizedProps=a.pendingProps;null===b?Sk(a):Y=b;nk.current=null;}
-	function Sk(a){var b=a;do{var c=b.alternate;a=b.return;if(0===(b.flags&32768)){if(c=Ej(c,b,fj),null!==c){Y=c;return}}else {c=Ij(c,b);if(null!==c){c.flags&=32767;Y=c;return}if(null!==a)a.flags|=32768,a.subtreeFlags=0,a.deletions=null;else {T=6;Y=null;return}}b=b.sibling;if(null!==b){Y=b;return}Y=b=a;}while(null!==b);0===T&&(T=5);}function Pk(a,b,c){var d=C,e=ok.transition;try{ok.transition=null,C=1,Wk(a,b,c,d);}finally{ok.transition=e,C=d;}return null}
-	function Wk(a,b,c,d){do Hk();while(null!==wk);if(0!==(K&6))throw Error(p(327));c=a.finishedWork;var e=a.finishedLanes;if(null===c)return null;a.finishedWork=null;a.finishedLanes=0;if(c===a.current)throw Error(p(177));a.callbackNode=null;a.callbackPriority=0;var f=c.lanes|c.childLanes;Bc(a,f);a===Q&&(Y=Q=null,Z=0);0===(c.subtreeFlags&2064)&&0===(c.flags&2064)||vk||(vk=true,Fk(hc,function(){Hk();return null}));f=0!==(c.flags&15990);if(0!==(c.subtreeFlags&15990)||f){f=ok.transition;ok.transition=null;
-	var g=C;C=1;var h=K;K|=4;nk.current=null;Oj(a,c);dk(c,a);Oe(Df);dd=!!Cf;Df=Cf=null;a.current=c;hk(c);dc();K=h;C=g;ok.transition=f;}else a.current=c;vk&&(vk=false,wk=a,xk=e);f=a.pendingLanes;0===f&&(Ri=null);mc(c.stateNode);Dk(a,B());if(null!==b)for(d=a.onRecoverableError,c=0;c<b.length;c++)e=b[c],d(e.value,{componentStack:e.stack,digest:e.digest});if(Oi)throw Oi=false,a=Pi,Pi=null,a;0!==(xk&1)&&0!==a.tag&&Hk();f=a.pendingLanes;0!==(f&1)?a===zk?yk++:(yk=0,zk=a):yk=0;jg();return null}
-	function Hk(){if(null!==wk){var a=Dc(xk),b=ok.transition,c=C;try{ok.transition=null;C=16>a?16:a;if(null===wk)var d=!1;else {a=wk;wk=null;xk=0;if(0!==(K&6))throw Error(p(331));var e=K;K|=4;for(V=a.current;null!==V;){var f=V,g=f.child;if(0!==(V.flags&16)){var h=f.deletions;if(null!==h){for(var k=0;k<h.length;k++){var l=h[k];for(V=l;null!==V;){var m=V;switch(m.tag){case 0:case 11:case 15:Pj(8,m,f);}var q=m.child;if(null!==q)q.return=m,V=q;else for(;null!==V;){m=V;var r=m.sibling,y=m.return;Sj(m);if(m===
-	l){V=null;break}if(null!==r){r.return=y;V=r;break}V=y;}}}var n=f.alternate;if(null!==n){var t=n.child;if(null!==t){n.child=null;do{var J=t.sibling;t.sibling=null;t=J;}while(null!==t)}}V=f;}}if(0!==(f.subtreeFlags&2064)&&null!==g)g.return=f,V=g;else b:for(;null!==V;){f=V;if(0!==(f.flags&2048))switch(f.tag){case 0:case 11:case 15:Pj(9,f,f.return);}var x=f.sibling;if(null!==x){x.return=f.return;V=x;break b}V=f.return;}}var w=a.current;for(V=w;null!==V;){g=V;var u=g.child;if(0!==(g.subtreeFlags&2064)&&null!==
-	u)u.return=g,V=u;else b:for(g=w;null!==V;){h=V;if(0!==(h.flags&2048))try{switch(h.tag){case 0:case 11:case 15:Qj(9,h);}}catch(na){W(h,h.return,na);}if(h===g){V=null;break b}var F=h.sibling;if(null!==F){F.return=h.return;V=F;break b}V=h.return;}}K=e;jg();if(lc&&"function"===typeof lc.onPostCommitFiberRoot)try{lc.onPostCommitFiberRoot(kc,a);}catch(na){}d=!0;}return d}finally{C=c,ok.transition=b;}}return  false}function Xk(a,b,c){b=Ji(c,b);b=Ni(a,b,1);a=nh(a,b,1);b=R();null!==a&&(Ac(a,1,b),Dk(a,b));}
-	function W(a,b,c){if(3===a.tag)Xk(a,a,c);else for(;null!==b;){if(3===b.tag){Xk(b,a,c);break}else if(1===b.tag){var d=b.stateNode;if("function"===typeof b.type.getDerivedStateFromError||"function"===typeof d.componentDidCatch&&(null===Ri||!Ri.has(d))){a=Ji(c,a);a=Qi(b,a,1);b=nh(b,a,1);a=R();null!==b&&(Ac(b,1,a),Dk(b,a));break}}b=b.return;}}
-	function Ti(a,b,c){var d=a.pingCache;null!==d&&d.delete(b);b=R();a.pingedLanes|=a.suspendedLanes&c;Q===a&&(Z&c)===c&&(4===T||3===T&&(Z&130023424)===Z&&500>B()-fk?Kk(a,0):rk|=c);Dk(a,b);}function Yk(a,b){0===b&&(0===(a.mode&1)?b=1:(b=sc,sc<<=1,0===(sc&130023424)&&(sc=4194304)));var c=R();a=ih(a,b);null!==a&&(Ac(a,b,c),Dk(a,c));}function uj(a){var b=a.memoizedState,c=0;null!==b&&(c=b.retryLane);Yk(a,c);}
-	function bk(a,b){var c=0;switch(a.tag){case 13:var d=a.stateNode;var e=a.memoizedState;null!==e&&(c=e.retryLane);break;case 19:d=a.stateNode;break;default:throw Error(p(314));}null!==d&&d.delete(b);Yk(a,c);}var Vk;
-	Vk=function(a,b,c){if(null!==a)if(a.memoizedProps!==b.pendingProps||Wf.current)dh=true;else {if(0===(a.lanes&c)&&0===(b.flags&128))return dh=false,yj(a,b,c);dh=0!==(a.flags&131072)?true:false;}else dh=false,I&&0!==(b.flags&1048576)&&ug(b,ng,b.index);b.lanes=0;switch(b.tag){case 2:var d=b.type;ij(a,b);a=b.pendingProps;var e=Yf(b,H.current);ch(b,c);e=Nh(null,b,d,a,e,c);var f=Sh();b.flags|=1;"object"===typeof e&&null!==e&&"function"===typeof e.render&&void 0===e.$$typeof?(b.tag=1,b.memoizedState=null,b.updateQueue=
-	null,Zf(d)?(f=true,cg(b)):f=false,b.memoizedState=null!==e.state&&void 0!==e.state?e.state:null,kh(b),e.updater=Ei,b.stateNode=e,e._reactInternals=b,Ii(b,d,a,c),b=jj(null,b,d,true,f,c)):(b.tag=0,I&&f&&vg(b),Xi(null,b,e,c),b=b.child);return b;case 16:d=b.elementType;a:{ij(a,b);a=b.pendingProps;e=d._init;d=e(d._payload);b.type=d;e=b.tag=Zk(d);a=Ci(d,a);switch(e){case 0:b=cj(null,b,d,a,c);break a;case 1:b=hj(null,b,d,a,c);break a;case 11:b=Yi(null,b,d,a,c);break a;case 14:b=$i(null,b,d,Ci(d.type,a),c);break a}throw Error(p(306,
-	d,""));}return b;case 0:return d=b.type,e=b.pendingProps,e=b.elementType===d?e:Ci(d,e),cj(a,b,d,e,c);case 1:return d=b.type,e=b.pendingProps,e=b.elementType===d?e:Ci(d,e),hj(a,b,d,e,c);case 3:a:{kj(b);if(null===a)throw Error(p(387));d=b.pendingProps;f=b.memoizedState;e=f.element;lh(a,b);qh(b,d,null,c);var g=b.memoizedState;d=g.element;if(f.isDehydrated)if(f={element:d,isDehydrated:false,cache:g.cache,pendingSuspenseBoundaries:g.pendingSuspenseBoundaries,transitions:g.transitions},b.updateQueue.baseState=
-	f,b.memoizedState=f,b.flags&256){e=Ji(Error(p(423)),b);b=lj(a,b,d,c,e);break a}else if(d!==e){e=Ji(Error(p(424)),b);b=lj(a,b,d,c,e);break a}else for(yg=Lf(b.stateNode.containerInfo.firstChild),xg=b,I=true,zg=null,c=Vg(b,null,d,c),b.child=c;c;)c.flags=c.flags&-3|4096,c=c.sibling;else {Ig();if(d===e){b=Zi(a,b,c);break a}Xi(a,b,d,c);}b=b.child;}return b;case 5:return Ah(b),null===a&&Eg(b),d=b.type,e=b.pendingProps,f=null!==a?a.memoizedProps:null,g=e.children,Ef(d,e)?g=null:null!==f&&Ef(d,f)&&(b.flags|=32),
-	gj(a,b),Xi(a,b,g,c),b.child;case 6:return null===a&&Eg(b),null;case 13:return oj(a,b,c);case 4:return yh(b,b.stateNode.containerInfo),d=b.pendingProps,null===a?b.child=Ug(b,null,d,c):Xi(a,b,d,c),b.child;case 11:return d=b.type,e=b.pendingProps,e=b.elementType===d?e:Ci(d,e),Yi(a,b,d,e,c);case 7:return Xi(a,b,b.pendingProps,c),b.child;case 8:return Xi(a,b,b.pendingProps.children,c),b.child;case 12:return Xi(a,b,b.pendingProps.children,c),b.child;case 10:a:{d=b.type._context;e=b.pendingProps;f=b.memoizedProps;
-	g=e.value;G(Wg,d._currentValue);d._currentValue=g;if(null!==f)if(He(f.value,g)){if(f.children===e.children&&!Wf.current){b=Zi(a,b,c);break a}}else for(f=b.child,null!==f&&(f.return=b);null!==f;){var h=f.dependencies;if(null!==h){g=f.child;for(var k=h.firstContext;null!==k;){if(k.context===d){if(1===f.tag){k=mh(-1,c&-c);k.tag=2;var l=f.updateQueue;if(null!==l){l=l.shared;var m=l.pending;null===m?k.next=k:(k.next=m.next,m.next=k);l.pending=k;}}f.lanes|=c;k=f.alternate;null!==k&&(k.lanes|=c);bh(f.return,
-	c,b);h.lanes|=c;break}k=k.next;}}else if(10===f.tag)g=f.type===b.type?null:f.child;else if(18===f.tag){g=f.return;if(null===g)throw Error(p(341));g.lanes|=c;h=g.alternate;null!==h&&(h.lanes|=c);bh(g,c,b);g=f.sibling;}else g=f.child;if(null!==g)g.return=f;else for(g=f;null!==g;){if(g===b){g=null;break}f=g.sibling;if(null!==f){f.return=g.return;g=f;break}g=g.return;}f=g;}Xi(a,b,e.children,c);b=b.child;}return b;case 9:return e=b.type,d=b.pendingProps.children,ch(b,c),e=eh(e),d=d(e),b.flags|=1,Xi(a,b,d,c),
-	b.child;case 14:return d=b.type,e=Ci(d,b.pendingProps),e=Ci(d.type,e),$i(a,b,d,e,c);case 15:return bj(a,b,b.type,b.pendingProps,c);case 17:return d=b.type,e=b.pendingProps,e=b.elementType===d?e:Ci(d,e),ij(a,b),b.tag=1,Zf(d)?(a=true,cg(b)):a=false,ch(b,c),Gi(b,d,e),Ii(b,d,e,c),jj(null,b,d,true,a,c);case 19:return xj(a,b,c);case 22:return dj(a,b,c)}throw Error(p(156,b.tag));};function Fk(a,b){return ac(a,b)}
-	function $k(a,b,c,d){this.tag=a;this.key=c;this.sibling=this.child=this.return=this.stateNode=this.type=this.elementType=null;this.index=0;this.ref=null;this.pendingProps=b;this.dependencies=this.memoizedState=this.updateQueue=this.memoizedProps=null;this.mode=d;this.subtreeFlags=this.flags=0;this.deletions=null;this.childLanes=this.lanes=0;this.alternate=null;}function Bg(a,b,c,d){return new $k(a,b,c,d)}function aj(a){a=a.prototype;return !(!a||!a.isReactComponent)}
-	function Zk(a){if("function"===typeof a)return aj(a)?1:0;if(void 0!==a&&null!==a){a=a.$$typeof;if(a===Da)return 11;if(a===Ga)return 14}return 2}
-	function Pg(a,b){var c=a.alternate;null===c?(c=Bg(a.tag,b,a.key,a.mode),c.elementType=a.elementType,c.type=a.type,c.stateNode=a.stateNode,c.alternate=a,a.alternate=c):(c.pendingProps=b,c.type=a.type,c.flags=0,c.subtreeFlags=0,c.deletions=null);c.flags=a.flags&14680064;c.childLanes=a.childLanes;c.lanes=a.lanes;c.child=a.child;c.memoizedProps=a.memoizedProps;c.memoizedState=a.memoizedState;c.updateQueue=a.updateQueue;b=a.dependencies;c.dependencies=null===b?null:{lanes:b.lanes,firstContext:b.firstContext};
-	c.sibling=a.sibling;c.index=a.index;c.ref=a.ref;return c}
-	function Rg(a,b,c,d,e,f){var g=2;d=a;if("function"===typeof a)aj(a)&&(g=1);else if("string"===typeof a)g=5;else a:switch(a){case ya:return Tg(c.children,e,f,b);case za:g=8;e|=8;break;case Aa:return a=Bg(12,c,b,e|2),a.elementType=Aa,a.lanes=f,a;case Ea:return a=Bg(13,c,b,e),a.elementType=Ea,a.lanes=f,a;case Fa:return a=Bg(19,c,b,e),a.elementType=Fa,a.lanes=f,a;case Ia:return pj(c,e,f,b);default:if("object"===typeof a&&null!==a)switch(a.$$typeof){case Ba:g=10;break a;case Ca:g=9;break a;case Da:g=11;
-	break a;case Ga:g=14;break a;case Ha:g=16;d=null;break a}throw Error(p(130,null==a?a:typeof a,""));}b=Bg(g,c,b,e);b.elementType=a;b.type=d;b.lanes=f;return b}function Tg(a,b,c,d){a=Bg(7,a,d,b);a.lanes=c;return a}function pj(a,b,c,d){a=Bg(22,a,d,b);a.elementType=Ia;a.lanes=c;a.stateNode={isHidden:false};return a}function Qg(a,b,c){a=Bg(6,a,null,b);a.lanes=c;return a}
-	function Sg(a,b,c){b=Bg(4,null!==a.children?a.children:[],a.key,b);b.lanes=c;b.stateNode={containerInfo:a.containerInfo,pendingChildren:null,implementation:a.implementation};return b}
-	function al(a,b,c,d,e){this.tag=b;this.containerInfo=a;this.finishedWork=this.pingCache=this.current=this.pendingChildren=null;this.timeoutHandle=-1;this.callbackNode=this.pendingContext=this.context=null;this.callbackPriority=0;this.eventTimes=zc(0);this.expirationTimes=zc(-1);this.entangledLanes=this.finishedLanes=this.mutableReadLanes=this.expiredLanes=this.pingedLanes=this.suspendedLanes=this.pendingLanes=0;this.entanglements=zc(0);this.identifierPrefix=d;this.onRecoverableError=e;this.mutableSourceEagerHydrationData=
-	null;}function bl(a,b,c,d,e,f,g,h,k){a=new al(a,b,c,h,k);1===b?(b=1,true===f&&(b|=8)):b=0;f=Bg(3,null,null,b);a.current=f;f.stateNode=a;f.memoizedState={element:d,isDehydrated:c,cache:null,transitions:null,pendingSuspenseBoundaries:null};kh(f);return a}function cl(a,b,c){var d=3<arguments.length&&void 0!==arguments[3]?arguments[3]:null;return {$$typeof:wa,key:null==d?null:""+d,children:a,containerInfo:b,implementation:c}}
-	function dl(a){if(!a)return Vf;a=a._reactInternals;a:{if(Vb(a)!==a||1!==a.tag)throw Error(p(170));var b=a;do{switch(b.tag){case 3:b=b.stateNode.context;break a;case 1:if(Zf(b.type)){b=b.stateNode.__reactInternalMemoizedMergedChildContext;break a}}b=b.return;}while(null!==b);throw Error(p(171));}if(1===a.tag){var c=a.type;if(Zf(c))return bg(a,c,b)}return b}
-	function el(a,b,c,d,e,f,g,h,k){a=bl(c,d,true,a,e,f,g,h,k);a.context=dl(null);c=a.current;d=R();e=yi(c);f=mh(d,e);f.callback=void 0!==b&&null!==b?b:null;nh(c,f,e);a.current.lanes=e;Ac(a,e,d);Dk(a,d);return a}function fl(a,b,c,d){var e=b.current,f=R(),g=yi(e);c=dl(c);null===b.context?b.context=c:b.pendingContext=c;b=mh(f,g);b.payload={element:a};d=void 0===d?null:d;null!==d&&(b.callback=d);a=nh(e,b,g);null!==a&&(gi(a,e,g,f),oh(a,e,g));return g}
-	function gl(a){a=a.current;if(!a.child)return null;switch(a.child.tag){case 5:return a.child.stateNode;default:return a.child.stateNode}}function hl(a,b){a=a.memoizedState;if(null!==a&&null!==a.dehydrated){var c=a.retryLane;a.retryLane=0!==c&&c<b?c:b;}}function il(a,b){hl(a,b);(a=a.alternate)&&hl(a,b);}function jl(){return null}var kl="function"===typeof reportError?reportError:function(a){console.error(a);};function ll(a){this._internalRoot=a;}
-	ml.prototype.render=ll.prototype.render=function(a){var b=this._internalRoot;if(null===b)throw Error(p(409));fl(a,b,null,null);};ml.prototype.unmount=ll.prototype.unmount=function(){var a=this._internalRoot;if(null!==a){this._internalRoot=null;var b=a.containerInfo;Rk(function(){fl(null,a,null,null);});b[uf]=null;}};function ml(a){this._internalRoot=a;}
-	ml.prototype.unstable_scheduleHydration=function(a){if(a){var b=Hc();a={blockedOn:null,target:a,priority:b};for(var c=0;c<Qc.length&&0!==b&&b<Qc[c].priority;c++);Qc.splice(c,0,a);0===c&&Vc(a);}};function nl(a){return !(!a||1!==a.nodeType&&9!==a.nodeType&&11!==a.nodeType)}function ol(a){return !(!a||1!==a.nodeType&&9!==a.nodeType&&11!==a.nodeType&&(8!==a.nodeType||" react-mount-point-unstable "!==a.nodeValue))}function pl(){}
-	function ql(a,b,c,d,e){if(e){if("function"===typeof d){var f=d;d=function(){var a=gl(g);f.call(a);};}var g=el(b,d,a,0,null,false,false,"",pl);a._reactRootContainer=g;a[uf]=g.current;sf(8===a.nodeType?a.parentNode:a);Rk();return g}for(;e=a.lastChild;)a.removeChild(e);if("function"===typeof d){var h=d;d=function(){var a=gl(k);h.call(a);};}var k=bl(a,0,false,null,null,false,false,"",pl);a._reactRootContainer=k;a[uf]=k.current;sf(8===a.nodeType?a.parentNode:a);Rk(function(){fl(b,k,c,d);});return k}
-	function rl(a,b,c,d,e){var f=c._reactRootContainer;if(f){var g=f;if("function"===typeof e){var h=e;e=function(){var a=gl(g);h.call(a);};}fl(b,g,a,e);}else g=ql(c,b,a,e,d);return gl(g)}Ec=function(a){switch(a.tag){case 3:var b=a.stateNode;if(b.current.memoizedState.isDehydrated){var c=tc(b.pendingLanes);0!==c&&(Cc(b,c|1),Dk(b,B()),0===(K&6)&&(Gj=B()+500,jg()));}break;case 13:Rk(function(){var b=ih(a,1);if(null!==b){var c=R();gi(b,a,1,c);}}),il(a,1);}};
-	Fc=function(a){if(13===a.tag){var b=ih(a,134217728);if(null!==b){var c=R();gi(b,a,134217728,c);}il(a,134217728);}};Gc=function(a){if(13===a.tag){var b=yi(a),c=ih(a,b);if(null!==c){var d=R();gi(c,a,b,d);}il(a,b);}};Hc=function(){return C};Ic=function(a,b){var c=C;try{return C=a,b()}finally{C=c;}};
-	yb=function(a,b,c){switch(b){case "input":bb(a,c);b=c.name;if("radio"===c.type&&null!=b){for(c=a;c.parentNode;)c=c.parentNode;c=c.querySelectorAll("input[name="+JSON.stringify(""+b)+'][type="radio"]');for(b=0;b<c.length;b++){var d=c[b];if(d!==a&&d.form===a.form){var e=Db(d);if(!e)throw Error(p(90));Wa(d);bb(d,e);}}}break;case "textarea":ib(a,c);break;case "select":b=c.value,null!=b&&fb(a,!!c.multiple,b,false);}};Gb=Qk;Hb=Rk;
-	var sl={usingClientEntryPoint:false,Events:[Cb,ue,Db,Eb,Fb,Qk]},tl={findFiberByHostInstance:Wc,bundleType:0,version:"18.3.1",rendererPackageName:"react-dom"};
-	var ul={bundleType:tl.bundleType,version:tl.version,rendererPackageName:tl.rendererPackageName,rendererConfig:tl.rendererConfig,overrideHookState:null,overrideHookStateDeletePath:null,overrideHookStateRenamePath:null,overrideProps:null,overridePropsDeletePath:null,overridePropsRenamePath:null,setErrorHandler:null,setSuspenseHandler:null,scheduleUpdate:null,currentDispatcherRef:ua.ReactCurrentDispatcher,findHostInstanceByFiber:function(a){a=Zb(a);return null===a?null:a.stateNode},findFiberByHostInstance:tl.findFiberByHostInstance||
-	jl,findHostInstancesForRefresh:null,scheduleRefresh:null,scheduleRoot:null,setRefreshHandler:null,getCurrentFiber:null,reconcilerVersion:"18.3.1-next-f1338f8080-20240426"};if("undefined"!==typeof __REACT_DEVTOOLS_GLOBAL_HOOK__){var vl=__REACT_DEVTOOLS_GLOBAL_HOOK__;if(!vl.isDisabled&&vl.supportsFiber)try{kc=vl.inject(ul),lc=vl;}catch(a){}}reactDom_production_min.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED=sl;
-	reactDom_production_min.createPortal=function(a,b){var c=2<arguments.length&&void 0!==arguments[2]?arguments[2]:null;if(!nl(b))throw Error(p(200));return cl(a,b,null,c)};reactDom_production_min.createRoot=function(a,b){if(!nl(a))throw Error(p(299));var c=false,d="",e=kl;null!==b&&void 0!==b&&(true===b.unstable_strictMode&&(c=true),void 0!==b.identifierPrefix&&(d=b.identifierPrefix),void 0!==b.onRecoverableError&&(e=b.onRecoverableError));b=bl(a,1,false,null,null,c,false,d,e);a[uf]=b.current;sf(8===a.nodeType?a.parentNode:a);return new ll(b)};
-	reactDom_production_min.findDOMNode=function(a){if(null==a)return null;if(1===a.nodeType)return a;var b=a._reactInternals;if(void 0===b){if("function"===typeof a.render)throw Error(p(188));a=Object.keys(a).join(",");throw Error(p(268,a));}a=Zb(b);a=null===a?null:a.stateNode;return a};reactDom_production_min.flushSync=function(a){return Rk(a)};reactDom_production_min.hydrate=function(a,b,c){if(!ol(b))throw Error(p(200));return rl(null,a,b,true,c)};
-	reactDom_production_min.hydrateRoot=function(a,b,c){if(!nl(a))throw Error(p(405));var d=null!=c&&c.hydratedSources||null,e=false,f="",g=kl;null!==c&&void 0!==c&&(true===c.unstable_strictMode&&(e=true),void 0!==c.identifierPrefix&&(f=c.identifierPrefix),void 0!==c.onRecoverableError&&(g=c.onRecoverableError));b=el(b,null,a,1,null!=c?c:null,e,false,f,g);a[uf]=b.current;sf(a);if(d)for(a=0;a<d.length;a++)c=d[a],e=c._getVersion,e=e(c._source),null==b.mutableSourceEagerHydrationData?b.mutableSourceEagerHydrationData=[c,e]:b.mutableSourceEagerHydrationData.push(c,
-	e);return new ml(b)};reactDom_production_min.render=function(a,b,c){if(!ol(b))throw Error(p(200));return rl(null,a,b,false,c)};reactDom_production_min.unmountComponentAtNode=function(a){if(!ol(a))throw Error(p(40));return a._reactRootContainer?(Rk(function(){rl(null,null,a,!1,function(){a._reactRootContainer=null;a[uf]=null;});}),true):false};reactDom_production_min.unstable_batchedUpdates=Qk;
-	reactDom_production_min.unstable_renderSubtreeIntoContainer=function(a,b,c,d){if(!ol(c))throw Error(p(200));if(null==a||void 0===a._reactInternals)throw Error(p(38));return rl(a,b,c,false,d)};reactDom_production_min.version="18.3.1-next-f1338f8080-20240426";
+  var schedulerExports = scheduler.exports;
 
-	function checkDCE() {
-	  /* global __REACT_DEVTOOLS_GLOBAL_HOOK__ */
-	  if (
-	    typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ === 'undefined' ||
-	    typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.checkDCE !== 'function'
-	  ) {
-	    return;
-	  }
-	  try {
-	    // Verify that the code above has been dead code eliminated (DCE'd).
-	    __REACT_DEVTOOLS_GLOBAL_HOOK__.checkDCE(checkDCE);
-	  } catch (err) {
-	    // DevTools shouldn't crash React, no matter what.
-	    // We should still report in case we break this code.
-	    console.error(err);
-	  }
-	}
+  /**
+   * @license React
+   * react-dom.production.min.js
+   *
+   * Copyright (c) Facebook, Inc. and its affiliates.
+   *
+   * This source code is licensed under the MIT license found in the
+   * LICENSE file in the root directory of this source tree.
+   */
+  var aa=reactExports,ca=schedulerExports;function p(a){for(var b="https://reactjs.org/docs/error-decoder.html?invariant="+a,c=1;c<arguments.length;c++)b+="&args[]="+encodeURIComponent(arguments[c]);return "Minified React error #"+a+"; visit "+b+" for the full message or use the non-minified dev environment for full errors and additional helpful warnings."}var da=new Set,ea={};function fa(a,b){ha(a,b);ha(a+"Capture",b);}
+  function ha(a,b){ea[a]=b;for(a=0;a<b.length;a++)da.add(b[a]);}
+  var ia=!("undefined"===typeof window||"undefined"===typeof window.document||"undefined"===typeof window.document.createElement),ja=Object.prototype.hasOwnProperty,ka=/^[:A-Z_a-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD][:A-Z_a-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD\-.0-9\u00B7\u0300-\u036F\u203F-\u2040]*$/,la=
+  {},ma={};function oa(a){if(ja.call(ma,a))return  true;if(ja.call(la,a))return  false;if(ka.test(a))return ma[a]=true;la[a]=true;return  false}function pa(a,b,c,d){if(null!==c&&0===c.type)return  false;switch(typeof b){case "function":case "symbol":return  true;case "boolean":if(d)return  false;if(null!==c)return !c.acceptsBooleans;a=a.toLowerCase().slice(0,5);return "data-"!==a&&"aria-"!==a;default:return  false}}
+  function qa(a,b,c,d){if(null===b||"undefined"===typeof b||pa(a,b,c,d))return  true;if(d)return  false;if(null!==c)switch(c.type){case 3:return !b;case 4:return  false===b;case 5:return isNaN(b);case 6:return isNaN(b)||1>b}return  false}function v$1(a,b,c,d,e,f,g){this.acceptsBooleans=2===b||3===b||4===b;this.attributeName=d;this.attributeNamespace=e;this.mustUseProperty=c;this.propertyName=a;this.type=b;this.sanitizeURL=f;this.removeEmptyString=g;}var z={};
+  "children dangerouslySetInnerHTML defaultValue defaultChecked innerHTML suppressContentEditableWarning suppressHydrationWarning style".split(" ").forEach(function(a){z[a]=new v$1(a,0,false,a,null,false,false);});[["acceptCharset","accept-charset"],["className","class"],["htmlFor","for"],["httpEquiv","http-equiv"]].forEach(function(a){var b=a[0];z[b]=new v$1(b,1,false,a[1],null,false,false);});["contentEditable","draggable","spellCheck","value"].forEach(function(a){z[a]=new v$1(a,2,false,a.toLowerCase(),null,false,false);});
+  ["autoReverse","externalResourcesRequired","focusable","preserveAlpha"].forEach(function(a){z[a]=new v$1(a,2,false,a,null,false,false);});"allowFullScreen async autoFocus autoPlay controls default defer disabled disablePictureInPicture disableRemotePlayback formNoValidate hidden loop noModule noValidate open playsInline readOnly required reversed scoped seamless itemScope".split(" ").forEach(function(a){z[a]=new v$1(a,3,false,a.toLowerCase(),null,false,false);});
+  ["checked","multiple","muted","selected"].forEach(function(a){z[a]=new v$1(a,3,true,a,null,false,false);});["capture","download"].forEach(function(a){z[a]=new v$1(a,4,false,a,null,false,false);});["cols","rows","size","span"].forEach(function(a){z[a]=new v$1(a,6,false,a,null,false,false);});["rowSpan","start"].forEach(function(a){z[a]=new v$1(a,5,false,a.toLowerCase(),null,false,false);});var ra=/[\-:]([a-z])/g;function sa(a){return a[1].toUpperCase()}
+  "accent-height alignment-baseline arabic-form baseline-shift cap-height clip-path clip-rule color-interpolation color-interpolation-filters color-profile color-rendering dominant-baseline enable-background fill-opacity fill-rule flood-color flood-opacity font-family font-size font-size-adjust font-stretch font-style font-variant font-weight glyph-name glyph-orientation-horizontal glyph-orientation-vertical horiz-adv-x horiz-origin-x image-rendering letter-spacing lighting-color marker-end marker-mid marker-start overline-position overline-thickness paint-order panose-1 pointer-events rendering-intent shape-rendering stop-color stop-opacity strikethrough-position strikethrough-thickness stroke-dasharray stroke-dashoffset stroke-linecap stroke-linejoin stroke-miterlimit stroke-opacity stroke-width text-anchor text-decoration text-rendering underline-position underline-thickness unicode-bidi unicode-range units-per-em v-alphabetic v-hanging v-ideographic v-mathematical vector-effect vert-adv-y vert-origin-x vert-origin-y word-spacing writing-mode xmlns:xlink x-height".split(" ").forEach(function(a){var b=a.replace(ra,
+  sa);z[b]=new v$1(b,1,false,a,null,false,false);});"xlink:actuate xlink:arcrole xlink:role xlink:show xlink:title xlink:type".split(" ").forEach(function(a){var b=a.replace(ra,sa);z[b]=new v$1(b,1,false,a,"http://www.w3.org/1999/xlink",false,false);});["xml:base","xml:lang","xml:space"].forEach(function(a){var b=a.replace(ra,sa);z[b]=new v$1(b,1,false,a,"http://www.w3.org/XML/1998/namespace",false,false);});["tabIndex","crossOrigin"].forEach(function(a){z[a]=new v$1(a,1,false,a.toLowerCase(),null,false,false);});
+  z.xlinkHref=new v$1("xlinkHref",1,false,"xlink:href","http://www.w3.org/1999/xlink",true,false);["src","href","action","formAction"].forEach(function(a){z[a]=new v$1(a,1,false,a.toLowerCase(),null,true,true);});
+  function ta(a,b,c,d){var e=z.hasOwnProperty(b)?z[b]:null;if(null!==e?0!==e.type:d||!(2<b.length)||"o"!==b[0]&&"O"!==b[0]||"n"!==b[1]&&"N"!==b[1])qa(b,c,e,d)&&(c=null),d||null===e?oa(b)&&(null===c?a.removeAttribute(b):a.setAttribute(b,""+c)):e.mustUseProperty?a[e.propertyName]=null===c?3===e.type?false:"":c:(b=e.attributeName,d=e.attributeNamespace,null===c?a.removeAttribute(b):(e=e.type,c=3===e||4===e&&true===c?"":""+c,d?a.setAttributeNS(d,b,c):a.setAttribute(b,c)));}
+  var ua=aa.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED,va=Symbol.for("react.element"),wa=Symbol.for("react.portal"),ya=Symbol.for("react.fragment"),za=Symbol.for("react.strict_mode"),Aa=Symbol.for("react.profiler"),Ba=Symbol.for("react.provider"),Ca=Symbol.for("react.context"),Da=Symbol.for("react.forward_ref"),Ea=Symbol.for("react.suspense"),Fa=Symbol.for("react.suspense_list"),Ga=Symbol.for("react.memo"),Ha=Symbol.for("react.lazy");var Ia=Symbol.for("react.offscreen");var Ja=Symbol.iterator;function Ka(a){if(null===a||"object"!==typeof a)return null;a=Ja&&a[Ja]||a["@@iterator"];return "function"===typeof a?a:null}var A=Object.assign,La;function Ma(a){if(void 0===La)try{throw Error();}catch(c){var b=c.stack.trim().match(/\n( *(at )?)/);La=b&&b[1]||"";}return "\n"+La+a}var Na=false;
+  function Oa(a,b){if(!a||Na)return "";Na=true;var c=Error.prepareStackTrace;Error.prepareStackTrace=void 0;try{if(b)if(b=function(){throw Error();},Object.defineProperty(b.prototype,"props",{set:function(){throw Error();}}),"object"===typeof Reflect&&Reflect.construct){try{Reflect.construct(b,[]);}catch(l){var d=l;}Reflect.construct(a,[],b);}else {try{b.call();}catch(l){d=l;}a.call(b.prototype);}else {try{throw Error();}catch(l){d=l;}a();}}catch(l){if(l&&d&&"string"===typeof l.stack){for(var e=l.stack.split("\n"),
+  f=d.stack.split("\n"),g=e.length-1,h=f.length-1;1<=g&&0<=h&&e[g]!==f[h];)h--;for(;1<=g&&0<=h;g--,h--)if(e[g]!==f[h]){if(1!==g||1!==h){do if(g--,h--,0>h||e[g]!==f[h]){var k="\n"+e[g].replace(" at new "," at ");a.displayName&&k.includes("<anonymous>")&&(k=k.replace("<anonymous>",a.displayName));return k}while(1<=g&&0<=h)}break}}}finally{Na=false,Error.prepareStackTrace=c;}return (a=a?a.displayName||a.name:"")?Ma(a):""}
+  function Pa(a){switch(a.tag){case 5:return Ma(a.type);case 16:return Ma("Lazy");case 13:return Ma("Suspense");case 19:return Ma("SuspenseList");case 0:case 2:case 15:return a=Oa(a.type,false),a;case 11:return a=Oa(a.type.render,false),a;case 1:return a=Oa(a.type,true),a;default:return ""}}
+  function Qa(a){if(null==a)return null;if("function"===typeof a)return a.displayName||a.name||null;if("string"===typeof a)return a;switch(a){case ya:return "Fragment";case wa:return "Portal";case Aa:return "Profiler";case za:return "StrictMode";case Ea:return "Suspense";case Fa:return "SuspenseList"}if("object"===typeof a)switch(a.$$typeof){case Ca:return (a.displayName||"Context")+".Consumer";case Ba:return (a._context.displayName||"Context")+".Provider";case Da:var b=a.render;a=a.displayName;a||(a=b.displayName||
+  b.name||"",a=""!==a?"ForwardRef("+a+")":"ForwardRef");return a;case Ga:return b=a.displayName||null,null!==b?b:Qa(a.type)||"Memo";case Ha:b=a._payload;a=a._init;try{return Qa(a(b))}catch(c){}}return null}
+  function Ra(a){var b=a.type;switch(a.tag){case 24:return "Cache";case 9:return (b.displayName||"Context")+".Consumer";case 10:return (b._context.displayName||"Context")+".Provider";case 18:return "DehydratedFragment";case 11:return a=b.render,a=a.displayName||a.name||"",b.displayName||(""!==a?"ForwardRef("+a+")":"ForwardRef");case 7:return "Fragment";case 5:return b;case 4:return "Portal";case 3:return "Root";case 6:return "Text";case 16:return Qa(b);case 8:return b===za?"StrictMode":"Mode";case 22:return "Offscreen";
+  case 12:return "Profiler";case 21:return "Scope";case 13:return "Suspense";case 19:return "SuspenseList";case 25:return "TracingMarker";case 1:case 0:case 17:case 2:case 14:case 15:if("function"===typeof b)return b.displayName||b.name||null;if("string"===typeof b)return b}return null}function Sa(a){switch(typeof a){case "boolean":case "number":case "string":case "undefined":return a;case "object":return a;default:return ""}}
+  function Ta(a){var b=a.type;return (a=a.nodeName)&&"input"===a.toLowerCase()&&("checkbox"===b||"radio"===b)}
+  function Ua(a){var b=Ta(a)?"checked":"value",c=Object.getOwnPropertyDescriptor(a.constructor.prototype,b),d=""+a[b];if(!a.hasOwnProperty(b)&&"undefined"!==typeof c&&"function"===typeof c.get&&"function"===typeof c.set){var e=c.get,f=c.set;Object.defineProperty(a,b,{configurable:true,get:function(){return e.call(this)},set:function(a){d=""+a;f.call(this,a);}});Object.defineProperty(a,b,{enumerable:c.enumerable});return {getValue:function(){return d},setValue:function(a){d=""+a;},stopTracking:function(){a._valueTracker=
+  null;delete a[b];}}}}function Va(a){a._valueTracker||(a._valueTracker=Ua(a));}function Wa(a){if(!a)return  false;var b=a._valueTracker;if(!b)return  true;var c=b.getValue();var d="";a&&(d=Ta(a)?a.checked?"true":"false":a.value);a=d;return a!==c?(b.setValue(a),true):false}function Xa(a){a=a||("undefined"!==typeof document?document:void 0);if("undefined"===typeof a)return null;try{return a.activeElement||a.body}catch(b){return a.body}}
+  function Ya(a,b){var c=b.checked;return A({},b,{defaultChecked:void 0,defaultValue:void 0,value:void 0,checked:null!=c?c:a._wrapperState.initialChecked})}function Za(a,b){var c=null==b.defaultValue?"":b.defaultValue,d=null!=b.checked?b.checked:b.defaultChecked;c=Sa(null!=b.value?b.value:c);a._wrapperState={initialChecked:d,initialValue:c,controlled:"checkbox"===b.type||"radio"===b.type?null!=b.checked:null!=b.value};}function ab(a,b){b=b.checked;null!=b&&ta(a,"checked",b,false);}
+  function bb(a,b){ab(a,b);var c=Sa(b.value),d=b.type;if(null!=c)if("number"===d){if(0===c&&""===a.value||a.value!=c)a.value=""+c;}else a.value!==""+c&&(a.value=""+c);else if("submit"===d||"reset"===d){a.removeAttribute("value");return}b.hasOwnProperty("value")?cb(a,b.type,c):b.hasOwnProperty("defaultValue")&&cb(a,b.type,Sa(b.defaultValue));null==b.checked&&null!=b.defaultChecked&&(a.defaultChecked=!!b.defaultChecked);}
+  function db(a,b,c){if(b.hasOwnProperty("value")||b.hasOwnProperty("defaultValue")){var d=b.type;if(!("submit"!==d&&"reset"!==d||void 0!==b.value&&null!==b.value))return;b=""+a._wrapperState.initialValue;c||b===a.value||(a.value=b);a.defaultValue=b;}c=a.name;""!==c&&(a.name="");a.defaultChecked=!!a._wrapperState.initialChecked;""!==c&&(a.name=c);}
+  function cb(a,b,c){if("number"!==b||Xa(a.ownerDocument)!==a)null==c?a.defaultValue=""+a._wrapperState.initialValue:a.defaultValue!==""+c&&(a.defaultValue=""+c);}var eb=Array.isArray;
+  function fb(a,b,c,d){a=a.options;if(b){b={};for(var e=0;e<c.length;e++)b["$"+c[e]]=true;for(c=0;c<a.length;c++)e=b.hasOwnProperty("$"+a[c].value),a[c].selected!==e&&(a[c].selected=e),e&&d&&(a[c].defaultSelected=true);}else {c=""+Sa(c);b=null;for(e=0;e<a.length;e++){if(a[e].value===c){a[e].selected=true;d&&(a[e].defaultSelected=true);return}null!==b||a[e].disabled||(b=a[e]);}null!==b&&(b.selected=true);}}
+  function gb(a,b){if(null!=b.dangerouslySetInnerHTML)throw Error(p(91));return A({},b,{value:void 0,defaultValue:void 0,children:""+a._wrapperState.initialValue})}function hb(a,b){var c=b.value;if(null==c){c=b.children;b=b.defaultValue;if(null!=c){if(null!=b)throw Error(p(92));if(eb(c)){if(1<c.length)throw Error(p(93));c=c[0];}b=c;}null==b&&(b="");c=b;}a._wrapperState={initialValue:Sa(c)};}
+  function ib(a,b){var c=Sa(b.value),d=Sa(b.defaultValue);null!=c&&(c=""+c,c!==a.value&&(a.value=c),null==b.defaultValue&&a.defaultValue!==c&&(a.defaultValue=c));null!=d&&(a.defaultValue=""+d);}function jb(a){var b=a.textContent;b===a._wrapperState.initialValue&&""!==b&&null!==b&&(a.value=b);}function kb(a){switch(a){case "svg":return "http://www.w3.org/2000/svg";case "math":return "http://www.w3.org/1998/Math/MathML";default:return "http://www.w3.org/1999/xhtml"}}
+  function lb(a,b){return null==a||"http://www.w3.org/1999/xhtml"===a?kb(b):"http://www.w3.org/2000/svg"===a&&"foreignObject"===b?"http://www.w3.org/1999/xhtml":a}
+  var mb,nb=function(a){return "undefined"!==typeof MSApp&&MSApp.execUnsafeLocalFunction?function(b,c,d,e){MSApp.execUnsafeLocalFunction(function(){return a(b,c,d,e)});}:a}(function(a,b){if("http://www.w3.org/2000/svg"!==a.namespaceURI||"innerHTML"in a)a.innerHTML=b;else {mb=mb||document.createElement("div");mb.innerHTML="<svg>"+b.valueOf().toString()+"</svg>";for(b=mb.firstChild;a.firstChild;)a.removeChild(a.firstChild);for(;b.firstChild;)a.appendChild(b.firstChild);}});
+  function ob(a,b){if(b){var c=a.firstChild;if(c&&c===a.lastChild&&3===c.nodeType){c.nodeValue=b;return}}a.textContent=b;}
+  var pb={animationIterationCount:true,aspectRatio:true,borderImageOutset:true,borderImageSlice:true,borderImageWidth:true,boxFlex:true,boxFlexGroup:true,boxOrdinalGroup:true,columnCount:true,columns:true,flex:true,flexGrow:true,flexPositive:true,flexShrink:true,flexNegative:true,flexOrder:true,gridArea:true,gridRow:true,gridRowEnd:true,gridRowSpan:true,gridRowStart:true,gridColumn:true,gridColumnEnd:true,gridColumnSpan:true,gridColumnStart:true,fontWeight:true,lineClamp:true,lineHeight:true,opacity:true,order:true,orphans:true,tabSize:true,widows:true,zIndex:true,
+  zoom:true,fillOpacity:true,floodOpacity:true,stopOpacity:true,strokeDasharray:true,strokeDashoffset:true,strokeMiterlimit:true,strokeOpacity:true,strokeWidth:true},qb=["Webkit","ms","Moz","O"];Object.keys(pb).forEach(function(a){qb.forEach(function(b){b=b+a.charAt(0).toUpperCase()+a.substring(1);pb[b]=pb[a];});});function rb(a,b,c){return null==b||"boolean"===typeof b||""===b?"":c||"number"!==typeof b||0===b||pb.hasOwnProperty(a)&&pb[a]?(""+b).trim():b+"px"}
+  function sb(a,b){a=a.style;for(var c in b)if(b.hasOwnProperty(c)){var d=0===c.indexOf("--"),e=rb(c,b[c],d);"float"===c&&(c="cssFloat");d?a.setProperty(c,e):a[c]=e;}}var tb=A({menuitem:true},{area:true,base:true,br:true,col:true,embed:true,hr:true,img:true,input:true,keygen:true,link:true,meta:true,param:true,source:true,track:true,wbr:true});
+  function ub(a,b){if(b){if(tb[a]&&(null!=b.children||null!=b.dangerouslySetInnerHTML))throw Error(p(137,a));if(null!=b.dangerouslySetInnerHTML){if(null!=b.children)throw Error(p(60));if("object"!==typeof b.dangerouslySetInnerHTML||!("__html"in b.dangerouslySetInnerHTML))throw Error(p(61));}if(null!=b.style&&"object"!==typeof b.style)throw Error(p(62));}}
+  function vb(a,b){if(-1===a.indexOf("-"))return "string"===typeof b.is;switch(a){case "annotation-xml":case "color-profile":case "font-face":case "font-face-src":case "font-face-uri":case "font-face-format":case "font-face-name":case "missing-glyph":return  false;default:return  true}}var wb=null;function xb(a){a=a.target||a.srcElement||window;a.correspondingUseElement&&(a=a.correspondingUseElement);return 3===a.nodeType?a.parentNode:a}var yb=null,zb=null,Ab=null;
+  function Bb(a){if(a=Cb(a)){if("function"!==typeof yb)throw Error(p(280));var b=a.stateNode;b&&(b=Db(b),yb(a.stateNode,a.type,b));}}function Eb(a){zb?Ab?Ab.push(a):Ab=[a]:zb=a;}function Fb(){if(zb){var a=zb,b=Ab;Ab=zb=null;Bb(a);if(b)for(a=0;a<b.length;a++)Bb(b[a]);}}function Gb(a,b){return a(b)}function Hb(){}var Ib=false;function Jb(a,b,c){if(Ib)return a(b,c);Ib=true;try{return Gb(a,b,c)}finally{if(Ib=false,null!==zb||null!==Ab)Hb(),Fb();}}
+  function Kb(a,b){var c=a.stateNode;if(null===c)return null;var d=Db(c);if(null===d)return null;c=d[b];a:switch(b){case "onClick":case "onClickCapture":case "onDoubleClick":case "onDoubleClickCapture":case "onMouseDown":case "onMouseDownCapture":case "onMouseMove":case "onMouseMoveCapture":case "onMouseUp":case "onMouseUpCapture":case "onMouseEnter":(d=!d.disabled)||(a=a.type,d=!("button"===a||"input"===a||"select"===a||"textarea"===a));a=!d;break a;default:a=false;}if(a)return null;if(c&&"function"!==
+  typeof c)throw Error(p(231,b,typeof c));return c}var Lb=false;if(ia)try{var Mb={};Object.defineProperty(Mb,"passive",{get:function(){Lb=!0;}});window.addEventListener("test",Mb,Mb);window.removeEventListener("test",Mb,Mb);}catch(a){Lb=false;}function Nb(a,b,c,d,e,f,g,h,k){var l=Array.prototype.slice.call(arguments,3);try{b.apply(c,l);}catch(m){this.onError(m);}}var Ob=false,Pb=null,Qb=false,Rb=null,Sb={onError:function(a){Ob=true;Pb=a;}};function Tb(a,b,c,d,e,f,g,h,k){Ob=false;Pb=null;Nb.apply(Sb,arguments);}
+  function Ub(a,b,c,d,e,f,g,h,k){Tb.apply(this,arguments);if(Ob){if(Ob){var l=Pb;Ob=false;Pb=null;}else throw Error(p(198));Qb||(Qb=true,Rb=l);}}function Vb(a){var b=a,c=a;if(a.alternate)for(;b.return;)b=b.return;else {a=b;do b=a,0!==(b.flags&4098)&&(c=b.return),a=b.return;while(a)}return 3===b.tag?c:null}function Wb(a){if(13===a.tag){var b=a.memoizedState;null===b&&(a=a.alternate,null!==a&&(b=a.memoizedState));if(null!==b)return b.dehydrated}return null}function Xb(a){if(Vb(a)!==a)throw Error(p(188));}
+  function Yb(a){var b=a.alternate;if(!b){b=Vb(a);if(null===b)throw Error(p(188));return b!==a?null:a}for(var c=a,d=b;;){var e=c.return;if(null===e)break;var f=e.alternate;if(null===f){d=e.return;if(null!==d){c=d;continue}break}if(e.child===f.child){for(f=e.child;f;){if(f===c)return Xb(e),a;if(f===d)return Xb(e),b;f=f.sibling;}throw Error(p(188));}if(c.return!==d.return)c=e,d=f;else {for(var g=false,h=e.child;h;){if(h===c){g=true;c=e;d=f;break}if(h===d){g=true;d=e;c=f;break}h=h.sibling;}if(!g){for(h=f.child;h;){if(h===
+  c){g=true;c=f;d=e;break}if(h===d){g=true;d=f;c=e;break}h=h.sibling;}if(!g)throw Error(p(189));}}if(c.alternate!==d)throw Error(p(190));}if(3!==c.tag)throw Error(p(188));return c.stateNode.current===c?a:b}function Zb(a){a=Yb(a);return null!==a?$b(a):null}function $b(a){if(5===a.tag||6===a.tag)return a;for(a=a.child;null!==a;){var b=$b(a);if(null!==b)return b;a=a.sibling;}return null}
+  var ac=ca.unstable_scheduleCallback,bc=ca.unstable_cancelCallback,cc=ca.unstable_shouldYield,dc=ca.unstable_requestPaint,B=ca.unstable_now,ec=ca.unstable_getCurrentPriorityLevel,fc=ca.unstable_ImmediatePriority,gc=ca.unstable_UserBlockingPriority,hc=ca.unstable_NormalPriority,ic=ca.unstable_LowPriority,jc=ca.unstable_IdlePriority,kc=null,lc=null;function mc(a){if(lc&&"function"===typeof lc.onCommitFiberRoot)try{lc.onCommitFiberRoot(kc,a,void 0,128===(a.current.flags&128));}catch(b){}}
+  var oc=Math.clz32?Math.clz32:nc,pc=Math.log,qc=Math.LN2;function nc(a){a>>>=0;return 0===a?32:31-(pc(a)/qc|0)|0}var rc=64,sc=4194304;
+  function tc(a){switch(a&-a){case 1:return 1;case 2:return 2;case 4:return 4;case 8:return 8;case 16:return 16;case 32:return 32;case 64:case 128:case 256:case 512:case 1024:case 2048:case 4096:case 8192:case 16384:case 32768:case 65536:case 131072:case 262144:case 524288:case 1048576:case 2097152:return a&4194240;case 4194304:case 8388608:case 16777216:case 33554432:case 67108864:return a&130023424;case 134217728:return 134217728;case 268435456:return 268435456;case 536870912:return 536870912;case 1073741824:return 1073741824;
+  default:return a}}function uc(a,b){var c=a.pendingLanes;if(0===c)return 0;var d=0,e=a.suspendedLanes,f=a.pingedLanes,g=c&268435455;if(0!==g){var h=g&~e;0!==h?d=tc(h):(f&=g,0!==f&&(d=tc(f)));}else g=c&~e,0!==g?d=tc(g):0!==f&&(d=tc(f));if(0===d)return 0;if(0!==b&&b!==d&&0===(b&e)&&(e=d&-d,f=b&-b,e>=f||16===e&&0!==(f&4194240)))return b;0!==(d&4)&&(d|=c&16);b=a.entangledLanes;if(0!==b)for(a=a.entanglements,b&=d;0<b;)c=31-oc(b),e=1<<c,d|=a[c],b&=~e;return d}
+  function vc(a,b){switch(a){case 1:case 2:case 4:return b+250;case 8:case 16:case 32:case 64:case 128:case 256:case 512:case 1024:case 2048:case 4096:case 8192:case 16384:case 32768:case 65536:case 131072:case 262144:case 524288:case 1048576:case 2097152:return b+5E3;case 4194304:case 8388608:case 16777216:case 33554432:case 67108864:return  -1;case 134217728:case 268435456:case 536870912:case 1073741824:return  -1;default:return  -1}}
+  function wc(a,b){for(var c=a.suspendedLanes,d=a.pingedLanes,e=a.expirationTimes,f=a.pendingLanes;0<f;){var g=31-oc(f),h=1<<g,k=e[g];if(-1===k){if(0===(h&c)||0!==(h&d))e[g]=vc(h,b);}else k<=b&&(a.expiredLanes|=h);f&=~h;}}function xc(a){a=a.pendingLanes&-1073741825;return 0!==a?a:a&1073741824?1073741824:0}function yc(){var a=rc;rc<<=1;0===(rc&4194240)&&(rc=64);return a}function zc(a){for(var b=[],c=0;31>c;c++)b.push(a);return b}
+  function Ac(a,b,c){a.pendingLanes|=b;536870912!==b&&(a.suspendedLanes=0,a.pingedLanes=0);a=a.eventTimes;b=31-oc(b);a[b]=c;}function Bc(a,b){var c=a.pendingLanes&~b;a.pendingLanes=b;a.suspendedLanes=0;a.pingedLanes=0;a.expiredLanes&=b;a.mutableReadLanes&=b;a.entangledLanes&=b;b=a.entanglements;var d=a.eventTimes;for(a=a.expirationTimes;0<c;){var e=31-oc(c),f=1<<e;b[e]=0;d[e]=-1;a[e]=-1;c&=~f;}}
+  function Cc(a,b){var c=a.entangledLanes|=b;for(a=a.entanglements;c;){var d=31-oc(c),e=1<<d;e&b|a[d]&b&&(a[d]|=b);c&=~e;}}var C=0;function Dc(a){a&=-a;return 1<a?4<a?0!==(a&268435455)?16:536870912:4:1}var Ec,Fc,Gc,Hc,Ic,Jc=false,Kc=[],Lc=null,Mc=null,Nc=null,Oc=new Map,Pc=new Map,Qc=[],Rc="mousedown mouseup touchcancel touchend touchstart auxclick dblclick pointercancel pointerdown pointerup dragend dragstart drop compositionend compositionstart keydown keypress keyup input textInput copy cut paste click change contextmenu reset submit".split(" ");
+  function Sc(a,b){switch(a){case "focusin":case "focusout":Lc=null;break;case "dragenter":case "dragleave":Mc=null;break;case "mouseover":case "mouseout":Nc=null;break;case "pointerover":case "pointerout":Oc.delete(b.pointerId);break;case "gotpointercapture":case "lostpointercapture":Pc.delete(b.pointerId);}}
+  function Tc(a,b,c,d,e,f){if(null===a||a.nativeEvent!==f)return a={blockedOn:b,domEventName:c,eventSystemFlags:d,nativeEvent:f,targetContainers:[e]},null!==b&&(b=Cb(b),null!==b&&Fc(b)),a;a.eventSystemFlags|=d;b=a.targetContainers;null!==e&&-1===b.indexOf(e)&&b.push(e);return a}
+  function Uc(a,b,c,d,e){switch(b){case "focusin":return Lc=Tc(Lc,a,b,c,d,e),true;case "dragenter":return Mc=Tc(Mc,a,b,c,d,e),true;case "mouseover":return Nc=Tc(Nc,a,b,c,d,e),true;case "pointerover":var f=e.pointerId;Oc.set(f,Tc(Oc.get(f)||null,a,b,c,d,e));return  true;case "gotpointercapture":return f=e.pointerId,Pc.set(f,Tc(Pc.get(f)||null,a,b,c,d,e)),true}return  false}
+  function Vc(a){var b=Wc(a.target);if(null!==b){var c=Vb(b);if(null!==c)if(b=c.tag,13===b){if(b=Wb(c),null!==b){a.blockedOn=b;Ic(a.priority,function(){Gc(c);});return}}else if(3===b&&c.stateNode.current.memoizedState.isDehydrated){a.blockedOn=3===c.tag?c.stateNode.containerInfo:null;return}}a.blockedOn=null;}
+  function Xc(a){if(null!==a.blockedOn)return  false;for(var b=a.targetContainers;0<b.length;){var c=Yc(a.domEventName,a.eventSystemFlags,b[0],a.nativeEvent);if(null===c){c=a.nativeEvent;var d=new c.constructor(c.type,c);wb=d;c.target.dispatchEvent(d);wb=null;}else return b=Cb(c),null!==b&&Fc(b),a.blockedOn=c,false;b.shift();}return  true}function Zc(a,b,c){Xc(a)&&c.delete(b);}function $c(){Jc=false;null!==Lc&&Xc(Lc)&&(Lc=null);null!==Mc&&Xc(Mc)&&(Mc=null);null!==Nc&&Xc(Nc)&&(Nc=null);Oc.forEach(Zc);Pc.forEach(Zc);}
+  function ad(a,b){a.blockedOn===b&&(a.blockedOn=null,Jc||(Jc=true,ca.unstable_scheduleCallback(ca.unstable_NormalPriority,$c)));}
+  function bd(a){function b(b){return ad(b,a)}if(0<Kc.length){ad(Kc[0],a);for(var c=1;c<Kc.length;c++){var d=Kc[c];d.blockedOn===a&&(d.blockedOn=null);}}null!==Lc&&ad(Lc,a);null!==Mc&&ad(Mc,a);null!==Nc&&ad(Nc,a);Oc.forEach(b);Pc.forEach(b);for(c=0;c<Qc.length;c++)d=Qc[c],d.blockedOn===a&&(d.blockedOn=null);for(;0<Qc.length&&(c=Qc[0],null===c.blockedOn);)Vc(c),null===c.blockedOn&&Qc.shift();}var cd=ua.ReactCurrentBatchConfig,dd=true;
+  function ed(a,b,c,d){var e=C,f=cd.transition;cd.transition=null;try{C=1,fd(a,b,c,d);}finally{C=e,cd.transition=f;}}function gd(a,b,c,d){var e=C,f=cd.transition;cd.transition=null;try{C=4,fd(a,b,c,d);}finally{C=e,cd.transition=f;}}
+  function fd(a,b,c,d){if(dd){var e=Yc(a,b,c,d);if(null===e)hd(a,b,d,id,c),Sc(a,d);else if(Uc(e,a,b,c,d))d.stopPropagation();else if(Sc(a,d),b&4&&-1<Rc.indexOf(a)){for(;null!==e;){var f=Cb(e);null!==f&&Ec(f);f=Yc(a,b,c,d);null===f&&hd(a,b,d,id,c);if(f===e)break;e=f;}null!==e&&d.stopPropagation();}else hd(a,b,d,null,c);}}var id=null;
+  function Yc(a,b,c,d){id=null;a=xb(d);a=Wc(a);if(null!==a)if(b=Vb(a),null===b)a=null;else if(c=b.tag,13===c){a=Wb(b);if(null!==a)return a;a=null;}else if(3===c){if(b.stateNode.current.memoizedState.isDehydrated)return 3===b.tag?b.stateNode.containerInfo:null;a=null;}else b!==a&&(a=null);id=a;return null}
+  function jd(a){switch(a){case "cancel":case "click":case "close":case "contextmenu":case "copy":case "cut":case "auxclick":case "dblclick":case "dragend":case "dragstart":case "drop":case "focusin":case "focusout":case "input":case "invalid":case "keydown":case "keypress":case "keyup":case "mousedown":case "mouseup":case "paste":case "pause":case "play":case "pointercancel":case "pointerdown":case "pointerup":case "ratechange":case "reset":case "resize":case "seeked":case "submit":case "touchcancel":case "touchend":case "touchstart":case "volumechange":case "change":case "selectionchange":case "textInput":case "compositionstart":case "compositionend":case "compositionupdate":case "beforeblur":case "afterblur":case "beforeinput":case "blur":case "fullscreenchange":case "focus":case "hashchange":case "popstate":case "select":case "selectstart":return 1;case "drag":case "dragenter":case "dragexit":case "dragleave":case "dragover":case "mousemove":case "mouseout":case "mouseover":case "pointermove":case "pointerout":case "pointerover":case "scroll":case "toggle":case "touchmove":case "wheel":case "mouseenter":case "mouseleave":case "pointerenter":case "pointerleave":return 4;
+  case "message":switch(ec()){case fc:return 1;case gc:return 4;case hc:case ic:return 16;case jc:return 536870912;default:return 16}default:return 16}}var kd=null,ld=null,md=null;function nd(){if(md)return md;var a,b=ld,c=b.length,d,e="value"in kd?kd.value:kd.textContent,f=e.length;for(a=0;a<c&&b[a]===e[a];a++);var g=c-a;for(d=1;d<=g&&b[c-d]===e[f-d];d++);return md=e.slice(a,1<d?1-d:void 0)}
+  function od(a){var b=a.keyCode;"charCode"in a?(a=a.charCode,0===a&&13===b&&(a=13)):a=b;10===a&&(a=13);return 32<=a||13===a?a:0}function pd(){return  true}function qd(){return  false}
+  function rd(a){function b(b,d,e,f,g){this._reactName=b;this._targetInst=e;this.type=d;this.nativeEvent=f;this.target=g;this.currentTarget=null;for(var c in a)a.hasOwnProperty(c)&&(b=a[c],this[c]=b?b(f):f[c]);this.isDefaultPrevented=(null!=f.defaultPrevented?f.defaultPrevented:false===f.returnValue)?pd:qd;this.isPropagationStopped=qd;return this}A(b.prototype,{preventDefault:function(){this.defaultPrevented=true;var a=this.nativeEvent;a&&(a.preventDefault?a.preventDefault():"unknown"!==typeof a.returnValue&&
+  (a.returnValue=false),this.isDefaultPrevented=pd);},stopPropagation:function(){var a=this.nativeEvent;a&&(a.stopPropagation?a.stopPropagation():"unknown"!==typeof a.cancelBubble&&(a.cancelBubble=true),this.isPropagationStopped=pd);},persist:function(){},isPersistent:pd});return b}
+  var sd={eventPhase:0,bubbles:0,cancelable:0,timeStamp:function(a){return a.timeStamp||Date.now()},defaultPrevented:0,isTrusted:0},td=rd(sd),ud=A({},sd,{view:0,detail:0}),vd=rd(ud),wd,xd,yd,Ad=A({},ud,{screenX:0,screenY:0,clientX:0,clientY:0,pageX:0,pageY:0,ctrlKey:0,shiftKey:0,altKey:0,metaKey:0,getModifierState:zd,button:0,buttons:0,relatedTarget:function(a){return void 0===a.relatedTarget?a.fromElement===a.srcElement?a.toElement:a.fromElement:a.relatedTarget},movementX:function(a){if("movementX"in
+  a)return a.movementX;a!==yd&&(yd&&"mousemove"===a.type?(wd=a.screenX-yd.screenX,xd=a.screenY-yd.screenY):xd=wd=0,yd=a);return wd},movementY:function(a){return "movementY"in a?a.movementY:xd}}),Bd=rd(Ad),Cd=A({},Ad,{dataTransfer:0}),Dd=rd(Cd),Ed=A({},ud,{relatedTarget:0}),Fd=rd(Ed),Gd=A({},sd,{animationName:0,elapsedTime:0,pseudoElement:0}),Hd=rd(Gd),Id=A({},sd,{clipboardData:function(a){return "clipboardData"in a?a.clipboardData:window.clipboardData}}),Jd=rd(Id),Kd=A({},sd,{data:0}),Ld=rd(Kd),Md={Esc:"Escape",
+  Spacebar:" ",Left:"ArrowLeft",Up:"ArrowUp",Right:"ArrowRight",Down:"ArrowDown",Del:"Delete",Win:"OS",Menu:"ContextMenu",Apps:"ContextMenu",Scroll:"ScrollLock",MozPrintableKey:"Unidentified"},Nd={8:"Backspace",9:"Tab",12:"Clear",13:"Enter",16:"Shift",17:"Control",18:"Alt",19:"Pause",20:"CapsLock",27:"Escape",32:" ",33:"PageUp",34:"PageDown",35:"End",36:"Home",37:"ArrowLeft",38:"ArrowUp",39:"ArrowRight",40:"ArrowDown",45:"Insert",46:"Delete",112:"F1",113:"F2",114:"F3",115:"F4",116:"F5",117:"F6",118:"F7",
+  119:"F8",120:"F9",121:"F10",122:"F11",123:"F12",144:"NumLock",145:"ScrollLock",224:"Meta"},Od={Alt:"altKey",Control:"ctrlKey",Meta:"metaKey",Shift:"shiftKey"};function Pd(a){var b=this.nativeEvent;return b.getModifierState?b.getModifierState(a):(a=Od[a])?!!b[a]:false}function zd(){return Pd}
+  var Qd=A({},ud,{key:function(a){if(a.key){var b=Md[a.key]||a.key;if("Unidentified"!==b)return b}return "keypress"===a.type?(a=od(a),13===a?"Enter":String.fromCharCode(a)):"keydown"===a.type||"keyup"===a.type?Nd[a.keyCode]||"Unidentified":""},code:0,location:0,ctrlKey:0,shiftKey:0,altKey:0,metaKey:0,repeat:0,locale:0,getModifierState:zd,charCode:function(a){return "keypress"===a.type?od(a):0},keyCode:function(a){return "keydown"===a.type||"keyup"===a.type?a.keyCode:0},which:function(a){return "keypress"===
+  a.type?od(a):"keydown"===a.type||"keyup"===a.type?a.keyCode:0}}),Rd=rd(Qd),Sd=A({},Ad,{pointerId:0,width:0,height:0,pressure:0,tangentialPressure:0,tiltX:0,tiltY:0,twist:0,pointerType:0,isPrimary:0}),Td=rd(Sd),Ud=A({},ud,{touches:0,targetTouches:0,changedTouches:0,altKey:0,metaKey:0,ctrlKey:0,shiftKey:0,getModifierState:zd}),Vd=rd(Ud),Wd=A({},sd,{propertyName:0,elapsedTime:0,pseudoElement:0}),Xd=rd(Wd),Yd=A({},Ad,{deltaX:function(a){return "deltaX"in a?a.deltaX:"wheelDeltaX"in a?-a.wheelDeltaX:0},
+  deltaY:function(a){return "deltaY"in a?a.deltaY:"wheelDeltaY"in a?-a.wheelDeltaY:"wheelDelta"in a?-a.wheelDelta:0},deltaZ:0,deltaMode:0}),Zd=rd(Yd),$d=[9,13,27,32],ae=ia&&"CompositionEvent"in window,be=null;ia&&"documentMode"in document&&(be=document.documentMode);var ce=ia&&"TextEvent"in window&&!be,de=ia&&(!ae||be&&8<be&&11>=be),ee=String.fromCharCode(32),fe=false;
+  function ge(a,b){switch(a){case "keyup":return  -1!==$d.indexOf(b.keyCode);case "keydown":return 229!==b.keyCode;case "keypress":case "mousedown":case "focusout":return  true;default:return  false}}function he(a){a=a.detail;return "object"===typeof a&&"data"in a?a.data:null}var ie=false;function je(a,b){switch(a){case "compositionend":return he(b);case "keypress":if(32!==b.which)return null;fe=true;return ee;case "textInput":return a=b.data,a===ee&&fe?null:a;default:return null}}
+  function ke(a,b){if(ie)return "compositionend"===a||!ae&&ge(a,b)?(a=nd(),md=ld=kd=null,ie=false,a):null;switch(a){case "paste":return null;case "keypress":if(!(b.ctrlKey||b.altKey||b.metaKey)||b.ctrlKey&&b.altKey){if(b.char&&1<b.char.length)return b.char;if(b.which)return String.fromCharCode(b.which)}return null;case "compositionend":return de&&"ko"!==b.locale?null:b.data;default:return null}}
+  var le={color:true,date:true,datetime:true,"datetime-local":true,email:true,month:true,number:true,password:true,range:true,search:true,tel:true,text:true,time:true,url:true,week:true};function me(a){var b=a&&a.nodeName&&a.nodeName.toLowerCase();return "input"===b?!!le[a.type]:"textarea"===b?true:false}function ne(a,b,c,d){Eb(d);b=oe(b,"onChange");0<b.length&&(c=new td("onChange","change",null,c,d),a.push({event:c,listeners:b}));}var pe=null,qe=null;function re(a){se(a,0);}function te(a){var b=ue(a);if(Wa(b))return a}
+  function ve(a,b){if("change"===a)return b}var we=false;if(ia){var xe;if(ia){var ye="oninput"in document;if(!ye){var ze=document.createElement("div");ze.setAttribute("oninput","return;");ye="function"===typeof ze.oninput;}xe=ye;}else xe=false;we=xe&&(!document.documentMode||9<document.documentMode);}function Ae(){pe&&(pe.detachEvent("onpropertychange",Be),qe=pe=null);}function Be(a){if("value"===a.propertyName&&te(qe)){var b=[];ne(b,qe,a,xb(a));Jb(re,b);}}
+  function Ce(a,b,c){"focusin"===a?(Ae(),pe=b,qe=c,pe.attachEvent("onpropertychange",Be)):"focusout"===a&&Ae();}function De(a){if("selectionchange"===a||"keyup"===a||"keydown"===a)return te(qe)}function Ee(a,b){if("click"===a)return te(b)}function Fe(a,b){if("input"===a||"change"===a)return te(b)}function Ge(a,b){return a===b&&(0!==a||1/a===1/b)||a!==a&&b!==b}var He="function"===typeof Object.is?Object.is:Ge;
+  function Ie(a,b){if(He(a,b))return  true;if("object"!==typeof a||null===a||"object"!==typeof b||null===b)return  false;var c=Object.keys(a),d=Object.keys(b);if(c.length!==d.length)return  false;for(d=0;d<c.length;d++){var e=c[d];if(!ja.call(b,e)||!He(a[e],b[e]))return  false}return  true}function Je(a){for(;a&&a.firstChild;)a=a.firstChild;return a}
+  function Ke(a,b){var c=Je(a);a=0;for(var d;c;){if(3===c.nodeType){d=a+c.textContent.length;if(a<=b&&d>=b)return {node:c,offset:b-a};a=d;}a:{for(;c;){if(c.nextSibling){c=c.nextSibling;break a}c=c.parentNode;}c=void 0;}c=Je(c);}}function Le(a,b){return a&&b?a===b?true:a&&3===a.nodeType?false:b&&3===b.nodeType?Le(a,b.parentNode):"contains"in a?a.contains(b):a.compareDocumentPosition?!!(a.compareDocumentPosition(b)&16):false:false}
+  function Me(){for(var a=window,b=Xa();b instanceof a.HTMLIFrameElement;){try{var c="string"===typeof b.contentWindow.location.href;}catch(d){c=false;}if(c)a=b.contentWindow;else break;b=Xa(a.document);}return b}function Ne(a){var b=a&&a.nodeName&&a.nodeName.toLowerCase();return b&&("input"===b&&("text"===a.type||"search"===a.type||"tel"===a.type||"url"===a.type||"password"===a.type)||"textarea"===b||"true"===a.contentEditable)}
+  function Oe(a){var b=Me(),c=a.focusedElem,d=a.selectionRange;if(b!==c&&c&&c.ownerDocument&&Le(c.ownerDocument.documentElement,c)){if(null!==d&&Ne(c))if(b=d.start,a=d.end,void 0===a&&(a=b),"selectionStart"in c)c.selectionStart=b,c.selectionEnd=Math.min(a,c.value.length);else if(a=(b=c.ownerDocument||document)&&b.defaultView||window,a.getSelection){a=a.getSelection();var e=c.textContent.length,f=Math.min(d.start,e);d=void 0===d.end?f:Math.min(d.end,e);!a.extend&&f>d&&(e=d,d=f,f=e);e=Ke(c,f);var g=Ke(c,
+  d);e&&g&&(1!==a.rangeCount||a.anchorNode!==e.node||a.anchorOffset!==e.offset||a.focusNode!==g.node||a.focusOffset!==g.offset)&&(b=b.createRange(),b.setStart(e.node,e.offset),a.removeAllRanges(),f>d?(a.addRange(b),a.extend(g.node,g.offset)):(b.setEnd(g.node,g.offset),a.addRange(b)));}b=[];for(a=c;a=a.parentNode;)1===a.nodeType&&b.push({element:a,left:a.scrollLeft,top:a.scrollTop});"function"===typeof c.focus&&c.focus();for(c=0;c<b.length;c++)a=b[c],a.element.scrollLeft=a.left,a.element.scrollTop=a.top;}}
+  var Pe=ia&&"documentMode"in document&&11>=document.documentMode,Qe=null,Re=null,Se=null,Te=false;
+  function Ue(a,b,c){var d=c.window===c?c.document:9===c.nodeType?c:c.ownerDocument;Te||null==Qe||Qe!==Xa(d)||(d=Qe,"selectionStart"in d&&Ne(d)?d={start:d.selectionStart,end:d.selectionEnd}:(d=(d.ownerDocument&&d.ownerDocument.defaultView||window).getSelection(),d={anchorNode:d.anchorNode,anchorOffset:d.anchorOffset,focusNode:d.focusNode,focusOffset:d.focusOffset}),Se&&Ie(Se,d)||(Se=d,d=oe(Re,"onSelect"),0<d.length&&(b=new td("onSelect","select",null,b,c),a.push({event:b,listeners:d}),b.target=Qe)));}
+  function Ve(a,b){var c={};c[a.toLowerCase()]=b.toLowerCase();c["Webkit"+a]="webkit"+b;c["Moz"+a]="moz"+b;return c}var We={animationend:Ve("Animation","AnimationEnd"),animationiteration:Ve("Animation","AnimationIteration"),animationstart:Ve("Animation","AnimationStart"),transitionend:Ve("Transition","TransitionEnd")},Xe={},Ye={};
+  ia&&(Ye=document.createElement("div").style,"AnimationEvent"in window||(delete We.animationend.animation,delete We.animationiteration.animation,delete We.animationstart.animation),"TransitionEvent"in window||delete We.transitionend.transition);function Ze(a){if(Xe[a])return Xe[a];if(!We[a])return a;var b=We[a],c;for(c in b)if(b.hasOwnProperty(c)&&c in Ye)return Xe[a]=b[c];return a}var $e=Ze("animationend"),af=Ze("animationiteration"),bf=Ze("animationstart"),cf=Ze("transitionend"),df=new Map,ef="abort auxClick cancel canPlay canPlayThrough click close contextMenu copy cut drag dragEnd dragEnter dragExit dragLeave dragOver dragStart drop durationChange emptied encrypted ended error gotPointerCapture input invalid keyDown keyPress keyUp load loadedData loadedMetadata loadStart lostPointerCapture mouseDown mouseMove mouseOut mouseOver mouseUp paste pause play playing pointerCancel pointerDown pointerMove pointerOut pointerOver pointerUp progress rateChange reset resize seeked seeking stalled submit suspend timeUpdate touchCancel touchEnd touchStart volumeChange scroll toggle touchMove waiting wheel".split(" ");
+  function ff(a,b){df.set(a,b);fa(b,[a]);}for(var gf=0;gf<ef.length;gf++){var hf=ef[gf],jf=hf.toLowerCase(),kf=hf[0].toUpperCase()+hf.slice(1);ff(jf,"on"+kf);}ff($e,"onAnimationEnd");ff(af,"onAnimationIteration");ff(bf,"onAnimationStart");ff("dblclick","onDoubleClick");ff("focusin","onFocus");ff("focusout","onBlur");ff(cf,"onTransitionEnd");ha("onMouseEnter",["mouseout","mouseover"]);ha("onMouseLeave",["mouseout","mouseover"]);ha("onPointerEnter",["pointerout","pointerover"]);
+  ha("onPointerLeave",["pointerout","pointerover"]);fa("onChange","change click focusin focusout input keydown keyup selectionchange".split(" "));fa("onSelect","focusout contextmenu dragend focusin keydown keyup mousedown mouseup selectionchange".split(" "));fa("onBeforeInput",["compositionend","keypress","textInput","paste"]);fa("onCompositionEnd","compositionend focusout keydown keypress keyup mousedown".split(" "));fa("onCompositionStart","compositionstart focusout keydown keypress keyup mousedown".split(" "));
+  fa("onCompositionUpdate","compositionupdate focusout keydown keypress keyup mousedown".split(" "));var lf="abort canplay canplaythrough durationchange emptied encrypted ended error loadeddata loadedmetadata loadstart pause play playing progress ratechange resize seeked seeking stalled suspend timeupdate volumechange waiting".split(" "),mf=new Set("cancel close invalid load scroll toggle".split(" ").concat(lf));
+  function nf(a,b,c){var d=a.type||"unknown-event";a.currentTarget=c;Ub(d,b,void 0,a);a.currentTarget=null;}
+  function se(a,b){b=0!==(b&4);for(var c=0;c<a.length;c++){var d=a[c],e=d.event;d=d.listeners;a:{var f=void 0;if(b)for(var g=d.length-1;0<=g;g--){var h=d[g],k=h.instance,l=h.currentTarget;h=h.listener;if(k!==f&&e.isPropagationStopped())break a;nf(e,h,l);f=k;}else for(g=0;g<d.length;g++){h=d[g];k=h.instance;l=h.currentTarget;h=h.listener;if(k!==f&&e.isPropagationStopped())break a;nf(e,h,l);f=k;}}}if(Qb)throw a=Rb,Qb=false,Rb=null,a;}
+  function D(a,b){var c=b[of];void 0===c&&(c=b[of]=new Set);var d=a+"__bubble";c.has(d)||(pf(b,a,2,false),c.add(d));}function qf(a,b,c){var d=0;b&&(d|=4);pf(c,a,d,b);}var rf="_reactListening"+Math.random().toString(36).slice(2);function sf(a){if(!a[rf]){a[rf]=true;da.forEach(function(b){"selectionchange"!==b&&(mf.has(b)||qf(b,false,a),qf(b,true,a));});var b=9===a.nodeType?a:a.ownerDocument;null===b||b[rf]||(b[rf]=true,qf("selectionchange",false,b));}}
+  function pf(a,b,c,d){switch(jd(b)){case 1:var e=ed;break;case 4:e=gd;break;default:e=fd;}c=e.bind(null,b,c,a);e=void 0;!Lb||"touchstart"!==b&&"touchmove"!==b&&"wheel"!==b||(e=true);d?void 0!==e?a.addEventListener(b,c,{capture:true,passive:e}):a.addEventListener(b,c,true):void 0!==e?a.addEventListener(b,c,{passive:e}):a.addEventListener(b,c,false);}
+  function hd(a,b,c,d,e){var f=d;if(0===(b&1)&&0===(b&2)&&null!==d)a:for(;;){if(null===d)return;var g=d.tag;if(3===g||4===g){var h=d.stateNode.containerInfo;if(h===e||8===h.nodeType&&h.parentNode===e)break;if(4===g)for(g=d.return;null!==g;){var k=g.tag;if(3===k||4===k)if(k=g.stateNode.containerInfo,k===e||8===k.nodeType&&k.parentNode===e)return;g=g.return;}for(;null!==h;){g=Wc(h);if(null===g)return;k=g.tag;if(5===k||6===k){d=f=g;continue a}h=h.parentNode;}}d=d.return;}Jb(function(){var d=f,e=xb(c),g=[];
+  a:{var h=df.get(a);if(void 0!==h){var k=td,n=a;switch(a){case "keypress":if(0===od(c))break a;case "keydown":case "keyup":k=Rd;break;case "focusin":n="focus";k=Fd;break;case "focusout":n="blur";k=Fd;break;case "beforeblur":case "afterblur":k=Fd;break;case "click":if(2===c.button)break a;case "auxclick":case "dblclick":case "mousedown":case "mousemove":case "mouseup":case "mouseout":case "mouseover":case "contextmenu":k=Bd;break;case "drag":case "dragend":case "dragenter":case "dragexit":case "dragleave":case "dragover":case "dragstart":case "drop":k=
+  Dd;break;case "touchcancel":case "touchend":case "touchmove":case "touchstart":k=Vd;break;case $e:case af:case bf:k=Hd;break;case cf:k=Xd;break;case "scroll":k=vd;break;case "wheel":k=Zd;break;case "copy":case "cut":case "paste":k=Jd;break;case "gotpointercapture":case "lostpointercapture":case "pointercancel":case "pointerdown":case "pointermove":case "pointerout":case "pointerover":case "pointerup":k=Td;}var t=0!==(b&4),J=!t&&"scroll"===a,x=t?null!==h?h+"Capture":null:h;t=[];for(var w=d,u;null!==
+  w;){u=w;var F=u.stateNode;5===u.tag&&null!==F&&(u=F,null!==x&&(F=Kb(w,x),null!=F&&t.push(tf(w,F,u))));if(J)break;w=w.return;}0<t.length&&(h=new k(h,n,null,c,e),g.push({event:h,listeners:t}));}}if(0===(b&7)){a:{h="mouseover"===a||"pointerover"===a;k="mouseout"===a||"pointerout"===a;if(h&&c!==wb&&(n=c.relatedTarget||c.fromElement)&&(Wc(n)||n[uf]))break a;if(k||h){h=e.window===e?e:(h=e.ownerDocument)?h.defaultView||h.parentWindow:window;if(k){if(n=c.relatedTarget||c.toElement,k=d,n=n?Wc(n):null,null!==
+  n&&(J=Vb(n),n!==J||5!==n.tag&&6!==n.tag))n=null;}else k=null,n=d;if(k!==n){t=Bd;F="onMouseLeave";x="onMouseEnter";w="mouse";if("pointerout"===a||"pointerover"===a)t=Td,F="onPointerLeave",x="onPointerEnter",w="pointer";J=null==k?h:ue(k);u=null==n?h:ue(n);h=new t(F,w+"leave",k,c,e);h.target=J;h.relatedTarget=u;F=null;Wc(e)===d&&(t=new t(x,w+"enter",n,c,e),t.target=u,t.relatedTarget=J,F=t);J=F;if(k&&n)b:{t=k;x=n;w=0;for(u=t;u;u=vf(u))w++;u=0;for(F=x;F;F=vf(F))u++;for(;0<w-u;)t=vf(t),w--;for(;0<u-w;)x=
+  vf(x),u--;for(;w--;){if(t===x||null!==x&&t===x.alternate)break b;t=vf(t);x=vf(x);}t=null;}else t=null;null!==k&&wf(g,h,k,t,false);null!==n&&null!==J&&wf(g,J,n,t,true);}}}a:{h=d?ue(d):window;k=h.nodeName&&h.nodeName.toLowerCase();if("select"===k||"input"===k&&"file"===h.type)var na=ve;else if(me(h))if(we)na=Fe;else {na=De;var xa=Ce;}else (k=h.nodeName)&&"input"===k.toLowerCase()&&("checkbox"===h.type||"radio"===h.type)&&(na=Ee);if(na&&(na=na(a,d))){ne(g,na,c,e);break a}xa&&xa(a,h,d);"focusout"===a&&(xa=h._wrapperState)&&
+  xa.controlled&&"number"===h.type&&cb(h,"number",h.value);}xa=d?ue(d):window;switch(a){case "focusin":if(me(xa)||"true"===xa.contentEditable)Qe=xa,Re=d,Se=null;break;case "focusout":Se=Re=Qe=null;break;case "mousedown":Te=true;break;case "contextmenu":case "mouseup":case "dragend":Te=false;Ue(g,c,e);break;case "selectionchange":if(Pe)break;case "keydown":case "keyup":Ue(g,c,e);}var $a;if(ae)b:{switch(a){case "compositionstart":var ba="onCompositionStart";break b;case "compositionend":ba="onCompositionEnd";
+  break b;case "compositionupdate":ba="onCompositionUpdate";break b}ba=void 0;}else ie?ge(a,c)&&(ba="onCompositionEnd"):"keydown"===a&&229===c.keyCode&&(ba="onCompositionStart");ba&&(de&&"ko"!==c.locale&&(ie||"onCompositionStart"!==ba?"onCompositionEnd"===ba&&ie&&($a=nd()):(kd=e,ld="value"in kd?kd.value:kd.textContent,ie=true)),xa=oe(d,ba),0<xa.length&&(ba=new Ld(ba,a,null,c,e),g.push({event:ba,listeners:xa}),$a?ba.data=$a:($a=he(c),null!==$a&&(ba.data=$a))));if($a=ce?je(a,c):ke(a,c))d=oe(d,"onBeforeInput"),
+  0<d.length&&(e=new Ld("onBeforeInput","beforeinput",null,c,e),g.push({event:e,listeners:d}),e.data=$a);}se(g,b);});}function tf(a,b,c){return {instance:a,listener:b,currentTarget:c}}function oe(a,b){for(var c=b+"Capture",d=[];null!==a;){var e=a,f=e.stateNode;5===e.tag&&null!==f&&(e=f,f=Kb(a,c),null!=f&&d.unshift(tf(a,f,e)),f=Kb(a,b),null!=f&&d.push(tf(a,f,e)));a=a.return;}return d}function vf(a){if(null===a)return null;do a=a.return;while(a&&5!==a.tag);return a?a:null}
+  function wf(a,b,c,d,e){for(var f=b._reactName,g=[];null!==c&&c!==d;){var h=c,k=h.alternate,l=h.stateNode;if(null!==k&&k===d)break;5===h.tag&&null!==l&&(h=l,e?(k=Kb(c,f),null!=k&&g.unshift(tf(c,k,h))):e||(k=Kb(c,f),null!=k&&g.push(tf(c,k,h))));c=c.return;}0!==g.length&&a.push({event:b,listeners:g});}var xf=/\r\n?/g,yf=/\u0000|\uFFFD/g;function zf(a){return ("string"===typeof a?a:""+a).replace(xf,"\n").replace(yf,"")}function Af(a,b,c){b=zf(b);if(zf(a)!==b&&c)throw Error(p(425));}function Bf(){}
+  var Cf=null,Df=null;function Ef(a,b){return "textarea"===a||"noscript"===a||"string"===typeof b.children||"number"===typeof b.children||"object"===typeof b.dangerouslySetInnerHTML&&null!==b.dangerouslySetInnerHTML&&null!=b.dangerouslySetInnerHTML.__html}
+  var Ff="function"===typeof setTimeout?setTimeout:void 0,Gf="function"===typeof clearTimeout?clearTimeout:void 0,Hf="function"===typeof Promise?Promise:void 0,Jf="function"===typeof queueMicrotask?queueMicrotask:"undefined"!==typeof Hf?function(a){return Hf.resolve(null).then(a).catch(If)}:Ff;function If(a){setTimeout(function(){throw a;});}
+  function Kf(a,b){var c=b,d=0;do{var e=c.nextSibling;a.removeChild(c);if(e&&8===e.nodeType)if(c=e.data,"/$"===c){if(0===d){a.removeChild(e);bd(b);return}d--;}else "$"!==c&&"$?"!==c&&"$!"!==c||d++;c=e;}while(c);bd(b);}function Lf(a){for(;null!=a;a=a.nextSibling){var b=a.nodeType;if(1===b||3===b)break;if(8===b){b=a.data;if("$"===b||"$!"===b||"$?"===b)break;if("/$"===b)return null}}return a}
+  function Mf(a){a=a.previousSibling;for(var b=0;a;){if(8===a.nodeType){var c=a.data;if("$"===c||"$!"===c||"$?"===c){if(0===b)return a;b--;}else "/$"===c&&b++;}a=a.previousSibling;}return null}var Nf=Math.random().toString(36).slice(2),Of="__reactFiber$"+Nf,Pf="__reactProps$"+Nf,uf="__reactContainer$"+Nf,of="__reactEvents$"+Nf,Qf="__reactListeners$"+Nf,Rf="__reactHandles$"+Nf;
+  function Wc(a){var b=a[Of];if(b)return b;for(var c=a.parentNode;c;){if(b=c[uf]||c[Of]){c=b.alternate;if(null!==b.child||null!==c&&null!==c.child)for(a=Mf(a);null!==a;){if(c=a[Of])return c;a=Mf(a);}return b}a=c;c=a.parentNode;}return null}function Cb(a){a=a[Of]||a[uf];return !a||5!==a.tag&&6!==a.tag&&13!==a.tag&&3!==a.tag?null:a}function ue(a){if(5===a.tag||6===a.tag)return a.stateNode;throw Error(p(33));}function Db(a){return a[Pf]||null}var Sf=[],Tf=-1;function Uf(a){return {current:a}}
+  function E(a){0>Tf||(a.current=Sf[Tf],Sf[Tf]=null,Tf--);}function G(a,b){Tf++;Sf[Tf]=a.current;a.current=b;}var Vf={},H=Uf(Vf),Wf=Uf(false),Xf=Vf;function Yf(a,b){var c=a.type.contextTypes;if(!c)return Vf;var d=a.stateNode;if(d&&d.__reactInternalMemoizedUnmaskedChildContext===b)return d.__reactInternalMemoizedMaskedChildContext;var e={},f;for(f in c)e[f]=b[f];d&&(a=a.stateNode,a.__reactInternalMemoizedUnmaskedChildContext=b,a.__reactInternalMemoizedMaskedChildContext=e);return e}
+  function Zf(a){a=a.childContextTypes;return null!==a&&void 0!==a}function $f(){E(Wf);E(H);}function ag(a,b,c){if(H.current!==Vf)throw Error(p(168));G(H,b);G(Wf,c);}function bg(a,b,c){var d=a.stateNode;b=b.childContextTypes;if("function"!==typeof d.getChildContext)return c;d=d.getChildContext();for(var e in d)if(!(e in b))throw Error(p(108,Ra(a)||"Unknown",e));return A({},c,d)}
+  function cg(a){a=(a=a.stateNode)&&a.__reactInternalMemoizedMergedChildContext||Vf;Xf=H.current;G(H,a);G(Wf,Wf.current);return  true}function dg(a,b,c){var d=a.stateNode;if(!d)throw Error(p(169));c?(a=bg(a,b,Xf),d.__reactInternalMemoizedMergedChildContext=a,E(Wf),E(H),G(H,a)):E(Wf);G(Wf,c);}var eg=null,fg=false,gg=false;function hg(a){null===eg?eg=[a]:eg.push(a);}function ig(a){fg=true;hg(a);}
+  function jg(){if(!gg&&null!==eg){gg=true;var a=0,b=C;try{var c=eg;for(C=1;a<c.length;a++){var d=c[a];do d=d(!0);while(null!==d)}eg=null;fg=!1;}catch(e){throw null!==eg&&(eg=eg.slice(a+1)),ac(fc,jg),e;}finally{C=b,gg=false;}}return null}var kg=[],lg=0,mg=null,ng=0,og=[],pg=0,qg=null,rg=1,sg="";function tg(a,b){kg[lg++]=ng;kg[lg++]=mg;mg=a;ng=b;}
+  function ug(a,b,c){og[pg++]=rg;og[pg++]=sg;og[pg++]=qg;qg=a;var d=rg;a=sg;var e=32-oc(d)-1;d&=~(1<<e);c+=1;var f=32-oc(b)+e;if(30<f){var g=e-e%5;f=(d&(1<<g)-1).toString(32);d>>=g;e-=g;rg=1<<32-oc(b)+e|c<<e|d;sg=f+a;}else rg=1<<f|c<<e|d,sg=a;}function vg(a){null!==a.return&&(tg(a,1),ug(a,1,0));}function wg(a){for(;a===mg;)mg=kg[--lg],kg[lg]=null,ng=kg[--lg],kg[lg]=null;for(;a===qg;)qg=og[--pg],og[pg]=null,sg=og[--pg],og[pg]=null,rg=og[--pg],og[pg]=null;}var xg=null,yg=null,I=false,zg=null;
+  function Ag(a,b){var c=Bg(5,null,null,0);c.elementType="DELETED";c.stateNode=b;c.return=a;b=a.deletions;null===b?(a.deletions=[c],a.flags|=16):b.push(c);}
+  function Cg(a,b){switch(a.tag){case 5:var c=a.type;b=1!==b.nodeType||c.toLowerCase()!==b.nodeName.toLowerCase()?null:b;return null!==b?(a.stateNode=b,xg=a,yg=Lf(b.firstChild),true):false;case 6:return b=""===a.pendingProps||3!==b.nodeType?null:b,null!==b?(a.stateNode=b,xg=a,yg=null,true):false;case 13:return b=8!==b.nodeType?null:b,null!==b?(c=null!==qg?{id:rg,overflow:sg}:null,a.memoizedState={dehydrated:b,treeContext:c,retryLane:1073741824},c=Bg(18,null,null,0),c.stateNode=b,c.return=a,a.child=c,xg=a,yg=
+  null,true):false;default:return  false}}function Dg(a){return 0!==(a.mode&1)&&0===(a.flags&128)}function Eg(a){if(I){var b=yg;if(b){var c=b;if(!Cg(a,b)){if(Dg(a))throw Error(p(418));b=Lf(c.nextSibling);var d=xg;b&&Cg(a,b)?Ag(d,c):(a.flags=a.flags&-4097|2,I=false,xg=a);}}else {if(Dg(a))throw Error(p(418));a.flags=a.flags&-4097|2;I=false;xg=a;}}}function Fg(a){for(a=a.return;null!==a&&5!==a.tag&&3!==a.tag&&13!==a.tag;)a=a.return;xg=a;}
+  function Gg(a){if(a!==xg)return  false;if(!I)return Fg(a),I=true,false;var b;(b=3!==a.tag)&&!(b=5!==a.tag)&&(b=a.type,b="head"!==b&&"body"!==b&&!Ef(a.type,a.memoizedProps));if(b&&(b=yg)){if(Dg(a))throw Hg(),Error(p(418));for(;b;)Ag(a,b),b=Lf(b.nextSibling);}Fg(a);if(13===a.tag){a=a.memoizedState;a=null!==a?a.dehydrated:null;if(!a)throw Error(p(317));a:{a=a.nextSibling;for(b=0;a;){if(8===a.nodeType){var c=a.data;if("/$"===c){if(0===b){yg=Lf(a.nextSibling);break a}b--;}else "$"!==c&&"$!"!==c&&"$?"!==c||b++;}a=a.nextSibling;}yg=
+  null;}}else yg=xg?Lf(a.stateNode.nextSibling):null;return  true}function Hg(){for(var a=yg;a;)a=Lf(a.nextSibling);}function Ig(){yg=xg=null;I=false;}function Jg(a){null===zg?zg=[a]:zg.push(a);}var Kg=ua.ReactCurrentBatchConfig;
+  function Lg(a,b,c){a=c.ref;if(null!==a&&"function"!==typeof a&&"object"!==typeof a){if(c._owner){c=c._owner;if(c){if(1!==c.tag)throw Error(p(309));var d=c.stateNode;}if(!d)throw Error(p(147,a));var e=d,f=""+a;if(null!==b&&null!==b.ref&&"function"===typeof b.ref&&b.ref._stringRef===f)return b.ref;b=function(a){var b=e.refs;null===a?delete b[f]:b[f]=a;};b._stringRef=f;return b}if("string"!==typeof a)throw Error(p(284));if(!c._owner)throw Error(p(290,a));}return a}
+  function Mg(a,b){a=Object.prototype.toString.call(b);throw Error(p(31,"[object Object]"===a?"object with keys {"+Object.keys(b).join(", ")+"}":a));}function Ng(a){var b=a._init;return b(a._payload)}
+  function Og(a){function b(b,c){if(a){var d=b.deletions;null===d?(b.deletions=[c],b.flags|=16):d.push(c);}}function c(c,d){if(!a)return null;for(;null!==d;)b(c,d),d=d.sibling;return null}function d(a,b){for(a=new Map;null!==b;)null!==b.key?a.set(b.key,b):a.set(b.index,b),b=b.sibling;return a}function e(a,b){a=Pg(a,b);a.index=0;a.sibling=null;return a}function f(b,c,d){b.index=d;if(!a)return b.flags|=1048576,c;d=b.alternate;if(null!==d)return d=d.index,d<c?(b.flags|=2,c):d;b.flags|=2;return c}function g(b){a&&
+  null===b.alternate&&(b.flags|=2);return b}function h(a,b,c,d){if(null===b||6!==b.tag)return b=Qg(c,a.mode,d),b.return=a,b;b=e(b,c);b.return=a;return b}function k(a,b,c,d){var f=c.type;if(f===ya)return m(a,b,c.props.children,d,c.key);if(null!==b&&(b.elementType===f||"object"===typeof f&&null!==f&&f.$$typeof===Ha&&Ng(f)===b.type))return d=e(b,c.props),d.ref=Lg(a,b,c),d.return=a,d;d=Rg(c.type,c.key,c.props,null,a.mode,d);d.ref=Lg(a,b,c);d.return=a;return d}function l(a,b,c,d){if(null===b||4!==b.tag||
+  b.stateNode.containerInfo!==c.containerInfo||b.stateNode.implementation!==c.implementation)return b=Sg(c,a.mode,d),b.return=a,b;b=e(b,c.children||[]);b.return=a;return b}function m(a,b,c,d,f){if(null===b||7!==b.tag)return b=Tg(c,a.mode,d,f),b.return=a,b;b=e(b,c);b.return=a;return b}function q(a,b,c){if("string"===typeof b&&""!==b||"number"===typeof b)return b=Qg(""+b,a.mode,c),b.return=a,b;if("object"===typeof b&&null!==b){switch(b.$$typeof){case va:return c=Rg(b.type,b.key,b.props,null,a.mode,c),
+  c.ref=Lg(a,null,b),c.return=a,c;case wa:return b=Sg(b,a.mode,c),b.return=a,b;case Ha:var d=b._init;return q(a,d(b._payload),c)}if(eb(b)||Ka(b))return b=Tg(b,a.mode,c,null),b.return=a,b;Mg(a,b);}return null}function r(a,b,c,d){var e=null!==b?b.key:null;if("string"===typeof c&&""!==c||"number"===typeof c)return null!==e?null:h(a,b,""+c,d);if("object"===typeof c&&null!==c){switch(c.$$typeof){case va:return c.key===e?k(a,b,c,d):null;case wa:return c.key===e?l(a,b,c,d):null;case Ha:return e=c._init,r(a,
+  b,e(c._payload),d)}if(eb(c)||Ka(c))return null!==e?null:m(a,b,c,d,null);Mg(a,c);}return null}function y(a,b,c,d,e){if("string"===typeof d&&""!==d||"number"===typeof d)return a=a.get(c)||null,h(b,a,""+d,e);if("object"===typeof d&&null!==d){switch(d.$$typeof){case va:return a=a.get(null===d.key?c:d.key)||null,k(b,a,d,e);case wa:return a=a.get(null===d.key?c:d.key)||null,l(b,a,d,e);case Ha:var f=d._init;return y(a,b,c,f(d._payload),e)}if(eb(d)||Ka(d))return a=a.get(c)||null,m(b,a,d,e,null);Mg(b,d);}return null}
+  function n(e,g,h,k){for(var l=null,m=null,u=g,w=g=0,x=null;null!==u&&w<h.length;w++){u.index>w?(x=u,u=null):x=u.sibling;var n=r(e,u,h[w],k);if(null===n){null===u&&(u=x);break}a&&u&&null===n.alternate&&b(e,u);g=f(n,g,w);null===m?l=n:m.sibling=n;m=n;u=x;}if(w===h.length)return c(e,u),I&&tg(e,w),l;if(null===u){for(;w<h.length;w++)u=q(e,h[w],k),null!==u&&(g=f(u,g,w),null===m?l=u:m.sibling=u,m=u);I&&tg(e,w);return l}for(u=d(e,u);w<h.length;w++)x=y(u,e,w,h[w],k),null!==x&&(a&&null!==x.alternate&&u.delete(null===
+  x.key?w:x.key),g=f(x,g,w),null===m?l=x:m.sibling=x,m=x);a&&u.forEach(function(a){return b(e,a)});I&&tg(e,w);return l}function t(e,g,h,k){var l=Ka(h);if("function"!==typeof l)throw Error(p(150));h=l.call(h);if(null==h)throw Error(p(151));for(var u=l=null,m=g,w=g=0,x=null,n=h.next();null!==m&&!n.done;w++,n=h.next()){m.index>w?(x=m,m=null):x=m.sibling;var t=r(e,m,n.value,k);if(null===t){null===m&&(m=x);break}a&&m&&null===t.alternate&&b(e,m);g=f(t,g,w);null===u?l=t:u.sibling=t;u=t;m=x;}if(n.done)return c(e,
+  m),I&&tg(e,w),l;if(null===m){for(;!n.done;w++,n=h.next())n=q(e,n.value,k),null!==n&&(g=f(n,g,w),null===u?l=n:u.sibling=n,u=n);I&&tg(e,w);return l}for(m=d(e,m);!n.done;w++,n=h.next())n=y(m,e,w,n.value,k),null!==n&&(a&&null!==n.alternate&&m.delete(null===n.key?w:n.key),g=f(n,g,w),null===u?l=n:u.sibling=n,u=n);a&&m.forEach(function(a){return b(e,a)});I&&tg(e,w);return l}function J(a,d,f,h){"object"===typeof f&&null!==f&&f.type===ya&&null===f.key&&(f=f.props.children);if("object"===typeof f&&null!==f){switch(f.$$typeof){case va:a:{for(var k=
+  f.key,l=d;null!==l;){if(l.key===k){k=f.type;if(k===ya){if(7===l.tag){c(a,l.sibling);d=e(l,f.props.children);d.return=a;a=d;break a}}else if(l.elementType===k||"object"===typeof k&&null!==k&&k.$$typeof===Ha&&Ng(k)===l.type){c(a,l.sibling);d=e(l,f.props);d.ref=Lg(a,l,f);d.return=a;a=d;break a}c(a,l);break}else b(a,l);l=l.sibling;}f.type===ya?(d=Tg(f.props.children,a.mode,h,f.key),d.return=a,a=d):(h=Rg(f.type,f.key,f.props,null,a.mode,h),h.ref=Lg(a,d,f),h.return=a,a=h);}return g(a);case wa:a:{for(l=f.key;null!==
+  d;){if(d.key===l)if(4===d.tag&&d.stateNode.containerInfo===f.containerInfo&&d.stateNode.implementation===f.implementation){c(a,d.sibling);d=e(d,f.children||[]);d.return=a;a=d;break a}else {c(a,d);break}else b(a,d);d=d.sibling;}d=Sg(f,a.mode,h);d.return=a;a=d;}return g(a);case Ha:return l=f._init,J(a,d,l(f._payload),h)}if(eb(f))return n(a,d,f,h);if(Ka(f))return t(a,d,f,h);Mg(a,f);}return "string"===typeof f&&""!==f||"number"===typeof f?(f=""+f,null!==d&&6===d.tag?(c(a,d.sibling),d=e(d,f),d.return=a,a=d):
+  (c(a,d),d=Qg(f,a.mode,h),d.return=a,a=d),g(a)):c(a,d)}return J}var Ug=Og(true),Vg=Og(false),Wg=Uf(null),Xg=null,Yg=null,Zg=null;function $g(){Zg=Yg=Xg=null;}function ah(a){var b=Wg.current;E(Wg);a._currentValue=b;}function bh(a,b,c){for(;null!==a;){var d=a.alternate;(a.childLanes&b)!==b?(a.childLanes|=b,null!==d&&(d.childLanes|=b)):null!==d&&(d.childLanes&b)!==b&&(d.childLanes|=b);if(a===c)break;a=a.return;}}
+  function ch(a,b){Xg=a;Zg=Yg=null;a=a.dependencies;null!==a&&null!==a.firstContext&&(0!==(a.lanes&b)&&(dh=true),a.firstContext=null);}function eh(a){var b=a._currentValue;if(Zg!==a)if(a={context:a,memoizedValue:b,next:null},null===Yg){if(null===Xg)throw Error(p(308));Yg=a;Xg.dependencies={lanes:0,firstContext:a};}else Yg=Yg.next=a;return b}var fh=null;function gh(a){null===fh?fh=[a]:fh.push(a);}
+  function hh(a,b,c,d){var e=b.interleaved;null===e?(c.next=c,gh(b)):(c.next=e.next,e.next=c);b.interleaved=c;return ih(a,d)}function ih(a,b){a.lanes|=b;var c=a.alternate;null!==c&&(c.lanes|=b);c=a;for(a=a.return;null!==a;)a.childLanes|=b,c=a.alternate,null!==c&&(c.childLanes|=b),c=a,a=a.return;return 3===c.tag?c.stateNode:null}var jh=false;function kh(a){a.updateQueue={baseState:a.memoizedState,firstBaseUpdate:null,lastBaseUpdate:null,shared:{pending:null,interleaved:null,lanes:0},effects:null};}
+  function lh(a,b){a=a.updateQueue;b.updateQueue===a&&(b.updateQueue={baseState:a.baseState,firstBaseUpdate:a.firstBaseUpdate,lastBaseUpdate:a.lastBaseUpdate,shared:a.shared,effects:a.effects});}function mh(a,b){return {eventTime:a,lane:b,tag:0,payload:null,callback:null,next:null}}
+  function nh(a,b,c){var d=a.updateQueue;if(null===d)return null;d=d.shared;if(0!==(K&2)){var e=d.pending;null===e?b.next=b:(b.next=e.next,e.next=b);d.pending=b;return ih(a,c)}e=d.interleaved;null===e?(b.next=b,gh(d)):(b.next=e.next,e.next=b);d.interleaved=b;return ih(a,c)}function oh(a,b,c){b=b.updateQueue;if(null!==b&&(b=b.shared,0!==(c&4194240))){var d=b.lanes;d&=a.pendingLanes;c|=d;b.lanes=c;Cc(a,c);}}
+  function ph(a,b){var c=a.updateQueue,d=a.alternate;if(null!==d&&(d=d.updateQueue,c===d)){var e=null,f=null;c=c.firstBaseUpdate;if(null!==c){do{var g={eventTime:c.eventTime,lane:c.lane,tag:c.tag,payload:c.payload,callback:c.callback,next:null};null===f?e=f=g:f=f.next=g;c=c.next;}while(null!==c);null===f?e=f=b:f=f.next=b;}else e=f=b;c={baseState:d.baseState,firstBaseUpdate:e,lastBaseUpdate:f,shared:d.shared,effects:d.effects};a.updateQueue=c;return}a=c.lastBaseUpdate;null===a?c.firstBaseUpdate=b:a.next=
+  b;c.lastBaseUpdate=b;}
+  function qh(a,b,c,d){var e=a.updateQueue;jh=false;var f=e.firstBaseUpdate,g=e.lastBaseUpdate,h=e.shared.pending;if(null!==h){e.shared.pending=null;var k=h,l=k.next;k.next=null;null===g?f=l:g.next=l;g=k;var m=a.alternate;null!==m&&(m=m.updateQueue,h=m.lastBaseUpdate,h!==g&&(null===h?m.firstBaseUpdate=l:h.next=l,m.lastBaseUpdate=k));}if(null!==f){var q=e.baseState;g=0;m=l=k=null;h=f;do{var r=h.lane,y=h.eventTime;if((d&r)===r){null!==m&&(m=m.next={eventTime:y,lane:0,tag:h.tag,payload:h.payload,callback:h.callback,
+  next:null});a:{var n=a,t=h;r=b;y=c;switch(t.tag){case 1:n=t.payload;if("function"===typeof n){q=n.call(y,q,r);break a}q=n;break a;case 3:n.flags=n.flags&-65537|128;case 0:n=t.payload;r="function"===typeof n?n.call(y,q,r):n;if(null===r||void 0===r)break a;q=A({},q,r);break a;case 2:jh=true;}}null!==h.callback&&0!==h.lane&&(a.flags|=64,r=e.effects,null===r?e.effects=[h]:r.push(h));}else y={eventTime:y,lane:r,tag:h.tag,payload:h.payload,callback:h.callback,next:null},null===m?(l=m=y,k=q):m=m.next=y,g|=r;
+  h=h.next;if(null===h)if(h=e.shared.pending,null===h)break;else r=h,h=r.next,r.next=null,e.lastBaseUpdate=r,e.shared.pending=null;}while(1);null===m&&(k=q);e.baseState=k;e.firstBaseUpdate=l;e.lastBaseUpdate=m;b=e.shared.interleaved;if(null!==b){e=b;do g|=e.lane,e=e.next;while(e!==b)}else null===f&&(e.shared.lanes=0);rh|=g;a.lanes=g;a.memoizedState=q;}}
+  function sh(a,b,c){a=b.effects;b.effects=null;if(null!==a)for(b=0;b<a.length;b++){var d=a[b],e=d.callback;if(null!==e){d.callback=null;d=c;if("function"!==typeof e)throw Error(p(191,e));e.call(d);}}}var th={},uh=Uf(th),vh=Uf(th),wh=Uf(th);function xh(a){if(a===th)throw Error(p(174));return a}
+  function yh(a,b){G(wh,b);G(vh,a);G(uh,th);a=b.nodeType;switch(a){case 9:case 11:b=(b=b.documentElement)?b.namespaceURI:lb(null,"");break;default:a=8===a?b.parentNode:b,b=a.namespaceURI||null,a=a.tagName,b=lb(b,a);}E(uh);G(uh,b);}function zh(){E(uh);E(vh);E(wh);}function Ah(a){xh(wh.current);var b=xh(uh.current);var c=lb(b,a.type);b!==c&&(G(vh,a),G(uh,c));}function Bh(a){vh.current===a&&(E(uh),E(vh));}var L=Uf(0);
+  function Ch(a){for(var b=a;null!==b;){if(13===b.tag){var c=b.memoizedState;if(null!==c&&(c=c.dehydrated,null===c||"$?"===c.data||"$!"===c.data))return b}else if(19===b.tag&&void 0!==b.memoizedProps.revealOrder){if(0!==(b.flags&128))return b}else if(null!==b.child){b.child.return=b;b=b.child;continue}if(b===a)break;for(;null===b.sibling;){if(null===b.return||b.return===a)return null;b=b.return;}b.sibling.return=b.return;b=b.sibling;}return null}var Dh=[];
+  function Eh(){for(var a=0;a<Dh.length;a++)Dh[a]._workInProgressVersionPrimary=null;Dh.length=0;}var Fh=ua.ReactCurrentDispatcher,Gh=ua.ReactCurrentBatchConfig,Hh=0,M=null,N=null,O=null,Ih=false,Jh=false,Kh=0,Lh=0;function P(){throw Error(p(321));}function Mh(a,b){if(null===b)return  false;for(var c=0;c<b.length&&c<a.length;c++)if(!He(a[c],b[c]))return  false;return  true}
+  function Nh(a,b,c,d,e,f){Hh=f;M=b;b.memoizedState=null;b.updateQueue=null;b.lanes=0;Fh.current=null===a||null===a.memoizedState?Oh:Ph;a=c(d,e);if(Jh){f=0;do{Jh=false;Kh=0;if(25<=f)throw Error(p(301));f+=1;O=N=null;b.updateQueue=null;Fh.current=Qh;a=c(d,e);}while(Jh)}Fh.current=Rh;b=null!==N&&null!==N.next;Hh=0;O=N=M=null;Ih=false;if(b)throw Error(p(300));return a}function Sh(){var a=0!==Kh;Kh=0;return a}
+  function Th(){var a={memoizedState:null,baseState:null,baseQueue:null,queue:null,next:null};null===O?M.memoizedState=O=a:O=O.next=a;return O}function Uh(){if(null===N){var a=M.alternate;a=null!==a?a.memoizedState:null;}else a=N.next;var b=null===O?M.memoizedState:O.next;if(null!==b)O=b,N=a;else {if(null===a)throw Error(p(310));N=a;a={memoizedState:N.memoizedState,baseState:N.baseState,baseQueue:N.baseQueue,queue:N.queue,next:null};null===O?M.memoizedState=O=a:O=O.next=a;}return O}
+  function Vh(a,b){return "function"===typeof b?b(a):b}
+  function Wh(a){var b=Uh(),c=b.queue;if(null===c)throw Error(p(311));c.lastRenderedReducer=a;var d=N,e=d.baseQueue,f=c.pending;if(null!==f){if(null!==e){var g=e.next;e.next=f.next;f.next=g;}d.baseQueue=e=f;c.pending=null;}if(null!==e){f=e.next;d=d.baseState;var h=g=null,k=null,l=f;do{var m=l.lane;if((Hh&m)===m)null!==k&&(k=k.next={lane:0,action:l.action,hasEagerState:l.hasEagerState,eagerState:l.eagerState,next:null}),d=l.hasEagerState?l.eagerState:a(d,l.action);else {var q={lane:m,action:l.action,hasEagerState:l.hasEagerState,
+  eagerState:l.eagerState,next:null};null===k?(h=k=q,g=d):k=k.next=q;M.lanes|=m;rh|=m;}l=l.next;}while(null!==l&&l!==f);null===k?g=d:k.next=h;He(d,b.memoizedState)||(dh=true);b.memoizedState=d;b.baseState=g;b.baseQueue=k;c.lastRenderedState=d;}a=c.interleaved;if(null!==a){e=a;do f=e.lane,M.lanes|=f,rh|=f,e=e.next;while(e!==a)}else null===e&&(c.lanes=0);return [b.memoizedState,c.dispatch]}
+  function Xh(a){var b=Uh(),c=b.queue;if(null===c)throw Error(p(311));c.lastRenderedReducer=a;var d=c.dispatch,e=c.pending,f=b.memoizedState;if(null!==e){c.pending=null;var g=e=e.next;do f=a(f,g.action),g=g.next;while(g!==e);He(f,b.memoizedState)||(dh=true);b.memoizedState=f;null===b.baseQueue&&(b.baseState=f);c.lastRenderedState=f;}return [f,d]}function Yh(){}
+  function Zh(a,b){var c=M,d=Uh(),e=b(),f=!He(d.memoizedState,e);f&&(d.memoizedState=e,dh=true);d=d.queue;$h(ai.bind(null,c,d,a),[a]);if(d.getSnapshot!==b||f||null!==O&&O.memoizedState.tag&1){c.flags|=2048;bi(9,ci.bind(null,c,d,e,b),void 0,null);if(null===Q)throw Error(p(349));0!==(Hh&30)||di(c,b,e);}return e}function di(a,b,c){a.flags|=16384;a={getSnapshot:b,value:c};b=M.updateQueue;null===b?(b={lastEffect:null,stores:null},M.updateQueue=b,b.stores=[a]):(c=b.stores,null===c?b.stores=[a]:c.push(a));}
+  function ci(a,b,c,d){b.value=c;b.getSnapshot=d;ei(b)&&fi(a);}function ai(a,b,c){return c(function(){ei(b)&&fi(a);})}function ei(a){var b=a.getSnapshot;a=a.value;try{var c=b();return !He(a,c)}catch(d){return  true}}function fi(a){var b=ih(a,1);null!==b&&gi(b,a,1,-1);}
+  function hi(a){var b=Th();"function"===typeof a&&(a=a());b.memoizedState=b.baseState=a;a={pending:null,interleaved:null,lanes:0,dispatch:null,lastRenderedReducer:Vh,lastRenderedState:a};b.queue=a;a=a.dispatch=ii.bind(null,M,a);return [b.memoizedState,a]}
+  function bi(a,b,c,d){a={tag:a,create:b,destroy:c,deps:d,next:null};b=M.updateQueue;null===b?(b={lastEffect:null,stores:null},M.updateQueue=b,b.lastEffect=a.next=a):(c=b.lastEffect,null===c?b.lastEffect=a.next=a:(d=c.next,c.next=a,a.next=d,b.lastEffect=a));return a}function ji(){return Uh().memoizedState}function ki(a,b,c,d){var e=Th();M.flags|=a;e.memoizedState=bi(1|b,c,void 0,void 0===d?null:d);}
+  function li(a,b,c,d){var e=Uh();d=void 0===d?null:d;var f=void 0;if(null!==N){var g=N.memoizedState;f=g.destroy;if(null!==d&&Mh(d,g.deps)){e.memoizedState=bi(b,c,f,d);return}}M.flags|=a;e.memoizedState=bi(1|b,c,f,d);}function mi(a,b){return ki(8390656,8,a,b)}function $h(a,b){return li(2048,8,a,b)}function ni(a,b){return li(4,2,a,b)}function oi(a,b){return li(4,4,a,b)}
+  function pi(a,b){if("function"===typeof b)return a=a(),b(a),function(){b(null);};if(null!==b&&void 0!==b)return a=a(),b.current=a,function(){b.current=null;}}function qi(a,b,c){c=null!==c&&void 0!==c?c.concat([a]):null;return li(4,4,pi.bind(null,b,a),c)}function ri(){}function si(a,b){var c=Uh();b=void 0===b?null:b;var d=c.memoizedState;if(null!==d&&null!==b&&Mh(b,d[1]))return d[0];c.memoizedState=[a,b];return a}
+  function ti(a,b){var c=Uh();b=void 0===b?null:b;var d=c.memoizedState;if(null!==d&&null!==b&&Mh(b,d[1]))return d[0];a=a();c.memoizedState=[a,b];return a}function ui(a,b,c){if(0===(Hh&21))return a.baseState&&(a.baseState=false,dh=true),a.memoizedState=c;He(c,b)||(c=yc(),M.lanes|=c,rh|=c,a.baseState=true);return b}function vi(a,b){var c=C;C=0!==c&&4>c?c:4;a(true);var d=Gh.transition;Gh.transition={};try{a(!1),b();}finally{C=c,Gh.transition=d;}}function wi(){return Uh().memoizedState}
+  function xi(a,b,c){var d=yi(a);c={lane:d,action:c,hasEagerState:false,eagerState:null,next:null};if(zi(a))Ai(b,c);else if(c=hh(a,b,c,d),null!==c){var e=R();gi(c,a,d,e);Bi(c,b,d);}}
+  function ii(a,b,c){var d=yi(a),e={lane:d,action:c,hasEagerState:false,eagerState:null,next:null};if(zi(a))Ai(b,e);else {var f=a.alternate;if(0===a.lanes&&(null===f||0===f.lanes)&&(f=b.lastRenderedReducer,null!==f))try{var g=b.lastRenderedState,h=f(g,c);e.hasEagerState=!0;e.eagerState=h;if(He(h,g)){var k=b.interleaved;null===k?(e.next=e,gh(b)):(e.next=k.next,k.next=e);b.interleaved=e;return}}catch(l){}finally{}c=hh(a,b,e,d);null!==c&&(e=R(),gi(c,a,d,e),Bi(c,b,d));}}
+  function zi(a){var b=a.alternate;return a===M||null!==b&&b===M}function Ai(a,b){Jh=Ih=true;var c=a.pending;null===c?b.next=b:(b.next=c.next,c.next=b);a.pending=b;}function Bi(a,b,c){if(0!==(c&4194240)){var d=b.lanes;d&=a.pendingLanes;c|=d;b.lanes=c;Cc(a,c);}}
+  var Rh={readContext:eh,useCallback:P,useContext:P,useEffect:P,useImperativeHandle:P,useInsertionEffect:P,useLayoutEffect:P,useMemo:P,useReducer:P,useRef:P,useState:P,useDebugValue:P,useDeferredValue:P,useTransition:P,useMutableSource:P,useSyncExternalStore:P,useId:P,unstable_isNewReconciler:false},Oh={readContext:eh,useCallback:function(a,b){Th().memoizedState=[a,void 0===b?null:b];return a},useContext:eh,useEffect:mi,useImperativeHandle:function(a,b,c){c=null!==c&&void 0!==c?c.concat([a]):null;return ki(4194308,
+  4,pi.bind(null,b,a),c)},useLayoutEffect:function(a,b){return ki(4194308,4,a,b)},useInsertionEffect:function(a,b){return ki(4,2,a,b)},useMemo:function(a,b){var c=Th();b=void 0===b?null:b;a=a();c.memoizedState=[a,b];return a},useReducer:function(a,b,c){var d=Th();b=void 0!==c?c(b):b;d.memoizedState=d.baseState=b;a={pending:null,interleaved:null,lanes:0,dispatch:null,lastRenderedReducer:a,lastRenderedState:b};d.queue=a;a=a.dispatch=xi.bind(null,M,a);return [d.memoizedState,a]},useRef:function(a){var b=
+  Th();a={current:a};return b.memoizedState=a},useState:hi,useDebugValue:ri,useDeferredValue:function(a){return Th().memoizedState=a},useTransition:function(){var a=hi(false),b=a[0];a=vi.bind(null,a[1]);Th().memoizedState=a;return [b,a]},useMutableSource:function(){},useSyncExternalStore:function(a,b,c){var d=M,e=Th();if(I){if(void 0===c)throw Error(p(407));c=c();}else {c=b();if(null===Q)throw Error(p(349));0!==(Hh&30)||di(d,b,c);}e.memoizedState=c;var f={value:c,getSnapshot:b};e.queue=f;mi(ai.bind(null,d,
+  f,a),[a]);d.flags|=2048;bi(9,ci.bind(null,d,f,c,b),void 0,null);return c},useId:function(){var a=Th(),b=Q.identifierPrefix;if(I){var c=sg;var d=rg;c=(d&~(1<<32-oc(d)-1)).toString(32)+c;b=":"+b+"R"+c;c=Kh++;0<c&&(b+="H"+c.toString(32));b+=":";}else c=Lh++,b=":"+b+"r"+c.toString(32)+":";return a.memoizedState=b},unstable_isNewReconciler:false},Ph={readContext:eh,useCallback:si,useContext:eh,useEffect:$h,useImperativeHandle:qi,useInsertionEffect:ni,useLayoutEffect:oi,useMemo:ti,useReducer:Wh,useRef:ji,useState:function(){return Wh(Vh)},
+  useDebugValue:ri,useDeferredValue:function(a){var b=Uh();return ui(b,N.memoizedState,a)},useTransition:function(){var a=Wh(Vh)[0],b=Uh().memoizedState;return [a,b]},useMutableSource:Yh,useSyncExternalStore:Zh,useId:wi,unstable_isNewReconciler:false},Qh={readContext:eh,useCallback:si,useContext:eh,useEffect:$h,useImperativeHandle:qi,useInsertionEffect:ni,useLayoutEffect:oi,useMemo:ti,useReducer:Xh,useRef:ji,useState:function(){return Xh(Vh)},useDebugValue:ri,useDeferredValue:function(a){var b=Uh();return null===
+  N?b.memoizedState=a:ui(b,N.memoizedState,a)},useTransition:function(){var a=Xh(Vh)[0],b=Uh().memoizedState;return [a,b]},useMutableSource:Yh,useSyncExternalStore:Zh,useId:wi,unstable_isNewReconciler:false};function Ci(a,b){if(a&&a.defaultProps){b=A({},b);a=a.defaultProps;for(var c in a) void 0===b[c]&&(b[c]=a[c]);return b}return b}function Di(a,b,c,d){b=a.memoizedState;c=c(d,b);c=null===c||void 0===c?b:A({},b,c);a.memoizedState=c;0===a.lanes&&(a.updateQueue.baseState=c);}
+  var Ei={isMounted:function(a){return (a=a._reactInternals)?Vb(a)===a:false},enqueueSetState:function(a,b,c){a=a._reactInternals;var d=R(),e=yi(a),f=mh(d,e);f.payload=b;void 0!==c&&null!==c&&(f.callback=c);b=nh(a,f,e);null!==b&&(gi(b,a,e,d),oh(b,a,e));},enqueueReplaceState:function(a,b,c){a=a._reactInternals;var d=R(),e=yi(a),f=mh(d,e);f.tag=1;f.payload=b;void 0!==c&&null!==c&&(f.callback=c);b=nh(a,f,e);null!==b&&(gi(b,a,e,d),oh(b,a,e));},enqueueForceUpdate:function(a,b){a=a._reactInternals;var c=R(),d=
+  yi(a),e=mh(c,d);e.tag=2;void 0!==b&&null!==b&&(e.callback=b);b=nh(a,e,d);null!==b&&(gi(b,a,d,c),oh(b,a,d));}};function Fi(a,b,c,d,e,f,g){a=a.stateNode;return "function"===typeof a.shouldComponentUpdate?a.shouldComponentUpdate(d,f,g):b.prototype&&b.prototype.isPureReactComponent?!Ie(c,d)||!Ie(e,f):true}
+  function Gi(a,b,c){var d=false,e=Vf;var f=b.contextType;"object"===typeof f&&null!==f?f=eh(f):(e=Zf(b)?Xf:H.current,d=b.contextTypes,f=(d=null!==d&&void 0!==d)?Yf(a,e):Vf);b=new b(c,f);a.memoizedState=null!==b.state&&void 0!==b.state?b.state:null;b.updater=Ei;a.stateNode=b;b._reactInternals=a;d&&(a=a.stateNode,a.__reactInternalMemoizedUnmaskedChildContext=e,a.__reactInternalMemoizedMaskedChildContext=f);return b}
+  function Hi(a,b,c,d){a=b.state;"function"===typeof b.componentWillReceiveProps&&b.componentWillReceiveProps(c,d);"function"===typeof b.UNSAFE_componentWillReceiveProps&&b.UNSAFE_componentWillReceiveProps(c,d);b.state!==a&&Ei.enqueueReplaceState(b,b.state,null);}
+  function Ii(a,b,c,d){var e=a.stateNode;e.props=c;e.state=a.memoizedState;e.refs={};kh(a);var f=b.contextType;"object"===typeof f&&null!==f?e.context=eh(f):(f=Zf(b)?Xf:H.current,e.context=Yf(a,f));e.state=a.memoizedState;f=b.getDerivedStateFromProps;"function"===typeof f&&(Di(a,b,f,c),e.state=a.memoizedState);"function"===typeof b.getDerivedStateFromProps||"function"===typeof e.getSnapshotBeforeUpdate||"function"!==typeof e.UNSAFE_componentWillMount&&"function"!==typeof e.componentWillMount||(b=e.state,
+  "function"===typeof e.componentWillMount&&e.componentWillMount(),"function"===typeof e.UNSAFE_componentWillMount&&e.UNSAFE_componentWillMount(),b!==e.state&&Ei.enqueueReplaceState(e,e.state,null),qh(a,c,e,d),e.state=a.memoizedState);"function"===typeof e.componentDidMount&&(a.flags|=4194308);}function Ji(a,b){try{var c="",d=b;do c+=Pa(d),d=d.return;while(d);var e=c;}catch(f){e="\nError generating stack: "+f.message+"\n"+f.stack;}return {value:a,source:b,stack:e,digest:null}}
+  function Ki(a,b,c){return {value:a,source:null,stack:null!=c?c:null,digest:null!=b?b:null}}function Li(a,b){try{console.error(b.value);}catch(c){setTimeout(function(){throw c;});}}var Mi="function"===typeof WeakMap?WeakMap:Map;function Ni(a,b,c){c=mh(-1,c);c.tag=3;c.payload={element:null};var d=b.value;c.callback=function(){Oi||(Oi=true,Pi=d);Li(a,b);};return c}
+  function Qi(a,b,c){c=mh(-1,c);c.tag=3;var d=a.type.getDerivedStateFromError;if("function"===typeof d){var e=b.value;c.payload=function(){return d(e)};c.callback=function(){Li(a,b);};}var f=a.stateNode;null!==f&&"function"===typeof f.componentDidCatch&&(c.callback=function(){Li(a,b);"function"!==typeof d&&(null===Ri?Ri=new Set([this]):Ri.add(this));var c=b.stack;this.componentDidCatch(b.value,{componentStack:null!==c?c:""});});return c}
+  function Si(a,b,c){var d=a.pingCache;if(null===d){d=a.pingCache=new Mi;var e=new Set;d.set(b,e);}else e=d.get(b),void 0===e&&(e=new Set,d.set(b,e));e.has(c)||(e.add(c),a=Ti.bind(null,a,b,c),b.then(a,a));}function Ui(a){do{var b;if(b=13===a.tag)b=a.memoizedState,b=null!==b?null!==b.dehydrated?true:false:true;if(b)return a;a=a.return;}while(null!==a);return null}
+  function Vi(a,b,c,d,e){if(0===(a.mode&1))return a===b?a.flags|=65536:(a.flags|=128,c.flags|=131072,c.flags&=-52805,1===c.tag&&(null===c.alternate?c.tag=17:(b=mh(-1,1),b.tag=2,nh(c,b,1))),c.lanes|=1),a;a.flags|=65536;a.lanes=e;return a}var Wi=ua.ReactCurrentOwner,dh=false;function Xi(a,b,c,d){b.child=null===a?Vg(b,null,c,d):Ug(b,a.child,c,d);}
+  function Yi(a,b,c,d,e){c=c.render;var f=b.ref;ch(b,e);d=Nh(a,b,c,d,f,e);c=Sh();if(null!==a&&!dh)return b.updateQueue=a.updateQueue,b.flags&=-2053,a.lanes&=~e,Zi(a,b,e);I&&c&&vg(b);b.flags|=1;Xi(a,b,d,e);return b.child}
+  function $i(a,b,c,d,e){if(null===a){var f=c.type;if("function"===typeof f&&!aj(f)&&void 0===f.defaultProps&&null===c.compare&&void 0===c.defaultProps)return b.tag=15,b.type=f,bj(a,b,f,d,e);a=Rg(c.type,null,d,b,b.mode,e);a.ref=b.ref;a.return=b;return b.child=a}f=a.child;if(0===(a.lanes&e)){var g=f.memoizedProps;c=c.compare;c=null!==c?c:Ie;if(c(g,d)&&a.ref===b.ref)return Zi(a,b,e)}b.flags|=1;a=Pg(f,d);a.ref=b.ref;a.return=b;return b.child=a}
+  function bj(a,b,c,d,e){if(null!==a){var f=a.memoizedProps;if(Ie(f,d)&&a.ref===b.ref)if(dh=false,b.pendingProps=d=f,0!==(a.lanes&e))0!==(a.flags&131072)&&(dh=true);else return b.lanes=a.lanes,Zi(a,b,e)}return cj(a,b,c,d,e)}
+  function dj(a,b,c){var d=b.pendingProps,e=d.children,f=null!==a?a.memoizedState:null;if("hidden"===d.mode)if(0===(b.mode&1))b.memoizedState={baseLanes:0,cachePool:null,transitions:null},G(ej,fj),fj|=c;else {if(0===(c&1073741824))return a=null!==f?f.baseLanes|c:c,b.lanes=b.childLanes=1073741824,b.memoizedState={baseLanes:a,cachePool:null,transitions:null},b.updateQueue=null,G(ej,fj),fj|=a,null;b.memoizedState={baseLanes:0,cachePool:null,transitions:null};d=null!==f?f.baseLanes:c;G(ej,fj);fj|=d;}else null!==
+  f?(d=f.baseLanes|c,b.memoizedState=null):d=c,G(ej,fj),fj|=d;Xi(a,b,e,c);return b.child}function gj(a,b){var c=b.ref;if(null===a&&null!==c||null!==a&&a.ref!==c)b.flags|=512,b.flags|=2097152;}function cj(a,b,c,d,e){var f=Zf(c)?Xf:H.current;f=Yf(b,f);ch(b,e);c=Nh(a,b,c,d,f,e);d=Sh();if(null!==a&&!dh)return b.updateQueue=a.updateQueue,b.flags&=-2053,a.lanes&=~e,Zi(a,b,e);I&&d&&vg(b);b.flags|=1;Xi(a,b,c,e);return b.child}
+  function hj(a,b,c,d,e){if(Zf(c)){var f=true;cg(b);}else f=false;ch(b,e);if(null===b.stateNode)ij(a,b),Gi(b,c,d),Ii(b,c,d,e),d=true;else if(null===a){var g=b.stateNode,h=b.memoizedProps;g.props=h;var k=g.context,l=c.contextType;"object"===typeof l&&null!==l?l=eh(l):(l=Zf(c)?Xf:H.current,l=Yf(b,l));var m=c.getDerivedStateFromProps,q="function"===typeof m||"function"===typeof g.getSnapshotBeforeUpdate;q||"function"!==typeof g.UNSAFE_componentWillReceiveProps&&"function"!==typeof g.componentWillReceiveProps||
+  (h!==d||k!==l)&&Hi(b,g,d,l);jh=false;var r=b.memoizedState;g.state=r;qh(b,d,g,e);k=b.memoizedState;h!==d||r!==k||Wf.current||jh?("function"===typeof m&&(Di(b,c,m,d),k=b.memoizedState),(h=jh||Fi(b,c,h,d,r,k,l))?(q||"function"!==typeof g.UNSAFE_componentWillMount&&"function"!==typeof g.componentWillMount||("function"===typeof g.componentWillMount&&g.componentWillMount(),"function"===typeof g.UNSAFE_componentWillMount&&g.UNSAFE_componentWillMount()),"function"===typeof g.componentDidMount&&(b.flags|=4194308)):
+  ("function"===typeof g.componentDidMount&&(b.flags|=4194308),b.memoizedProps=d,b.memoizedState=k),g.props=d,g.state=k,g.context=l,d=h):("function"===typeof g.componentDidMount&&(b.flags|=4194308),d=false);}else {g=b.stateNode;lh(a,b);h=b.memoizedProps;l=b.type===b.elementType?h:Ci(b.type,h);g.props=l;q=b.pendingProps;r=g.context;k=c.contextType;"object"===typeof k&&null!==k?k=eh(k):(k=Zf(c)?Xf:H.current,k=Yf(b,k));var y=c.getDerivedStateFromProps;(m="function"===typeof y||"function"===typeof g.getSnapshotBeforeUpdate)||
+  "function"!==typeof g.UNSAFE_componentWillReceiveProps&&"function"!==typeof g.componentWillReceiveProps||(h!==q||r!==k)&&Hi(b,g,d,k);jh=false;r=b.memoizedState;g.state=r;qh(b,d,g,e);var n=b.memoizedState;h!==q||r!==n||Wf.current||jh?("function"===typeof y&&(Di(b,c,y,d),n=b.memoizedState),(l=jh||Fi(b,c,l,d,r,n,k)||false)?(m||"function"!==typeof g.UNSAFE_componentWillUpdate&&"function"!==typeof g.componentWillUpdate||("function"===typeof g.componentWillUpdate&&g.componentWillUpdate(d,n,k),"function"===typeof g.UNSAFE_componentWillUpdate&&
+  g.UNSAFE_componentWillUpdate(d,n,k)),"function"===typeof g.componentDidUpdate&&(b.flags|=4),"function"===typeof g.getSnapshotBeforeUpdate&&(b.flags|=1024)):("function"!==typeof g.componentDidUpdate||h===a.memoizedProps&&r===a.memoizedState||(b.flags|=4),"function"!==typeof g.getSnapshotBeforeUpdate||h===a.memoizedProps&&r===a.memoizedState||(b.flags|=1024),b.memoizedProps=d,b.memoizedState=n),g.props=d,g.state=n,g.context=k,d=l):("function"!==typeof g.componentDidUpdate||h===a.memoizedProps&&r===
+  a.memoizedState||(b.flags|=4),"function"!==typeof g.getSnapshotBeforeUpdate||h===a.memoizedProps&&r===a.memoizedState||(b.flags|=1024),d=false);}return jj(a,b,c,d,f,e)}
+  function jj(a,b,c,d,e,f){gj(a,b);var g=0!==(b.flags&128);if(!d&&!g)return e&&dg(b,c,false),Zi(a,b,f);d=b.stateNode;Wi.current=b;var h=g&&"function"!==typeof c.getDerivedStateFromError?null:d.render();b.flags|=1;null!==a&&g?(b.child=Ug(b,a.child,null,f),b.child=Ug(b,null,h,f)):Xi(a,b,h,f);b.memoizedState=d.state;e&&dg(b,c,true);return b.child}function kj(a){var b=a.stateNode;b.pendingContext?ag(a,b.pendingContext,b.pendingContext!==b.context):b.context&&ag(a,b.context,false);yh(a,b.containerInfo);}
+  function lj(a,b,c,d,e){Ig();Jg(e);b.flags|=256;Xi(a,b,c,d);return b.child}var mj={dehydrated:null,treeContext:null,retryLane:0};function nj(a){return {baseLanes:a,cachePool:null,transitions:null}}
+  function oj(a,b,c){var d=b.pendingProps,e=L.current,f=false,g=0!==(b.flags&128),h;(h=g)||(h=null!==a&&null===a.memoizedState?false:0!==(e&2));if(h)f=true,b.flags&=-129;else if(null===a||null!==a.memoizedState)e|=1;G(L,e&1);if(null===a){Eg(b);a=b.memoizedState;if(null!==a&&(a=a.dehydrated,null!==a))return 0===(b.mode&1)?b.lanes=1:"$!"===a.data?b.lanes=8:b.lanes=1073741824,null;g=d.children;a=d.fallback;return f?(d=b.mode,f=b.child,g={mode:"hidden",children:g},0===(d&1)&&null!==f?(f.childLanes=0,f.pendingProps=
+  g):f=pj(g,d,0,null),a=Tg(a,d,c,null),f.return=b,a.return=b,f.sibling=a,b.child=f,b.child.memoizedState=nj(c),b.memoizedState=mj,a):qj(b,g)}e=a.memoizedState;if(null!==e&&(h=e.dehydrated,null!==h))return rj(a,b,g,d,h,e,c);if(f){f=d.fallback;g=b.mode;e=a.child;h=e.sibling;var k={mode:"hidden",children:d.children};0===(g&1)&&b.child!==e?(d=b.child,d.childLanes=0,d.pendingProps=k,b.deletions=null):(d=Pg(e,k),d.subtreeFlags=e.subtreeFlags&14680064);null!==h?f=Pg(h,f):(f=Tg(f,g,c,null),f.flags|=2);f.return=
+  b;d.return=b;d.sibling=f;b.child=d;d=f;f=b.child;g=a.child.memoizedState;g=null===g?nj(c):{baseLanes:g.baseLanes|c,cachePool:null,transitions:g.transitions};f.memoizedState=g;f.childLanes=a.childLanes&~c;b.memoizedState=mj;return d}f=a.child;a=f.sibling;d=Pg(f,{mode:"visible",children:d.children});0===(b.mode&1)&&(d.lanes=c);d.return=b;d.sibling=null;null!==a&&(c=b.deletions,null===c?(b.deletions=[a],b.flags|=16):c.push(a));b.child=d;b.memoizedState=null;return d}
+  function qj(a,b){b=pj({mode:"visible",children:b},a.mode,0,null);b.return=a;return a.child=b}function sj(a,b,c,d){null!==d&&Jg(d);Ug(b,a.child,null,c);a=qj(b,b.pendingProps.children);a.flags|=2;b.memoizedState=null;return a}
+  function rj(a,b,c,d,e,f,g){if(c){if(b.flags&256)return b.flags&=-257,d=Ki(Error(p(422))),sj(a,b,g,d);if(null!==b.memoizedState)return b.child=a.child,b.flags|=128,null;f=d.fallback;e=b.mode;d=pj({mode:"visible",children:d.children},e,0,null);f=Tg(f,e,g,null);f.flags|=2;d.return=b;f.return=b;d.sibling=f;b.child=d;0!==(b.mode&1)&&Ug(b,a.child,null,g);b.child.memoizedState=nj(g);b.memoizedState=mj;return f}if(0===(b.mode&1))return sj(a,b,g,null);if("$!"===e.data){d=e.nextSibling&&e.nextSibling.dataset;
+  if(d)var h=d.dgst;d=h;f=Error(p(419));d=Ki(f,d,void 0);return sj(a,b,g,d)}h=0!==(g&a.childLanes);if(dh||h){d=Q;if(null!==d){switch(g&-g){case 4:e=2;break;case 16:e=8;break;case 64:case 128:case 256:case 512:case 1024:case 2048:case 4096:case 8192:case 16384:case 32768:case 65536:case 131072:case 262144:case 524288:case 1048576:case 2097152:case 4194304:case 8388608:case 16777216:case 33554432:case 67108864:e=32;break;case 536870912:e=268435456;break;default:e=0;}e=0!==(e&(d.suspendedLanes|g))?0:e;
+  0!==e&&e!==f.retryLane&&(f.retryLane=e,ih(a,e),gi(d,a,e,-1));}tj();d=Ki(Error(p(421)));return sj(a,b,g,d)}if("$?"===e.data)return b.flags|=128,b.child=a.child,b=uj.bind(null,a),e._reactRetry=b,null;a=f.treeContext;yg=Lf(e.nextSibling);xg=b;I=true;zg=null;null!==a&&(og[pg++]=rg,og[pg++]=sg,og[pg++]=qg,rg=a.id,sg=a.overflow,qg=b);b=qj(b,d.children);b.flags|=4096;return b}function vj(a,b,c){a.lanes|=b;var d=a.alternate;null!==d&&(d.lanes|=b);bh(a.return,b,c);}
+  function wj(a,b,c,d,e){var f=a.memoizedState;null===f?a.memoizedState={isBackwards:b,rendering:null,renderingStartTime:0,last:d,tail:c,tailMode:e}:(f.isBackwards=b,f.rendering=null,f.renderingStartTime=0,f.last=d,f.tail=c,f.tailMode=e);}
+  function xj(a,b,c){var d=b.pendingProps,e=d.revealOrder,f=d.tail;Xi(a,b,d.children,c);d=L.current;if(0!==(d&2))d=d&1|2,b.flags|=128;else {if(null!==a&&0!==(a.flags&128))a:for(a=b.child;null!==a;){if(13===a.tag)null!==a.memoizedState&&vj(a,c,b);else if(19===a.tag)vj(a,c,b);else if(null!==a.child){a.child.return=a;a=a.child;continue}if(a===b)break a;for(;null===a.sibling;){if(null===a.return||a.return===b)break a;a=a.return;}a.sibling.return=a.return;a=a.sibling;}d&=1;}G(L,d);if(0===(b.mode&1))b.memoizedState=
+  null;else switch(e){case "forwards":c=b.child;for(e=null;null!==c;)a=c.alternate,null!==a&&null===Ch(a)&&(e=c),c=c.sibling;c=e;null===c?(e=b.child,b.child=null):(e=c.sibling,c.sibling=null);wj(b,false,e,c,f);break;case "backwards":c=null;e=b.child;for(b.child=null;null!==e;){a=e.alternate;if(null!==a&&null===Ch(a)){b.child=e;break}a=e.sibling;e.sibling=c;c=e;e=a;}wj(b,true,c,null,f);break;case "together":wj(b,false,null,null,void 0);break;default:b.memoizedState=null;}return b.child}
+  function ij(a,b){0===(b.mode&1)&&null!==a&&(a.alternate=null,b.alternate=null,b.flags|=2);}function Zi(a,b,c){null!==a&&(b.dependencies=a.dependencies);rh|=b.lanes;if(0===(c&b.childLanes))return null;if(null!==a&&b.child!==a.child)throw Error(p(153));if(null!==b.child){a=b.child;c=Pg(a,a.pendingProps);b.child=c;for(c.return=b;null!==a.sibling;)a=a.sibling,c=c.sibling=Pg(a,a.pendingProps),c.return=b;c.sibling=null;}return b.child}
+  function yj(a,b,c){switch(b.tag){case 3:kj(b);Ig();break;case 5:Ah(b);break;case 1:Zf(b.type)&&cg(b);break;case 4:yh(b,b.stateNode.containerInfo);break;case 10:var d=b.type._context,e=b.memoizedProps.value;G(Wg,d._currentValue);d._currentValue=e;break;case 13:d=b.memoizedState;if(null!==d){if(null!==d.dehydrated)return G(L,L.current&1),b.flags|=128,null;if(0!==(c&b.child.childLanes))return oj(a,b,c);G(L,L.current&1);a=Zi(a,b,c);return null!==a?a.sibling:null}G(L,L.current&1);break;case 19:d=0!==(c&
+  b.childLanes);if(0!==(a.flags&128)){if(d)return xj(a,b,c);b.flags|=128;}e=b.memoizedState;null!==e&&(e.rendering=null,e.tail=null,e.lastEffect=null);G(L,L.current);if(d)break;else return null;case 22:case 23:return b.lanes=0,dj(a,b,c)}return Zi(a,b,c)}var zj,Aj,Bj,Cj;
+  zj=function(a,b){for(var c=b.child;null!==c;){if(5===c.tag||6===c.tag)a.appendChild(c.stateNode);else if(4!==c.tag&&null!==c.child){c.child.return=c;c=c.child;continue}if(c===b)break;for(;null===c.sibling;){if(null===c.return||c.return===b)return;c=c.return;}c.sibling.return=c.return;c=c.sibling;}};Aj=function(){};
+  Bj=function(a,b,c,d){var e=a.memoizedProps;if(e!==d){a=b.stateNode;xh(uh.current);var f=null;switch(c){case "input":e=Ya(a,e);d=Ya(a,d);f=[];break;case "select":e=A({},e,{value:void 0});d=A({},d,{value:void 0});f=[];break;case "textarea":e=gb(a,e);d=gb(a,d);f=[];break;default:"function"!==typeof e.onClick&&"function"===typeof d.onClick&&(a.onclick=Bf);}ub(c,d);var g;c=null;for(l in e)if(!d.hasOwnProperty(l)&&e.hasOwnProperty(l)&&null!=e[l])if("style"===l){var h=e[l];for(g in h)h.hasOwnProperty(g)&&
+  (c||(c={}),c[g]="");}else "dangerouslySetInnerHTML"!==l&&"children"!==l&&"suppressContentEditableWarning"!==l&&"suppressHydrationWarning"!==l&&"autoFocus"!==l&&(ea.hasOwnProperty(l)?f||(f=[]):(f=f||[]).push(l,null));for(l in d){var k=d[l];h=null!=e?e[l]:void 0;if(d.hasOwnProperty(l)&&k!==h&&(null!=k||null!=h))if("style"===l)if(h){for(g in h)!h.hasOwnProperty(g)||k&&k.hasOwnProperty(g)||(c||(c={}),c[g]="");for(g in k)k.hasOwnProperty(g)&&h[g]!==k[g]&&(c||(c={}),c[g]=k[g]);}else c||(f||(f=[]),f.push(l,
+  c)),c=k;else "dangerouslySetInnerHTML"===l?(k=k?k.__html:void 0,h=h?h.__html:void 0,null!=k&&h!==k&&(f=f||[]).push(l,k)):"children"===l?"string"!==typeof k&&"number"!==typeof k||(f=f||[]).push(l,""+k):"suppressContentEditableWarning"!==l&&"suppressHydrationWarning"!==l&&(ea.hasOwnProperty(l)?(null!=k&&"onScroll"===l&&D("scroll",a),f||h===k||(f=[])):(f=f||[]).push(l,k));}c&&(f=f||[]).push("style",c);var l=f;if(b.updateQueue=l)b.flags|=4;}};Cj=function(a,b,c,d){c!==d&&(b.flags|=4);};
+  function Dj(a,b){if(!I)switch(a.tailMode){case "hidden":b=a.tail;for(var c=null;null!==b;)null!==b.alternate&&(c=b),b=b.sibling;null===c?a.tail=null:c.sibling=null;break;case "collapsed":c=a.tail;for(var d=null;null!==c;)null!==c.alternate&&(d=c),c=c.sibling;null===d?b||null===a.tail?a.tail=null:a.tail.sibling=null:d.sibling=null;}}
+  function S(a){var b=null!==a.alternate&&a.alternate.child===a.child,c=0,d=0;if(b)for(var e=a.child;null!==e;)c|=e.lanes|e.childLanes,d|=e.subtreeFlags&14680064,d|=e.flags&14680064,e.return=a,e=e.sibling;else for(e=a.child;null!==e;)c|=e.lanes|e.childLanes,d|=e.subtreeFlags,d|=e.flags,e.return=a,e=e.sibling;a.subtreeFlags|=d;a.childLanes=c;return b}
+  function Ej(a,b,c){var d=b.pendingProps;wg(b);switch(b.tag){case 2:case 16:case 15:case 0:case 11:case 7:case 8:case 12:case 9:case 14:return S(b),null;case 1:return Zf(b.type)&&$f(),S(b),null;case 3:d=b.stateNode;zh();E(Wf);E(H);Eh();d.pendingContext&&(d.context=d.pendingContext,d.pendingContext=null);if(null===a||null===a.child)Gg(b)?b.flags|=4:null===a||a.memoizedState.isDehydrated&&0===(b.flags&256)||(b.flags|=1024,null!==zg&&(Fj(zg),zg=null));Aj(a,b);S(b);return null;case 5:Bh(b);var e=xh(wh.current);
+  c=b.type;if(null!==a&&null!=b.stateNode)Bj(a,b,c,d,e),a.ref!==b.ref&&(b.flags|=512,b.flags|=2097152);else {if(!d){if(null===b.stateNode)throw Error(p(166));S(b);return null}a=xh(uh.current);if(Gg(b)){d=b.stateNode;c=b.type;var f=b.memoizedProps;d[Of]=b;d[Pf]=f;a=0!==(b.mode&1);switch(c){case "dialog":D("cancel",d);D("close",d);break;case "iframe":case "object":case "embed":D("load",d);break;case "video":case "audio":for(e=0;e<lf.length;e++)D(lf[e],d);break;case "source":D("error",d);break;case "img":case "image":case "link":D("error",
+  d);D("load",d);break;case "details":D("toggle",d);break;case "input":Za(d,f);D("invalid",d);break;case "select":d._wrapperState={wasMultiple:!!f.multiple};D("invalid",d);break;case "textarea":hb(d,f),D("invalid",d);}ub(c,f);e=null;for(var g in f)if(f.hasOwnProperty(g)){var h=f[g];"children"===g?"string"===typeof h?d.textContent!==h&&(true!==f.suppressHydrationWarning&&Af(d.textContent,h,a),e=["children",h]):"number"===typeof h&&d.textContent!==""+h&&(true!==f.suppressHydrationWarning&&Af(d.textContent,
+  h,a),e=["children",""+h]):ea.hasOwnProperty(g)&&null!=h&&"onScroll"===g&&D("scroll",d);}switch(c){case "input":Va(d);db(d,f,true);break;case "textarea":Va(d);jb(d);break;case "select":case "option":break;default:"function"===typeof f.onClick&&(d.onclick=Bf);}d=e;b.updateQueue=d;null!==d&&(b.flags|=4);}else {g=9===e.nodeType?e:e.ownerDocument;"http://www.w3.org/1999/xhtml"===a&&(a=kb(c));"http://www.w3.org/1999/xhtml"===a?"script"===c?(a=g.createElement("div"),a.innerHTML="<script>\x3c/script>",a=a.removeChild(a.firstChild)):
+  "string"===typeof d.is?a=g.createElement(c,{is:d.is}):(a=g.createElement(c),"select"===c&&(g=a,d.multiple?g.multiple=true:d.size&&(g.size=d.size))):a=g.createElementNS(a,c);a[Of]=b;a[Pf]=d;zj(a,b,false,false);b.stateNode=a;a:{g=vb(c,d);switch(c){case "dialog":D("cancel",a);D("close",a);e=d;break;case "iframe":case "object":case "embed":D("load",a);e=d;break;case "video":case "audio":for(e=0;e<lf.length;e++)D(lf[e],a);e=d;break;case "source":D("error",a);e=d;break;case "img":case "image":case "link":D("error",
+  a);D("load",a);e=d;break;case "details":D("toggle",a);e=d;break;case "input":Za(a,d);e=Ya(a,d);D("invalid",a);break;case "option":e=d;break;case "select":a._wrapperState={wasMultiple:!!d.multiple};e=A({},d,{value:void 0});D("invalid",a);break;case "textarea":hb(a,d);e=gb(a,d);D("invalid",a);break;default:e=d;}ub(c,e);h=e;for(f in h)if(h.hasOwnProperty(f)){var k=h[f];"style"===f?sb(a,k):"dangerouslySetInnerHTML"===f?(k=k?k.__html:void 0,null!=k&&nb(a,k)):"children"===f?"string"===typeof k?("textarea"!==
+  c||""!==k)&&ob(a,k):"number"===typeof k&&ob(a,""+k):"suppressContentEditableWarning"!==f&&"suppressHydrationWarning"!==f&&"autoFocus"!==f&&(ea.hasOwnProperty(f)?null!=k&&"onScroll"===f&&D("scroll",a):null!=k&&ta(a,f,k,g));}switch(c){case "input":Va(a);db(a,d,false);break;case "textarea":Va(a);jb(a);break;case "option":null!=d.value&&a.setAttribute("value",""+Sa(d.value));break;case "select":a.multiple=!!d.multiple;f=d.value;null!=f?fb(a,!!d.multiple,f,false):null!=d.defaultValue&&fb(a,!!d.multiple,d.defaultValue,
+  true);break;default:"function"===typeof e.onClick&&(a.onclick=Bf);}switch(c){case "button":case "input":case "select":case "textarea":d=!!d.autoFocus;break a;case "img":d=true;break a;default:d=false;}}d&&(b.flags|=4);}null!==b.ref&&(b.flags|=512,b.flags|=2097152);}S(b);return null;case 6:if(a&&null!=b.stateNode)Cj(a,b,a.memoizedProps,d);else {if("string"!==typeof d&&null===b.stateNode)throw Error(p(166));c=xh(wh.current);xh(uh.current);if(Gg(b)){d=b.stateNode;c=b.memoizedProps;d[Of]=b;if(f=d.nodeValue!==c)if(a=
+  xg,null!==a)switch(a.tag){case 3:Af(d.nodeValue,c,0!==(a.mode&1));break;case 5:true!==a.memoizedProps.suppressHydrationWarning&&Af(d.nodeValue,c,0!==(a.mode&1));}f&&(b.flags|=4);}else d=(9===c.nodeType?c:c.ownerDocument).createTextNode(d),d[Of]=b,b.stateNode=d;}S(b);return null;case 13:E(L);d=b.memoizedState;if(null===a||null!==a.memoizedState&&null!==a.memoizedState.dehydrated){if(I&&null!==yg&&0!==(b.mode&1)&&0===(b.flags&128))Hg(),Ig(),b.flags|=98560,f=false;else if(f=Gg(b),null!==d&&null!==d.dehydrated){if(null===
+  a){if(!f)throw Error(p(318));f=b.memoizedState;f=null!==f?f.dehydrated:null;if(!f)throw Error(p(317));f[Of]=b;}else Ig(),0===(b.flags&128)&&(b.memoizedState=null),b.flags|=4;S(b);f=false;}else null!==zg&&(Fj(zg),zg=null),f=true;if(!f)return b.flags&65536?b:null}if(0!==(b.flags&128))return b.lanes=c,b;d=null!==d;d!==(null!==a&&null!==a.memoizedState)&&d&&(b.child.flags|=8192,0!==(b.mode&1)&&(null===a||0!==(L.current&1)?0===T&&(T=3):tj()));null!==b.updateQueue&&(b.flags|=4);S(b);return null;case 4:return zh(),
+  Aj(a,b),null===a&&sf(b.stateNode.containerInfo),S(b),null;case 10:return ah(b.type._context),S(b),null;case 17:return Zf(b.type)&&$f(),S(b),null;case 19:E(L);f=b.memoizedState;if(null===f)return S(b),null;d=0!==(b.flags&128);g=f.rendering;if(null===g)if(d)Dj(f,false);else {if(0!==T||null!==a&&0!==(a.flags&128))for(a=b.child;null!==a;){g=Ch(a);if(null!==g){b.flags|=128;Dj(f,false);d=g.updateQueue;null!==d&&(b.updateQueue=d,b.flags|=4);b.subtreeFlags=0;d=c;for(c=b.child;null!==c;)f=c,a=d,f.flags&=14680066,
+  g=f.alternate,null===g?(f.childLanes=0,f.lanes=a,f.child=null,f.subtreeFlags=0,f.memoizedProps=null,f.memoizedState=null,f.updateQueue=null,f.dependencies=null,f.stateNode=null):(f.childLanes=g.childLanes,f.lanes=g.lanes,f.child=g.child,f.subtreeFlags=0,f.deletions=null,f.memoizedProps=g.memoizedProps,f.memoizedState=g.memoizedState,f.updateQueue=g.updateQueue,f.type=g.type,a=g.dependencies,f.dependencies=null===a?null:{lanes:a.lanes,firstContext:a.firstContext}),c=c.sibling;G(L,L.current&1|2);return b.child}a=
+  a.sibling;}null!==f.tail&&B()>Gj&&(b.flags|=128,d=true,Dj(f,false),b.lanes=4194304);}else {if(!d)if(a=Ch(g),null!==a){if(b.flags|=128,d=true,c=a.updateQueue,null!==c&&(b.updateQueue=c,b.flags|=4),Dj(f,true),null===f.tail&&"hidden"===f.tailMode&&!g.alternate&&!I)return S(b),null}else 2*B()-f.renderingStartTime>Gj&&1073741824!==c&&(b.flags|=128,d=true,Dj(f,false),b.lanes=4194304);f.isBackwards?(g.sibling=b.child,b.child=g):(c=f.last,null!==c?c.sibling=g:b.child=g,f.last=g);}if(null!==f.tail)return b=f.tail,f.rendering=
+  b,f.tail=b.sibling,f.renderingStartTime=B(),b.sibling=null,c=L.current,G(L,d?c&1|2:c&1),b;S(b);return null;case 22:case 23:return Hj(),d=null!==b.memoizedState,null!==a&&null!==a.memoizedState!==d&&(b.flags|=8192),d&&0!==(b.mode&1)?0!==(fj&1073741824)&&(S(b),b.subtreeFlags&6&&(b.flags|=8192)):S(b),null;case 24:return null;case 25:return null}throw Error(p(156,b.tag));}
+  function Ij(a,b){wg(b);switch(b.tag){case 1:return Zf(b.type)&&$f(),a=b.flags,a&65536?(b.flags=a&-65537|128,b):null;case 3:return zh(),E(Wf),E(H),Eh(),a=b.flags,0!==(a&65536)&&0===(a&128)?(b.flags=a&-65537|128,b):null;case 5:return Bh(b),null;case 13:E(L);a=b.memoizedState;if(null!==a&&null!==a.dehydrated){if(null===b.alternate)throw Error(p(340));Ig();}a=b.flags;return a&65536?(b.flags=a&-65537|128,b):null;case 19:return E(L),null;case 4:return zh(),null;case 10:return ah(b.type._context),null;case 22:case 23:return Hj(),
+  null;case 24:return null;default:return null}}var Jj=false,U=false,Kj="function"===typeof WeakSet?WeakSet:Set,V=null;function Lj(a,b){var c=a.ref;if(null!==c)if("function"===typeof c)try{c(null);}catch(d){W(a,b,d);}else c.current=null;}function Mj(a,b,c){try{c();}catch(d){W(a,b,d);}}var Nj=false;
+  function Oj(a,b){Cf=dd;a=Me();if(Ne(a)){if("selectionStart"in a)var c={start:a.selectionStart,end:a.selectionEnd};else a:{c=(c=a.ownerDocument)&&c.defaultView||window;var d=c.getSelection&&c.getSelection();if(d&&0!==d.rangeCount){c=d.anchorNode;var e=d.anchorOffset,f=d.focusNode;d=d.focusOffset;try{c.nodeType,f.nodeType;}catch(F){c=null;break a}var g=0,h=-1,k=-1,l=0,m=0,q=a,r=null;b:for(;;){for(var y;;){q!==c||0!==e&&3!==q.nodeType||(h=g+e);q!==f||0!==d&&3!==q.nodeType||(k=g+d);3===q.nodeType&&(g+=
+  q.nodeValue.length);if(null===(y=q.firstChild))break;r=q;q=y;}for(;;){if(q===a)break b;r===c&&++l===e&&(h=g);r===f&&++m===d&&(k=g);if(null!==(y=q.nextSibling))break;q=r;r=q.parentNode;}q=y;}c=-1===h||-1===k?null:{start:h,end:k};}else c=null;}c=c||{start:0,end:0};}else c=null;Df={focusedElem:a,selectionRange:c};dd=false;for(V=b;null!==V;)if(b=V,a=b.child,0!==(b.subtreeFlags&1028)&&null!==a)a.return=b,V=a;else for(;null!==V;){b=V;try{var n=b.alternate;if(0!==(b.flags&1024))switch(b.tag){case 0:case 11:case 15:break;
+  case 1:if(null!==n){var t=n.memoizedProps,J=n.memoizedState,x=b.stateNode,w=x.getSnapshotBeforeUpdate(b.elementType===b.type?t:Ci(b.type,t),J);x.__reactInternalSnapshotBeforeUpdate=w;}break;case 3:var u=b.stateNode.containerInfo;1===u.nodeType?u.textContent="":9===u.nodeType&&u.documentElement&&u.removeChild(u.documentElement);break;case 5:case 6:case 4:case 17:break;default:throw Error(p(163));}}catch(F){W(b,b.return,F);}a=b.sibling;if(null!==a){a.return=b.return;V=a;break}V=b.return;}n=Nj;Nj=false;return n}
+  function Pj(a,b,c){var d=b.updateQueue;d=null!==d?d.lastEffect:null;if(null!==d){var e=d=d.next;do{if((e.tag&a)===a){var f=e.destroy;e.destroy=void 0;void 0!==f&&Mj(b,c,f);}e=e.next;}while(e!==d)}}function Qj(a,b){b=b.updateQueue;b=null!==b?b.lastEffect:null;if(null!==b){var c=b=b.next;do{if((c.tag&a)===a){var d=c.create;c.destroy=d();}c=c.next;}while(c!==b)}}function Rj(a){var b=a.ref;if(null!==b){var c=a.stateNode;switch(a.tag){case 5:a=c;break;default:a=c;}"function"===typeof b?b(a):b.current=a;}}
+  function Sj(a){var b=a.alternate;null!==b&&(a.alternate=null,Sj(b));a.child=null;a.deletions=null;a.sibling=null;5===a.tag&&(b=a.stateNode,null!==b&&(delete b[Of],delete b[Pf],delete b[of],delete b[Qf],delete b[Rf]));a.stateNode=null;a.return=null;a.dependencies=null;a.memoizedProps=null;a.memoizedState=null;a.pendingProps=null;a.stateNode=null;a.updateQueue=null;}function Tj(a){return 5===a.tag||3===a.tag||4===a.tag}
+  function Uj(a){a:for(;;){for(;null===a.sibling;){if(null===a.return||Tj(a.return))return null;a=a.return;}a.sibling.return=a.return;for(a=a.sibling;5!==a.tag&&6!==a.tag&&18!==a.tag;){if(a.flags&2)continue a;if(null===a.child||4===a.tag)continue a;else a.child.return=a,a=a.child;}if(!(a.flags&2))return a.stateNode}}
+  function Vj(a,b,c){var d=a.tag;if(5===d||6===d)a=a.stateNode,b?8===c.nodeType?c.parentNode.insertBefore(a,b):c.insertBefore(a,b):(8===c.nodeType?(b=c.parentNode,b.insertBefore(a,c)):(b=c,b.appendChild(a)),c=c._reactRootContainer,null!==c&&void 0!==c||null!==b.onclick||(b.onclick=Bf));else if(4!==d&&(a=a.child,null!==a))for(Vj(a,b,c),a=a.sibling;null!==a;)Vj(a,b,c),a=a.sibling;}
+  function Wj(a,b,c){var d=a.tag;if(5===d||6===d)a=a.stateNode,b?c.insertBefore(a,b):c.appendChild(a);else if(4!==d&&(a=a.child,null!==a))for(Wj(a,b,c),a=a.sibling;null!==a;)Wj(a,b,c),a=a.sibling;}var X=null,Xj=false;function Yj(a,b,c){for(c=c.child;null!==c;)Zj(a,b,c),c=c.sibling;}
+  function Zj(a,b,c){if(lc&&"function"===typeof lc.onCommitFiberUnmount)try{lc.onCommitFiberUnmount(kc,c);}catch(h){}switch(c.tag){case 5:U||Lj(c,b);case 6:var d=X,e=Xj;X=null;Yj(a,b,c);X=d;Xj=e;null!==X&&(Xj?(a=X,c=c.stateNode,8===a.nodeType?a.parentNode.removeChild(c):a.removeChild(c)):X.removeChild(c.stateNode));break;case 18:null!==X&&(Xj?(a=X,c=c.stateNode,8===a.nodeType?Kf(a.parentNode,c):1===a.nodeType&&Kf(a,c),bd(a)):Kf(X,c.stateNode));break;case 4:d=X;e=Xj;X=c.stateNode.containerInfo;Xj=true;
+  Yj(a,b,c);X=d;Xj=e;break;case 0:case 11:case 14:case 15:if(!U&&(d=c.updateQueue,null!==d&&(d=d.lastEffect,null!==d))){e=d=d.next;do{var f=e,g=f.destroy;f=f.tag;void 0!==g&&(0!==(f&2)?Mj(c,b,g):0!==(f&4)&&Mj(c,b,g));e=e.next;}while(e!==d)}Yj(a,b,c);break;case 1:if(!U&&(Lj(c,b),d=c.stateNode,"function"===typeof d.componentWillUnmount))try{d.props=c.memoizedProps,d.state=c.memoizedState,d.componentWillUnmount();}catch(h){W(c,b,h);}Yj(a,b,c);break;case 21:Yj(a,b,c);break;case 22:c.mode&1?(U=(d=U)||null!==
+  c.memoizedState,Yj(a,b,c),U=d):Yj(a,b,c);break;default:Yj(a,b,c);}}function ak(a){var b=a.updateQueue;if(null!==b){a.updateQueue=null;var c=a.stateNode;null===c&&(c=a.stateNode=new Kj);b.forEach(function(b){var d=bk.bind(null,a,b);c.has(b)||(c.add(b),b.then(d,d));});}}
+  function ck(a,b){var c=b.deletions;if(null!==c)for(var d=0;d<c.length;d++){var e=c[d];try{var f=a,g=b,h=g;a:for(;null!==h;){switch(h.tag){case 5:X=h.stateNode;Xj=!1;break a;case 3:X=h.stateNode.containerInfo;Xj=!0;break a;case 4:X=h.stateNode.containerInfo;Xj=!0;break a}h=h.return;}if(null===X)throw Error(p(160));Zj(f,g,e);X=null;Xj=!1;var k=e.alternate;null!==k&&(k.return=null);e.return=null;}catch(l){W(e,b,l);}}if(b.subtreeFlags&12854)for(b=b.child;null!==b;)dk(b,a),b=b.sibling;}
+  function dk(a,b){var c=a.alternate,d=a.flags;switch(a.tag){case 0:case 11:case 14:case 15:ck(b,a);ek(a);if(d&4){try{Pj(3,a,a.return),Qj(3,a);}catch(t){W(a,a.return,t);}try{Pj(5,a,a.return);}catch(t){W(a,a.return,t);}}break;case 1:ck(b,a);ek(a);d&512&&null!==c&&Lj(c,c.return);break;case 5:ck(b,a);ek(a);d&512&&null!==c&&Lj(c,c.return);if(a.flags&32){var e=a.stateNode;try{ob(e,"");}catch(t){W(a,a.return,t);}}if(d&4&&(e=a.stateNode,null!=e)){var f=a.memoizedProps,g=null!==c?c.memoizedProps:f,h=a.type,k=a.updateQueue;
+  a.updateQueue=null;if(null!==k)try{"input"===h&&"radio"===f.type&&null!=f.name&&ab(e,f);vb(h,g);var l=vb(h,f);for(g=0;g<k.length;g+=2){var m=k[g],q=k[g+1];"style"===m?sb(e,q):"dangerouslySetInnerHTML"===m?nb(e,q):"children"===m?ob(e,q):ta(e,m,q,l);}switch(h){case "input":bb(e,f);break;case "textarea":ib(e,f);break;case "select":var r=e._wrapperState.wasMultiple;e._wrapperState.wasMultiple=!!f.multiple;var y=f.value;null!=y?fb(e,!!f.multiple,y,!1):r!==!!f.multiple&&(null!=f.defaultValue?fb(e,!!f.multiple,
+  f.defaultValue,!0):fb(e,!!f.multiple,f.multiple?[]:"",!1));}e[Pf]=f;}catch(t){W(a,a.return,t);}}break;case 6:ck(b,a);ek(a);if(d&4){if(null===a.stateNode)throw Error(p(162));e=a.stateNode;f=a.memoizedProps;try{e.nodeValue=f;}catch(t){W(a,a.return,t);}}break;case 3:ck(b,a);ek(a);if(d&4&&null!==c&&c.memoizedState.isDehydrated)try{bd(b.containerInfo);}catch(t){W(a,a.return,t);}break;case 4:ck(b,a);ek(a);break;case 13:ck(b,a);ek(a);e=a.child;e.flags&8192&&(f=null!==e.memoizedState,e.stateNode.isHidden=f,!f||
+  null!==e.alternate&&null!==e.alternate.memoizedState||(fk=B()));d&4&&ak(a);break;case 22:m=null!==c&&null!==c.memoizedState;a.mode&1?(U=(l=U)||m,ck(b,a),U=l):ck(b,a);ek(a);if(d&8192){l=null!==a.memoizedState;if((a.stateNode.isHidden=l)&&!m&&0!==(a.mode&1))for(V=a,m=a.child;null!==m;){for(q=V=m;null!==V;){r=V;y=r.child;switch(r.tag){case 0:case 11:case 14:case 15:Pj(4,r,r.return);break;case 1:Lj(r,r.return);var n=r.stateNode;if("function"===typeof n.componentWillUnmount){d=r;c=r.return;try{b=d,n.props=
+  b.memoizedProps,n.state=b.memoizedState,n.componentWillUnmount();}catch(t){W(d,c,t);}}break;case 5:Lj(r,r.return);break;case 22:if(null!==r.memoizedState){gk(q);continue}}null!==y?(y.return=r,V=y):gk(q);}m=m.sibling;}a:for(m=null,q=a;;){if(5===q.tag){if(null===m){m=q;try{e=q.stateNode,l?(f=e.style,"function"===typeof f.setProperty?f.setProperty("display","none","important"):f.display="none"):(h=q.stateNode,k=q.memoizedProps.style,g=void 0!==k&&null!==k&&k.hasOwnProperty("display")?k.display:null,h.style.display=
+  rb("display",g));}catch(t){W(a,a.return,t);}}}else if(6===q.tag){if(null===m)try{q.stateNode.nodeValue=l?"":q.memoizedProps;}catch(t){W(a,a.return,t);}}else if((22!==q.tag&&23!==q.tag||null===q.memoizedState||q===a)&&null!==q.child){q.child.return=q;q=q.child;continue}if(q===a)break a;for(;null===q.sibling;){if(null===q.return||q.return===a)break a;m===q&&(m=null);q=q.return;}m===q&&(m=null);q.sibling.return=q.return;q=q.sibling;}}break;case 19:ck(b,a);ek(a);d&4&&ak(a);break;case 21:break;default:ck(b,
+  a),ek(a);}}function ek(a){var b=a.flags;if(b&2){try{a:{for(var c=a.return;null!==c;){if(Tj(c)){var d=c;break a}c=c.return;}throw Error(p(160));}switch(d.tag){case 5:var e=d.stateNode;d.flags&32&&(ob(e,""),d.flags&=-33);var f=Uj(a);Wj(a,f,e);break;case 3:case 4:var g=d.stateNode.containerInfo,h=Uj(a);Vj(a,h,g);break;default:throw Error(p(161));}}catch(k){W(a,a.return,k);}a.flags&=-3;}b&4096&&(a.flags&=-4097);}function hk(a,b,c){V=a;ik(a);}
+  function ik(a,b,c){for(var d=0!==(a.mode&1);null!==V;){var e=V,f=e.child;if(22===e.tag&&d){var g=null!==e.memoizedState||Jj;if(!g){var h=e.alternate,k=null!==h&&null!==h.memoizedState||U;h=Jj;var l=U;Jj=g;if((U=k)&&!l)for(V=e;null!==V;)g=V,k=g.child,22===g.tag&&null!==g.memoizedState?jk(e):null!==k?(k.return=g,V=k):jk(e);for(;null!==f;)V=f,ik(f),f=f.sibling;V=e;Jj=h;U=l;}kk(a);}else 0!==(e.subtreeFlags&8772)&&null!==f?(f.return=e,V=f):kk(a);}}
+  function kk(a){for(;null!==V;){var b=V;if(0!==(b.flags&8772)){var c=b.alternate;try{if(0!==(b.flags&8772))switch(b.tag){case 0:case 11:case 15:U||Qj(5,b);break;case 1:var d=b.stateNode;if(b.flags&4&&!U)if(null===c)d.componentDidMount();else {var e=b.elementType===b.type?c.memoizedProps:Ci(b.type,c.memoizedProps);d.componentDidUpdate(e,c.memoizedState,d.__reactInternalSnapshotBeforeUpdate);}var f=b.updateQueue;null!==f&&sh(b,f,d);break;case 3:var g=b.updateQueue;if(null!==g){c=null;if(null!==b.child)switch(b.child.tag){case 5:c=
+  b.child.stateNode;break;case 1:c=b.child.stateNode;}sh(b,g,c);}break;case 5:var h=b.stateNode;if(null===c&&b.flags&4){c=h;var k=b.memoizedProps;switch(b.type){case "button":case "input":case "select":case "textarea":k.autoFocus&&c.focus();break;case "img":k.src&&(c.src=k.src);}}break;case 6:break;case 4:break;case 12:break;case 13:if(null===b.memoizedState){var l=b.alternate;if(null!==l){var m=l.memoizedState;if(null!==m){var q=m.dehydrated;null!==q&&bd(q);}}}break;case 19:case 17:case 21:case 22:case 23:case 25:break;
+  default:throw Error(p(163));}U||b.flags&512&&Rj(b);}catch(r){W(b,b.return,r);}}if(b===a){V=null;break}c=b.sibling;if(null!==c){c.return=b.return;V=c;break}V=b.return;}}function gk(a){for(;null!==V;){var b=V;if(b===a){V=null;break}var c=b.sibling;if(null!==c){c.return=b.return;V=c;break}V=b.return;}}
+  function jk(a){for(;null!==V;){var b=V;try{switch(b.tag){case 0:case 11:case 15:var c=b.return;try{Qj(4,b);}catch(k){W(b,c,k);}break;case 1:var d=b.stateNode;if("function"===typeof d.componentDidMount){var e=b.return;try{d.componentDidMount();}catch(k){W(b,e,k);}}var f=b.return;try{Rj(b);}catch(k){W(b,f,k);}break;case 5:var g=b.return;try{Rj(b);}catch(k){W(b,g,k);}}}catch(k){W(b,b.return,k);}if(b===a){V=null;break}var h=b.sibling;if(null!==h){h.return=b.return;V=h;break}V=b.return;}}
+  var lk=Math.ceil,mk=ua.ReactCurrentDispatcher,nk=ua.ReactCurrentOwner,ok=ua.ReactCurrentBatchConfig,K=0,Q=null,Y=null,Z=0,fj=0,ej=Uf(0),T=0,pk=null,rh=0,qk=0,rk=0,sk=null,tk=null,fk=0,Gj=Infinity,uk=null,Oi=false,Pi=null,Ri=null,vk=false,wk=null,xk=0,yk=0,zk=null,Ak=-1,Bk=0;function R(){return 0!==(K&6)?B():-1!==Ak?Ak:Ak=B()}
+  function yi(a){if(0===(a.mode&1))return 1;if(0!==(K&2)&&0!==Z)return Z&-Z;if(null!==Kg.transition)return 0===Bk&&(Bk=yc()),Bk;a=C;if(0!==a)return a;a=window.event;a=void 0===a?16:jd(a.type);return a}function gi(a,b,c,d){if(50<yk)throw yk=0,zk=null,Error(p(185));Ac(a,c,d);if(0===(K&2)||a!==Q)a===Q&&(0===(K&2)&&(qk|=c),4===T&&Ck(a,Z)),Dk(a,d),1===c&&0===K&&0===(b.mode&1)&&(Gj=B()+500,fg&&jg());}
+  function Dk(a,b){var c=a.callbackNode;wc(a,b);var d=uc(a,a===Q?Z:0);if(0===d)null!==c&&bc(c),a.callbackNode=null,a.callbackPriority=0;else if(b=d&-d,a.callbackPriority!==b){null!=c&&bc(c);if(1===b)0===a.tag?ig(Ek.bind(null,a)):hg(Ek.bind(null,a)),Jf(function(){0===(K&6)&&jg();}),c=null;else {switch(Dc(d)){case 1:c=fc;break;case 4:c=gc;break;case 16:c=hc;break;case 536870912:c=jc;break;default:c=hc;}c=Fk(c,Gk.bind(null,a));}a.callbackPriority=b;a.callbackNode=c;}}
+  function Gk(a,b){Ak=-1;Bk=0;if(0!==(K&6))throw Error(p(327));var c=a.callbackNode;if(Hk()&&a.callbackNode!==c)return null;var d=uc(a,a===Q?Z:0);if(0===d)return null;if(0!==(d&30)||0!==(d&a.expiredLanes)||b)b=Ik(a,d);else {b=d;var e=K;K|=2;var f=Jk();if(Q!==a||Z!==b)uk=null,Gj=B()+500,Kk(a,b);do try{Lk();break}catch(h){Mk(a,h);}while(1);$g();mk.current=f;K=e;null!==Y?b=0:(Q=null,Z=0,b=T);}if(0!==b){2===b&&(e=xc(a),0!==e&&(d=e,b=Nk(a,e)));if(1===b)throw c=pk,Kk(a,0),Ck(a,d),Dk(a,B()),c;if(6===b)Ck(a,d);
+  else {e=a.current.alternate;if(0===(d&30)&&!Ok(e)&&(b=Ik(a,d),2===b&&(f=xc(a),0!==f&&(d=f,b=Nk(a,f))),1===b))throw c=pk,Kk(a,0),Ck(a,d),Dk(a,B()),c;a.finishedWork=e;a.finishedLanes=d;switch(b){case 0:case 1:throw Error(p(345));case 2:Pk(a,tk,uk);break;case 3:Ck(a,d);if((d&130023424)===d&&(b=fk+500-B(),10<b)){if(0!==uc(a,0))break;e=a.suspendedLanes;if((e&d)!==d){R();a.pingedLanes|=a.suspendedLanes&e;break}a.timeoutHandle=Ff(Pk.bind(null,a,tk,uk),b);break}Pk(a,tk,uk);break;case 4:Ck(a,d);if((d&4194240)===
+  d)break;b=a.eventTimes;for(e=-1;0<d;){var g=31-oc(d);f=1<<g;g=b[g];g>e&&(e=g);d&=~f;}d=e;d=B()-d;d=(120>d?120:480>d?480:1080>d?1080:1920>d?1920:3E3>d?3E3:4320>d?4320:1960*lk(d/1960))-d;if(10<d){a.timeoutHandle=Ff(Pk.bind(null,a,tk,uk),d);break}Pk(a,tk,uk);break;case 5:Pk(a,tk,uk);break;default:throw Error(p(329));}}}Dk(a,B());return a.callbackNode===c?Gk.bind(null,a):null}
+  function Nk(a,b){var c=sk;a.current.memoizedState.isDehydrated&&(Kk(a,b).flags|=256);a=Ik(a,b);2!==a&&(b=tk,tk=c,null!==b&&Fj(b));return a}function Fj(a){null===tk?tk=a:tk.push.apply(tk,a);}
+  function Ok(a){for(var b=a;;){if(b.flags&16384){var c=b.updateQueue;if(null!==c&&(c=c.stores,null!==c))for(var d=0;d<c.length;d++){var e=c[d],f=e.getSnapshot;e=e.value;try{if(!He(f(),e))return !1}catch(g){return  false}}}c=b.child;if(b.subtreeFlags&16384&&null!==c)c.return=b,b=c;else {if(b===a)break;for(;null===b.sibling;){if(null===b.return||b.return===a)return  true;b=b.return;}b.sibling.return=b.return;b=b.sibling;}}return  true}
+  function Ck(a,b){b&=~rk;b&=~qk;a.suspendedLanes|=b;a.pingedLanes&=~b;for(a=a.expirationTimes;0<b;){var c=31-oc(b),d=1<<c;a[c]=-1;b&=~d;}}function Ek(a){if(0!==(K&6))throw Error(p(327));Hk();var b=uc(a,0);if(0===(b&1))return Dk(a,B()),null;var c=Ik(a,b);if(0!==a.tag&&2===c){var d=xc(a);0!==d&&(b=d,c=Nk(a,d));}if(1===c)throw c=pk,Kk(a,0),Ck(a,b),Dk(a,B()),c;if(6===c)throw Error(p(345));a.finishedWork=a.current.alternate;a.finishedLanes=b;Pk(a,tk,uk);Dk(a,B());return null}
+  function Qk(a,b){var c=K;K|=1;try{return a(b)}finally{K=c,0===K&&(Gj=B()+500,fg&&jg());}}function Rk(a){null!==wk&&0===wk.tag&&0===(K&6)&&Hk();var b=K;K|=1;var c=ok.transition,d=C;try{if(ok.transition=null,C=1,a)return a()}finally{C=d,ok.transition=c,K=b,0===(K&6)&&jg();}}function Hj(){fj=ej.current;E(ej);}
+  function Kk(a,b){a.finishedWork=null;a.finishedLanes=0;var c=a.timeoutHandle;-1!==c&&(a.timeoutHandle=-1,Gf(c));if(null!==Y)for(c=Y.return;null!==c;){var d=c;wg(d);switch(d.tag){case 1:d=d.type.childContextTypes;null!==d&&void 0!==d&&$f();break;case 3:zh();E(Wf);E(H);Eh();break;case 5:Bh(d);break;case 4:zh();break;case 13:E(L);break;case 19:E(L);break;case 10:ah(d.type._context);break;case 22:case 23:Hj();}c=c.return;}Q=a;Y=a=Pg(a.current,null);Z=fj=b;T=0;pk=null;rk=qk=rh=0;tk=sk=null;if(null!==fh){for(b=
+  0;b<fh.length;b++)if(c=fh[b],d=c.interleaved,null!==d){c.interleaved=null;var e=d.next,f=c.pending;if(null!==f){var g=f.next;f.next=e;d.next=g;}c.pending=d;}fh=null;}return a}
+  function Mk(a,b){do{var c=Y;try{$g();Fh.current=Rh;if(Ih){for(var d=M.memoizedState;null!==d;){var e=d.queue;null!==e&&(e.pending=null);d=d.next;}Ih=!1;}Hh=0;O=N=M=null;Jh=!1;Kh=0;nk.current=null;if(null===c||null===c.return){T=1;pk=b;Y=null;break}a:{var f=a,g=c.return,h=c,k=b;b=Z;h.flags|=32768;if(null!==k&&"object"===typeof k&&"function"===typeof k.then){var l=k,m=h,q=m.tag;if(0===(m.mode&1)&&(0===q||11===q||15===q)){var r=m.alternate;r?(m.updateQueue=r.updateQueue,m.memoizedState=r.memoizedState,
+  m.lanes=r.lanes):(m.updateQueue=null,m.memoizedState=null);}var y=Ui(g);if(null!==y){y.flags&=-257;Vi(y,g,h,f,b);y.mode&1&&Si(f,l,b);b=y;k=l;var n=b.updateQueue;if(null===n){var t=new Set;t.add(k);b.updateQueue=t;}else n.add(k);break a}else {if(0===(b&1)){Si(f,l,b);tj();break a}k=Error(p(426));}}else if(I&&h.mode&1){var J=Ui(g);if(null!==J){0===(J.flags&65536)&&(J.flags|=256);Vi(J,g,h,f,b);Jg(Ji(k,h));break a}}f=k=Ji(k,h);4!==T&&(T=2);null===sk?sk=[f]:sk.push(f);f=g;do{switch(f.tag){case 3:f.flags|=65536;
+  b&=-b;f.lanes|=b;var x=Ni(f,k,b);ph(f,x);break a;case 1:h=k;var w=f.type,u=f.stateNode;if(0===(f.flags&128)&&("function"===typeof w.getDerivedStateFromError||null!==u&&"function"===typeof u.componentDidCatch&&(null===Ri||!Ri.has(u)))){f.flags|=65536;b&=-b;f.lanes|=b;var F=Qi(f,h,b);ph(f,F);break a}}f=f.return;}while(null!==f)}Sk(c);}catch(na){b=na;Y===c&&null!==c&&(Y=c=c.return);continue}break}while(1)}function Jk(){var a=mk.current;mk.current=Rh;return null===a?Rh:a}
+  function tj(){if(0===T||3===T||2===T)T=4;null===Q||0===(rh&268435455)&&0===(qk&268435455)||Ck(Q,Z);}function Ik(a,b){var c=K;K|=2;var d=Jk();if(Q!==a||Z!==b)uk=null,Kk(a,b);do try{Tk();break}catch(e){Mk(a,e);}while(1);$g();K=c;mk.current=d;if(null!==Y)throw Error(p(261));Q=null;Z=0;return T}function Tk(){for(;null!==Y;)Uk(Y);}function Lk(){for(;null!==Y&&!cc();)Uk(Y);}function Uk(a){var b=Vk(a.alternate,a,fj);a.memoizedProps=a.pendingProps;null===b?Sk(a):Y=b;nk.current=null;}
+  function Sk(a){var b=a;do{var c=b.alternate;a=b.return;if(0===(b.flags&32768)){if(c=Ej(c,b,fj),null!==c){Y=c;return}}else {c=Ij(c,b);if(null!==c){c.flags&=32767;Y=c;return}if(null!==a)a.flags|=32768,a.subtreeFlags=0,a.deletions=null;else {T=6;Y=null;return}}b=b.sibling;if(null!==b){Y=b;return}Y=b=a;}while(null!==b);0===T&&(T=5);}function Pk(a,b,c){var d=C,e=ok.transition;try{ok.transition=null,C=1,Wk(a,b,c,d);}finally{ok.transition=e,C=d;}return null}
+  function Wk(a,b,c,d){do Hk();while(null!==wk);if(0!==(K&6))throw Error(p(327));c=a.finishedWork;var e=a.finishedLanes;if(null===c)return null;a.finishedWork=null;a.finishedLanes=0;if(c===a.current)throw Error(p(177));a.callbackNode=null;a.callbackPriority=0;var f=c.lanes|c.childLanes;Bc(a,f);a===Q&&(Y=Q=null,Z=0);0===(c.subtreeFlags&2064)&&0===(c.flags&2064)||vk||(vk=true,Fk(hc,function(){Hk();return null}));f=0!==(c.flags&15990);if(0!==(c.subtreeFlags&15990)||f){f=ok.transition;ok.transition=null;
+  var g=C;C=1;var h=K;K|=4;nk.current=null;Oj(a,c);dk(c,a);Oe(Df);dd=!!Cf;Df=Cf=null;a.current=c;hk(c);dc();K=h;C=g;ok.transition=f;}else a.current=c;vk&&(vk=false,wk=a,xk=e);f=a.pendingLanes;0===f&&(Ri=null);mc(c.stateNode);Dk(a,B());if(null!==b)for(d=a.onRecoverableError,c=0;c<b.length;c++)e=b[c],d(e.value,{componentStack:e.stack,digest:e.digest});if(Oi)throw Oi=false,a=Pi,Pi=null,a;0!==(xk&1)&&0!==a.tag&&Hk();f=a.pendingLanes;0!==(f&1)?a===zk?yk++:(yk=0,zk=a):yk=0;jg();return null}
+  function Hk(){if(null!==wk){var a=Dc(xk),b=ok.transition,c=C;try{ok.transition=null;C=16>a?16:a;if(null===wk)var d=!1;else {a=wk;wk=null;xk=0;if(0!==(K&6))throw Error(p(331));var e=K;K|=4;for(V=a.current;null!==V;){var f=V,g=f.child;if(0!==(V.flags&16)){var h=f.deletions;if(null!==h){for(var k=0;k<h.length;k++){var l=h[k];for(V=l;null!==V;){var m=V;switch(m.tag){case 0:case 11:case 15:Pj(8,m,f);}var q=m.child;if(null!==q)q.return=m,V=q;else for(;null!==V;){m=V;var r=m.sibling,y=m.return;Sj(m);if(m===
+  l){V=null;break}if(null!==r){r.return=y;V=r;break}V=y;}}}var n=f.alternate;if(null!==n){var t=n.child;if(null!==t){n.child=null;do{var J=t.sibling;t.sibling=null;t=J;}while(null!==t)}}V=f;}}if(0!==(f.subtreeFlags&2064)&&null!==g)g.return=f,V=g;else b:for(;null!==V;){f=V;if(0!==(f.flags&2048))switch(f.tag){case 0:case 11:case 15:Pj(9,f,f.return);}var x=f.sibling;if(null!==x){x.return=f.return;V=x;break b}V=f.return;}}var w=a.current;for(V=w;null!==V;){g=V;var u=g.child;if(0!==(g.subtreeFlags&2064)&&null!==
+  u)u.return=g,V=u;else b:for(g=w;null!==V;){h=V;if(0!==(h.flags&2048))try{switch(h.tag){case 0:case 11:case 15:Qj(9,h);}}catch(na){W(h,h.return,na);}if(h===g){V=null;break b}var F=h.sibling;if(null!==F){F.return=h.return;V=F;break b}V=h.return;}}K=e;jg();if(lc&&"function"===typeof lc.onPostCommitFiberRoot)try{lc.onPostCommitFiberRoot(kc,a);}catch(na){}d=!0;}return d}finally{C=c,ok.transition=b;}}return  false}function Xk(a,b,c){b=Ji(c,b);b=Ni(a,b,1);a=nh(a,b,1);b=R();null!==a&&(Ac(a,1,b),Dk(a,b));}
+  function W(a,b,c){if(3===a.tag)Xk(a,a,c);else for(;null!==b;){if(3===b.tag){Xk(b,a,c);break}else if(1===b.tag){var d=b.stateNode;if("function"===typeof b.type.getDerivedStateFromError||"function"===typeof d.componentDidCatch&&(null===Ri||!Ri.has(d))){a=Ji(c,a);a=Qi(b,a,1);b=nh(b,a,1);a=R();null!==b&&(Ac(b,1,a),Dk(b,a));break}}b=b.return;}}
+  function Ti(a,b,c){var d=a.pingCache;null!==d&&d.delete(b);b=R();a.pingedLanes|=a.suspendedLanes&c;Q===a&&(Z&c)===c&&(4===T||3===T&&(Z&130023424)===Z&&500>B()-fk?Kk(a,0):rk|=c);Dk(a,b);}function Yk(a,b){0===b&&(0===(a.mode&1)?b=1:(b=sc,sc<<=1,0===(sc&130023424)&&(sc=4194304)));var c=R();a=ih(a,b);null!==a&&(Ac(a,b,c),Dk(a,c));}function uj(a){var b=a.memoizedState,c=0;null!==b&&(c=b.retryLane);Yk(a,c);}
+  function bk(a,b){var c=0;switch(a.tag){case 13:var d=a.stateNode;var e=a.memoizedState;null!==e&&(c=e.retryLane);break;case 19:d=a.stateNode;break;default:throw Error(p(314));}null!==d&&d.delete(b);Yk(a,c);}var Vk;
+  Vk=function(a,b,c){if(null!==a)if(a.memoizedProps!==b.pendingProps||Wf.current)dh=true;else {if(0===(a.lanes&c)&&0===(b.flags&128))return dh=false,yj(a,b,c);dh=0!==(a.flags&131072)?true:false;}else dh=false,I&&0!==(b.flags&1048576)&&ug(b,ng,b.index);b.lanes=0;switch(b.tag){case 2:var d=b.type;ij(a,b);a=b.pendingProps;var e=Yf(b,H.current);ch(b,c);e=Nh(null,b,d,a,e,c);var f=Sh();b.flags|=1;"object"===typeof e&&null!==e&&"function"===typeof e.render&&void 0===e.$$typeof?(b.tag=1,b.memoizedState=null,b.updateQueue=
+  null,Zf(d)?(f=true,cg(b)):f=false,b.memoizedState=null!==e.state&&void 0!==e.state?e.state:null,kh(b),e.updater=Ei,b.stateNode=e,e._reactInternals=b,Ii(b,d,a,c),b=jj(null,b,d,true,f,c)):(b.tag=0,I&&f&&vg(b),Xi(null,b,e,c),b=b.child);return b;case 16:d=b.elementType;a:{ij(a,b);a=b.pendingProps;e=d._init;d=e(d._payload);b.type=d;e=b.tag=Zk(d);a=Ci(d,a);switch(e){case 0:b=cj(null,b,d,a,c);break a;case 1:b=hj(null,b,d,a,c);break a;case 11:b=Yi(null,b,d,a,c);break a;case 14:b=$i(null,b,d,Ci(d.type,a),c);break a}throw Error(p(306,
+  d,""));}return b;case 0:return d=b.type,e=b.pendingProps,e=b.elementType===d?e:Ci(d,e),cj(a,b,d,e,c);case 1:return d=b.type,e=b.pendingProps,e=b.elementType===d?e:Ci(d,e),hj(a,b,d,e,c);case 3:a:{kj(b);if(null===a)throw Error(p(387));d=b.pendingProps;f=b.memoizedState;e=f.element;lh(a,b);qh(b,d,null,c);var g=b.memoizedState;d=g.element;if(f.isDehydrated)if(f={element:d,isDehydrated:false,cache:g.cache,pendingSuspenseBoundaries:g.pendingSuspenseBoundaries,transitions:g.transitions},b.updateQueue.baseState=
+  f,b.memoizedState=f,b.flags&256){e=Ji(Error(p(423)),b);b=lj(a,b,d,c,e);break a}else if(d!==e){e=Ji(Error(p(424)),b);b=lj(a,b,d,c,e);break a}else for(yg=Lf(b.stateNode.containerInfo.firstChild),xg=b,I=true,zg=null,c=Vg(b,null,d,c),b.child=c;c;)c.flags=c.flags&-3|4096,c=c.sibling;else {Ig();if(d===e){b=Zi(a,b,c);break a}Xi(a,b,d,c);}b=b.child;}return b;case 5:return Ah(b),null===a&&Eg(b),d=b.type,e=b.pendingProps,f=null!==a?a.memoizedProps:null,g=e.children,Ef(d,e)?g=null:null!==f&&Ef(d,f)&&(b.flags|=32),
+  gj(a,b),Xi(a,b,g,c),b.child;case 6:return null===a&&Eg(b),null;case 13:return oj(a,b,c);case 4:return yh(b,b.stateNode.containerInfo),d=b.pendingProps,null===a?b.child=Ug(b,null,d,c):Xi(a,b,d,c),b.child;case 11:return d=b.type,e=b.pendingProps,e=b.elementType===d?e:Ci(d,e),Yi(a,b,d,e,c);case 7:return Xi(a,b,b.pendingProps,c),b.child;case 8:return Xi(a,b,b.pendingProps.children,c),b.child;case 12:return Xi(a,b,b.pendingProps.children,c),b.child;case 10:a:{d=b.type._context;e=b.pendingProps;f=b.memoizedProps;
+  g=e.value;G(Wg,d._currentValue);d._currentValue=g;if(null!==f)if(He(f.value,g)){if(f.children===e.children&&!Wf.current){b=Zi(a,b,c);break a}}else for(f=b.child,null!==f&&(f.return=b);null!==f;){var h=f.dependencies;if(null!==h){g=f.child;for(var k=h.firstContext;null!==k;){if(k.context===d){if(1===f.tag){k=mh(-1,c&-c);k.tag=2;var l=f.updateQueue;if(null!==l){l=l.shared;var m=l.pending;null===m?k.next=k:(k.next=m.next,m.next=k);l.pending=k;}}f.lanes|=c;k=f.alternate;null!==k&&(k.lanes|=c);bh(f.return,
+  c,b);h.lanes|=c;break}k=k.next;}}else if(10===f.tag)g=f.type===b.type?null:f.child;else if(18===f.tag){g=f.return;if(null===g)throw Error(p(341));g.lanes|=c;h=g.alternate;null!==h&&(h.lanes|=c);bh(g,c,b);g=f.sibling;}else g=f.child;if(null!==g)g.return=f;else for(g=f;null!==g;){if(g===b){g=null;break}f=g.sibling;if(null!==f){f.return=g.return;g=f;break}g=g.return;}f=g;}Xi(a,b,e.children,c);b=b.child;}return b;case 9:return e=b.type,d=b.pendingProps.children,ch(b,c),e=eh(e),d=d(e),b.flags|=1,Xi(a,b,d,c),
+  b.child;case 14:return d=b.type,e=Ci(d,b.pendingProps),e=Ci(d.type,e),$i(a,b,d,e,c);case 15:return bj(a,b,b.type,b.pendingProps,c);case 17:return d=b.type,e=b.pendingProps,e=b.elementType===d?e:Ci(d,e),ij(a,b),b.tag=1,Zf(d)?(a=true,cg(b)):a=false,ch(b,c),Gi(b,d,e),Ii(b,d,e,c),jj(null,b,d,true,a,c);case 19:return xj(a,b,c);case 22:return dj(a,b,c)}throw Error(p(156,b.tag));};function Fk(a,b){return ac(a,b)}
+  function $k(a,b,c,d){this.tag=a;this.key=c;this.sibling=this.child=this.return=this.stateNode=this.type=this.elementType=null;this.index=0;this.ref=null;this.pendingProps=b;this.dependencies=this.memoizedState=this.updateQueue=this.memoizedProps=null;this.mode=d;this.subtreeFlags=this.flags=0;this.deletions=null;this.childLanes=this.lanes=0;this.alternate=null;}function Bg(a,b,c,d){return new $k(a,b,c,d)}function aj(a){a=a.prototype;return !(!a||!a.isReactComponent)}
+  function Zk(a){if("function"===typeof a)return aj(a)?1:0;if(void 0!==a&&null!==a){a=a.$$typeof;if(a===Da)return 11;if(a===Ga)return 14}return 2}
+  function Pg(a,b){var c=a.alternate;null===c?(c=Bg(a.tag,b,a.key,a.mode),c.elementType=a.elementType,c.type=a.type,c.stateNode=a.stateNode,c.alternate=a,a.alternate=c):(c.pendingProps=b,c.type=a.type,c.flags=0,c.subtreeFlags=0,c.deletions=null);c.flags=a.flags&14680064;c.childLanes=a.childLanes;c.lanes=a.lanes;c.child=a.child;c.memoizedProps=a.memoizedProps;c.memoizedState=a.memoizedState;c.updateQueue=a.updateQueue;b=a.dependencies;c.dependencies=null===b?null:{lanes:b.lanes,firstContext:b.firstContext};
+  c.sibling=a.sibling;c.index=a.index;c.ref=a.ref;return c}
+  function Rg(a,b,c,d,e,f){var g=2;d=a;if("function"===typeof a)aj(a)&&(g=1);else if("string"===typeof a)g=5;else a:switch(a){case ya:return Tg(c.children,e,f,b);case za:g=8;e|=8;break;case Aa:return a=Bg(12,c,b,e|2),a.elementType=Aa,a.lanes=f,a;case Ea:return a=Bg(13,c,b,e),a.elementType=Ea,a.lanes=f,a;case Fa:return a=Bg(19,c,b,e),a.elementType=Fa,a.lanes=f,a;case Ia:return pj(c,e,f,b);default:if("object"===typeof a&&null!==a)switch(a.$$typeof){case Ba:g=10;break a;case Ca:g=9;break a;case Da:g=11;
+  break a;case Ga:g=14;break a;case Ha:g=16;d=null;break a}throw Error(p(130,null==a?a:typeof a,""));}b=Bg(g,c,b,e);b.elementType=a;b.type=d;b.lanes=f;return b}function Tg(a,b,c,d){a=Bg(7,a,d,b);a.lanes=c;return a}function pj(a,b,c,d){a=Bg(22,a,d,b);a.elementType=Ia;a.lanes=c;a.stateNode={isHidden:false};return a}function Qg(a,b,c){a=Bg(6,a,null,b);a.lanes=c;return a}
+  function Sg(a,b,c){b=Bg(4,null!==a.children?a.children:[],a.key,b);b.lanes=c;b.stateNode={containerInfo:a.containerInfo,pendingChildren:null,implementation:a.implementation};return b}
+  function al(a,b,c,d,e){this.tag=b;this.containerInfo=a;this.finishedWork=this.pingCache=this.current=this.pendingChildren=null;this.timeoutHandle=-1;this.callbackNode=this.pendingContext=this.context=null;this.callbackPriority=0;this.eventTimes=zc(0);this.expirationTimes=zc(-1);this.entangledLanes=this.finishedLanes=this.mutableReadLanes=this.expiredLanes=this.pingedLanes=this.suspendedLanes=this.pendingLanes=0;this.entanglements=zc(0);this.identifierPrefix=d;this.onRecoverableError=e;this.mutableSourceEagerHydrationData=
+  null;}function bl(a,b,c,d,e,f,g,h,k){a=new al(a,b,c,h,k);1===b?(b=1,true===f&&(b|=8)):b=0;f=Bg(3,null,null,b);a.current=f;f.stateNode=a;f.memoizedState={element:d,isDehydrated:c,cache:null,transitions:null,pendingSuspenseBoundaries:null};kh(f);return a}function cl(a,b,c){var d=3<arguments.length&&void 0!==arguments[3]?arguments[3]:null;return {$$typeof:wa,key:null==d?null:""+d,children:a,containerInfo:b,implementation:c}}
+  function dl(a){if(!a)return Vf;a=a._reactInternals;a:{if(Vb(a)!==a||1!==a.tag)throw Error(p(170));var b=a;do{switch(b.tag){case 3:b=b.stateNode.context;break a;case 1:if(Zf(b.type)){b=b.stateNode.__reactInternalMemoizedMergedChildContext;break a}}b=b.return;}while(null!==b);throw Error(p(171));}if(1===a.tag){var c=a.type;if(Zf(c))return bg(a,c,b)}return b}
+  function el(a,b,c,d,e,f,g,h,k){a=bl(c,d,true,a,e,f,g,h,k);a.context=dl(null);c=a.current;d=R();e=yi(c);f=mh(d,e);f.callback=void 0!==b&&null!==b?b:null;nh(c,f,e);a.current.lanes=e;Ac(a,e,d);Dk(a,d);return a}function fl(a,b,c,d){var e=b.current,f=R(),g=yi(e);c=dl(c);null===b.context?b.context=c:b.pendingContext=c;b=mh(f,g);b.payload={element:a};d=void 0===d?null:d;null!==d&&(b.callback=d);a=nh(e,b,g);null!==a&&(gi(a,e,g,f),oh(a,e,g));return g}
+  function gl(a){a=a.current;if(!a.child)return null;switch(a.child.tag){case 5:return a.child.stateNode;default:return a.child.stateNode}}function hl(a,b){a=a.memoizedState;if(null!==a&&null!==a.dehydrated){var c=a.retryLane;a.retryLane=0!==c&&c<b?c:b;}}function il(a,b){hl(a,b);(a=a.alternate)&&hl(a,b);}function jl(){return null}var kl="function"===typeof reportError?reportError:function(a){console.error(a);};function ll(a){this._internalRoot=a;}
+  ml.prototype.render=ll.prototype.render=function(a){var b=this._internalRoot;if(null===b)throw Error(p(409));fl(a,b,null,null);};ml.prototype.unmount=ll.prototype.unmount=function(){var a=this._internalRoot;if(null!==a){this._internalRoot=null;var b=a.containerInfo;Rk(function(){fl(null,a,null,null);});b[uf]=null;}};function ml(a){this._internalRoot=a;}
+  ml.prototype.unstable_scheduleHydration=function(a){if(a){var b=Hc();a={blockedOn:null,target:a,priority:b};for(var c=0;c<Qc.length&&0!==b&&b<Qc[c].priority;c++);Qc.splice(c,0,a);0===c&&Vc(a);}};function nl(a){return !(!a||1!==a.nodeType&&9!==a.nodeType&&11!==a.nodeType)}function ol(a){return !(!a||1!==a.nodeType&&9!==a.nodeType&&11!==a.nodeType&&(8!==a.nodeType||" react-mount-point-unstable "!==a.nodeValue))}function pl(){}
+  function ql(a,b,c,d,e){if(e){if("function"===typeof d){var f=d;d=function(){var a=gl(g);f.call(a);};}var g=el(b,d,a,0,null,false,false,"",pl);a._reactRootContainer=g;a[uf]=g.current;sf(8===a.nodeType?a.parentNode:a);Rk();return g}for(;e=a.lastChild;)a.removeChild(e);if("function"===typeof d){var h=d;d=function(){var a=gl(k);h.call(a);};}var k=bl(a,0,false,null,null,false,false,"",pl);a._reactRootContainer=k;a[uf]=k.current;sf(8===a.nodeType?a.parentNode:a);Rk(function(){fl(b,k,c,d);});return k}
+  function rl(a,b,c,d,e){var f=c._reactRootContainer;if(f){var g=f;if("function"===typeof e){var h=e;e=function(){var a=gl(g);h.call(a);};}fl(b,g,a,e);}else g=ql(c,b,a,e,d);return gl(g)}Ec=function(a){switch(a.tag){case 3:var b=a.stateNode;if(b.current.memoizedState.isDehydrated){var c=tc(b.pendingLanes);0!==c&&(Cc(b,c|1),Dk(b,B()),0===(K&6)&&(Gj=B()+500,jg()));}break;case 13:Rk(function(){var b=ih(a,1);if(null!==b){var c=R();gi(b,a,1,c);}}),il(a,1);}};
+  Fc=function(a){if(13===a.tag){var b=ih(a,134217728);if(null!==b){var c=R();gi(b,a,134217728,c);}il(a,134217728);}};Gc=function(a){if(13===a.tag){var b=yi(a),c=ih(a,b);if(null!==c){var d=R();gi(c,a,b,d);}il(a,b);}};Hc=function(){return C};Ic=function(a,b){var c=C;try{return C=a,b()}finally{C=c;}};
+  yb=function(a,b,c){switch(b){case "input":bb(a,c);b=c.name;if("radio"===c.type&&null!=b){for(c=a;c.parentNode;)c=c.parentNode;c=c.querySelectorAll("input[name="+JSON.stringify(""+b)+'][type="radio"]');for(b=0;b<c.length;b++){var d=c[b];if(d!==a&&d.form===a.form){var e=Db(d);if(!e)throw Error(p(90));Wa(d);bb(d,e);}}}break;case "textarea":ib(a,c);break;case "select":b=c.value,null!=b&&fb(a,!!c.multiple,b,false);}};Gb=Qk;Hb=Rk;
+  var sl={usingClientEntryPoint:false,Events:[Cb,ue,Db,Eb,Fb,Qk]},tl={findFiberByHostInstance:Wc,bundleType:0,version:"18.3.1",rendererPackageName:"react-dom"};
+  var ul={bundleType:tl.bundleType,version:tl.version,rendererPackageName:tl.rendererPackageName,rendererConfig:tl.rendererConfig,overrideHookState:null,overrideHookStateDeletePath:null,overrideHookStateRenamePath:null,overrideProps:null,overridePropsDeletePath:null,overridePropsRenamePath:null,setErrorHandler:null,setSuspenseHandler:null,scheduleUpdate:null,currentDispatcherRef:ua.ReactCurrentDispatcher,findHostInstanceByFiber:function(a){a=Zb(a);return null===a?null:a.stateNode},findFiberByHostInstance:tl.findFiberByHostInstance||
+  jl,findHostInstancesForRefresh:null,scheduleRefresh:null,scheduleRoot:null,setRefreshHandler:null,getCurrentFiber:null,reconcilerVersion:"18.3.1-next-f1338f8080-20240426"};if("undefined"!==typeof __REACT_DEVTOOLS_GLOBAL_HOOK__){var vl=__REACT_DEVTOOLS_GLOBAL_HOOK__;if(!vl.isDisabled&&vl.supportsFiber)try{kc=vl.inject(ul),lc=vl;}catch(a){}}reactDom_production_min.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED=sl;
+  reactDom_production_min.createPortal=function(a,b){var c=2<arguments.length&&void 0!==arguments[2]?arguments[2]:null;if(!nl(b))throw Error(p(200));return cl(a,b,null,c)};reactDom_production_min.createRoot=function(a,b){if(!nl(a))throw Error(p(299));var c=false,d="",e=kl;null!==b&&void 0!==b&&(true===b.unstable_strictMode&&(c=true),void 0!==b.identifierPrefix&&(d=b.identifierPrefix),void 0!==b.onRecoverableError&&(e=b.onRecoverableError));b=bl(a,1,false,null,null,c,false,d,e);a[uf]=b.current;sf(8===a.nodeType?a.parentNode:a);return new ll(b)};
+  reactDom_production_min.findDOMNode=function(a){if(null==a)return null;if(1===a.nodeType)return a;var b=a._reactInternals;if(void 0===b){if("function"===typeof a.render)throw Error(p(188));a=Object.keys(a).join(",");throw Error(p(268,a));}a=Zb(b);a=null===a?null:a.stateNode;return a};reactDom_production_min.flushSync=function(a){return Rk(a)};reactDom_production_min.hydrate=function(a,b,c){if(!ol(b))throw Error(p(200));return rl(null,a,b,true,c)};
+  reactDom_production_min.hydrateRoot=function(a,b,c){if(!nl(a))throw Error(p(405));var d=null!=c&&c.hydratedSources||null,e=false,f="",g=kl;null!==c&&void 0!==c&&(true===c.unstable_strictMode&&(e=true),void 0!==c.identifierPrefix&&(f=c.identifierPrefix),void 0!==c.onRecoverableError&&(g=c.onRecoverableError));b=el(b,null,a,1,null!=c?c:null,e,false,f,g);a[uf]=b.current;sf(a);if(d)for(a=0;a<d.length;a++)c=d[a],e=c._getVersion,e=e(c._source),null==b.mutableSourceEagerHydrationData?b.mutableSourceEagerHydrationData=[c,e]:b.mutableSourceEagerHydrationData.push(c,
+  e);return new ml(b)};reactDom_production_min.render=function(a,b,c){if(!ol(b))throw Error(p(200));return rl(null,a,b,false,c)};reactDom_production_min.unmountComponentAtNode=function(a){if(!ol(a))throw Error(p(40));return a._reactRootContainer?(Rk(function(){rl(null,null,a,!1,function(){a._reactRootContainer=null;a[uf]=null;});}),true):false};reactDom_production_min.unstable_batchedUpdates=Qk;
+  reactDom_production_min.unstable_renderSubtreeIntoContainer=function(a,b,c,d){if(!ol(c))throw Error(p(200));if(null==a||void 0===a._reactInternals)throw Error(p(38));return rl(a,b,c,false,d)};reactDom_production_min.version="18.3.1-next-f1338f8080-20240426";
 
-	{
-	  // DCE check should happen before ReactDOM bundle executes so that
-	  // DevTools can report bad minification during injection.
-	  checkDCE();
-	  reactDom.exports = reactDom_production_min;
-	}
+  function checkDCE() {
+    /* global __REACT_DEVTOOLS_GLOBAL_HOOK__ */
+    if (
+      typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ === 'undefined' ||
+      typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.checkDCE !== 'function'
+    ) {
+      return;
+    }
+    try {
+      // Verify that the code above has been dead code eliminated (DCE'd).
+      __REACT_DEVTOOLS_GLOBAL_HOOK__.checkDCE(checkDCE);
+    } catch (err) {
+      // DevTools shouldn't crash React, no matter what.
+      // We should still report in case we break this code.
+      console.error(err);
+    }
+  }
 
-	var reactDomExports = reactDom.exports;
+  {
+    // DCE check should happen before ReactDOM bundle executes so that
+    // DevTools can report bad minification during injection.
+    checkDCE();
+    reactDom.exports = reactDom_production_min;
+  }
 
-	var createRoot;
+  var reactDomExports = reactDom.exports;
 
-	var m = reactDomExports;
-	{
-	  createRoot = m.createRoot;
-	  m.hydrateRoot;
-	}
+  var createRoot;
 
-	function _extends() {
-	  return _extends = Object.assign ? Object.assign.bind() : function (n) {
-	    for (var e = 1; e < arguments.length; e++) {
-	      var t = arguments[e];
-	      for (var r in t) ({}).hasOwnProperty.call(t, r) && (n[r] = t[r]);
-	    }
-	    return n;
-	  }, _extends.apply(null, arguments);
-	}
+  var m = reactDomExports;
+  {
+    createRoot = m.createRoot;
+    m.hydrateRoot;
+  }
 
-	var reactTable = {exports: {}};
+  var reactTable = {exports: {}};
 
-	var reactTable_production_min = {exports: {}};
+  var reactTable_production_min = {exports: {}};
 
-	(function (module, exports) {
-		!function(e,t){t(exports,reactExports);}(commonjsGlobal,(function(e,t){function n(e,t,n,o,r,i,u){try{var l=e[i](u),s=l.value;}catch(e){return void n(e)}l.done?t(s):Promise.resolve(s).then(o,r);}function o(e){return function(){var t=this,o=arguments;return new Promise((function(r,i){var u=e.apply(t,o);function l(e){n(u,r,i,l,s,"next",e);}function s(e){n(u,r,i,l,s,"throw",e);}l(void 0);}))}}function r(){return (r=Object.assign||function(e){for(var t=1;t<arguments.length;t++){var n=arguments[t];for(var o in n)Object.prototype.hasOwnProperty.call(n,o)&&(e[o]=n[o]);}return e}).apply(this,arguments)}function i(e,t){if(null==e)return {};var n,o,r={},i=Object.keys(e);for(o=0;o<i.length;o++)n=i[o],t.indexOf(n)>=0||(r[n]=e[n]);return r}function u(e){var t=function(e,t){if("object"!=typeof e||null===e)return e;var n=e[Symbol.toPrimitive];if(void 0!==n){var o=n.call(e,t);if("object"!=typeof o)return o;throw new TypeError("@@toPrimitive must return a primitive value.")}return (String)(e)}(e,"string");return "symbol"==typeof t?t:String(t)}t=t&&Object.prototype.hasOwnProperty.call(t,"default")?t.default:t;var l={init:"init"},s=function(e){var t=e.value;return void 0===t?"":t},a=function(){return t.createElement(t.Fragment,null," ")},c={Cell:s,width:150,minWidth:0,maxWidth:Number.MAX_SAFE_INTEGER};function d(){for(var e=arguments.length,t=new Array(e),n=0;n<e;n++)t[n]=arguments[n];return t.reduce((function(e,t){var n=t.style,o=t.className;return e=r({},e,{},i(t,["style","className"])),n&&(e.style=e.style?r({},e.style||{},{},n||{}):n),o&&(e.className=e.className?e.className+" "+o:o),""===e.className&&delete e.className,e}),{})}var f=function(e,t){return void 0===t&&(t={}),function(n){return void 0===n&&(n={}),[].concat(e,[n]).reduce((function(e,o){return function e(t,n,o){return "function"==typeof n?e({},n(t,o)):Array.isArray(n)?d.apply(void 0,[t].concat(n)):d(t,n)}(e,o,r({},t,{userProps:n}))}),{})}},p=function(e,t,n,o){return void 0===n&&(n={}),e.reduce((function(e,t){return t(e,n)}),t)},g=function(e,t,n){return void 0===n&&(n={}),e.forEach((function(e){e(t,n);}))};function v(e,t,n,o){e.findIndex((function(e){return e.pluginName===n}));t.forEach((function(t){e.findIndex((function(e){return e.pluginName===t}));}));}function m(e,t){return "function"==typeof e?e(t):e}function h(e){var n=t.useRef();return n.current=e,t.useCallback((function(){return n.current}),[])}var y="undefined"!=typeof document?t.useLayoutEffect:t.useEffect;function w(e,n){var o=t.useRef(false);y((function(){o.current&&e(),o.current=true;}),n);}function R(e,t,n){return void 0===n&&(n={}),function(o,i){ void 0===i&&(i={});var u="string"==typeof o?t[o]:o;if(void 0===u)throw console.info(t),new Error("Renderer Error ☝️");return b(u,r({},e,{column:t},n,{},i))}}function b(e,n){return function(e){return "function"==typeof e&&((t=Object.getPrototypeOf(e)).prototype&&t.prototype.isReactComponent);var t;}(o=e)||"function"==typeof o||function(e){return "object"==typeof e&&"symbol"==typeof e.$$typeof&&["react.memo","react.forward_ref"].includes(e.$$typeof.description)}(o)?t.createElement(e,n):e;var o;}function S(e,t,n){return void 0===n&&(n=0),e.map((function(e){return x(e=r({},e,{parent:t,depth:n})),e.columns&&(e.columns=S(e.columns,e,n+1)),e}))}function C(e){return G(e,"columns")}function x(e){var t=e.id,n=e.accessor,o=e.Header;if("string"==typeof n){t=t||n;var r=n.split(".");n=function(e){return function(e,t,n){if(!t)return e;var o,r="function"==typeof t?t:JSON.stringify(t),i=E.get(r)||function(){var e=function(e){return function e(t,n){ void 0===n&&(n=[]);if(Array.isArray(t))for(var o=0;o<t.length;o+=1)e(t[o],n);else n.push(t);return n}(e).map((function(e){return String(e).replace(".","_")})).join(".").replace(T,".").replace(O,"").split(".")}(t);return E.set(r,e),e}();try{o=i.reduce((function(e,t){return e[t]}),e);}catch(e){}return void 0!==o?o:n}(e,r)};}if(!t&&"string"==typeof o&&o&&(t=o),!t&&e.columns)throw console.error(e),new Error('A column ID (or unique "Header" value) is required!');if(!t)throw console.error(e),new Error("A column ID (or string accessor) is required!");return Object.assign(e,{id:t,accessor:n}),e}function P(e,t){if(!t)throw new Error;return Object.assign(e,r({Header:a,Footer:a},c,{},t,{},e)),Object.assign(e,{originalWidth:e.width}),e}function B(e,t,n){ void 0===n&&(n=function(){return {}});for(var o=[],i=e,u=0,l=function(){return u++},s=function(){var e={headers:[]},u=[],s=i.some((function(e){return e.parent}));i.forEach((function(o){var i,a=[].concat(u).reverse()[0];if(s){if(o.parent)i=r({},o.parent,{originalId:o.parent.id,id:o.parent.id+"_"+l(),headers:[o]},n(o));else i=P(r({originalId:o.id+"_placeholder",id:o.id+"_placeholder_"+l(),placeholderOf:o,headers:[o]},n(o)),t);a&&a.originalId===i.originalId?a.headers.push(o):u.push(i);}e.headers.push(o);})),o.push(e),i=u;};i.length;)s();return o.reverse()}var E=new Map;function I(){for(var e=arguments.length,t=new Array(e),n=0;n<e;n++)t[n]=arguments[n];for(var o=0;o<t.length;o+=1)if(void 0!==t[o])return t[o]}function F(e){if("function"==typeof e)return e}function G(e,t){var n=[];return function e(o){o.forEach((function(o){o[t]?e(o[t]):n.push(o);}));}(e),n}function A(e,t){var n=t.manualExpandedKey,o=t.expanded,r=t.expandSubRows,i=void 0===r||r,u=[];return e.forEach((function(e){return function e(t,r){ void 0===r&&(r=true),t.isExpanded=t.original&&t.original[n]||o[t.id],t.canExpand=t.subRows&&!!t.subRows.length,r&&u.push(t),t.subRows&&t.subRows.length&&t.isExpanded&&t.subRows.forEach((function(t){return e(t,i)}));}(e)})),u}function k(e,t,n){return F(e)||t[e]||n[e]||n.text}function H(e,t,n){return e?e(t,n):void 0===t}function W(){throw new Error("React-Table: You have not called prepareRow(row) one or more rows you are attempting to render.")}var z=null;var T=/\[/g,O=/\]/g;var M=function(e){return r({role:"table"},e)},j=function(e){return r({role:"rowgroup"},e)},L=function(e,t){var n=t.column;return r({key:"header_"+n.id,colSpan:n.totalVisibleHeaderCount,role:"columnheader"},e)},N=function(e,t){var n=t.column;return r({key:"footer_"+n.id,colSpan:n.totalVisibleHeaderCount},e)},D=function(e,t){return r({key:"headerGroup_"+t.index,role:"row"},e)},V=function(e,t){return r({key:"footerGroup_"+t.index},e)},_=function(e,t){return r({key:"row_"+t.row.id,role:"row"},e)},X=function(e,t){var n=t.cell;return r({key:"cell_"+n.row.id+"_"+n.column.id,role:"cell"},e)};function q(){return {useOptions:[],stateReducers:[],useControlledState:[],columns:[],columnsDeps:[],allColumns:[],allColumnsDeps:[],accessValue:[],materializedColumns:[],materializedColumnsDeps:[],useInstanceAfterData:[],visibleColumns:[],visibleColumnsDeps:[],headerGroups:[],headerGroupsDeps:[],useInstanceBeforeDimensions:[],useInstance:[],prepareRow:[],getTableProps:[M],getTableBodyProps:[j],getHeaderGroupProps:[D],getFooterGroupProps:[V],getHeaderProps:[L],getFooterProps:[N],getRowProps:[_],getCellProps:[X],useFinalInstance:[]}}l.resetHiddenColumns="resetHiddenColumns",l.toggleHideColumn="toggleHideColumn",l.setHiddenColumns="setHiddenColumns",l.toggleHideAllColumns="toggleHideAllColumns";var K=function(e){e.getToggleHiddenProps=[U],e.getToggleHideAllColumnsProps=[$],e.stateReducers.push(J),e.useInstanceBeforeDimensions.push(Y),e.headerGroupsDeps.push((function(e,t){var n=t.instance;return [].concat(e,[n.state.hiddenColumns])})),e.useInstance.push(Q);};K.pluginName="useColumnVisibility";var U=function(e,t){var n=t.column;return [e,{onChange:function(e){n.toggleHidden(!e.target.checked);},style:{cursor:"pointer"},checked:n.isVisible,title:"Toggle Column Visible"}]},$=function(e,t){var n=t.instance;return [e,{onChange:function(e){n.toggleHideAllColumns(!e.target.checked);},style:{cursor:"pointer"},checked:!n.allColumnsHidden&&!n.state.hiddenColumns.length,title:"Toggle All Columns Hidden",indeterminate:!n.allColumnsHidden&&n.state.hiddenColumns.length}]};function J(e,t,n,o){if(t.type===l.init)return r({hiddenColumns:[]},e);if(t.type===l.resetHiddenColumns)return r({},e,{hiddenColumns:o.initialState.hiddenColumns||[]});if(t.type===l.toggleHideColumn){var i=(void 0!==t.value?t.value:!e.hiddenColumns.includes(t.columnId))?[].concat(e.hiddenColumns,[t.columnId]):e.hiddenColumns.filter((function(e){return e!==t.columnId}));return r({},e,{hiddenColumns:i})}return t.type===l.setHiddenColumns?r({},e,{hiddenColumns:m(t.value,e.hiddenColumns)}):t.type===l.toggleHideAllColumns?r({},e,{hiddenColumns:(void 0!==t.value?t.value:!e.hiddenColumns.length)?o.allColumns.map((function(e){return e.id})):[]}):void 0}function Y(e){var n=e.headers,o=e.state.hiddenColumns;t.useRef(false).current;var r=0;n.forEach((function(e){return r+=function e(t,n){t.isVisible=n&&!o.includes(t.id);var r=0;return t.headers&&t.headers.length?t.headers.forEach((function(n){return r+=e(n,t.isVisible)})):r=t.isVisible?1:0,t.totalVisibleHeaderCount=r,r}(e,true)}));}function Q(e){var n=e.columns,o=e.flatHeaders,r=e.dispatch,i=e.allColumns,u=e.getHooks,s=e.state.hiddenColumns,a=e.autoResetHiddenColumns,c=void 0===a||a,d=h(e),p=i.length===s.length,g=t.useCallback((function(e,t){return r({type:l.toggleHideColumn,columnId:e,value:t})}),[r]),v=t.useCallback((function(e){return r({type:l.setHiddenColumns,value:e})}),[r]),m=t.useCallback((function(e){return r({type:l.toggleHideAllColumns,value:e})}),[r]),y=f(u().getToggleHideAllColumnsProps,{instance:d()});o.forEach((function(e){e.toggleHidden=function(t){r({type:l.toggleHideColumn,columnId:e.id,value:t});},e.getToggleHiddenProps=f(u().getToggleHiddenProps,{instance:d(),column:e});}));var R=h(c);w((function(){R()&&r({type:l.resetHiddenColumns});}),[r,n]),Object.assign(e,{allColumnsHidden:p,toggleHideColumn:g,setHiddenColumns:v,toggleHideAllColumns:m,getToggleHideAllColumnsProps:y});}var Z={},ee={},te=function(e,t,n){return e},ne=function(e,t){return e.subRows||[]},oe=function(e,t,n){return ""+(n?[n.id,t].join("."):t)},re=function(e){return e};function ie(e){var t=e.initialState,n=void 0===t?Z:t,o=e.defaultColumn,u=void 0===o?ee:o,l=e.getSubRows,s=void 0===l?ne:l,a=e.getRowId,c=void 0===a?oe:a,d=e.stateReducer,f=void 0===d?te:d,p=e.useControlledState,g=void 0===p?re:p;return r({},i(e,["initialState","defaultColumn","getSubRows","getRowId","stateReducer","useControlledState"]),{initialState:n,defaultColumn:u,getSubRows:s,getRowId:c,stateReducer:f,useControlledState:g})}function ue(e,t){ void 0===t&&(t=0);var n=0,o=0,r=0,i=0;return e.forEach((function(e){var u=e.headers;if(e.totalLeft=t,u&&u.length){var l=ue(u,t),s=l[0],a=l[1],c=l[2],d=l[3];e.totalMinWidth=s,e.totalWidth=a,e.totalMaxWidth=c,e.totalFlexWidth=d;}else e.totalMinWidth=e.minWidth,e.totalWidth=Math.min(Math.max(e.minWidth,e.width),e.maxWidth),e.totalMaxWidth=e.maxWidth,e.totalFlexWidth=e.canResize?e.totalWidth:0;e.isVisible&&(t+=e.totalWidth,n+=e.totalMinWidth,o+=e.totalWidth,r+=e.totalMaxWidth,i+=e.totalFlexWidth);})),[n,o,r,i]}function le(e){var t=e.data,n=e.rows,o=e.flatRows,r=e.rowsById,i=e.column,u=e.getRowId,l=e.getSubRows,s=e.accessValueHooks,a=e.getInstance;t.forEach((function(e,c){return function e(n,c,d,f,g){ void 0===d&&(d=0);var v=n,m=u(n,c,f),h=r[m];if(h)h.subRows&&h.originalSubRows.forEach((function(t,n){return e(t,n,d+1,h)}));else if((h={id:m,original:v,index:c,depth:d,cells:[{}]}).cells.map=W,h.cells.filter=W,h.cells.forEach=W,h.cells[0].getCellProps=W,h.values={},g.push(h),o.push(h),r[m]=h,h.originalSubRows=l(n,c),h.originalSubRows){var y=[];h.originalSubRows.forEach((function(t,n){return e(t,n,d+1,h,y)})),h.subRows=y;}i.accessor&&(h.values[i.id]=i.accessor(n,c,h,g,t)),h.values[i.id]=p(s,h.values[i.id],{row:h,column:i,instance:a()});}(e,c,0,void 0,n)}));}l.resetExpanded="resetExpanded",l.toggleRowExpanded="toggleRowExpanded",l.toggleAllRowsExpanded="toggleAllRowsExpanded";var se=function(e){e.getToggleAllRowsExpandedProps=[ae],e.getToggleRowExpandedProps=[ce],e.stateReducers.push(de),e.useInstance.push(fe),e.prepareRow.push(pe);};se.pluginName="useExpanded";var ae=function(e,t){var n=t.instance;return [e,{onClick:function(e){n.toggleAllRowsExpanded();},style:{cursor:"pointer"},title:"Toggle All Rows Expanded"}]},ce=function(e,t){var n=t.row;return [e,{onClick:function(){n.toggleRowExpanded();},style:{cursor:"pointer"},title:"Toggle Row Expanded"}]};function de(e,t,n,o){if(t.type===l.init)return r({expanded:{}},e);if(t.type===l.resetExpanded)return r({},e,{expanded:o.initialState.expanded||{}});if(t.type===l.toggleAllRowsExpanded){var s=t.value,a=o.rowsById,c=Object.keys(a).length===Object.keys(e.expanded).length;if(void 0!==s?s:!c){var d={};return Object.keys(a).forEach((function(e){d[e]=true;})),r({},e,{expanded:d})}return r({},e,{expanded:{}})}if(t.type===l.toggleRowExpanded){var f,p=t.id,g=t.value,v=e.expanded[p],m=void 0!==g?g:!v;if(!v&&m)return r({},e,{expanded:r({},e.expanded,(f={},f[p]=true,f))});if(v&&!m){var h=e.expanded;h[p];return r({},e,{expanded:i(h,[p].map(u))})}return e}}function fe(e){var n=e.data,o=e.rows,r=e.rowsById,i=e.manualExpandedKey,u=void 0===i?"expanded":i,s=e.paginateExpandedRows,a=void 0===s||s,c=e.expandSubRows,d=void 0===c||c,p=e.autoResetExpanded,g=void 0===p||p,m=e.getHooks,y=e.plugins,R=e.state.expanded,b=e.dispatch;v(y,["useSortBy","useGroupBy","usePivotColumns","useGlobalFilter"],"useExpanded");var S=h(g),C=Boolean(Object.keys(r).length&&Object.keys(R).length);C&&Object.keys(r).some((function(e){return !R[e]}))&&(C=false),w((function(){S()&&b({type:l.resetExpanded});}),[b,n]);var x=t.useCallback((function(e,t){b({type:l.toggleRowExpanded,id:e,value:t});}),[b]),P=t.useCallback((function(e){return b({type:l.toggleAllRowsExpanded,value:e})}),[b]),B=t.useMemo((function(){return a?A(o,{manualExpandedKey:u,expanded:R,expandSubRows:d}):o}),[a,o,u,R,d]),E=t.useMemo((function(){return function(e){var t=0;return Object.keys(e).forEach((function(e){var n=e.split(".");t=Math.max(t,n.length);})),t}(R)}),[R]),I=h(e),F=f(m().getToggleAllRowsExpandedProps,{instance:I()});Object.assign(e,{preExpandedRows:o,expandedRows:B,rows:B,expandedDepth:E,isAllRowsExpanded:C,toggleRowExpanded:x,toggleAllRowsExpanded:P,getToggleAllRowsExpandedProps:F});}function pe(e,t){var n=t.instance.getHooks,o=t.instance;e.toggleRowExpanded=function(t){return o.toggleRowExpanded(e.id,t)},e.getToggleRowExpandedProps=f(n().getToggleRowExpandedProps,{instance:o,row:e});}var ge=function(e,t,n){return e=e.filter((function(e){return t.some((function(t){var o=e.values[t];return String(o).toLowerCase().includes(String(n).toLowerCase())}))}))};ge.autoRemove=function(e){return !e};var ve=function(e,t,n){return e.filter((function(e){return t.some((function(t){var o=e.values[t];return void 0===o||String(o).toLowerCase()===String(n).toLowerCase()}))}))};ve.autoRemove=function(e){return !e};var me=function(e,t,n){return e.filter((function(e){return t.some((function(t){var o=e.values[t];return void 0===o||String(o)===String(n)}))}))};me.autoRemove=function(e){return !e};var he=function(e,t,n){return e.filter((function(e){return t.some((function(t){return e.values[t].includes(n)}))}))};he.autoRemove=function(e){return !e||!e.length};var ye=function(e,t,n){return e.filter((function(e){return t.some((function(t){var o=e.values[t];return o&&o.length&&n.every((function(e){return o.includes(e)}))}))}))};ye.autoRemove=function(e){return !e||!e.length};var we=function(e,t,n){return e.filter((function(e){return t.some((function(t){var o=e.values[t];return o&&o.length&&n.some((function(e){return o.includes(e)}))}))}))};we.autoRemove=function(e){return !e||!e.length};var Re=function(e,t,n){return e.filter((function(e){return t.some((function(t){var o=e.values[t];return n.includes(o)}))}))};Re.autoRemove=function(e){return !e||!e.length};var be=function(e,t,n){return e.filter((function(e){return t.some((function(t){return e.values[t]===n}))}))};be.autoRemove=function(e){return void 0===e};var Se=function(e,t,n){return e.filter((function(e){return t.some((function(t){return e.values[t]==n}))}))};Se.autoRemove=function(e){return null==e};var Ce=function(e,t,n){var o=n||[],r=o[0],i=o[1];if((r="number"==typeof r?r:-1/0)>(i="number"==typeof i?i:1/0)){var u=r;r=i,i=u;}return e.filter((function(e){return t.some((function(t){var n=e.values[t];return n>=r&&n<=i}))}))};Ce.autoRemove=function(e){return !e||"number"!=typeof e[0]&&"number"!=typeof e[1]};var xe=Object.freeze({__proto__:null,text:ge,exactText:ve,exactTextCase:me,includes:he,includesAll:ye,includesSome:we,includesValue:Re,exact:be,equals:Se,between:Ce});l.resetFilters="resetFilters",l.setFilter="setFilter",l.setAllFilters="setAllFilters";var Pe=function(e){e.stateReducers.push(Be),e.useInstance.push(Ee);};function Be(e,t,n,o){if(t.type===l.init)return r({filters:[]},e);if(t.type===l.resetFilters)return r({},e,{filters:o.initialState.filters||[]});if(t.type===l.setFilter){var i=t.columnId,u=t.filterValue,s=o.allColumns,a=o.filterTypes,c=s.find((function(e){return e.id===i}));if(!c)throw new Error("React-Table: Could not find a column with id: "+i);var d=k(c.filter,a||{},xe),f=e.filters.find((function(e){return e.id===i})),p=m(u,f&&f.value);return H(d.autoRemove,p,c)?r({},e,{filters:e.filters.filter((function(e){return e.id!==i}))}):r({},e,f?{filters:e.filters.map((function(e){return e.id===i?{id:i,value:p}:e}))}:{filters:[].concat(e.filters,[{id:i,value:p}])})}if(t.type===l.setAllFilters){var g=t.filters,v=o.allColumns,h=o.filterTypes;return r({},e,{filters:m(g,e.filters).filter((function(e){var t=v.find((function(t){return t.id===e.id}));return !H(k(t.filter,h||{},xe).autoRemove,e.value,t)}))})}}function Ee(e){var n=e.data,o=e.rows,r=e.flatRows,i=e.rowsById,u=e.allColumns,s=e.filterTypes,a=e.manualFilters,c=e.defaultCanFilter,d=void 0!==c&&c,f=e.disableFilters,p=e.state.filters,g=e.dispatch,v=e.autoResetFilters,m=void 0===v||v,y=t.useCallback((function(e,t){g({type:l.setFilter,columnId:e,filterValue:t});}),[g]),R=t.useCallback((function(e){g({type:l.setAllFilters,filters:e});}),[g]);u.forEach((function(e){var t=e.id,n=e.accessor,o=e.defaultCanFilter,r=e.disableFilters;e.canFilter=n?I(true!==r&&void 0,true!==f&&void 0,true):I(o,d,false),e.setFilter=function(t){return y(e.id,t)};var i=p.find((function(e){return e.id===t}));e.filterValue=i&&i.value;}));var b=t.useMemo((function(){if(a||!p.length)return [o,r,i];var e=[],t={};return [function n(o,r){ void 0===r&&(r=0);var i=o;return (i=p.reduce((function(e,t){var n=t.id,o=t.value,i=u.find((function(e){return e.id===n}));if(!i)return e;0===r&&(i.preFilteredRows=e);var l=k(i.filter,s||{},xe);return l?(i.filteredRows=l(e,[n],o),i.filteredRows):(console.warn("Could not find a valid 'column.filter' for column with the ID: "+i.id+"."),e)}),o)).forEach((function(o){e.push(o),t[o.id]=o,o.subRows&&(o.subRows=o.subRows&&o.subRows.length>0?n(o.subRows,r+1):o.subRows);})),i}(o),e,t]}),[a,p,o,r,i,u,s]),S=b[0],C=b[1],x=b[2];t.useMemo((function(){u.filter((function(e){return !p.find((function(t){return t.id===e.id}))})).forEach((function(e){e.preFilteredRows=S,e.filteredRows=S;}));}),[S,p,u]);var P=h(m);w((function(){P()&&g({type:l.resetFilters});}),[g,a?null:n]),Object.assign(e,{preFilteredRows:o,preFilteredFlatRows:r,preFilteredRowsById:i,filteredRows:S,filteredFlatRows:C,filteredRowsById:x,rows:S,flatRows:C,rowsById:x,setFilter:y,setAllFilters:R});}Pe.pluginName="useFilters",l.resetGlobalFilter="resetGlobalFilter",l.setGlobalFilter="setGlobalFilter";var Ie=function(e){e.stateReducers.push(Fe),e.useInstance.push(Ge);};function Fe(e,t,n,o){if(t.type===l.resetGlobalFilter)return r({},e,{globalFilter:o.initialState.globalFilter||void 0});if(t.type===l.setGlobalFilter){var u=t.filterValue,s=o.userFilterTypes,a=k(o.globalFilter,s||{},xe),c=m(u,e.globalFilter);if(H(a.autoRemove,c)){e.globalFilter;return i(e,["globalFilter"])}return r({},e,{globalFilter:c})}}function Ge(e){var n=e.data,o=e.rows,r=e.flatRows,i=e.rowsById,u=e.allColumns,s=e.filterTypes,a=e.globalFilter,c=e.manualGlobalFilter,d=e.state.globalFilter,f=e.dispatch,p=e.autoResetGlobalFilter,g=void 0===p||p,v=e.disableGlobalFilter,m=t.useCallback((function(e){f({type:l.setGlobalFilter,filterValue:e});}),[f]),y=t.useMemo((function(){if(c||void 0===d)return [o,r,i];var e=[],t={},n=k(a,s||{},xe);if(!n)return console.warn("Could not find a valid 'globalFilter' option."),o;u.forEach((function(e){var t=e.disableGlobalFilter;e.canFilter=I(true!==t&&void 0,true!==v&&void 0,true);}));var l=u.filter((function(e){return  true===e.canFilter}));return [function o(r){return (r=n(r,l.map((function(e){return e.id})),d)).forEach((function(n){e.push(n),t[n.id]=n,n.subRows=n.subRows&&n.subRows.length?o(n.subRows):n.subRows;})),r}(o),e,t]}),[c,d,a,s,u,o,r,i,v]),R=y[0],b=y[1],S=y[2],C=h(g);w((function(){C()&&f({type:l.resetGlobalFilter});}),[f,c?null:n]),Object.assign(e,{preGlobalFilteredRows:o,preGlobalFilteredFlatRows:r,preGlobalFilteredRowsById:i,globalFilteredRows:R,globalFilteredFlatRows:b,globalFilteredRowsById:S,rows:R,flatRows:b,rowsById:S,setGlobalFilter:m,disableGlobalFilter:v});}function Ae(e,t){return t.reduce((function(e,t){return e+("number"==typeof t?t:0)}),0)}Ie.pluginName="useGlobalFilter";var ke=Object.freeze({__proto__:null,sum:Ae,min:function(e){var t=e[0]||0;return e.forEach((function(e){"number"==typeof e&&(t=Math.min(t,e));})),t},max:function(e){var t=e[0]||0;return e.forEach((function(e){"number"==typeof e&&(t=Math.max(t,e));})),t},minMax:function(e){var t=e[0]||0,n=e[0]||0;return e.forEach((function(e){"number"==typeof e&&(t=Math.min(t,e),n=Math.max(n,e));})),t+".."+n},average:function(e){return Ae(0,e)/e.length},median:function(e){if(!e.length)return null;var t=Math.floor(e.length/2),n=[].concat(e).sort((function(e,t){return e-t}));return e.length%2!=0?n[t]:(n[t-1]+n[t])/2},unique:function(e){return Array.from(new Set(e).values())},uniqueCount:function(e){return new Set(e).size},count:function(e){return e.length}}),He=[],We={};l.resetGroupBy="resetGroupBy",l.setGroupBy="setGroupBy",l.toggleGroupBy="toggleGroupBy";var ze=function(e){e.getGroupByToggleProps=[Te],e.stateReducers.push(Oe),e.visibleColumnsDeps.push((function(e,t){var n=t.instance;return [].concat(e,[n.state.groupBy])})),e.visibleColumns.push(Me),e.useInstance.push(Le),e.prepareRow.push(Ne);};ze.pluginName="useGroupBy";var Te=function(e,t){var n=t.header;return [e,{onClick:n.canGroupBy?function(e){e.persist(),n.toggleGroupBy();}:void 0,style:{cursor:n.canGroupBy?"pointer":void 0},title:"Toggle GroupBy"}]};function Oe(e,t,n,o){if(t.type===l.init)return r({groupBy:[]},e);if(t.type===l.resetGroupBy)return r({},e,{groupBy:o.initialState.groupBy||[]});if(t.type===l.setGroupBy)return r({},e,{groupBy:t.value});if(t.type===l.toggleGroupBy){var i=t.columnId,u=t.value,s=void 0!==u?u:!e.groupBy.includes(i);return r({},e,s?{groupBy:[].concat(e.groupBy,[i])}:{groupBy:e.groupBy.filter((function(e){return e!==i}))})}}function Me(e,t){var n=t.instance.state.groupBy,o=n.map((function(t){return e.find((function(e){return e.id===t}))})).filter(Boolean),r=e.filter((function(e){return !n.includes(e.id)}));return (e=[].concat(o,r)).forEach((function(e){e.isGrouped=n.includes(e.id),e.groupedIndex=n.indexOf(e.id);})),e}var je={};function Le(e){var n=e.data,o=e.rows,i=e.flatRows,u=e.rowsById,s=e.allColumns,a=e.flatHeaders,c=e.groupByFn,d=void 0===c?De:c,p=e.manualGroupBy,g=e.aggregations,m=void 0===g?je:g,y=e.plugins,R=e.state.groupBy,b=e.dispatch,S=e.autoResetGroupBy,C=void 0===S||S,x=e.disableGroupBy,P=e.defaultCanGroupBy,B=e.getHooks;v(y,["useColumnOrder","useFilters"],"useGroupBy");var E=h(e);s.forEach((function(t){var n=t.accessor,o=t.defaultGroupBy,r=t.disableGroupBy;t.canGroupBy=n?I(t.canGroupBy,true!==r&&void 0,true!==x&&void 0,true):I(t.canGroupBy,o,P,false),t.canGroupBy&&(t.toggleGroupBy=function(){return e.toggleGroupBy(t.id)}),t.Aggregated=t.Aggregated||t.Cell;}));var F=t.useCallback((function(e,t){b({type:l.toggleGroupBy,columnId:e,value:t});}),[b]),A=t.useCallback((function(e){b({type:l.setGroupBy,value:e});}),[b]);a.forEach((function(e){e.getGroupByToggleProps=f(B().getGroupByToggleProps,{instance:E(),header:e});}));var k=t.useMemo((function(){if(p||!R.length)return [o,i,u,He,We,i,u];var e=R.filter((function(e){return s.find((function(t){return t.id===e}))})),t=[],n={},l=[],a={},c=[],f={},g=function o(i,u,p){if(void 0===u&&(u=0),u===e.length)return i.map((function(e){return r({},e,{depth:u})}));var g=e[u],v=d(i,g);return Object.entries(v).map((function(r,i){var d=r[0],v=r[1],h=g+":"+d,y=o(v,u+1,h=p?p+">"+h:h),w=u?G(v,"leafRows"):v,R=function(t,n,o){var r={};return s.forEach((function(i){if(e.includes(i.id))r[i.id]=n[0]?n[0].values[i.id]:null;else {var u="function"==typeof i.aggregate?i.aggregate:m[i.aggregate]||ke[i.aggregate];if(u){var l=n.map((function(e){return e.values[i.id]})),s=t.map((function(e){var t=e.values[i.id];if(!o&&i.aggregateValue){var n="function"==typeof i.aggregateValue?i.aggregateValue:m[i.aggregateValue]||ke[i.aggregateValue];if(!n)throw console.info({column:i}),new Error("React Table: Invalid column.aggregateValue option for column listed above");t=n(t,e,i);}return t}));r[i.id]=u(s,l);}else {if(i.aggregate)throw console.info({column:i}),new Error("React Table: Invalid column.aggregate option for column listed above");r[i.id]=null;}}})),r}(w,v,u),b={id:h,isGrouped:true,groupByID:g,groupByVal:d,values:R,subRows:y,leafRows:w,depth:u,index:i};return y.forEach((function(e){t.push(e),n[e.id]=e,e.isGrouped?(l.push(e),a[e.id]=e):(c.push(e),f[e.id]=e);})),b}))}(o);return g.forEach((function(e){t.push(e),n[e.id]=e,e.isGrouped?(l.push(e),a[e.id]=e):(c.push(e),f[e.id]=e);})),[g,t,n,l,a,c,f]}),[p,R,o,i,u,s,m,d]),H=k[0],W=k[1],z=k[2],T=k[3],O=k[4],M=k[5],j=k[6],L=h(C);w((function(){L()&&b({type:l.resetGroupBy});}),[b,p?null:n]),Object.assign(e,{preGroupedRows:o,preGroupedFlatRow:i,preGroupedRowsById:u,groupedRows:H,groupedFlatRows:W,groupedRowsById:z,onlyGroupedFlatRows:T,onlyGroupedRowsById:O,nonGroupedFlatRows:M,nonGroupedRowsById:j,rows:H,flatRows:W,rowsById:z,toggleGroupBy:F,setGroupBy:A});}function Ne(e){e.allCells.forEach((function(t){var n;t.isGrouped=t.column.isGrouped&&t.column.id===e.groupByID,t.isPlaceholder=!t.isGrouped&&t.column.isGrouped,t.isAggregated=!t.isGrouped&&!t.isPlaceholder&&(null==(n=e.subRows)?void 0:n.length);}));}function De(e,t){return e.reduce((function(e,n,o){var r=""+n.values[t];return e[r]=Array.isArray(e[r])?e[r]:[],e[r].push(n),e}),{})}var Ve=/([0-9]+)/gm;function _e(e,t){return e===t?0:e>t?1:-1}function Xe(e,t,n){return [e.values[n],t.values[n]]}function qe(e){return "number"==typeof e?isNaN(e)||e===1/0||e===-1/0?"":String(e):"string"==typeof e?e:""}var Ke=Object.freeze({__proto__:null,alphanumeric:function(e,t,n){var o=Xe(e,t,n),r=o[0],i=o[1];for(r=qe(r),i=qe(i),r=r.split(Ve).filter(Boolean),i=i.split(Ve).filter(Boolean);r.length&&i.length;){var u=r.shift(),l=i.shift(),s=parseInt(u,10),a=parseInt(l,10),c=[s,a].sort();if(isNaN(c[0])){if(u>l)return 1;if(l>u)return  -1}else {if(isNaN(c[1]))return isNaN(s)?-1:1;if(s>a)return 1;if(a>s)return  -1}}return r.length-i.length},datetime:function(e,t,n){var o=Xe(e,t,n),r=o[0],i=o[1];return _e(r=r.getTime(),i=i.getTime())},basic:function(e,t,n){var o=Xe(e,t,n);return _e(o[0],o[1])},string:function(e,t,n){var o=Xe(e,t,n),r=o[0],i=o[1];for(r=r.split("").filter(Boolean),i=i.split("").filter(Boolean);r.length&&i.length;){var u=r.shift(),l=i.shift(),s=u.toLowerCase(),a=l.toLowerCase();if(s>a)return 1;if(a>s)return  -1;if(u>l)return 1;if(l>u)return  -1}return r.length-i.length},number:function(e,t,n){var o=Xe(e,t,n),r=o[0],i=o[1],u=/[^0-9.]/gi;return _e(r=Number(String(r).replace(u,"")),i=Number(String(i).replace(u,"")))}});l.resetSortBy="resetSortBy",l.setSortBy="setSortBy",l.toggleSortBy="toggleSortBy",l.clearSortBy="clearSortBy",c.sortType="alphanumeric",c.sortDescFirst=false;var Ue=function(e){e.getSortByToggleProps=[$e],e.stateReducers.push(Je),e.useInstance.push(Ye);};Ue.pluginName="useSortBy";var $e=function(e,t){var n=t.instance,o=t.column,r=n.isMultiSortEvent,i=void 0===r?function(e){return e.shiftKey}:r;return [e,{onClick:o.canSort?function(e){e.persist(),o.toggleSortBy(void 0,!n.disableMultiSort&&i(e));}:void 0,style:{cursor:o.canSort?"pointer":void 0},title:o.canSort?"Toggle SortBy":void 0}]};function Je(e,t,n,o){if(t.type===l.init)return r({sortBy:[]},e);if(t.type===l.resetSortBy)return r({},e,{sortBy:o.initialState.sortBy||[]});if(t.type===l.clearSortBy)return r({},e,{sortBy:e.sortBy.filter((function(e){return e.id!==t.columnId}))});if(t.type===l.setSortBy)return r({},e,{sortBy:t.sortBy});if(t.type===l.toggleSortBy){var i,u=t.columnId,s=t.desc,a=t.multi,c=o.allColumns,d=o.disableMultiSort,f=o.disableSortRemove,p=o.disableMultiRemove,g=o.maxMultiSortColCount,v=void 0===g?Number.MAX_SAFE_INTEGER:g,m=e.sortBy,h=c.find((function(e){return e.id===u})).sortDescFirst,y=m.find((function(e){return e.id===u})),w=m.findIndex((function(e){return e.id===u})),R=null!=s,b=[];return "toggle"!==(i=!d&&a?y?"toggle":"add":w!==m.length-1||1!==m.length?"replace":y?"toggle":"replace")||f||R||a&&p||!(y&&y.desc&&!h||!y.desc&&h)||(i="remove"),"replace"===i?b=[{id:u,desc:R?s:h}]:"add"===i?(b=[].concat(m,[{id:u,desc:R?s:h}])).splice(0,b.length-v):"toggle"===i?b=m.map((function(e){return e.id===u?r({},e,{desc:R?s:!y.desc}):e})):"remove"===i&&(b=m.filter((function(e){return e.id!==u}))),r({},e,{sortBy:b})}}function Ye(e){var n=e.data,o=e.rows,r=e.flatRows,i=e.allColumns,u=e.orderByFn,s=void 0===u?Qe:u,a=e.sortTypes,c=e.manualSortBy,d=e.defaultCanSort,p=e.disableSortBy,g=e.flatHeaders,m=e.state.sortBy,y=e.dispatch,R=e.plugins,b=e.getHooks,S=e.autoResetSortBy,C=void 0===S||S;v(R,["useFilters","useGlobalFilter","useGroupBy","usePivotColumns"],"useSortBy");var x=t.useCallback((function(e){y({type:l.setSortBy,sortBy:e});}),[y]),P=t.useCallback((function(e,t,n){y({type:l.toggleSortBy,columnId:e,desc:t,multi:n});}),[y]),B=h(e);g.forEach((function(e){var t=e.accessor,n=e.canSort,o=e.disableSortBy,r=e.id,i=t?I(true!==o&&void 0,true!==p&&void 0,true):I(d,n,false);e.canSort=i,e.canSort&&(e.toggleSortBy=function(t,n){return P(e.id,t,n)},e.clearSortBy=function(){y({type:l.clearSortBy,columnId:e.id});}),e.getSortByToggleProps=f(b().getSortByToggleProps,{instance:B(),column:e});var u=m.find((function(e){return e.id===r}));e.isSorted=!!u,e.sortedIndex=m.findIndex((function(e){return e.id===r})),e.isSortedDesc=e.isSorted?u.desc:void 0;}));var E=t.useMemo((function(){if(c||!m.length)return [o,r];var e=[],t=m.filter((function(e){return i.find((function(t){return t.id===e.id}))}));return [function n(o){var r=s(o,t.map((function(e){var t=i.find((function(t){return t.id===e.id}));if(!t)throw new Error("React-Table: Could not find a column with id: "+e.id+" while sorting");var n=t.sortType,o=F(n)||(a||{})[n]||Ke[n];if(!o)throw new Error("React-Table: Could not find a valid sortType of '"+n+"' for column '"+e.id+"'.");return function(t,n){return o(t,n,e.id,e.desc)}})),t.map((function(e){var t=i.find((function(t){return t.id===e.id}));return t&&t.sortInverted?e.desc:!e.desc})));return r.forEach((function(t){e.push(t),t.subRows&&0!==t.subRows.length&&(t.subRows=n(t.subRows));})),r}(o),e]}),[c,m,o,r,i,s,a]),G=E[0],A=E[1],k=h(C);w((function(){k()&&y({type:l.resetSortBy});}),[c?null:n]),Object.assign(e,{preSortedRows:o,preSortedFlatRows:r,sortedRows:G,sortedFlatRows:A,rows:G,flatRows:A,setSortBy:x,toggleSortBy:P});}function Qe(e,t,n){return [].concat(e).sort((function(e,o){for(var r=0;r<t.length;r+=1){var i=t[r],u=false===n[r]||"desc"===n[r],l=i(e,o);if(0!==l)return u?-l:l}return n[0]?e.index-o.index:o.index-e.index}))}l.resetPage="resetPage",l.gotoPage="gotoPage",l.setPageSize="setPageSize";var Ze=function(e){e.stateReducers.push(et),e.useInstance.push(tt);};function et(e,t,n,o){if(t.type===l.init)return r({pageSize:10,pageIndex:0},e);if(t.type===l.resetPage)return r({},e,{pageIndex:o.initialState.pageIndex||0});if(t.type===l.gotoPage){var i=o.pageCount,u=o.page,s=m(t.pageIndex,e.pageIndex),a=false;return s>e.pageIndex?a=-1===i?u.length>=e.pageSize:s<i:s<e.pageIndex&&(a=s>-1),a?r({},e,{pageIndex:s}):e}if(t.type===l.setPageSize){var c=t.pageSize,d=e.pageSize*e.pageIndex;return r({},e,{pageIndex:Math.floor(d/c),pageSize:c})}}function tt(e){var n=e.rows,o=e.autoResetPage,r=void 0===o||o,i=e.manualExpandedKey,u=void 0===i?"expanded":i,s=e.plugins,a=e.pageCount,c=e.paginateExpandedRows,d=void 0===c||c,f=e.expandSubRows,p=void 0===f||f,g=e.state,m=g.pageSize,y=g.pageIndex,R=g.expanded,b=g.globalFilter,S=g.filters,C=g.groupBy,x=g.sortBy,P=e.dispatch,B=e.data,E=e.manualPagination;v(s,["useGlobalFilter","useFilters","useGroupBy","useSortBy","useExpanded"],"usePagination");var I=h(r);w((function(){I()&&P({type:l.resetPage});}),[P,E?null:B,b,S,C,x]);var F=E?a:Math.ceil(n.length/m),G=t.useMemo((function(){return F>0?[].concat(new Array(F)).fill(null).map((function(e,t){return t})):[]}),[F]),k=t.useMemo((function(){var e;if(E)e=n;else {var t=m*y,o=t+m;e=n.slice(t,o);}return d?e:A(e,{manualExpandedKey:u,expanded:R,expandSubRows:p})}),[p,R,u,E,y,m,d,n]),H=y>0,W=-1===F?k.length>=m:y<F-1,z=t.useCallback((function(e){P({type:l.gotoPage,pageIndex:e});}),[P]),T=t.useCallback((function(){return z((function(e){return e-1}))}),[z]),O=t.useCallback((function(){return z((function(e){return e+1}))}),[z]),M=t.useCallback((function(e){P({type:l.setPageSize,pageSize:e});}),[P]);Object.assign(e,{pageOptions:G,pageCount:F,page:k,canPreviousPage:H,canNextPage:W,gotoPage:z,previousPage:T,nextPage:O,setPageSize:M});}Ze.pluginName="usePagination",l.resetPivot="resetPivot",l.togglePivot="togglePivot";var nt=function(e){e.getPivotToggleProps=[rt],e.stateReducers.push(it),e.useInstanceAfterData.push(ut),e.allColumns.push(lt),e.accessValue.push(st),e.materializedColumns.push(at),e.materializedColumnsDeps.push(ct),e.visibleColumns.push(dt),e.visibleColumnsDeps.push(ft),e.useInstance.push(pt),e.prepareRow.push(gt);};nt.pluginName="usePivotColumns";var ot=[],rt=function(e,t){var n=t.header;return [e,{onClick:n.canPivot?function(e){e.persist(),n.togglePivot();}:void 0,style:{cursor:n.canPivot?"pointer":void 0},title:"Toggle Pivot"}]};function it(e,t,n,o){if(t.type===l.init)return r({pivotColumns:ot},e);if(t.type===l.resetPivot)return r({},e,{pivotColumns:o.initialState.pivotColumns||ot});if(t.type===l.togglePivot){var i=t.columnId,u=t.value,s=void 0!==u?u:!e.pivotColumns.includes(i);return r({},e,s?{pivotColumns:[].concat(e.pivotColumns,[i])}:{pivotColumns:e.pivotColumns.filter((function(e){return e!==i}))})}}function ut(e){e.allColumns.forEach((function(t){t.isPivotSource=e.state.pivotColumns.includes(t.id);}));}function lt(e,t){var n=t.instance;return e.forEach((function(e){e.isPivotSource=n.state.pivotColumns.includes(e.id),e.uniqueValues=new Set;})),e}function st(e,t){var n=t.column;return n.uniqueValues&&void 0!==e&&n.uniqueValues.add(e),e}function at(e,t){var n=t.instance,o=n.allColumns,i=n.state;if(!i.pivotColumns.length||!i.groupBy||!i.groupBy.length)return e;var u=i.pivotColumns.map((function(e){return o.find((function(t){return t.id===e}))})).filter(Boolean),l=o.filter((function(e){return !e.isPivotSource&&!i.groupBy.includes(e.id)&&!i.pivotColumns.includes(e.id)})),s=C(function e(t,n,o){ void 0===t&&(t=0),void 0===o&&(o=[]);var i=u[t];return i?Array.from(i.uniqueValues).sort().map((function(u){var l=r({},i,{Header:i.PivotHeader||"string"==typeof i.header?i.Header+": "+u:u,isPivotGroup:true,parent:n,depth:t,id:n?n.id+"."+i.id+"."+u:i.id+"."+u,pivotValue:u});return l.columns=e(t+1,l,[].concat(o,[function(e){return e.values[i.id]===u}])),l})):l.map((function(e){return r({},e,{canPivot:false,isPivoted:true,parent:n,depth:t,id:""+(n?n.id+"."+e.id:e.id),accessor:function(t,n,r){if(o.every((function(e){return e(r)})))return r.values[e.id]}})}))}());return [].concat(e,s)}function ct(e,t){var n=t.instance.state,o=n.pivotColumns,r=n.groupBy;return [].concat(e,[o,r])}function dt(e,t){var n=t.instance.state;return e=e.filter((function(e){return !e.isPivotSource})),n.pivotColumns.length&&n.groupBy&&n.groupBy.length&&(e=e.filter((function(e){return e.isGrouped||e.isPivoted}))),e}function ft(e,t){var n=t.instance;return [].concat(e,[n.state.pivotColumns,n.state.groupBy])}function pt(e){var t=e.columns,n=e.allColumns,o=e.flatHeaders,r=e.getHooks,i=e.plugins,u=e.dispatch,s=e.autoResetPivot,a=void 0===s||s,c=e.manaulPivot,d=e.disablePivot,p=e.defaultCanPivot;v(i,["useGroupBy"],"usePivotColumns");var g=h(e);n.forEach((function(t){var n=t.accessor,o=t.defaultPivot,r=t.disablePivot;t.canPivot=n?I(t.canPivot,true!==r&&void 0,true!==d&&void 0,true):I(t.canPivot,o,p,false),t.canPivot&&(t.togglePivot=function(){return e.togglePivot(t.id)}),t.Aggregated=t.Aggregated||t.Cell;}));o.forEach((function(e){e.getPivotToggleProps=f(r().getPivotToggleProps,{instance:g(),header:e});}));var m=h(a);w((function(){m()&&u({type:l.resetPivot});}),[u,c?null:t]),Object.assign(e,{togglePivot:function(e,t){u({type:l.togglePivot,columnId:e,value:t});}});}function gt(e){e.allCells.forEach((function(e){e.isPivoted=e.column.isPivoted;}));}l.resetSelectedRows="resetSelectedRows",l.toggleAllRowsSelected="toggleAllRowsSelected",l.toggleRowSelected="toggleRowSelected",l.toggleAllPageRowsSelected="toggleAllPageRowsSelected";var vt=function(e){e.getToggleRowSelectedProps=[mt],e.getToggleAllRowsSelectedProps=[ht],e.getToggleAllPageRowsSelectedProps=[yt],e.stateReducers.push(wt),e.useInstance.push(Rt),e.prepareRow.push(bt);};vt.pluginName="useRowSelect";var mt=function(e,t){var n=t.instance,o=t.row,r=n.manualRowSelectedKey,i=void 0===r?"isSelected":r;return [e,{onChange:function(e){o.toggleRowSelected(e.target.checked);},style:{cursor:"pointer"},checked:!(!o.original||!o.original[i])||o.isSelected,title:"Toggle Row Selected",indeterminate:o.isSomeSelected}]},ht=function(e,t){var n=t.instance;return [e,{onChange:function(e){n.toggleAllRowsSelected(e.target.checked);},style:{cursor:"pointer"},checked:n.isAllRowsSelected,title:"Toggle All Rows Selected",indeterminate:Boolean(!n.isAllRowsSelected&&Object.keys(n.state.selectedRowIds).length)}]},yt=function(e,t){var n=t.instance;return [e,{onChange:function(e){n.toggleAllPageRowsSelected(e.target.checked);},style:{cursor:"pointer"},checked:n.isAllPageRowsSelected,title:"Toggle All Current Page Rows Selected",indeterminate:Boolean(!n.isAllPageRowsSelected&&n.page.some((function(e){var t=e.id;return n.state.selectedRowIds[t]})))}]};function wt(e,t,n,o){if(t.type===l.init)return r({selectedRowIds:{}},e);if(t.type===l.resetSelectedRows)return r({},e,{selectedRowIds:o.initialState.selectedRowIds||{}});if(t.type===l.toggleAllRowsSelected){var i=t.value,u=o.isAllRowsSelected,s=o.rowsById,a=o.nonGroupedRowsById,c=void 0===a?s:a,d=void 0!==i?i:!u,f=Object.assign({},e.selectedRowIds);return d?Object.keys(c).forEach((function(e){f[e]=true;})):Object.keys(c).forEach((function(e){delete f[e];})),r({},e,{selectedRowIds:f})}if(t.type===l.toggleRowSelected){var p=t.id,g=t.value,v=o.rowsById,m=o.selectSubRows,h=void 0===m||m,y=o.getSubRows,w=e.selectedRowIds[p],R=void 0!==g?g:!w;if(w===R)return e;var b=r({},e.selectedRowIds);return function e(t){var n=v[t];if(n&&(n.isGrouped||(R?b[t]=true:delete b[t]),h&&y(n)))return y(n).forEach((function(t){return e(t.id)}))}(p),r({},e,{selectedRowIds:b})}if(t.type===l.toggleAllPageRowsSelected){var S=t.value,C=o.page,x=o.rowsById,P=o.selectSubRows,B=void 0===P||P,E=o.isAllPageRowsSelected,I=o.getSubRows,F=void 0!==S?S:!E,G=r({},e.selectedRowIds);return C.forEach((function(e){return function e(t){var n=x[t];if(n.isGrouped||(F?G[t]=true:delete G[t]),B&&I(n))return I(n).forEach((function(t){return e(t.id)}))}(e.id)})),r({},e,{selectedRowIds:G})}return e}function Rt(e){var n=e.data,o=e.rows,r=e.getHooks,i=e.plugins,u=e.rowsById,s=e.nonGroupedRowsById,a=void 0===s?u:s,c=e.autoResetSelectedRows,d=void 0===c||c,p=e.state.selectedRowIds,g=e.selectSubRows,m=void 0===g||g,y=e.dispatch,R=e.page,b=e.getSubRows;v(i,["useFilters","useGroupBy","useSortBy","useExpanded","usePagination"],"useRowSelect");var S=t.useMemo((function(){var e=[];return o.forEach((function(t){var n=m?function e(t,n,o){if(n[t.id])return  true;var r=o(t);if(r&&r.length){var i=true,u=false;return r.forEach((function(t){u&&!i||(e(t,n,o)?u=true:i=false);})),!!i||!!u&&null}return  false}(t,p,b):!!p[t.id];t.isSelected=!!n,t.isSomeSelected=null===n,n&&e.push(t);})),e}),[o,m,p,b]),C=Boolean(Object.keys(a).length&&Object.keys(p).length),x=C;C&&Object.keys(a).some((function(e){return !p[e]}))&&(C=false),C||R&&R.length&&R.some((function(e){var t=e.id;return !p[t]}))&&(x=false);var P=h(d);w((function(){P()&&y({type:l.resetSelectedRows});}),[y,n]);var B=t.useCallback((function(e){return y({type:l.toggleAllRowsSelected,value:e})}),[y]),E=t.useCallback((function(e){return y({type:l.toggleAllPageRowsSelected,value:e})}),[y]),I=t.useCallback((function(e,t){return y({type:l.toggleRowSelected,id:e,value:t})}),[y]),F=h(e),G=f(r().getToggleAllRowsSelectedProps,{instance:F()}),A=f(r().getToggleAllPageRowsSelectedProps,{instance:F()});Object.assign(e,{selectedFlatRows:S,isAllRowsSelected:C,isAllPageRowsSelected:x,toggleRowSelected:I,toggleAllRowsSelected:B,getToggleAllRowsSelectedProps:G,getToggleAllPageRowsSelectedProps:A,toggleAllPageRowsSelected:E});}function bt(e,t){var n=t.instance;e.toggleRowSelected=function(t){return n.toggleRowSelected(e.id,t)},e.getToggleRowSelectedProps=f(n.getHooks().getToggleRowSelectedProps,{instance:n,row:e});}var St=function(e){return {}},Ct=function(e){return {}};l.setRowState="setRowState",l.setCellState="setCellState",l.resetRowState="resetRowState";var xt=function(e){e.stateReducers.push(Pt),e.useInstance.push(Bt),e.prepareRow.push(Et);};function Pt(e,t,n,o){var i=o.initialRowStateAccessor,u=void 0===i?St:i,s=o.initialCellStateAccessor,a=void 0===s?Ct:s,c=o.rowsById;if(t.type===l.init)return r({rowState:{}},e);if(t.type===l.resetRowState)return r({},e,{rowState:o.initialState.rowState||{}});if(t.type===l.setRowState){var d,f=t.rowId,p=t.value,g=void 0!==e.rowState[f]?e.rowState[f]:u(c[f]);return r({},e,{rowState:r({},e.rowState,(d={},d[f]=m(p,g),d))})}if(t.type===l.setCellState){var v,h,y,w,R,b=t.rowId,S=t.columnId,C=t.value,x=void 0!==e.rowState[b]?e.rowState[b]:u(c[b]),P=void 0!==(null==x?void 0:null==(v=x.cellState)?void 0:v[S])?x.cellState[S]:a(null==(h=c[b])?void 0:null==(y=h.cells)?void 0:y.find((function(e){return e.column.id===S})));return r({},e,{rowState:r({},e.rowState,(R={},R[b]=r({},x,{cellState:r({},x.cellState||{},(w={},w[S]=m(C,P),w))}),R))})}}function Bt(e){var n=e.autoResetRowState,o=void 0===n||n,r=e.data,i=e.dispatch,u=t.useCallback((function(e,t){return i({type:l.setRowState,rowId:e,value:t})}),[i]),s=t.useCallback((function(e,t,n){return i({type:l.setCellState,rowId:e,columnId:t,value:n})}),[i]),a=h(o);w((function(){a()&&i({type:l.resetRowState});}),[r]),Object.assign(e,{setRowState:u,setCellState:s});}function Et(e,t){var n=t.instance,o=n.initialRowStateAccessor,r=void 0===o?St:o,i=n.initialCellStateAccessor,u=void 0===i?Ct:i,l=n.state.rowState;e&&(e.state=void 0!==l[e.id]?l[e.id]:r(e),e.setState=function(t){return n.setRowState(e.id,t)},e.cells.forEach((function(t){e.state.cellState||(e.state.cellState={}),t.state=void 0!==e.state.cellState[t.column.id]?e.state.cellState[t.column.id]:u(t),t.setState=function(o){return n.setCellState(e.id,t.column.id,o)};})));}xt.pluginName="useRowState",l.resetColumnOrder="resetColumnOrder",l.setColumnOrder="setColumnOrder";var It=function(e){e.stateReducers.push(Ft),e.visibleColumnsDeps.push((function(e,t){var n=t.instance;return [].concat(e,[n.state.columnOrder])})),e.visibleColumns.push(Gt),e.useInstance.push(At);};function Ft(e,t,n,o){return t.type===l.init?r({columnOrder:[]},e):t.type===l.resetColumnOrder?r({},e,{columnOrder:o.initialState.columnOrder||[]}):t.type===l.setColumnOrder?r({},e,{columnOrder:m(t.columnOrder,e.columnOrder)}):void 0}function Gt(e,t){var n=t.instance.state.columnOrder;if(!n||!n.length)return e;for(var o=[].concat(n),r=[].concat(e),i=[],u=function(){var e=o.shift(),t=r.findIndex((function(t){return t.id===e}));t>-1&&i.push(r.splice(t,1)[0]);};r.length&&o.length;)u();return [].concat(i,r)}function At(e){var n=e.dispatch;e.setColumnOrder=t.useCallback((function(e){return n({type:l.setColumnOrder,columnOrder:e})}),[n]);}It.pluginName="useColumnOrder",c.canResize=true,l.columnStartResizing="columnStartResizing",l.columnResizing="columnResizing",l.columnDoneResizing="columnDoneResizing",l.resetResize="resetResize";var kt=function(e){e.getResizerProps=[Ht],e.getHeaderProps.push({style:{position:"relative"}}),e.stateReducers.push(Wt),e.useInstance.push(Tt),e.useInstanceBeforeDimensions.push(zt);},Ht=function(e,t){var n=t.instance,o=t.header,r=n.dispatch,i=function(e,t){var n=false;if("touchstart"===e.type){if(e.touches&&e.touches.length>1)return;n=true;}var o,i,u=function(e){var t=[];return function e(n){n.columns&&n.columns.length&&n.columns.map(e);t.push(n);}(e),t}(t).map((function(e){return [e.id,e.totalWidth]})),s=n?Math.round(e.touches[0].clientX):e.clientX,a=function(){window.cancelAnimationFrame(o),o=null,r({type:l.columnDoneResizing});},c=function(){window.cancelAnimationFrame(o),o=null,r({type:l.columnResizing,clientX:i});},d=function(e){i=e,o||(o=window.requestAnimationFrame(c));},f={mouse:{moveEvent:"mousemove",moveHandler:function(e){return d(e.clientX)},upEvent:"mouseup",upHandler:function(e){document.removeEventListener("mousemove",f.mouse.moveHandler),document.removeEventListener("mouseup",f.mouse.upHandler),a();}},touch:{moveEvent:"touchmove",moveHandler:function(e){return e.cancelable&&(e.preventDefault(),e.stopPropagation()),d(e.touches[0].clientX),false},upEvent:"touchend",upHandler:function(e){document.removeEventListener(f.touch.moveEvent,f.touch.moveHandler),document.removeEventListener(f.touch.upEvent,f.touch.moveHandler),a();}}},p=n?f.touch:f.mouse,g=!!function(){if("boolean"==typeof z)return z;var e=false;try{var t={get passive(){return e=!0,!1}};window.addEventListener("test",null,t),window.removeEventListener("test",null,t);}catch(t){e=false;}return z=e}()&&{passive:false};document.addEventListener(p.moveEvent,p.moveHandler,g),document.addEventListener(p.upEvent,p.upHandler,g),r({type:l.columnStartResizing,columnId:t.id,columnWidth:t.totalWidth,headerIdWidths:u,clientX:s});};return [e,{onMouseDown:function(e){return e.persist()||i(e,o)},onTouchStart:function(e){return e.persist()||i(e,o)},style:{cursor:"col-resize"},draggable:false,role:"separator"}]};function Wt(e,t){if(t.type===l.init)return r({columnResizing:{columnWidths:{}}},e);if(t.type===l.resetResize)return r({},e,{columnResizing:{columnWidths:{}}});if(t.type===l.columnStartResizing){var n=t.clientX,o=t.columnId,i=t.columnWidth,u=t.headerIdWidths;return r({},e,{columnResizing:r({},e.columnResizing,{startX:n,headerIdWidths:u,columnWidth:i,isResizingColumn:o})})}if(t.type===l.columnResizing){var s=t.clientX,a=e.columnResizing,c=a.startX,d=a.columnWidth,f=a.headerIdWidths,p=(s-c)/d,g={};return (void 0===f?[]:f).forEach((function(e){var t=e[0],n=e[1];g[t]=Math.max(n+n*p,0);})),r({},e,{columnResizing:r({},e.columnResizing,{columnWidths:r({},e.columnResizing.columnWidths,{},g)})})}return t.type===l.columnDoneResizing?r({},e,{columnResizing:r({},e.columnResizing,{startX:null,isResizingColumn:null})}):void 0}kt.pluginName="useResizeColumns";var zt=function(e){var t=e.flatHeaders,n=e.disableResizing,o=e.getHooks,r=e.state.columnResizing,i=h(e);t.forEach((function(e){var t=I(true!==e.disableResizing&&void 0,true!==n&&void 0,true);e.canResize=t,e.width=r.columnWidths[e.id]||e.originalWidth||e.width,e.isResizing=r.isResizingColumn===e.id,t&&(e.getResizerProps=f(o().getResizerProps,{instance:i(),header:e}));}));};function Tt(e){var n=e.plugins,o=e.dispatch,r=e.autoResetResize,i=void 0===r||r,u=e.columns;v(n,["useAbsoluteLayout"],"useResizeColumns");var s=h(i);w((function(){s()&&o({type:l.resetResize});}),[u]);var a=t.useCallback((function(){return o({type:l.resetResize})}),[o]);Object.assign(e,{resetResizing:a});}var Ot={position:"absolute",top:0},Mt=function(e){e.getTableBodyProps.push(jt),e.getRowProps.push(jt),e.getHeaderGroupProps.push(jt),e.getFooterGroupProps.push(jt),e.getHeaderProps.push((function(e,t){var n=t.column;return [e,{style:r({},Ot,{left:n.totalLeft+"px",width:n.totalWidth+"px"})}]})),e.getCellProps.push((function(e,t){var n=t.cell;return [e,{style:r({},Ot,{left:n.column.totalLeft+"px",width:n.column.totalWidth+"px"})}]})),e.getFooterProps.push((function(e,t){var n=t.column;return [e,{style:r({},Ot,{left:n.totalLeft+"px",width:n.totalWidth+"px"})}]}));};Mt.pluginName="useAbsoluteLayout";var jt=function(e,t){return [e,{style:{position:"relative",width:t.instance.totalColumnsWidth+"px"}}]},Lt={display:"inline-block",boxSizing:"border-box"},Nt=function(e,t){return [e,{style:{display:"flex",width:t.instance.totalColumnsWidth+"px"}}]},Dt=function(e){e.getRowProps.push(Nt),e.getHeaderGroupProps.push(Nt),e.getFooterGroupProps.push(Nt),e.getHeaderProps.push((function(e,t){var n=t.column;return [e,{style:r({},Lt,{width:n.totalWidth+"px"})}]})),e.getCellProps.push((function(e,t){var n=t.cell;return [e,{style:r({},Lt,{width:n.column.totalWidth+"px"})}]})),e.getFooterProps.push((function(e,t){var n=t.column;return [e,{style:r({},Lt,{width:n.totalWidth+"px"})}]}));};function Vt(e){e.getTableProps.push(_t),e.getRowProps.push(Xt),e.getHeaderGroupProps.push(Xt),e.getFooterGroupProps.push(Xt),e.getHeaderProps.push(qt),e.getCellProps.push(Kt),e.getFooterProps.push(Ut);}Dt.pluginName="useBlockLayout",Vt.pluginName="useFlexLayout";var _t=function(e,t){return [e,{style:{minWidth:t.instance.totalColumnsMinWidth+"px"}}]},Xt=function(e,t){return [e,{style:{display:"flex",flex:"1 0 auto",minWidth:t.instance.totalColumnsMinWidth+"px"}}]},qt=function(e,t){var n=t.column;return [e,{style:{boxSizing:"border-box",flex:n.totalFlexWidth?n.totalFlexWidth+" 0 auto":void 0,minWidth:n.totalMinWidth+"px",width:n.totalWidth+"px"}}]},Kt=function(e,t){var n=t.cell;return [e,{style:{boxSizing:"border-box",flex:n.column.totalFlexWidth+" 0 auto",minWidth:n.column.totalMinWidth+"px",width:n.column.totalWidth+"px"}}]},Ut=function(e,t){var n=t.column;return [e,{style:{boxSizing:"border-box",flex:n.totalFlexWidth?n.totalFlexWidth+" 0 auto":void 0,minWidth:n.totalMinWidth+"px",width:n.totalWidth+"px"}}]};function $t(e){e.stateReducers.push(Zt),e.getTableProps.push(Jt),e.getHeaderProps.push(Yt),e.getRowProps.push(Qt);}l.columnStartResizing="columnStartResizing",l.columnResizing="columnResizing",l.columnDoneResizing="columnDoneResizing",l.resetResize="resetResize",$t.pluginName="useGridLayout";var Jt=function(e,t){var n=t.instance;return [e,{style:{display:"grid",gridTemplateColumns:n.visibleColumns.map((function(e){var t;return n.state.gridLayout.columnWidths[e.id]?n.state.gridLayout.columnWidths[e.id]+"px":(null==(t=n.state.columnResizing)?void 0:t.isResizingColumn)?n.state.gridLayout.startWidths[e.id]+"px":"number"==typeof e.width?e.width+"px":e.width})).join(" ")}}]},Yt=function(e,t){var n=t.column;return [e,{id:"header-cell-"+n.id,style:{position:"sticky",gridColumn:"span "+n.totalVisibleHeaderCount}}]},Qt=function(e,t){var n=t.row;return n.isExpanded?[e,{style:{gridColumn:"1 / "+(n.cells.length+1)}}]:[e,{}]};function Zt(e,t,n,o){if(t.type===l.init)return r({gridLayout:{columnWidths:{}}},e);if(t.type===l.resetResize)return r({},e,{gridLayout:{columnWidths:{}}});if(t.type===l.columnStartResizing){var i=t.columnId,u=t.headerIdWidths,s=en(i);if(void 0!==s){var a=o.visibleColumns.reduce((function(e,t){var n;return r({},e,((n={})[t.id]=en(t.id),n))}),{}),c=o.visibleColumns.reduce((function(e,t){var n;return r({},e,((n={})[t.id]=t.minWidth,n))}),{}),d=o.visibleColumns.reduce((function(e,t){var n;return r({},e,((n={})[t.id]=t.maxWidth,n))}),{}),f=u.map((function(e){var t=e[0];return [t,en(t)]}));return r({},e,{gridLayout:r({},e.gridLayout,{startWidths:a,minWidths:c,maxWidths:d,headerIdGridWidths:f,columnWidth:s})})}return e}if(t.type===l.columnResizing){var p=t.clientX,g=e.columnResizing.startX,v=e.gridLayout,m=v.columnWidth,h=v.minWidths,y=v.maxWidths,w=v.headerIdGridWidths,R=(p-g)/m,b={};return (void 0===w?[]:w).forEach((function(e){var t=e[0],n=e[1];b[t]=Math.min(Math.max(h[t],n+n*R),y[t]);})),r({},e,{gridLayout:r({},e.gridLayout,{columnWidths:r({},e.gridLayout.columnWidths,{},b)})})}return t.type===l.columnDoneResizing?r({},e,{gridLayout:r({},e.gridLayout,{startWidths:{},minWidths:{},maxWidths:{}})}):void 0}function en(e){var t,n=null==(t=document.getElementById("header-cell-"+e))?void 0:t.offsetWidth;if(void 0!==n)return n}e._UNSTABLE_usePivotColumns=nt,e.actions=l,e.defaultColumn=c,e.defaultGroupByFn=De,e.defaultOrderByFn=Qe,e.defaultRenderer=s,e.emptyRenderer=a,e.ensurePluginOrder=v,e.flexRender=b,e.functionalUpdate=m,e.loopHooks=g,e.makePropGetter=f,e.makeRenderer=R,e.reduceHooks=p,e.safeUseLayoutEffect=y,e.useAbsoluteLayout=Mt,e.useAsyncDebounce=function(e,n){ void 0===n&&(n=0);var r=t.useRef({}),i=h(e),u=h(n);return t.useCallback(function(){var e=o(regeneratorRuntime.mark((function e(){var t,n,l,s=arguments;return regeneratorRuntime.wrap((function(e){for(;;)switch(e.prev=e.next){case 0:for(t=s.length,n=new Array(t),l=0;l<t;l++)n[l]=s[l];return r.current.promise||(r.current.promise=new Promise((function(e,t){r.current.resolve=e,r.current.reject=t;}))),r.current.timeout&&clearTimeout(r.current.timeout),r.current.timeout=setTimeout(o(regeneratorRuntime.mark((function e(){return regeneratorRuntime.wrap((function(e){for(;;)switch(e.prev=e.next){case 0:return delete r.current.timeout,e.prev=1,e.t0=r.current,e.next=5,i().apply(void 0,n);case 5:e.t1=e.sent,e.t0.resolve.call(e.t0,e.t1),e.next=12;break;case 9:e.prev=9,e.t2=e.catch(1),r.current.reject(e.t2);case 12:return e.prev=12,delete r.current.promise,e.finish(12);case 15:case "end":return e.stop()}}),e,null,[[1,9,12,15]])}))),u()),e.abrupt("return",r.current.promise);case 5:case "end":return e.stop()}}),e)})));return function(){return e.apply(this,arguments)}}(),[i,u])},e.useBlockLayout=Dt,e.useColumnOrder=It,e.useExpanded=se,e.useFilters=Pe,e.useFlexLayout=Vt,e.useGetLatest=h,e.useGlobalFilter=Ie,e.useGridLayout=$t,e.useGroupBy=ze,e.useMountedLayoutEffect=w,e.usePagination=Ze,e.useResizeColumns=kt,e.useRowSelect=vt,e.useRowState=xt,e.useSortBy=Ue,e.useTable=function(e){for(var n=arguments.length,o=new Array(n>1?n-1:0),i=1;i<n;i++)o[i-1]=arguments[i];e=ie(e),o=[K].concat(o);var u=t.useRef({}),s=h(u.current);Object.assign(s(),r({},e,{plugins:o,hooks:q()})),o.filter(Boolean).forEach((function(e){e(s().hooks);}));var a=h(s().hooks);s().getHooks=a,delete s().hooks,Object.assign(s(),p(a().useOptions,ie(e)));var c=s(),d=c.data,v=c.columns,m=c.initialState,y=c.defaultColumn,w=c.getSubRows,b=c.getRowId,E=c.stateReducer,I=c.useControlledState,F=h(E),G=t.useCallback((function(e,t){if(!t.type)throw console.info({action:t}),new Error("Unknown Action 👆");return [].concat(a().stateReducers,Array.isArray(F())?F():[F()]).reduce((function(n,o){return o(n,t,e,s())||n}),e)}),[a,F,s]),A=t.useReducer(G,void 0,(function(){return G(m,{type:l.init})})),k=A[0],H=A[1],W=p([].concat(a().useControlledState,[I]),k,{instance:s()});Object.assign(s(),{state:W,dispatch:H});var z=t.useMemo((function(){return S(p(a().columns,v,{instance:s()}))}),[a,s,v].concat(p(a().columnsDeps,[],{instance:s()})));s().columns=z;var T=t.useMemo((function(){return p(a().allColumns,C(z),{instance:s()}).map(x)}),[z,a,s].concat(p(a().allColumnsDeps,[],{instance:s()})));s().allColumns=T;var O=t.useMemo((function(){for(var e=[],t=[],n={},o=[].concat(T);o.length;){var r=o.shift();le({data:d,rows:e,flatRows:t,rowsById:n,column:r,getRowId:b,getSubRows:w,accessValueHooks:a().accessValue,getInstance:s});}return [e,t,n]}),[T,d,b,w,a,s]),M=O[0],j=O[1],L=O[2];Object.assign(s(),{rows:M,initialRows:[].concat(M),flatRows:j,rowsById:L}),g(a().useInstanceAfterData,s());var N=t.useMemo((function(){return p(a().visibleColumns,T,{instance:s()}).map((function(e){return P(e,y)}))}),[a,T,s,y].concat(p(a().visibleColumnsDeps,[],{instance:s()})));T=t.useMemo((function(){var e=[].concat(N);return T.forEach((function(t){e.find((function(e){return e.id===t.id}))||e.push(t);})),e}),[T,N]),s().allColumns=T;var D=t.useMemo((function(){return p(a().headerGroups,B(N,y),s())}),[a,N,y,s].concat(p(a().headerGroupsDeps,[],{instance:s()})));s().headerGroups=D;var V=t.useMemo((function(){return D.length?D[0].headers:[]}),[D]);s().headers=V,s().flatHeaders=D.reduce((function(e,t){return [].concat(e,t.headers)}),[]),g(a().useInstanceBeforeDimensions,s());var _=N.filter((function(e){return e.isVisible})).map((function(e){return e.id})).sort().join("_");N=t.useMemo((function(){return N.filter((function(e){return e.isVisible}))}),[N,_]),s().visibleColumns=N;var X=ue(V),U=X[0],$=X[1],J=X[2];return s().totalColumnsMinWidth=U,s().totalColumnsWidth=$,s().totalColumnsMaxWidth=J,g(a().useInstance,s()),[].concat(s().flatHeaders,s().allColumns).forEach((function(e){e.render=R(s(),e),e.getHeaderProps=f(a().getHeaderProps,{instance:s(),column:e}),e.getFooterProps=f(a().getFooterProps,{instance:s(),column:e});})),s().headerGroups=t.useMemo((function(){return D.filter((function(e,t){return e.headers=e.headers.filter((function(e){return e.headers?function e(t){return t.filter((function(t){return t.headers?e(t.headers):t.isVisible})).length}(e.headers):e.isVisible})),!!e.headers.length&&(e.getHeaderGroupProps=f(a().getHeaderGroupProps,{instance:s(),headerGroup:e,index:t}),e.getFooterGroupProps=f(a().getFooterGroupProps,{instance:s(),headerGroup:e,index:t}),true)}))}),[D,s,a]),s().footerGroups=[].concat(s().headerGroups).reverse(),s().prepareRow=t.useCallback((function(e){e.getRowProps=f(a().getRowProps,{instance:s(),row:e}),e.allCells=T.map((function(t){var n=e.values[t.id],o={column:t,row:e,value:n};return o.getCellProps=f(a().getCellProps,{instance:s(),cell:o}),o.render=R(s(),t,{row:e,cell:o,value:n}),o})),e.cells=N.map((function(t){return e.allCells.find((function(e){return e.column.id===t.id}))})),g(a().prepareRow,e,{instance:s()});}),[a,s,T,N]),s().getTableProps=f(a().getTableProps,{instance:s()}),s().getTableBodyProps=f(a().getTableBodyProps,{instance:s()}),g(a().useFinalInstance,s()),s()},Object.defineProperty(e,"__esModule",{value:true});}));
-		
-	} (reactTable_production_min, reactTable_production_min.exports));
+  (function (module, exports) {
+  	!function(e,t){t(exports,reactExports);}(commonjsGlobal,(function(e,t){function n(e,t,n,o,r,i,u){try{var l=e[i](u),s=l.value;}catch(e){return void n(e)}l.done?t(s):Promise.resolve(s).then(o,r);}function o(e){return function(){var t=this,o=arguments;return new Promise((function(r,i){var u=e.apply(t,o);function l(e){n(u,r,i,l,s,"next",e);}function s(e){n(u,r,i,l,s,"throw",e);}l(void 0);}))}}function r(){return (r=Object.assign||function(e){for(var t=1;t<arguments.length;t++){var n=arguments[t];for(var o in n)Object.prototype.hasOwnProperty.call(n,o)&&(e[o]=n[o]);}return e}).apply(this,arguments)}function i(e,t){if(null==e)return {};var n,o,r={},i=Object.keys(e);for(o=0;o<i.length;o++)n=i[o],t.indexOf(n)>=0||(r[n]=e[n]);return r}function u(e){var t=function(e,t){if("object"!=typeof e||null===e)return e;var n=e[Symbol.toPrimitive];if(void 0!==n){var o=n.call(e,t);if("object"!=typeof o)return o;throw new TypeError("@@toPrimitive must return a primitive value.")}return (String)(e)}(e,"string");return "symbol"==typeof t?t:String(t)}t=t&&Object.prototype.hasOwnProperty.call(t,"default")?t.default:t;var l={init:"init"},s=function(e){var t=e.value;return void 0===t?"":t},a=function(){return t.createElement(t.Fragment,null," ")},c={Cell:s,width:150,minWidth:0,maxWidth:Number.MAX_SAFE_INTEGER};function d(){for(var e=arguments.length,t=new Array(e),n=0;n<e;n++)t[n]=arguments[n];return t.reduce((function(e,t){var n=t.style,o=t.className;return e=r({},e,{},i(t,["style","className"])),n&&(e.style=e.style?r({},e.style||{},{},n||{}):n),o&&(e.className=e.className?e.className+" "+o:o),""===e.className&&delete e.className,e}),{})}var f=function(e,t){return void 0===t&&(t={}),function(n){return void 0===n&&(n={}),[].concat(e,[n]).reduce((function(e,o){return function e(t,n,o){return "function"==typeof n?e({},n(t,o)):Array.isArray(n)?d.apply(void 0,[t].concat(n)):d(t,n)}(e,o,r({},t,{userProps:n}))}),{})}},p=function(e,t,n,o){return void 0===n&&(n={}),e.reduce((function(e,t){return t(e,n)}),t)},g=function(e,t,n){return void 0===n&&(n={}),e.forEach((function(e){e(t,n);}))};function v(e,t,n,o){e.findIndex((function(e){return e.pluginName===n}));t.forEach((function(t){e.findIndex((function(e){return e.pluginName===t}));}));}function m(e,t){return "function"==typeof e?e(t):e}function h(e){var n=t.useRef();return n.current=e,t.useCallback((function(){return n.current}),[])}var y="undefined"!=typeof document?t.useLayoutEffect:t.useEffect;function w(e,n){var o=t.useRef(false);y((function(){o.current&&e(),o.current=true;}),n);}function R(e,t,n){return void 0===n&&(n={}),function(o,i){ void 0===i&&(i={});var u="string"==typeof o?t[o]:o;if(void 0===u)throw console.info(t),new Error("Renderer Error ☝️");return b(u,r({},e,{column:t},n,{},i))}}function b(e,n){return function(e){return "function"==typeof e&&((t=Object.getPrototypeOf(e)).prototype&&t.prototype.isReactComponent);var t;}(o=e)||"function"==typeof o||function(e){return "object"==typeof e&&"symbol"==typeof e.$$typeof&&["react.memo","react.forward_ref"].includes(e.$$typeof.description)}(o)?t.createElement(e,n):e;var o;}function S(e,t,n){return void 0===n&&(n=0),e.map((function(e){return x(e=r({},e,{parent:t,depth:n})),e.columns&&(e.columns=S(e.columns,e,n+1)),e}))}function C(e){return G(e,"columns")}function x(e){var t=e.id,n=e.accessor,o=e.Header;if("string"==typeof n){t=t||n;var r=n.split(".");n=function(e){return function(e,t,n){if(!t)return e;var o,r="function"==typeof t?t:JSON.stringify(t),i=E.get(r)||function(){var e=function(e){return function e(t,n){ void 0===n&&(n=[]);if(Array.isArray(t))for(var o=0;o<t.length;o+=1)e(t[o],n);else n.push(t);return n}(e).map((function(e){return String(e).replace(".","_")})).join(".").replace(T,".").replace(O,"").split(".")}(t);return E.set(r,e),e}();try{o=i.reduce((function(e,t){return e[t]}),e);}catch(e){}return void 0!==o?o:n}(e,r)};}if(!t&&"string"==typeof o&&o&&(t=o),!t&&e.columns)throw console.error(e),new Error('A column ID (or unique "Header" value) is required!');if(!t)throw console.error(e),new Error("A column ID (or string accessor) is required!");return Object.assign(e,{id:t,accessor:n}),e}function P(e,t){if(!t)throw new Error;return Object.assign(e,r({Header:a,Footer:a},c,{},t,{},e)),Object.assign(e,{originalWidth:e.width}),e}function B(e,t,n){ void 0===n&&(n=function(){return {}});for(var o=[],i=e,u=0,l=function(){return u++},s=function(){var e={headers:[]},u=[],s=i.some((function(e){return e.parent}));i.forEach((function(o){var i,a=[].concat(u).reverse()[0];if(s){if(o.parent)i=r({},o.parent,{originalId:o.parent.id,id:o.parent.id+"_"+l(),headers:[o]},n(o));else i=P(r({originalId:o.id+"_placeholder",id:o.id+"_placeholder_"+l(),placeholderOf:o,headers:[o]},n(o)),t);a&&a.originalId===i.originalId?a.headers.push(o):u.push(i);}e.headers.push(o);})),o.push(e),i=u;};i.length;)s();return o.reverse()}var E=new Map;function I(){for(var e=arguments.length,t=new Array(e),n=0;n<e;n++)t[n]=arguments[n];for(var o=0;o<t.length;o+=1)if(void 0!==t[o])return t[o]}function F(e){if("function"==typeof e)return e}function G(e,t){var n=[];return function e(o){o.forEach((function(o){o[t]?e(o[t]):n.push(o);}));}(e),n}function A(e,t){var n=t.manualExpandedKey,o=t.expanded,r=t.expandSubRows,i=void 0===r||r,u=[];return e.forEach((function(e){return function e(t,r){ void 0===r&&(r=true),t.isExpanded=t.original&&t.original[n]||o[t.id],t.canExpand=t.subRows&&!!t.subRows.length,r&&u.push(t),t.subRows&&t.subRows.length&&t.isExpanded&&t.subRows.forEach((function(t){return e(t,i)}));}(e)})),u}function k(e,t,n){return F(e)||t[e]||n[e]||n.text}function H(e,t,n){return e?e(t,n):void 0===t}function W(){throw new Error("React-Table: You have not called prepareRow(row) one or more rows you are attempting to render.")}var z=null;var T=/\[/g,O=/\]/g;var M=function(e){return r({role:"table"},e)},j=function(e){return r({role:"rowgroup"},e)},L=function(e,t){var n=t.column;return r({key:"header_"+n.id,colSpan:n.totalVisibleHeaderCount,role:"columnheader"},e)},N=function(e,t){var n=t.column;return r({key:"footer_"+n.id,colSpan:n.totalVisibleHeaderCount},e)},D=function(e,t){return r({key:"headerGroup_"+t.index,role:"row"},e)},V=function(e,t){return r({key:"footerGroup_"+t.index},e)},_=function(e,t){return r({key:"row_"+t.row.id,role:"row"},e)},X=function(e,t){var n=t.cell;return r({key:"cell_"+n.row.id+"_"+n.column.id,role:"cell"},e)};function q(){return {useOptions:[],stateReducers:[],useControlledState:[],columns:[],columnsDeps:[],allColumns:[],allColumnsDeps:[],accessValue:[],materializedColumns:[],materializedColumnsDeps:[],useInstanceAfterData:[],visibleColumns:[],visibleColumnsDeps:[],headerGroups:[],headerGroupsDeps:[],useInstanceBeforeDimensions:[],useInstance:[],prepareRow:[],getTableProps:[M],getTableBodyProps:[j],getHeaderGroupProps:[D],getFooterGroupProps:[V],getHeaderProps:[L],getFooterProps:[N],getRowProps:[_],getCellProps:[X],useFinalInstance:[]}}l.resetHiddenColumns="resetHiddenColumns",l.toggleHideColumn="toggleHideColumn",l.setHiddenColumns="setHiddenColumns",l.toggleHideAllColumns="toggleHideAllColumns";var K=function(e){e.getToggleHiddenProps=[U],e.getToggleHideAllColumnsProps=[$],e.stateReducers.push(J),e.useInstanceBeforeDimensions.push(Y),e.headerGroupsDeps.push((function(e,t){var n=t.instance;return [].concat(e,[n.state.hiddenColumns])})),e.useInstance.push(Q);};K.pluginName="useColumnVisibility";var U=function(e,t){var n=t.column;return [e,{onChange:function(e){n.toggleHidden(!e.target.checked);},style:{cursor:"pointer"},checked:n.isVisible,title:"Toggle Column Visible"}]},$=function(e,t){var n=t.instance;return [e,{onChange:function(e){n.toggleHideAllColumns(!e.target.checked);},style:{cursor:"pointer"},checked:!n.allColumnsHidden&&!n.state.hiddenColumns.length,title:"Toggle All Columns Hidden",indeterminate:!n.allColumnsHidden&&n.state.hiddenColumns.length}]};function J(e,t,n,o){if(t.type===l.init)return r({hiddenColumns:[]},e);if(t.type===l.resetHiddenColumns)return r({},e,{hiddenColumns:o.initialState.hiddenColumns||[]});if(t.type===l.toggleHideColumn){var i=(void 0!==t.value?t.value:!e.hiddenColumns.includes(t.columnId))?[].concat(e.hiddenColumns,[t.columnId]):e.hiddenColumns.filter((function(e){return e!==t.columnId}));return r({},e,{hiddenColumns:i})}return t.type===l.setHiddenColumns?r({},e,{hiddenColumns:m(t.value,e.hiddenColumns)}):t.type===l.toggleHideAllColumns?r({},e,{hiddenColumns:(void 0!==t.value?t.value:!e.hiddenColumns.length)?o.allColumns.map((function(e){return e.id})):[]}):void 0}function Y(e){var n=e.headers,o=e.state.hiddenColumns;t.useRef(false).current;var r=0;n.forEach((function(e){return r+=function e(t,n){t.isVisible=n&&!o.includes(t.id);var r=0;return t.headers&&t.headers.length?t.headers.forEach((function(n){return r+=e(n,t.isVisible)})):r=t.isVisible?1:0,t.totalVisibleHeaderCount=r,r}(e,true)}));}function Q(e){var n=e.columns,o=e.flatHeaders,r=e.dispatch,i=e.allColumns,u=e.getHooks,s=e.state.hiddenColumns,a=e.autoResetHiddenColumns,c=void 0===a||a,d=h(e),p=i.length===s.length,g=t.useCallback((function(e,t){return r({type:l.toggleHideColumn,columnId:e,value:t})}),[r]),v=t.useCallback((function(e){return r({type:l.setHiddenColumns,value:e})}),[r]),m=t.useCallback((function(e){return r({type:l.toggleHideAllColumns,value:e})}),[r]),y=f(u().getToggleHideAllColumnsProps,{instance:d()});o.forEach((function(e){e.toggleHidden=function(t){r({type:l.toggleHideColumn,columnId:e.id,value:t});},e.getToggleHiddenProps=f(u().getToggleHiddenProps,{instance:d(),column:e});}));var R=h(c);w((function(){R()&&r({type:l.resetHiddenColumns});}),[r,n]),Object.assign(e,{allColumnsHidden:p,toggleHideColumn:g,setHiddenColumns:v,toggleHideAllColumns:m,getToggleHideAllColumnsProps:y});}var Z={},ee={},te=function(e,t,n){return e},ne=function(e,t){return e.subRows||[]},oe=function(e,t,n){return ""+(n?[n.id,t].join("."):t)},re=function(e){return e};function ie(e){var t=e.initialState,n=void 0===t?Z:t,o=e.defaultColumn,u=void 0===o?ee:o,l=e.getSubRows,s=void 0===l?ne:l,a=e.getRowId,c=void 0===a?oe:a,d=e.stateReducer,f=void 0===d?te:d,p=e.useControlledState,g=void 0===p?re:p;return r({},i(e,["initialState","defaultColumn","getSubRows","getRowId","stateReducer","useControlledState"]),{initialState:n,defaultColumn:u,getSubRows:s,getRowId:c,stateReducer:f,useControlledState:g})}function ue(e,t){ void 0===t&&(t=0);var n=0,o=0,r=0,i=0;return e.forEach((function(e){var u=e.headers;if(e.totalLeft=t,u&&u.length){var l=ue(u,t),s=l[0],a=l[1],c=l[2],d=l[3];e.totalMinWidth=s,e.totalWidth=a,e.totalMaxWidth=c,e.totalFlexWidth=d;}else e.totalMinWidth=e.minWidth,e.totalWidth=Math.min(Math.max(e.minWidth,e.width),e.maxWidth),e.totalMaxWidth=e.maxWidth,e.totalFlexWidth=e.canResize?e.totalWidth:0;e.isVisible&&(t+=e.totalWidth,n+=e.totalMinWidth,o+=e.totalWidth,r+=e.totalMaxWidth,i+=e.totalFlexWidth);})),[n,o,r,i]}function le(e){var t=e.data,n=e.rows,o=e.flatRows,r=e.rowsById,i=e.column,u=e.getRowId,l=e.getSubRows,s=e.accessValueHooks,a=e.getInstance;t.forEach((function(e,c){return function e(n,c,d,f,g){ void 0===d&&(d=0);var v=n,m=u(n,c,f),h=r[m];if(h)h.subRows&&h.originalSubRows.forEach((function(t,n){return e(t,n,d+1,h)}));else if((h={id:m,original:v,index:c,depth:d,cells:[{}]}).cells.map=W,h.cells.filter=W,h.cells.forEach=W,h.cells[0].getCellProps=W,h.values={},g.push(h),o.push(h),r[m]=h,h.originalSubRows=l(n,c),h.originalSubRows){var y=[];h.originalSubRows.forEach((function(t,n){return e(t,n,d+1,h,y)})),h.subRows=y;}i.accessor&&(h.values[i.id]=i.accessor(n,c,h,g,t)),h.values[i.id]=p(s,h.values[i.id],{row:h,column:i,instance:a()});}(e,c,0,void 0,n)}));}l.resetExpanded="resetExpanded",l.toggleRowExpanded="toggleRowExpanded",l.toggleAllRowsExpanded="toggleAllRowsExpanded";var se=function(e){e.getToggleAllRowsExpandedProps=[ae],e.getToggleRowExpandedProps=[ce],e.stateReducers.push(de),e.useInstance.push(fe),e.prepareRow.push(pe);};se.pluginName="useExpanded";var ae=function(e,t){var n=t.instance;return [e,{onClick:function(e){n.toggleAllRowsExpanded();},style:{cursor:"pointer"},title:"Toggle All Rows Expanded"}]},ce=function(e,t){var n=t.row;return [e,{onClick:function(){n.toggleRowExpanded();},style:{cursor:"pointer"},title:"Toggle Row Expanded"}]};function de(e,t,n,o){if(t.type===l.init)return r({expanded:{}},e);if(t.type===l.resetExpanded)return r({},e,{expanded:o.initialState.expanded||{}});if(t.type===l.toggleAllRowsExpanded){var s=t.value,a=o.rowsById,c=Object.keys(a).length===Object.keys(e.expanded).length;if(void 0!==s?s:!c){var d={};return Object.keys(a).forEach((function(e){d[e]=true;})),r({},e,{expanded:d})}return r({},e,{expanded:{}})}if(t.type===l.toggleRowExpanded){var f,p=t.id,g=t.value,v=e.expanded[p],m=void 0!==g?g:!v;if(!v&&m)return r({},e,{expanded:r({},e.expanded,(f={},f[p]=true,f))});if(v&&!m){var h=e.expanded;h[p];return r({},e,{expanded:i(h,[p].map(u))})}return e}}function fe(e){var n=e.data,o=e.rows,r=e.rowsById,i=e.manualExpandedKey,u=void 0===i?"expanded":i,s=e.paginateExpandedRows,a=void 0===s||s,c=e.expandSubRows,d=void 0===c||c,p=e.autoResetExpanded,g=void 0===p||p,m=e.getHooks,y=e.plugins,R=e.state.expanded,b=e.dispatch;v(y,["useSortBy","useGroupBy","usePivotColumns","useGlobalFilter"],"useExpanded");var S=h(g),C=Boolean(Object.keys(r).length&&Object.keys(R).length);C&&Object.keys(r).some((function(e){return !R[e]}))&&(C=false),w((function(){S()&&b({type:l.resetExpanded});}),[b,n]);var x=t.useCallback((function(e,t){b({type:l.toggleRowExpanded,id:e,value:t});}),[b]),P=t.useCallback((function(e){return b({type:l.toggleAllRowsExpanded,value:e})}),[b]),B=t.useMemo((function(){return a?A(o,{manualExpandedKey:u,expanded:R,expandSubRows:d}):o}),[a,o,u,R,d]),E=t.useMemo((function(){return function(e){var t=0;return Object.keys(e).forEach((function(e){var n=e.split(".");t=Math.max(t,n.length);})),t}(R)}),[R]),I=h(e),F=f(m().getToggleAllRowsExpandedProps,{instance:I()});Object.assign(e,{preExpandedRows:o,expandedRows:B,rows:B,expandedDepth:E,isAllRowsExpanded:C,toggleRowExpanded:x,toggleAllRowsExpanded:P,getToggleAllRowsExpandedProps:F});}function pe(e,t){var n=t.instance.getHooks,o=t.instance;e.toggleRowExpanded=function(t){return o.toggleRowExpanded(e.id,t)},e.getToggleRowExpandedProps=f(n().getToggleRowExpandedProps,{instance:o,row:e});}var ge=function(e,t,n){return e=e.filter((function(e){return t.some((function(t){var o=e.values[t];return String(o).toLowerCase().includes(String(n).toLowerCase())}))}))};ge.autoRemove=function(e){return !e};var ve=function(e,t,n){return e.filter((function(e){return t.some((function(t){var o=e.values[t];return void 0===o||String(o).toLowerCase()===String(n).toLowerCase()}))}))};ve.autoRemove=function(e){return !e};var me=function(e,t,n){return e.filter((function(e){return t.some((function(t){var o=e.values[t];return void 0===o||String(o)===String(n)}))}))};me.autoRemove=function(e){return !e};var he=function(e,t,n){return e.filter((function(e){return t.some((function(t){return e.values[t].includes(n)}))}))};he.autoRemove=function(e){return !e||!e.length};var ye=function(e,t,n){return e.filter((function(e){return t.some((function(t){var o=e.values[t];return o&&o.length&&n.every((function(e){return o.includes(e)}))}))}))};ye.autoRemove=function(e){return !e||!e.length};var we=function(e,t,n){return e.filter((function(e){return t.some((function(t){var o=e.values[t];return o&&o.length&&n.some((function(e){return o.includes(e)}))}))}))};we.autoRemove=function(e){return !e||!e.length};var Re=function(e,t,n){return e.filter((function(e){return t.some((function(t){var o=e.values[t];return n.includes(o)}))}))};Re.autoRemove=function(e){return !e||!e.length};var be=function(e,t,n){return e.filter((function(e){return t.some((function(t){return e.values[t]===n}))}))};be.autoRemove=function(e){return void 0===e};var Se=function(e,t,n){return e.filter((function(e){return t.some((function(t){return e.values[t]==n}))}))};Se.autoRemove=function(e){return null==e};var Ce=function(e,t,n){var o=n||[],r=o[0],i=o[1];if((r="number"==typeof r?r:-1/0)>(i="number"==typeof i?i:1/0)){var u=r;r=i,i=u;}return e.filter((function(e){return t.some((function(t){var n=e.values[t];return n>=r&&n<=i}))}))};Ce.autoRemove=function(e){return !e||"number"!=typeof e[0]&&"number"!=typeof e[1]};var xe=Object.freeze({__proto__:null,text:ge,exactText:ve,exactTextCase:me,includes:he,includesAll:ye,includesSome:we,includesValue:Re,exact:be,equals:Se,between:Ce});l.resetFilters="resetFilters",l.setFilter="setFilter",l.setAllFilters="setAllFilters";var Pe=function(e){e.stateReducers.push(Be),e.useInstance.push(Ee);};function Be(e,t,n,o){if(t.type===l.init)return r({filters:[]},e);if(t.type===l.resetFilters)return r({},e,{filters:o.initialState.filters||[]});if(t.type===l.setFilter){var i=t.columnId,u=t.filterValue,s=o.allColumns,a=o.filterTypes,c=s.find((function(e){return e.id===i}));if(!c)throw new Error("React-Table: Could not find a column with id: "+i);var d=k(c.filter,a||{},xe),f=e.filters.find((function(e){return e.id===i})),p=m(u,f&&f.value);return H(d.autoRemove,p,c)?r({},e,{filters:e.filters.filter((function(e){return e.id!==i}))}):r({},e,f?{filters:e.filters.map((function(e){return e.id===i?{id:i,value:p}:e}))}:{filters:[].concat(e.filters,[{id:i,value:p}])})}if(t.type===l.setAllFilters){var g=t.filters,v=o.allColumns,h=o.filterTypes;return r({},e,{filters:m(g,e.filters).filter((function(e){var t=v.find((function(t){return t.id===e.id}));return !H(k(t.filter,h||{},xe).autoRemove,e.value,t)}))})}}function Ee(e){var n=e.data,o=e.rows,r=e.flatRows,i=e.rowsById,u=e.allColumns,s=e.filterTypes,a=e.manualFilters,c=e.defaultCanFilter,d=void 0!==c&&c,f=e.disableFilters,p=e.state.filters,g=e.dispatch,v=e.autoResetFilters,m=void 0===v||v,y=t.useCallback((function(e,t){g({type:l.setFilter,columnId:e,filterValue:t});}),[g]),R=t.useCallback((function(e){g({type:l.setAllFilters,filters:e});}),[g]);u.forEach((function(e){var t=e.id,n=e.accessor,o=e.defaultCanFilter,r=e.disableFilters;e.canFilter=n?I(true!==r&&void 0,true!==f&&void 0,true):I(o,d,false),e.setFilter=function(t){return y(e.id,t)};var i=p.find((function(e){return e.id===t}));e.filterValue=i&&i.value;}));var b=t.useMemo((function(){if(a||!p.length)return [o,r,i];var e=[],t={};return [function n(o,r){ void 0===r&&(r=0);var i=o;return (i=p.reduce((function(e,t){var n=t.id,o=t.value,i=u.find((function(e){return e.id===n}));if(!i)return e;0===r&&(i.preFilteredRows=e);var l=k(i.filter,s||{},xe);return l?(i.filteredRows=l(e,[n],o),i.filteredRows):(console.warn("Could not find a valid 'column.filter' for column with the ID: "+i.id+"."),e)}),o)).forEach((function(o){e.push(o),t[o.id]=o,o.subRows&&(o.subRows=o.subRows&&o.subRows.length>0?n(o.subRows,r+1):o.subRows);})),i}(o),e,t]}),[a,p,o,r,i,u,s]),S=b[0],C=b[1],x=b[2];t.useMemo((function(){u.filter((function(e){return !p.find((function(t){return t.id===e.id}))})).forEach((function(e){e.preFilteredRows=S,e.filteredRows=S;}));}),[S,p,u]);var P=h(m);w((function(){P()&&g({type:l.resetFilters});}),[g,a?null:n]),Object.assign(e,{preFilteredRows:o,preFilteredFlatRows:r,preFilteredRowsById:i,filteredRows:S,filteredFlatRows:C,filteredRowsById:x,rows:S,flatRows:C,rowsById:x,setFilter:y,setAllFilters:R});}Pe.pluginName="useFilters",l.resetGlobalFilter="resetGlobalFilter",l.setGlobalFilter="setGlobalFilter";var Ie=function(e){e.stateReducers.push(Fe),e.useInstance.push(Ge);};function Fe(e,t,n,o){if(t.type===l.resetGlobalFilter)return r({},e,{globalFilter:o.initialState.globalFilter||void 0});if(t.type===l.setGlobalFilter){var u=t.filterValue,s=o.userFilterTypes,a=k(o.globalFilter,s||{},xe),c=m(u,e.globalFilter);if(H(a.autoRemove,c)){e.globalFilter;return i(e,["globalFilter"])}return r({},e,{globalFilter:c})}}function Ge(e){var n=e.data,o=e.rows,r=e.flatRows,i=e.rowsById,u=e.allColumns,s=e.filterTypes,a=e.globalFilter,c=e.manualGlobalFilter,d=e.state.globalFilter,f=e.dispatch,p=e.autoResetGlobalFilter,g=void 0===p||p,v=e.disableGlobalFilter,m=t.useCallback((function(e){f({type:l.setGlobalFilter,filterValue:e});}),[f]),y=t.useMemo((function(){if(c||void 0===d)return [o,r,i];var e=[],t={},n=k(a,s||{},xe);if(!n)return console.warn("Could not find a valid 'globalFilter' option."),o;u.forEach((function(e){var t=e.disableGlobalFilter;e.canFilter=I(true!==t&&void 0,true!==v&&void 0,true);}));var l=u.filter((function(e){return  true===e.canFilter}));return [function o(r){return (r=n(r,l.map((function(e){return e.id})),d)).forEach((function(n){e.push(n),t[n.id]=n,n.subRows=n.subRows&&n.subRows.length?o(n.subRows):n.subRows;})),r}(o),e,t]}),[c,d,a,s,u,o,r,i,v]),R=y[0],b=y[1],S=y[2],C=h(g);w((function(){C()&&f({type:l.resetGlobalFilter});}),[f,c?null:n]),Object.assign(e,{preGlobalFilteredRows:o,preGlobalFilteredFlatRows:r,preGlobalFilteredRowsById:i,globalFilteredRows:R,globalFilteredFlatRows:b,globalFilteredRowsById:S,rows:R,flatRows:b,rowsById:S,setGlobalFilter:m,disableGlobalFilter:v});}function Ae(e,t){return t.reduce((function(e,t){return e+("number"==typeof t?t:0)}),0)}Ie.pluginName="useGlobalFilter";var ke=Object.freeze({__proto__:null,sum:Ae,min:function(e){var t=e[0]||0;return e.forEach((function(e){"number"==typeof e&&(t=Math.min(t,e));})),t},max:function(e){var t=e[0]||0;return e.forEach((function(e){"number"==typeof e&&(t=Math.max(t,e));})),t},minMax:function(e){var t=e[0]||0,n=e[0]||0;return e.forEach((function(e){"number"==typeof e&&(t=Math.min(t,e),n=Math.max(n,e));})),t+".."+n},average:function(e){return Ae(0,e)/e.length},median:function(e){if(!e.length)return null;var t=Math.floor(e.length/2),n=[].concat(e).sort((function(e,t){return e-t}));return e.length%2!=0?n[t]:(n[t-1]+n[t])/2},unique:function(e){return Array.from(new Set(e).values())},uniqueCount:function(e){return new Set(e).size},count:function(e){return e.length}}),He=[],We={};l.resetGroupBy="resetGroupBy",l.setGroupBy="setGroupBy",l.toggleGroupBy="toggleGroupBy";var ze=function(e){e.getGroupByToggleProps=[Te],e.stateReducers.push(Oe),e.visibleColumnsDeps.push((function(e,t){var n=t.instance;return [].concat(e,[n.state.groupBy])})),e.visibleColumns.push(Me),e.useInstance.push(Le),e.prepareRow.push(Ne);};ze.pluginName="useGroupBy";var Te=function(e,t){var n=t.header;return [e,{onClick:n.canGroupBy?function(e){e.persist(),n.toggleGroupBy();}:void 0,style:{cursor:n.canGroupBy?"pointer":void 0},title:"Toggle GroupBy"}]};function Oe(e,t,n,o){if(t.type===l.init)return r({groupBy:[]},e);if(t.type===l.resetGroupBy)return r({},e,{groupBy:o.initialState.groupBy||[]});if(t.type===l.setGroupBy)return r({},e,{groupBy:t.value});if(t.type===l.toggleGroupBy){var i=t.columnId,u=t.value,s=void 0!==u?u:!e.groupBy.includes(i);return r({},e,s?{groupBy:[].concat(e.groupBy,[i])}:{groupBy:e.groupBy.filter((function(e){return e!==i}))})}}function Me(e,t){var n=t.instance.state.groupBy,o=n.map((function(t){return e.find((function(e){return e.id===t}))})).filter(Boolean),r=e.filter((function(e){return !n.includes(e.id)}));return (e=[].concat(o,r)).forEach((function(e){e.isGrouped=n.includes(e.id),e.groupedIndex=n.indexOf(e.id);})),e}var je={};function Le(e){var n=e.data,o=e.rows,i=e.flatRows,u=e.rowsById,s=e.allColumns,a=e.flatHeaders,c=e.groupByFn,d=void 0===c?De:c,p=e.manualGroupBy,g=e.aggregations,m=void 0===g?je:g,y=e.plugins,R=e.state.groupBy,b=e.dispatch,S=e.autoResetGroupBy,C=void 0===S||S,x=e.disableGroupBy,P=e.defaultCanGroupBy,B=e.getHooks;v(y,["useColumnOrder","useFilters"],"useGroupBy");var E=h(e);s.forEach((function(t){var n=t.accessor,o=t.defaultGroupBy,r=t.disableGroupBy;t.canGroupBy=n?I(t.canGroupBy,true!==r&&void 0,true!==x&&void 0,true):I(t.canGroupBy,o,P,false),t.canGroupBy&&(t.toggleGroupBy=function(){return e.toggleGroupBy(t.id)}),t.Aggregated=t.Aggregated||t.Cell;}));var F=t.useCallback((function(e,t){b({type:l.toggleGroupBy,columnId:e,value:t});}),[b]),A=t.useCallback((function(e){b({type:l.setGroupBy,value:e});}),[b]);a.forEach((function(e){e.getGroupByToggleProps=f(B().getGroupByToggleProps,{instance:E(),header:e});}));var k=t.useMemo((function(){if(p||!R.length)return [o,i,u,He,We,i,u];var e=R.filter((function(e){return s.find((function(t){return t.id===e}))})),t=[],n={},l=[],a={},c=[],f={},g=function o(i,u,p){if(void 0===u&&(u=0),u===e.length)return i.map((function(e){return r({},e,{depth:u})}));var g=e[u],v=d(i,g);return Object.entries(v).map((function(r,i){var d=r[0],v=r[1],h=g+":"+d,y=o(v,u+1,h=p?p+">"+h:h),w=u?G(v,"leafRows"):v,R=function(t,n,o){var r={};return s.forEach((function(i){if(e.includes(i.id))r[i.id]=n[0]?n[0].values[i.id]:null;else {var u="function"==typeof i.aggregate?i.aggregate:m[i.aggregate]||ke[i.aggregate];if(u){var l=n.map((function(e){return e.values[i.id]})),s=t.map((function(e){var t=e.values[i.id];if(!o&&i.aggregateValue){var n="function"==typeof i.aggregateValue?i.aggregateValue:m[i.aggregateValue]||ke[i.aggregateValue];if(!n)throw console.info({column:i}),new Error("React Table: Invalid column.aggregateValue option for column listed above");t=n(t,e,i);}return t}));r[i.id]=u(s,l);}else {if(i.aggregate)throw console.info({column:i}),new Error("React Table: Invalid column.aggregate option for column listed above");r[i.id]=null;}}})),r}(w,v,u),b={id:h,isGrouped:true,groupByID:g,groupByVal:d,values:R,subRows:y,leafRows:w,depth:u,index:i};return y.forEach((function(e){t.push(e),n[e.id]=e,e.isGrouped?(l.push(e),a[e.id]=e):(c.push(e),f[e.id]=e);})),b}))}(o);return g.forEach((function(e){t.push(e),n[e.id]=e,e.isGrouped?(l.push(e),a[e.id]=e):(c.push(e),f[e.id]=e);})),[g,t,n,l,a,c,f]}),[p,R,o,i,u,s,m,d]),H=k[0],W=k[1],z=k[2],T=k[3],O=k[4],M=k[5],j=k[6],L=h(C);w((function(){L()&&b({type:l.resetGroupBy});}),[b,p?null:n]),Object.assign(e,{preGroupedRows:o,preGroupedFlatRow:i,preGroupedRowsById:u,groupedRows:H,groupedFlatRows:W,groupedRowsById:z,onlyGroupedFlatRows:T,onlyGroupedRowsById:O,nonGroupedFlatRows:M,nonGroupedRowsById:j,rows:H,flatRows:W,rowsById:z,toggleGroupBy:F,setGroupBy:A});}function Ne(e){e.allCells.forEach((function(t){var n;t.isGrouped=t.column.isGrouped&&t.column.id===e.groupByID,t.isPlaceholder=!t.isGrouped&&t.column.isGrouped,t.isAggregated=!t.isGrouped&&!t.isPlaceholder&&(null==(n=e.subRows)?void 0:n.length);}));}function De(e,t){return e.reduce((function(e,n,o){var r=""+n.values[t];return e[r]=Array.isArray(e[r])?e[r]:[],e[r].push(n),e}),{})}var Ve=/([0-9]+)/gm;function _e(e,t){return e===t?0:e>t?1:-1}function Xe(e,t,n){return [e.values[n],t.values[n]]}function qe(e){return "number"==typeof e?isNaN(e)||e===1/0||e===-1/0?"":String(e):"string"==typeof e?e:""}var Ke=Object.freeze({__proto__:null,alphanumeric:function(e,t,n){var o=Xe(e,t,n),r=o[0],i=o[1];for(r=qe(r),i=qe(i),r=r.split(Ve).filter(Boolean),i=i.split(Ve).filter(Boolean);r.length&&i.length;){var u=r.shift(),l=i.shift(),s=parseInt(u,10),a=parseInt(l,10),c=[s,a].sort();if(isNaN(c[0])){if(u>l)return 1;if(l>u)return  -1}else {if(isNaN(c[1]))return isNaN(s)?-1:1;if(s>a)return 1;if(a>s)return  -1}}return r.length-i.length},datetime:function(e,t,n){var o=Xe(e,t,n),r=o[0],i=o[1];return _e(r=r.getTime(),i=i.getTime())},basic:function(e,t,n){var o=Xe(e,t,n);return _e(o[0],o[1])},string:function(e,t,n){var o=Xe(e,t,n),r=o[0],i=o[1];for(r=r.split("").filter(Boolean),i=i.split("").filter(Boolean);r.length&&i.length;){var u=r.shift(),l=i.shift(),s=u.toLowerCase(),a=l.toLowerCase();if(s>a)return 1;if(a>s)return  -1;if(u>l)return 1;if(l>u)return  -1}return r.length-i.length},number:function(e,t,n){var o=Xe(e,t,n),r=o[0],i=o[1],u=/[^0-9.]/gi;return _e(r=Number(String(r).replace(u,"")),i=Number(String(i).replace(u,"")))}});l.resetSortBy="resetSortBy",l.setSortBy="setSortBy",l.toggleSortBy="toggleSortBy",l.clearSortBy="clearSortBy",c.sortType="alphanumeric",c.sortDescFirst=false;var Ue=function(e){e.getSortByToggleProps=[$e],e.stateReducers.push(Je),e.useInstance.push(Ye);};Ue.pluginName="useSortBy";var $e=function(e,t){var n=t.instance,o=t.column,r=n.isMultiSortEvent,i=void 0===r?function(e){return e.shiftKey}:r;return [e,{onClick:o.canSort?function(e){e.persist(),o.toggleSortBy(void 0,!n.disableMultiSort&&i(e));}:void 0,style:{cursor:o.canSort?"pointer":void 0},title:o.canSort?"Toggle SortBy":void 0}]};function Je(e,t,n,o){if(t.type===l.init)return r({sortBy:[]},e);if(t.type===l.resetSortBy)return r({},e,{sortBy:o.initialState.sortBy||[]});if(t.type===l.clearSortBy)return r({},e,{sortBy:e.sortBy.filter((function(e){return e.id!==t.columnId}))});if(t.type===l.setSortBy)return r({},e,{sortBy:t.sortBy});if(t.type===l.toggleSortBy){var i,u=t.columnId,s=t.desc,a=t.multi,c=o.allColumns,d=o.disableMultiSort,f=o.disableSortRemove,p=o.disableMultiRemove,g=o.maxMultiSortColCount,v=void 0===g?Number.MAX_SAFE_INTEGER:g,m=e.sortBy,h=c.find((function(e){return e.id===u})).sortDescFirst,y=m.find((function(e){return e.id===u})),w=m.findIndex((function(e){return e.id===u})),R=null!=s,b=[];return "toggle"!==(i=!d&&a?y?"toggle":"add":w!==m.length-1||1!==m.length?"replace":y?"toggle":"replace")||f||R||a&&p||!(y&&y.desc&&!h||!y.desc&&h)||(i="remove"),"replace"===i?b=[{id:u,desc:R?s:h}]:"add"===i?(b=[].concat(m,[{id:u,desc:R?s:h}])).splice(0,b.length-v):"toggle"===i?b=m.map((function(e){return e.id===u?r({},e,{desc:R?s:!y.desc}):e})):"remove"===i&&(b=m.filter((function(e){return e.id!==u}))),r({},e,{sortBy:b})}}function Ye(e){var n=e.data,o=e.rows,r=e.flatRows,i=e.allColumns,u=e.orderByFn,s=void 0===u?Qe:u,a=e.sortTypes,c=e.manualSortBy,d=e.defaultCanSort,p=e.disableSortBy,g=e.flatHeaders,m=e.state.sortBy,y=e.dispatch,R=e.plugins,b=e.getHooks,S=e.autoResetSortBy,C=void 0===S||S;v(R,["useFilters","useGlobalFilter","useGroupBy","usePivotColumns"],"useSortBy");var x=t.useCallback((function(e){y({type:l.setSortBy,sortBy:e});}),[y]),P=t.useCallback((function(e,t,n){y({type:l.toggleSortBy,columnId:e,desc:t,multi:n});}),[y]),B=h(e);g.forEach((function(e){var t=e.accessor,n=e.canSort,o=e.disableSortBy,r=e.id,i=t?I(true!==o&&void 0,true!==p&&void 0,true):I(d,n,false);e.canSort=i,e.canSort&&(e.toggleSortBy=function(t,n){return P(e.id,t,n)},e.clearSortBy=function(){y({type:l.clearSortBy,columnId:e.id});}),e.getSortByToggleProps=f(b().getSortByToggleProps,{instance:B(),column:e});var u=m.find((function(e){return e.id===r}));e.isSorted=!!u,e.sortedIndex=m.findIndex((function(e){return e.id===r})),e.isSortedDesc=e.isSorted?u.desc:void 0;}));var E=t.useMemo((function(){if(c||!m.length)return [o,r];var e=[],t=m.filter((function(e){return i.find((function(t){return t.id===e.id}))}));return [function n(o){var r=s(o,t.map((function(e){var t=i.find((function(t){return t.id===e.id}));if(!t)throw new Error("React-Table: Could not find a column with id: "+e.id+" while sorting");var n=t.sortType,o=F(n)||(a||{})[n]||Ke[n];if(!o)throw new Error("React-Table: Could not find a valid sortType of '"+n+"' for column '"+e.id+"'.");return function(t,n){return o(t,n,e.id,e.desc)}})),t.map((function(e){var t=i.find((function(t){return t.id===e.id}));return t&&t.sortInverted?e.desc:!e.desc})));return r.forEach((function(t){e.push(t),t.subRows&&0!==t.subRows.length&&(t.subRows=n(t.subRows));})),r}(o),e]}),[c,m,o,r,i,s,a]),G=E[0],A=E[1],k=h(C);w((function(){k()&&y({type:l.resetSortBy});}),[c?null:n]),Object.assign(e,{preSortedRows:o,preSortedFlatRows:r,sortedRows:G,sortedFlatRows:A,rows:G,flatRows:A,setSortBy:x,toggleSortBy:P});}function Qe(e,t,n){return [].concat(e).sort((function(e,o){for(var r=0;r<t.length;r+=1){var i=t[r],u=false===n[r]||"desc"===n[r],l=i(e,o);if(0!==l)return u?-l:l}return n[0]?e.index-o.index:o.index-e.index}))}l.resetPage="resetPage",l.gotoPage="gotoPage",l.setPageSize="setPageSize";var Ze=function(e){e.stateReducers.push(et),e.useInstance.push(tt);};function et(e,t,n,o){if(t.type===l.init)return r({pageSize:10,pageIndex:0},e);if(t.type===l.resetPage)return r({},e,{pageIndex:o.initialState.pageIndex||0});if(t.type===l.gotoPage){var i=o.pageCount,u=o.page,s=m(t.pageIndex,e.pageIndex),a=false;return s>e.pageIndex?a=-1===i?u.length>=e.pageSize:s<i:s<e.pageIndex&&(a=s>-1),a?r({},e,{pageIndex:s}):e}if(t.type===l.setPageSize){var c=t.pageSize,d=e.pageSize*e.pageIndex;return r({},e,{pageIndex:Math.floor(d/c),pageSize:c})}}function tt(e){var n=e.rows,o=e.autoResetPage,r=void 0===o||o,i=e.manualExpandedKey,u=void 0===i?"expanded":i,s=e.plugins,a=e.pageCount,c=e.paginateExpandedRows,d=void 0===c||c,f=e.expandSubRows,p=void 0===f||f,g=e.state,m=g.pageSize,y=g.pageIndex,R=g.expanded,b=g.globalFilter,S=g.filters,C=g.groupBy,x=g.sortBy,P=e.dispatch,B=e.data,E=e.manualPagination;v(s,["useGlobalFilter","useFilters","useGroupBy","useSortBy","useExpanded"],"usePagination");var I=h(r);w((function(){I()&&P({type:l.resetPage});}),[P,E?null:B,b,S,C,x]);var F=E?a:Math.ceil(n.length/m),G=t.useMemo((function(){return F>0?[].concat(new Array(F)).fill(null).map((function(e,t){return t})):[]}),[F]),k=t.useMemo((function(){var e;if(E)e=n;else {var t=m*y,o=t+m;e=n.slice(t,o);}return d?e:A(e,{manualExpandedKey:u,expanded:R,expandSubRows:p})}),[p,R,u,E,y,m,d,n]),H=y>0,W=-1===F?k.length>=m:y<F-1,z=t.useCallback((function(e){P({type:l.gotoPage,pageIndex:e});}),[P]),T=t.useCallback((function(){return z((function(e){return e-1}))}),[z]),O=t.useCallback((function(){return z((function(e){return e+1}))}),[z]),M=t.useCallback((function(e){P({type:l.setPageSize,pageSize:e});}),[P]);Object.assign(e,{pageOptions:G,pageCount:F,page:k,canPreviousPage:H,canNextPage:W,gotoPage:z,previousPage:T,nextPage:O,setPageSize:M});}Ze.pluginName="usePagination",l.resetPivot="resetPivot",l.togglePivot="togglePivot";var nt=function(e){e.getPivotToggleProps=[rt],e.stateReducers.push(it),e.useInstanceAfterData.push(ut),e.allColumns.push(lt),e.accessValue.push(st),e.materializedColumns.push(at),e.materializedColumnsDeps.push(ct),e.visibleColumns.push(dt),e.visibleColumnsDeps.push(ft),e.useInstance.push(pt),e.prepareRow.push(gt);};nt.pluginName="usePivotColumns";var ot=[],rt=function(e,t){var n=t.header;return [e,{onClick:n.canPivot?function(e){e.persist(),n.togglePivot();}:void 0,style:{cursor:n.canPivot?"pointer":void 0},title:"Toggle Pivot"}]};function it(e,t,n,o){if(t.type===l.init)return r({pivotColumns:ot},e);if(t.type===l.resetPivot)return r({},e,{pivotColumns:o.initialState.pivotColumns||ot});if(t.type===l.togglePivot){var i=t.columnId,u=t.value,s=void 0!==u?u:!e.pivotColumns.includes(i);return r({},e,s?{pivotColumns:[].concat(e.pivotColumns,[i])}:{pivotColumns:e.pivotColumns.filter((function(e){return e!==i}))})}}function ut(e){e.allColumns.forEach((function(t){t.isPivotSource=e.state.pivotColumns.includes(t.id);}));}function lt(e,t){var n=t.instance;return e.forEach((function(e){e.isPivotSource=n.state.pivotColumns.includes(e.id),e.uniqueValues=new Set;})),e}function st(e,t){var n=t.column;return n.uniqueValues&&void 0!==e&&n.uniqueValues.add(e),e}function at(e,t){var n=t.instance,o=n.allColumns,i=n.state;if(!i.pivotColumns.length||!i.groupBy||!i.groupBy.length)return e;var u=i.pivotColumns.map((function(e){return o.find((function(t){return t.id===e}))})).filter(Boolean),l=o.filter((function(e){return !e.isPivotSource&&!i.groupBy.includes(e.id)&&!i.pivotColumns.includes(e.id)})),s=C(function e(t,n,o){ void 0===t&&(t=0),void 0===o&&(o=[]);var i=u[t];return i?Array.from(i.uniqueValues).sort().map((function(u){var l=r({},i,{Header:i.PivotHeader||"string"==typeof i.header?i.Header+": "+u:u,isPivotGroup:true,parent:n,depth:t,id:n?n.id+"."+i.id+"."+u:i.id+"."+u,pivotValue:u});return l.columns=e(t+1,l,[].concat(o,[function(e){return e.values[i.id]===u}])),l})):l.map((function(e){return r({},e,{canPivot:false,isPivoted:true,parent:n,depth:t,id:""+(n?n.id+"."+e.id:e.id),accessor:function(t,n,r){if(o.every((function(e){return e(r)})))return r.values[e.id]}})}))}());return [].concat(e,s)}function ct(e,t){var n=t.instance.state,o=n.pivotColumns,r=n.groupBy;return [].concat(e,[o,r])}function dt(e,t){var n=t.instance.state;return e=e.filter((function(e){return !e.isPivotSource})),n.pivotColumns.length&&n.groupBy&&n.groupBy.length&&(e=e.filter((function(e){return e.isGrouped||e.isPivoted}))),e}function ft(e,t){var n=t.instance;return [].concat(e,[n.state.pivotColumns,n.state.groupBy])}function pt(e){var t=e.columns,n=e.allColumns,o=e.flatHeaders,r=e.getHooks,i=e.plugins,u=e.dispatch,s=e.autoResetPivot,a=void 0===s||s,c=e.manaulPivot,d=e.disablePivot,p=e.defaultCanPivot;v(i,["useGroupBy"],"usePivotColumns");var g=h(e);n.forEach((function(t){var n=t.accessor,o=t.defaultPivot,r=t.disablePivot;t.canPivot=n?I(t.canPivot,true!==r&&void 0,true!==d&&void 0,true):I(t.canPivot,o,p,false),t.canPivot&&(t.togglePivot=function(){return e.togglePivot(t.id)}),t.Aggregated=t.Aggregated||t.Cell;}));o.forEach((function(e){e.getPivotToggleProps=f(r().getPivotToggleProps,{instance:g(),header:e});}));var m=h(a);w((function(){m()&&u({type:l.resetPivot});}),[u,c?null:t]),Object.assign(e,{togglePivot:function(e,t){u({type:l.togglePivot,columnId:e,value:t});}});}function gt(e){e.allCells.forEach((function(e){e.isPivoted=e.column.isPivoted;}));}l.resetSelectedRows="resetSelectedRows",l.toggleAllRowsSelected="toggleAllRowsSelected",l.toggleRowSelected="toggleRowSelected",l.toggleAllPageRowsSelected="toggleAllPageRowsSelected";var vt=function(e){e.getToggleRowSelectedProps=[mt],e.getToggleAllRowsSelectedProps=[ht],e.getToggleAllPageRowsSelectedProps=[yt],e.stateReducers.push(wt),e.useInstance.push(Rt),e.prepareRow.push(bt);};vt.pluginName="useRowSelect";var mt=function(e,t){var n=t.instance,o=t.row,r=n.manualRowSelectedKey,i=void 0===r?"isSelected":r;return [e,{onChange:function(e){o.toggleRowSelected(e.target.checked);},style:{cursor:"pointer"},checked:!(!o.original||!o.original[i])||o.isSelected,title:"Toggle Row Selected",indeterminate:o.isSomeSelected}]},ht=function(e,t){var n=t.instance;return [e,{onChange:function(e){n.toggleAllRowsSelected(e.target.checked);},style:{cursor:"pointer"},checked:n.isAllRowsSelected,title:"Toggle All Rows Selected",indeterminate:Boolean(!n.isAllRowsSelected&&Object.keys(n.state.selectedRowIds).length)}]},yt=function(e,t){var n=t.instance;return [e,{onChange:function(e){n.toggleAllPageRowsSelected(e.target.checked);},style:{cursor:"pointer"},checked:n.isAllPageRowsSelected,title:"Toggle All Current Page Rows Selected",indeterminate:Boolean(!n.isAllPageRowsSelected&&n.page.some((function(e){var t=e.id;return n.state.selectedRowIds[t]})))}]};function wt(e,t,n,o){if(t.type===l.init)return r({selectedRowIds:{}},e);if(t.type===l.resetSelectedRows)return r({},e,{selectedRowIds:o.initialState.selectedRowIds||{}});if(t.type===l.toggleAllRowsSelected){var i=t.value,u=o.isAllRowsSelected,s=o.rowsById,a=o.nonGroupedRowsById,c=void 0===a?s:a,d=void 0!==i?i:!u,f=Object.assign({},e.selectedRowIds);return d?Object.keys(c).forEach((function(e){f[e]=true;})):Object.keys(c).forEach((function(e){delete f[e];})),r({},e,{selectedRowIds:f})}if(t.type===l.toggleRowSelected){var p=t.id,g=t.value,v=o.rowsById,m=o.selectSubRows,h=void 0===m||m,y=o.getSubRows,w=e.selectedRowIds[p],R=void 0!==g?g:!w;if(w===R)return e;var b=r({},e.selectedRowIds);return function e(t){var n=v[t];if(n&&(n.isGrouped||(R?b[t]=true:delete b[t]),h&&y(n)))return y(n).forEach((function(t){return e(t.id)}))}(p),r({},e,{selectedRowIds:b})}if(t.type===l.toggleAllPageRowsSelected){var S=t.value,C=o.page,x=o.rowsById,P=o.selectSubRows,B=void 0===P||P,E=o.isAllPageRowsSelected,I=o.getSubRows,F=void 0!==S?S:!E,G=r({},e.selectedRowIds);return C.forEach((function(e){return function e(t){var n=x[t];if(n.isGrouped||(F?G[t]=true:delete G[t]),B&&I(n))return I(n).forEach((function(t){return e(t.id)}))}(e.id)})),r({},e,{selectedRowIds:G})}return e}function Rt(e){var n=e.data,o=e.rows,r=e.getHooks,i=e.plugins,u=e.rowsById,s=e.nonGroupedRowsById,a=void 0===s?u:s,c=e.autoResetSelectedRows,d=void 0===c||c,p=e.state.selectedRowIds,g=e.selectSubRows,m=void 0===g||g,y=e.dispatch,R=e.page,b=e.getSubRows;v(i,["useFilters","useGroupBy","useSortBy","useExpanded","usePagination"],"useRowSelect");var S=t.useMemo((function(){var e=[];return o.forEach((function(t){var n=m?function e(t,n,o){if(n[t.id])return  true;var r=o(t);if(r&&r.length){var i=true,u=false;return r.forEach((function(t){u&&!i||(e(t,n,o)?u=true:i=false);})),!!i||!!u&&null}return  false}(t,p,b):!!p[t.id];t.isSelected=!!n,t.isSomeSelected=null===n,n&&e.push(t);})),e}),[o,m,p,b]),C=Boolean(Object.keys(a).length&&Object.keys(p).length),x=C;C&&Object.keys(a).some((function(e){return !p[e]}))&&(C=false),C||R&&R.length&&R.some((function(e){var t=e.id;return !p[t]}))&&(x=false);var P=h(d);w((function(){P()&&y({type:l.resetSelectedRows});}),[y,n]);var B=t.useCallback((function(e){return y({type:l.toggleAllRowsSelected,value:e})}),[y]),E=t.useCallback((function(e){return y({type:l.toggleAllPageRowsSelected,value:e})}),[y]),I=t.useCallback((function(e,t){return y({type:l.toggleRowSelected,id:e,value:t})}),[y]),F=h(e),G=f(r().getToggleAllRowsSelectedProps,{instance:F()}),A=f(r().getToggleAllPageRowsSelectedProps,{instance:F()});Object.assign(e,{selectedFlatRows:S,isAllRowsSelected:C,isAllPageRowsSelected:x,toggleRowSelected:I,toggleAllRowsSelected:B,getToggleAllRowsSelectedProps:G,getToggleAllPageRowsSelectedProps:A,toggleAllPageRowsSelected:E});}function bt(e,t){var n=t.instance;e.toggleRowSelected=function(t){return n.toggleRowSelected(e.id,t)},e.getToggleRowSelectedProps=f(n.getHooks().getToggleRowSelectedProps,{instance:n,row:e});}var St=function(e){return {}},Ct=function(e){return {}};l.setRowState="setRowState",l.setCellState="setCellState",l.resetRowState="resetRowState";var xt=function(e){e.stateReducers.push(Pt),e.useInstance.push(Bt),e.prepareRow.push(Et);};function Pt(e,t,n,o){var i=o.initialRowStateAccessor,u=void 0===i?St:i,s=o.initialCellStateAccessor,a=void 0===s?Ct:s,c=o.rowsById;if(t.type===l.init)return r({rowState:{}},e);if(t.type===l.resetRowState)return r({},e,{rowState:o.initialState.rowState||{}});if(t.type===l.setRowState){var d,f=t.rowId,p=t.value,g=void 0!==e.rowState[f]?e.rowState[f]:u(c[f]);return r({},e,{rowState:r({},e.rowState,(d={},d[f]=m(p,g),d))})}if(t.type===l.setCellState){var v,h,y,w,R,b=t.rowId,S=t.columnId,C=t.value,x=void 0!==e.rowState[b]?e.rowState[b]:u(c[b]),P=void 0!==(null==x?void 0:null==(v=x.cellState)?void 0:v[S])?x.cellState[S]:a(null==(h=c[b])?void 0:null==(y=h.cells)?void 0:y.find((function(e){return e.column.id===S})));return r({},e,{rowState:r({},e.rowState,(R={},R[b]=r({},x,{cellState:r({},x.cellState||{},(w={},w[S]=m(C,P),w))}),R))})}}function Bt(e){var n=e.autoResetRowState,o=void 0===n||n,r=e.data,i=e.dispatch,u=t.useCallback((function(e,t){return i({type:l.setRowState,rowId:e,value:t})}),[i]),s=t.useCallback((function(e,t,n){return i({type:l.setCellState,rowId:e,columnId:t,value:n})}),[i]),a=h(o);w((function(){a()&&i({type:l.resetRowState});}),[r]),Object.assign(e,{setRowState:u,setCellState:s});}function Et(e,t){var n=t.instance,o=n.initialRowStateAccessor,r=void 0===o?St:o,i=n.initialCellStateAccessor,u=void 0===i?Ct:i,l=n.state.rowState;e&&(e.state=void 0!==l[e.id]?l[e.id]:r(e),e.setState=function(t){return n.setRowState(e.id,t)},e.cells.forEach((function(t){e.state.cellState||(e.state.cellState={}),t.state=void 0!==e.state.cellState[t.column.id]?e.state.cellState[t.column.id]:u(t),t.setState=function(o){return n.setCellState(e.id,t.column.id,o)};})));}xt.pluginName="useRowState",l.resetColumnOrder="resetColumnOrder",l.setColumnOrder="setColumnOrder";var It=function(e){e.stateReducers.push(Ft),e.visibleColumnsDeps.push((function(e,t){var n=t.instance;return [].concat(e,[n.state.columnOrder])})),e.visibleColumns.push(Gt),e.useInstance.push(At);};function Ft(e,t,n,o){return t.type===l.init?r({columnOrder:[]},e):t.type===l.resetColumnOrder?r({},e,{columnOrder:o.initialState.columnOrder||[]}):t.type===l.setColumnOrder?r({},e,{columnOrder:m(t.columnOrder,e.columnOrder)}):void 0}function Gt(e,t){var n=t.instance.state.columnOrder;if(!n||!n.length)return e;for(var o=[].concat(n),r=[].concat(e),i=[],u=function(){var e=o.shift(),t=r.findIndex((function(t){return t.id===e}));t>-1&&i.push(r.splice(t,1)[0]);};r.length&&o.length;)u();return [].concat(i,r)}function At(e){var n=e.dispatch;e.setColumnOrder=t.useCallback((function(e){return n({type:l.setColumnOrder,columnOrder:e})}),[n]);}It.pluginName="useColumnOrder",c.canResize=true,l.columnStartResizing="columnStartResizing",l.columnResizing="columnResizing",l.columnDoneResizing="columnDoneResizing",l.resetResize="resetResize";var kt=function(e){e.getResizerProps=[Ht],e.getHeaderProps.push({style:{position:"relative"}}),e.stateReducers.push(Wt),e.useInstance.push(Tt),e.useInstanceBeforeDimensions.push(zt);},Ht=function(e,t){var n=t.instance,o=t.header,r=n.dispatch,i=function(e,t){var n=false;if("touchstart"===e.type){if(e.touches&&e.touches.length>1)return;n=true;}var o,i,u=function(e){var t=[];return function e(n){n.columns&&n.columns.length&&n.columns.map(e);t.push(n);}(e),t}(t).map((function(e){return [e.id,e.totalWidth]})),s=n?Math.round(e.touches[0].clientX):e.clientX,a=function(){window.cancelAnimationFrame(o),o=null,r({type:l.columnDoneResizing});},c=function(){window.cancelAnimationFrame(o),o=null,r({type:l.columnResizing,clientX:i});},d=function(e){i=e,o||(o=window.requestAnimationFrame(c));},f={mouse:{moveEvent:"mousemove",moveHandler:function(e){return d(e.clientX)},upEvent:"mouseup",upHandler:function(e){document.removeEventListener("mousemove",f.mouse.moveHandler),document.removeEventListener("mouseup",f.mouse.upHandler),a();}},touch:{moveEvent:"touchmove",moveHandler:function(e){return e.cancelable&&(e.preventDefault(),e.stopPropagation()),d(e.touches[0].clientX),false},upEvent:"touchend",upHandler:function(e){document.removeEventListener(f.touch.moveEvent,f.touch.moveHandler),document.removeEventListener(f.touch.upEvent,f.touch.moveHandler),a();}}},p=n?f.touch:f.mouse,g=!!function(){if("boolean"==typeof z)return z;var e=false;try{var t={get passive(){return e=!0,!1}};window.addEventListener("test",null,t),window.removeEventListener("test",null,t);}catch(t){e=false;}return z=e}()&&{passive:false};document.addEventListener(p.moveEvent,p.moveHandler,g),document.addEventListener(p.upEvent,p.upHandler,g),r({type:l.columnStartResizing,columnId:t.id,columnWidth:t.totalWidth,headerIdWidths:u,clientX:s});};return [e,{onMouseDown:function(e){return e.persist()||i(e,o)},onTouchStart:function(e){return e.persist()||i(e,o)},style:{cursor:"col-resize"},draggable:false,role:"separator"}]};function Wt(e,t){if(t.type===l.init)return r({columnResizing:{columnWidths:{}}},e);if(t.type===l.resetResize)return r({},e,{columnResizing:{columnWidths:{}}});if(t.type===l.columnStartResizing){var n=t.clientX,o=t.columnId,i=t.columnWidth,u=t.headerIdWidths;return r({},e,{columnResizing:r({},e.columnResizing,{startX:n,headerIdWidths:u,columnWidth:i,isResizingColumn:o})})}if(t.type===l.columnResizing){var s=t.clientX,a=e.columnResizing,c=a.startX,d=a.columnWidth,f=a.headerIdWidths,p=(s-c)/d,g={};return (void 0===f?[]:f).forEach((function(e){var t=e[0],n=e[1];g[t]=Math.max(n+n*p,0);})),r({},e,{columnResizing:r({},e.columnResizing,{columnWidths:r({},e.columnResizing.columnWidths,{},g)})})}return t.type===l.columnDoneResizing?r({},e,{columnResizing:r({},e.columnResizing,{startX:null,isResizingColumn:null})}):void 0}kt.pluginName="useResizeColumns";var zt=function(e){var t=e.flatHeaders,n=e.disableResizing,o=e.getHooks,r=e.state.columnResizing,i=h(e);t.forEach((function(e){var t=I(true!==e.disableResizing&&void 0,true!==n&&void 0,true);e.canResize=t,e.width=r.columnWidths[e.id]||e.originalWidth||e.width,e.isResizing=r.isResizingColumn===e.id,t&&(e.getResizerProps=f(o().getResizerProps,{instance:i(),header:e}));}));};function Tt(e){var n=e.plugins,o=e.dispatch,r=e.autoResetResize,i=void 0===r||r,u=e.columns;v(n,["useAbsoluteLayout"],"useResizeColumns");var s=h(i);w((function(){s()&&o({type:l.resetResize});}),[u]);var a=t.useCallback((function(){return o({type:l.resetResize})}),[o]);Object.assign(e,{resetResizing:a});}var Ot={position:"absolute",top:0},Mt=function(e){e.getTableBodyProps.push(jt),e.getRowProps.push(jt),e.getHeaderGroupProps.push(jt),e.getFooterGroupProps.push(jt),e.getHeaderProps.push((function(e,t){var n=t.column;return [e,{style:r({},Ot,{left:n.totalLeft+"px",width:n.totalWidth+"px"})}]})),e.getCellProps.push((function(e,t){var n=t.cell;return [e,{style:r({},Ot,{left:n.column.totalLeft+"px",width:n.column.totalWidth+"px"})}]})),e.getFooterProps.push((function(e,t){var n=t.column;return [e,{style:r({},Ot,{left:n.totalLeft+"px",width:n.totalWidth+"px"})}]}));};Mt.pluginName="useAbsoluteLayout";var jt=function(e,t){return [e,{style:{position:"relative",width:t.instance.totalColumnsWidth+"px"}}]},Lt={display:"inline-block",boxSizing:"border-box"},Nt=function(e,t){return [e,{style:{display:"flex",width:t.instance.totalColumnsWidth+"px"}}]},Dt=function(e){e.getRowProps.push(Nt),e.getHeaderGroupProps.push(Nt),e.getFooterGroupProps.push(Nt),e.getHeaderProps.push((function(e,t){var n=t.column;return [e,{style:r({},Lt,{width:n.totalWidth+"px"})}]})),e.getCellProps.push((function(e,t){var n=t.cell;return [e,{style:r({},Lt,{width:n.column.totalWidth+"px"})}]})),e.getFooterProps.push((function(e,t){var n=t.column;return [e,{style:r({},Lt,{width:n.totalWidth+"px"})}]}));};function Vt(e){e.getTableProps.push(_t),e.getRowProps.push(Xt),e.getHeaderGroupProps.push(Xt),e.getFooterGroupProps.push(Xt),e.getHeaderProps.push(qt),e.getCellProps.push(Kt),e.getFooterProps.push(Ut);}Dt.pluginName="useBlockLayout",Vt.pluginName="useFlexLayout";var _t=function(e,t){return [e,{style:{minWidth:t.instance.totalColumnsMinWidth+"px"}}]},Xt=function(e,t){return [e,{style:{display:"flex",flex:"1 0 auto",minWidth:t.instance.totalColumnsMinWidth+"px"}}]},qt=function(e,t){var n=t.column;return [e,{style:{boxSizing:"border-box",flex:n.totalFlexWidth?n.totalFlexWidth+" 0 auto":void 0,minWidth:n.totalMinWidth+"px",width:n.totalWidth+"px"}}]},Kt=function(e,t){var n=t.cell;return [e,{style:{boxSizing:"border-box",flex:n.column.totalFlexWidth+" 0 auto",minWidth:n.column.totalMinWidth+"px",width:n.column.totalWidth+"px"}}]},Ut=function(e,t){var n=t.column;return [e,{style:{boxSizing:"border-box",flex:n.totalFlexWidth?n.totalFlexWidth+" 0 auto":void 0,minWidth:n.totalMinWidth+"px",width:n.totalWidth+"px"}}]};function $t(e){e.stateReducers.push(Zt),e.getTableProps.push(Jt),e.getHeaderProps.push(Yt),e.getRowProps.push(Qt);}l.columnStartResizing="columnStartResizing",l.columnResizing="columnResizing",l.columnDoneResizing="columnDoneResizing",l.resetResize="resetResize",$t.pluginName="useGridLayout";var Jt=function(e,t){var n=t.instance;return [e,{style:{display:"grid",gridTemplateColumns:n.visibleColumns.map((function(e){var t;return n.state.gridLayout.columnWidths[e.id]?n.state.gridLayout.columnWidths[e.id]+"px":(null==(t=n.state.columnResizing)?void 0:t.isResizingColumn)?n.state.gridLayout.startWidths[e.id]+"px":"number"==typeof e.width?e.width+"px":e.width})).join(" ")}}]},Yt=function(e,t){var n=t.column;return [e,{id:"header-cell-"+n.id,style:{position:"sticky",gridColumn:"span "+n.totalVisibleHeaderCount}}]},Qt=function(e,t){var n=t.row;return n.isExpanded?[e,{style:{gridColumn:"1 / "+(n.cells.length+1)}}]:[e,{}]};function Zt(e,t,n,o){if(t.type===l.init)return r({gridLayout:{columnWidths:{}}},e);if(t.type===l.resetResize)return r({},e,{gridLayout:{columnWidths:{}}});if(t.type===l.columnStartResizing){var i=t.columnId,u=t.headerIdWidths,s=en(i);if(void 0!==s){var a=o.visibleColumns.reduce((function(e,t){var n;return r({},e,((n={})[t.id]=en(t.id),n))}),{}),c=o.visibleColumns.reduce((function(e,t){var n;return r({},e,((n={})[t.id]=t.minWidth,n))}),{}),d=o.visibleColumns.reduce((function(e,t){var n;return r({},e,((n={})[t.id]=t.maxWidth,n))}),{}),f=u.map((function(e){var t=e[0];return [t,en(t)]}));return r({},e,{gridLayout:r({},e.gridLayout,{startWidths:a,minWidths:c,maxWidths:d,headerIdGridWidths:f,columnWidth:s})})}return e}if(t.type===l.columnResizing){var p=t.clientX,g=e.columnResizing.startX,v=e.gridLayout,m=v.columnWidth,h=v.minWidths,y=v.maxWidths,w=v.headerIdGridWidths,R=(p-g)/m,b={};return (void 0===w?[]:w).forEach((function(e){var t=e[0],n=e[1];b[t]=Math.min(Math.max(h[t],n+n*R),y[t]);})),r({},e,{gridLayout:r({},e.gridLayout,{columnWidths:r({},e.gridLayout.columnWidths,{},b)})})}return t.type===l.columnDoneResizing?r({},e,{gridLayout:r({},e.gridLayout,{startWidths:{},minWidths:{},maxWidths:{}})}):void 0}function en(e){var t,n=null==(t=document.getElementById("header-cell-"+e))?void 0:t.offsetWidth;if(void 0!==n)return n}e._UNSTABLE_usePivotColumns=nt,e.actions=l,e.defaultColumn=c,e.defaultGroupByFn=De,e.defaultOrderByFn=Qe,e.defaultRenderer=s,e.emptyRenderer=a,e.ensurePluginOrder=v,e.flexRender=b,e.functionalUpdate=m,e.loopHooks=g,e.makePropGetter=f,e.makeRenderer=R,e.reduceHooks=p,e.safeUseLayoutEffect=y,e.useAbsoluteLayout=Mt,e.useAsyncDebounce=function(e,n){ void 0===n&&(n=0);var r=t.useRef({}),i=h(e),u=h(n);return t.useCallback(function(){var e=o(regeneratorRuntime.mark((function e(){var t,n,l,s=arguments;return regeneratorRuntime.wrap((function(e){for(;;)switch(e.prev=e.next){case 0:for(t=s.length,n=new Array(t),l=0;l<t;l++)n[l]=s[l];return r.current.promise||(r.current.promise=new Promise((function(e,t){r.current.resolve=e,r.current.reject=t;}))),r.current.timeout&&clearTimeout(r.current.timeout),r.current.timeout=setTimeout(o(regeneratorRuntime.mark((function e(){return regeneratorRuntime.wrap((function(e){for(;;)switch(e.prev=e.next){case 0:return delete r.current.timeout,e.prev=1,e.t0=r.current,e.next=5,i().apply(void 0,n);case 5:e.t1=e.sent,e.t0.resolve.call(e.t0,e.t1),e.next=12;break;case 9:e.prev=9,e.t2=e.catch(1),r.current.reject(e.t2);case 12:return e.prev=12,delete r.current.promise,e.finish(12);case 15:case "end":return e.stop()}}),e,null,[[1,9,12,15]])}))),u()),e.abrupt("return",r.current.promise);case 5:case "end":return e.stop()}}),e)})));return function(){return e.apply(this,arguments)}}(),[i,u])},e.useBlockLayout=Dt,e.useColumnOrder=It,e.useExpanded=se,e.useFilters=Pe,e.useFlexLayout=Vt,e.useGetLatest=h,e.useGlobalFilter=Ie,e.useGridLayout=$t,e.useGroupBy=ze,e.useMountedLayoutEffect=w,e.usePagination=Ze,e.useResizeColumns=kt,e.useRowSelect=vt,e.useRowState=xt,e.useSortBy=Ue,e.useTable=function(e){for(var n=arguments.length,o=new Array(n>1?n-1:0),i=1;i<n;i++)o[i-1]=arguments[i];e=ie(e),o=[K].concat(o);var u=t.useRef({}),s=h(u.current);Object.assign(s(),r({},e,{plugins:o,hooks:q()})),o.filter(Boolean).forEach((function(e){e(s().hooks);}));var a=h(s().hooks);s().getHooks=a,delete s().hooks,Object.assign(s(),p(a().useOptions,ie(e)));var c=s(),d=c.data,v=c.columns,m=c.initialState,y=c.defaultColumn,w=c.getSubRows,b=c.getRowId,E=c.stateReducer,I=c.useControlledState,F=h(E),G=t.useCallback((function(e,t){if(!t.type)throw console.info({action:t}),new Error("Unknown Action 👆");return [].concat(a().stateReducers,Array.isArray(F())?F():[F()]).reduce((function(n,o){return o(n,t,e,s())||n}),e)}),[a,F,s]),A=t.useReducer(G,void 0,(function(){return G(m,{type:l.init})})),k=A[0],H=A[1],W=p([].concat(a().useControlledState,[I]),k,{instance:s()});Object.assign(s(),{state:W,dispatch:H});var z=t.useMemo((function(){return S(p(a().columns,v,{instance:s()}))}),[a,s,v].concat(p(a().columnsDeps,[],{instance:s()})));s().columns=z;var T=t.useMemo((function(){return p(a().allColumns,C(z),{instance:s()}).map(x)}),[z,a,s].concat(p(a().allColumnsDeps,[],{instance:s()})));s().allColumns=T;var O=t.useMemo((function(){for(var e=[],t=[],n={},o=[].concat(T);o.length;){var r=o.shift();le({data:d,rows:e,flatRows:t,rowsById:n,column:r,getRowId:b,getSubRows:w,accessValueHooks:a().accessValue,getInstance:s});}return [e,t,n]}),[T,d,b,w,a,s]),M=O[0],j=O[1],L=O[2];Object.assign(s(),{rows:M,initialRows:[].concat(M),flatRows:j,rowsById:L}),g(a().useInstanceAfterData,s());var N=t.useMemo((function(){return p(a().visibleColumns,T,{instance:s()}).map((function(e){return P(e,y)}))}),[a,T,s,y].concat(p(a().visibleColumnsDeps,[],{instance:s()})));T=t.useMemo((function(){var e=[].concat(N);return T.forEach((function(t){e.find((function(e){return e.id===t.id}))||e.push(t);})),e}),[T,N]),s().allColumns=T;var D=t.useMemo((function(){return p(a().headerGroups,B(N,y),s())}),[a,N,y,s].concat(p(a().headerGroupsDeps,[],{instance:s()})));s().headerGroups=D;var V=t.useMemo((function(){return D.length?D[0].headers:[]}),[D]);s().headers=V,s().flatHeaders=D.reduce((function(e,t){return [].concat(e,t.headers)}),[]),g(a().useInstanceBeforeDimensions,s());var _=N.filter((function(e){return e.isVisible})).map((function(e){return e.id})).sort().join("_");N=t.useMemo((function(){return N.filter((function(e){return e.isVisible}))}),[N,_]),s().visibleColumns=N;var X=ue(V),U=X[0],$=X[1],J=X[2];return s().totalColumnsMinWidth=U,s().totalColumnsWidth=$,s().totalColumnsMaxWidth=J,g(a().useInstance,s()),[].concat(s().flatHeaders,s().allColumns).forEach((function(e){e.render=R(s(),e),e.getHeaderProps=f(a().getHeaderProps,{instance:s(),column:e}),e.getFooterProps=f(a().getFooterProps,{instance:s(),column:e});})),s().headerGroups=t.useMemo((function(){return D.filter((function(e,t){return e.headers=e.headers.filter((function(e){return e.headers?function e(t){return t.filter((function(t){return t.headers?e(t.headers):t.isVisible})).length}(e.headers):e.isVisible})),!!e.headers.length&&(e.getHeaderGroupProps=f(a().getHeaderGroupProps,{instance:s(),headerGroup:e,index:t}),e.getFooterGroupProps=f(a().getFooterGroupProps,{instance:s(),headerGroup:e,index:t}),true)}))}),[D,s,a]),s().footerGroups=[].concat(s().headerGroups).reverse(),s().prepareRow=t.useCallback((function(e){e.getRowProps=f(a().getRowProps,{instance:s(),row:e}),e.allCells=T.map((function(t){var n=e.values[t.id],o={column:t,row:e,value:n};return o.getCellProps=f(a().getCellProps,{instance:s(),cell:o}),o.render=R(s(),t,{row:e,cell:o,value:n}),o})),e.cells=N.map((function(t){return e.allCells.find((function(e){return e.column.id===t.id}))})),g(a().prepareRow,e,{instance:s()});}),[a,s,T,N]),s().getTableProps=f(a().getTableProps,{instance:s()}),s().getTableBodyProps=f(a().getTableBodyProps,{instance:s()}),g(a().useFinalInstance,s()),s()},Object.defineProperty(e,"__esModule",{value:true});}));
+  	
+  } (reactTable_production_min, reactTable_production_min.exports));
 
-	var reactTable_production_minExports = reactTable_production_min.exports;
+  var reactTable_production_minExports = reactTable_production_min.exports;
 
-	{
-	  reactTable.exports = reactTable_production_minExports;
-	}
+  {
+    reactTable.exports = reactTable_production_minExports;
+  }
 
-	var reactTableExports = reactTable.exports;
+  var reactTableExports = reactTable.exports;
 
-	/**
-	 * Zero-dependency stand-ins for the three Semantic UI React pieces the table
-	 * originally used: `Icon` (sort arrows, pin, empty-state inbox, search),
-	 * `Input` (per-column filter box) and `Loader` (loading state).
-	 *
-	 * Everything is inline SVG + inline styles, so the package needs no CSS import
-	 * and no UI library. The one stylesheet the component injects (see `injectStyles`)
-	 * only carries what inline styles cannot express: keyframes, `:focus`,
-	 * `::placeholder` and the pinned-column shadow selector.
-	 */
+  /**
+   * The design-token layer: every colour, radius and shadow the table paints, named once.
+   *
+   * ## Why tokens and not props
+   *
+   * Before 1.1 every visual was a hex literal sitting in an inline style object, and a
+   * consumer had no way to reach any of it. Three separate walls made that so:
+   *
+   *  - an inline style beats a stylesheet rule, so the `ft-*` classes the component has
+   *    always carried were decorative — you could select `.ft-row` but not repaint it;
+   *  - the injected stylesheet's `:hover`, `:focus-visible` and `[aria-checked]` rules
+   *    cannot be expressed as a prop at all, and that is where two thirds of the colours
+   *    lived (the toolbar buttons, the menus, the scrollbar thumb, the resize line);
+   *  - the row hover is painted by a JS handler writing `style.backgroundColor` directly
+   *    (see VirtualRow) — nothing in a stylesheet can beat that.
+   *
+   * A CSS custom property walks through all three: an inline style may *hold* a `var()`,
+   * and it resolves against the element's own cascade, so `.ft-root { --ft-row-bg: … }`
+   * from the consumer's own CSS reaches a value that JS wrote onto the element.
+   *
+   * ## The two tiers
+   *
+   * `LIGHT` is the flat, fully-resolved palette: every token with a literal value. It is
+   * what an inline `var(--ft-x, <fallback>)` falls back to, which is what keeps the table
+   * looking right when the stylesheet never arrives (a strict `style-src` CSP, a shadow
+   * root the injector could not reach).
+   *
+   * `LADDER` is the part that makes the system usable: the derived tokens point at core
+   * ones rather than repeating a literal, so setting six variables re-themes the whole
+   * table and setting one re-themes exactly one thing. It is only expressible in a
+   * stylesheet, so `themeCss` emits the ladder and the inline fallbacks stay flat.
+   *
+   * Adding a token means: a `LIGHT` entry (required), a `LADDER` entry if it derives from
+   * a core one, and a `DARK` entry if the light value would be unreadable on a dark
+   * surface. `tokenNames()` is the reconciled list and the unit tests assert the three
+   * maps agree.
+   */
 
-	// Separator shadow on the last pinned column while horizontally scrolled.
-	const PIN_SHADOW = '6px 0 6px -4px rgba(0,0,0,0.18)';
-	// Mirror of PIN_SHADOW for a right-frozen block: cast leftwards, over the scrolling
-	// columns sliding underneath it.
-	const PIN_SHADOW_RIGHT = '-6px 0 6px -4px rgba(0,0,0,0.18)';
-	const STYLE_ID = 'freeze-table-styles';
-	const STYLESHEET = `
-.ft-wrap[data-ct-scrolled="1"] [data-ct-pin-last="1"]{box-shadow:${PIN_SHADOW};}
-.ft-wrap[data-ct-scrolled-end="1"] [data-ct-pin-right-first="1"]{box-shadow:${PIN_SHADOW_RIGHT};}
-.ft-filter-input{width:100%;box-sizing:border-box;border:1px solid rgba(34,36,38,.15);border-radius:4px;
-  padding:4px 6px 4px 24px;line-height:1.2;outline:0;color:rgba(0,0,0,.87);background:#fff;
+  /** The `--ft-` prefix, in one place, so a rename is one edit. */
+  const TOKEN_PREFIX = '--ft-';
+
+  /**
+   * Every token, fully resolved. This IS the light theme, and it is also the inline
+   * fallback table — so each value has to be a literal, never a `var()`.
+   */
+  const LIGHT = {
+    // --- core ---
+    bg: '#ffffff',
+    surface: '#f4f5f7',
+    text: '#000000',
+    'text-muted': '#8a94a6',
+    border: '#e3e8ee',
+    accent: '#0070C2',
+    'accent-soft': '#e9f2fb',
+    'accent-text': '#0a4d84',
+    radius: '4px',
+    font: 'inherit',
+    // --- header ---
+    'header-bg': '#ffffff',
+    'header-text': '#000000',
+    // --- rows ---
+    'row-bg': '#ffffff',
+    'row-hover': '#eef4fb',
+    'row-selected': '#d3e5f8',
+    'row-border': '#edf0f3',
+    // --- footer ---
+    'foot-bg': '#f4f5f7',
+    'foot-text': '#000000',
+    // --- toolbar ---
+    'toolbar-bg': '#fbfcfd',
+    // --- menus ---
+    'menu-bg': '#ffffff',
+    'menu-border': '#dde3ea',
+    'menu-text': '#243447',
+    'menu-head-text': '#66738a',
+    'menu-item-hover': '#f0f5fa',
+    'menu-item-active-bg': '#e9f2fb',
+    'menu-item-active-text': '#0a4d84',
+    'menu-sep': '#eceff3',
+    'menu-move-text': '#8794a8',
+    'menu-move-hover': '#dfe7f0',
+    'radius-menu': '6px',
+    // --- toolbar buttons ---
+    'btn-bg': '#ffffff',
+    'btn-text': '#243447',
+    'btn-border': '#d7dde5',
+    'btn-hover-bg': '#f2f6fa',
+    'btn-hover-border': '#c2ccd8',
+    'btn-active-bg': '#e9f2fb',
+    'btn-active-border': '#9dc4e8',
+    // --- the per-column filter box ---
+    'input-bg': '#ffffff',
+    'input-text': 'rgba(0,0,0,.87)',
+    'input-border': 'rgba(34,36,38,.15)',
+    'input-focus-border': '#85b7d9',
+    'input-placeholder': 'rgba(0,0,0,.35)',
+    // --- icons ---
+    icon: '#5a6b82',
+    'icon-muted': '#c2cbd6',
+    'sort-icon': '#000000',
+    'search-icon': 'rgba(0,0,0,.45)',
+    'spinner-track': 'rgba(0,0,0,.10)',
+    // --- overlay scrollbars ---
+    scrollbar: '#c3ccd6',
+    'scrollbar-hover': '#a7b3c1',
+    'scrollbar-active': '#8c9bab',
+    // --- drag affordances ---
+    'resize-line': '#0070C2',
+    'drop-line': '#0070C2',
+    'focus-ring': '#0070C2',
+    // --- elevation ---
+    'shadow-menu': '0 6px 20px rgba(20,32,48,.16)',
+    // The separator cast by the last left-frozen column once the table is scrolled, and its
+    // mirror on the first right-frozen one. They are what makes a frozen block read as
+    // floating above the columns sliding underneath it.
+    'shadow-pin': '6px 0 6px -4px rgba(0,0,0,0.18)',
+    'shadow-pin-right': '-6px 0 6px -4px rgba(0,0,0,0.18)'
+  };
+
+  /**
+   * Which tokens derive from which. A value here replaces the `LIGHT` literal in the
+   * emitted stylesheet — `--ft-row-bg: var(--ft-bg, #ffffff)` — so overriding `--ft-bg`
+   * alone moves the header, the rows, the menus and the filter boxes together.
+   *
+   * Only put a token here when the derivation is genuinely always right. `row-hover` is a
+   * deliberate omission: it is a *tint* of the surface, not the surface, and deriving it
+   * would make every theme's hover invisible.
+   */
+  const LADDER = {
+    'header-bg': 'bg',
+    'header-text': 'text',
+    'row-bg': 'bg',
+    'foot-bg': 'surface',
+    'foot-text': 'text',
+    'menu-bg': 'bg',
+    'menu-item-active-bg': 'accent-soft',
+    'menu-item-active-text': 'accent-text',
+    'btn-bg': 'bg',
+    'btn-text': 'menu-text',
+    'btn-active-bg': 'accent-soft',
+    'input-bg': 'bg',
+    'sort-icon': 'text',
+    'resize-line': 'accent',
+    'drop-line': 'accent',
+    'focus-ring': 'accent'
+  };
+
+  /**
+   * The built-in dark palette, as a partial override of `LIGHT`.
+   *
+   * Partial on purpose: anything the ladder derives (`row-bg` from `bg`, `foot-bg` from
+   * `surface`, the two accent-tinted backgrounds) follows its core token automatically and
+   * must NOT be repeated here, or a consumer overriding `--ft-bg` in dark mode would find
+   * the rows ignoring them. What is listed is exactly the set whose light literal would be
+   * unreadable on a dark surface.
+   */
+  const DARK = {
+    bg: '#0f172a',
+    surface: '#1e293b',
+    text: '#e2e8f0',
+    'text-muted': '#94a3b8',
+    border: '#334155',
+    accent: '#38bdf8',
+    'accent-soft': '#1e3a5f',
+    'accent-text': '#7dd3fc',
+    'row-hover': '#1e293b',
+    'row-selected': '#1e3a5f',
+    'row-border': '#1e293b',
+    'toolbar-bg': '#111c30',
+    'menu-border': '#334155',
+    'menu-text': '#e2e8f0',
+    'menu-head-text': '#94a3b8',
+    'menu-item-hover': '#1e293b',
+    'menu-sep': '#334155',
+    'menu-move-text': '#94a3b8',
+    'menu-move-hover': '#334155',
+    'btn-border': '#334155',
+    'btn-hover-bg': '#1e293b',
+    'btn-hover-border': '#475569',
+    'btn-active-border': '#38bdf8',
+    'input-text': '#e2e8f0',
+    'input-border': '#334155',
+    'input-focus-border': '#38bdf8',
+    'input-placeholder': '#64748b',
+    icon: '#94a3b8',
+    'icon-muted': '#475569',
+    'search-icon': '#94a3b8',
+    'spinner-track': 'rgba(255,255,255,.12)',
+    scrollbar: '#475569',
+    'scrollbar-hover': '#64748b',
+    'scrollbar-active': '#94a3b8',
+    'shadow-menu': '0 6px 20px rgba(0,0,0,.5)',
+    'shadow-pin': '6px 0 6px -4px rgba(0,0,0,0.5)',
+    'shadow-pin-right': '-6px 0 6px -4px rgba(0,0,0,0.5)'
+  };
+
+  /** Every token name, in declaration order. */
+  const tokenNames = () => Object.keys(LIGHT);
+
+  /** `'row-bg'` -> `'--ft-row-bg'`. Accepts a name already carrying the prefix. */
+  const tokenProp = name => name.startsWith(TOKEN_PREFIX) ? name : TOKEN_PREFIX + name;
+
+  /**
+   * The value an INLINE style uses: `var(--ft-row-bg, #ffffff)`.
+   *
+   * The literal fallback is not belt-and-braces — it is the whole reason the table still
+   * renders correctly when `injectStyles` never ran (CSP, shadow DOM, `unstyled`). Pass
+   * `fallback` to override it for a one-off (the `selectedBg` prop does this, so a caller
+   * who set that prop keeps winning over the token).
+   */
+  const v = (name, fallback) => {
+    const value = LIGHT[name];
+    return value === undefined ? `var(${tokenProp(name)})` : `var(${tokenProp(name)}, ${value})`;
+  };
+
+  /**
+   * The declaration body for one palette, e.g. `--ft-bg:#fff;--ft-row-bg:var(--ft-bg,#fff);`.
+   *
+   * `base` true emits every token, resolving through `LADDER`; false emits only the keys
+   * the given palette actually overrides, which is what a `[data-ft-theme="dark"]` block
+   * wants — a dark block that re-stated the derived tokens would pin them to literals and
+   * break the ladder for anyone theming on top of it.
+   */
+  const themeCss = (palette, {
+    base = false
+  } = {}) => {
+    const names = base ? tokenNames() : Object.keys(palette);
+    return names.map(name => {
+      const derived = base && LADDER[name];
+      const value = derived ? v(LADDER[name]) : palette[name];
+      return value === undefined ? '' : `${tokenProp(name)}:${value};`;
+    }).join('');
+  };
+
+  /**
+   * The `tokens` prop -> an inline style object of custom properties.
+   *
+   * This is the no-CSS-file route: `tokens={{ accent: '#7c3aed', 'row-hover': '#faf5ff' }}`
+   * lands as inline custom properties on `.ft-root`, which outrank the stylesheet's base
+   * block and are inherited by everything inside — including the menus, which portal
+   * nowhere and stay within the root. Keys may be written with or without the `--ft-`
+   * prefix; unknown names are passed through rather than dropped, so a consumer can set a
+   * variable of their own that their `classNames` CSS reads.
+   */
+  const resolveTokens = tokens => {
+    if (!tokens) return null;
+    const out = {};
+    Object.keys(tokens).forEach(name => {
+      const value = tokens[name];
+      if (value === undefined || value === null || value === false) return;
+      out[tokenProp(name)] = String(value);
+    });
+    return Object.keys(out).length ? out : null;
+  };
+
+  /**
+   * The two escape hatches above the token layer: per-slot class names, and per-slot
+   * component replacement.
+   *
+   * Tokens (see theme.js) re-colour the table. They cannot make it *look like* someone
+   * else's design system — a shadcn app wants its own button, its own popover and its own
+   * input, not a recoloured copy of ours. These two props are that second step:
+   *
+   *   classNames  a utility-CSS app hands each slot a class string instead of writing CSS
+   *   components  a design-system app hands each slot its own component outright
+   *
+   * Both are deliberately additive and default to nothing, so the zero-config path — the
+   * package's actual selling point — stays exactly as it was.
+   */
+
+  /**
+   * Join the component's own class with whatever the caller assigned to that slot.
+   *
+   * Caller classes come LAST so that in a utility-CSS setup (Tailwind and friends, where
+   * specificity is flat and source order decides) they win. Falsy entries are dropped so
+   * `cx('ft-row ct-row', classNames.row)` is safe with no `classNames` at all.
+   */
+  const cx = (...parts) => {
+    const joined = parts.filter(Boolean).join(' ');
+    // `undefined`, not `''`: React omits a missing className but renders `class=""` for an
+    // empty string, and the elements that pass through a possibly-absent className (the
+    // table box, the body band) would otherwise gain an empty attribute in every snapshot.
+    return joined || undefined;
+  };
+
+  /**
+   * Normalize the `classNames` prop to an object that is always safe to index.
+   *
+   * Returns a shared frozen empty object when nothing was passed, so the common case adds
+   * no allocation per render and the identity stays stable for the memo chain.
+   */
+  const NO_CLASSES = Object.freeze({});
+  const resolveClassNames = classNames => classNames || NO_CLASSES;
+
+  /**
+   * Merge the caller's `components` over the built-in defaults.
+   *
+   * Returns the defaults object ITSELF when there is nothing to override. That identity
+   * matters more than it looks: the resolved map feeds `DEFAULT_COLUMN.Filter`, and a new
+   * object every render would rebuild react-table's column defs — and with them every
+   * cell — on each pass.
+   *
+   * An explicit `null` for a slot means "render nothing here", which is how a caller drops
+   * the sort arrows or the pin marker without supplying a replacement; only `undefined`
+   * (or a missing key) falls back to the default.
+   */
+  const resolveComponents = (overrides, defaults) => {
+    if (!overrides) return defaults;
+    const keys = Object.keys(overrides).filter(k => overrides[k] !== undefined);
+    if (!keys.length) return defaults;
+    const out = Object.assign({}, defaults);
+    keys.forEach(k => {
+      out[k] = overrides[k];
+    });
+    return out;
+  };
+
+  /**
+   * The `unstyled` gate for a decorative style block.
+   *
+   * Every style object in this package is a mix of two kinds of declaration and only one
+   * of them is safe to remove:
+   *
+   *   ENGINE  `position: sticky` and its left/right offsets, the absolute row placement at
+   *           `index * rowHeight`, the flex layout, `overflow`, `zIndex`, the measured
+   *           widths. These ARE the freeze and the virtualization. Removing any of them
+   *           does not produce an unstyled table, it produces a broken one.
+   *   SKIN    backgrounds, borders, text colour, padding, font weight, radius.
+   *
+   * So `unstyled` never touches a style object wholesale — each call site spreads its skin
+   * half through `skin(unstyled, {...})`, which returns `null` when the caller has opted
+   * out. Keeping the split at the call site (rather than a list of "removable properties"
+   * somewhere central) is what stops the next visual from landing on the wrong side of it.
+   */
+  const skin = (unstyled, styles) => unstyled ? null : styles;
+
+  /**
+   * The one stylesheet the component injects, as pure data.
+   *
+   * It lives in lib/ — apart from the React tree — for two reasons. It is the only part of
+   * the styling that a consumer might want without mounting anything (the build emits it as
+   * `dist/freeze-table.css` for apps under a CSP that forbids injected `<style>` tags, and
+   * an SSR renderer can inline it into the document head). And it is derived entirely from
+   * the token maps next door, so keeping the two together means a token added to theme.js
+   * cannot be forgotten here.
+   *
+   * What belongs in it: the token ladder, and the things an inline style cannot express —
+   * keyframes, `:hover` / `:focus` / `::placeholder`, `[aria-checked]`, and the
+   * frozen-column shadow selectors, which key off data attributes the scroll handler sets.
+   * Everything else stays inline.
+   */
+
+  /**
+   * Bumped whenever STYLESHEET changes shape. It is part of the element id so that two
+   * different versions of this package on one page (a micro-frontend, or a transitive
+   * dependency pulling in an older copy) each inject their own sheet instead of the first
+   * one silently deciding the styling for both.
+   */
+  const STYLE_SCHEMA = 2;
+  const STYLE_ID = `freeze-table-styles-${STYLE_SCHEMA}`;
+  const STYLESHEET = `
+:where(.ft-root){${themeCss(LIGHT, {
+  base: true
+})}}
+:where(.ft-root[data-ft-theme="dark"]){${themeCss(DARK)}}
+@media (prefers-color-scheme: dark){:where(.ft-root[data-ft-theme="auto"]){${themeCss(DARK)}}}
+
+.ft-wrap[data-ct-scrolled="1"] [data-ct-pin-last="1"]{box-shadow:${v('shadow-pin')};}
+.ft-wrap[data-ct-scrolled-end="1"] [data-ct-pin-right-first="1"]{box-shadow:${v('shadow-pin-right')};}
+.ft-filter-input{width:100%;box-sizing:border-box;border:1px solid ${v('input-border')};
+  border-radius:${v('radius')};
+  padding:4px 6px 4px 24px;line-height:1.2;outline:0;color:${v('input-text')};background:${v('input-bg')};
   font-family:inherit;-webkit-appearance:none;appearance:none;}
-.ft-filter-input:focus{border-color:#85b7d9;background:#fff;}
-.ft-filter-input::placeholder{color:rgba(0,0,0,.35);}
+.ft-filter-input:focus{border-color:${v('input-focus-border')};background:${v('input-bg')};}
+.ft-filter-input::placeholder{color:${v('input-placeholder')};}
 .ft-filter-input::-ms-clear{display:none;}
 .ft-spinner{display:inline-block;box-sizing:border-box;border-radius:50%;
-  border:2px solid rgba(0,0,0,.10);border-top-color:#0070C2;animation:ft-spin .6s linear infinite;}
+  border:2px solid ${v('spinner-track')};border-top-color:${v('accent')};animation:ft-spin .6s linear infinite;}
 @keyframes ft-spin{to{transform:rotate(360deg);}}
 @media (prefers-reduced-motion: reduce){.ft-spinner{animation-duration:2s;}}
 
@@ -504,11 +854,11 @@
 .ft-track{position:absolute;background:transparent;z-index:6;}
 .ft-track-v{width:11px;}
 .ft-track-h{height:11px;}
-.ft-thumb{position:absolute;background:#c3ccd6;border-radius:6px;transition:background .15s;}
+.ft-thumb{position:absolute;background:${v('scrollbar')};border-radius:6px;transition:background .15s;}
 .ft-track-v .ft-thumb{left:2px;right:2px;top:0;}
 .ft-track-h .ft-thumb{top:2px;bottom:2px;left:0;}
-.ft-track:hover .ft-thumb{background:#a7b3c1;}
-.ft-thumb:active,.ft-thumb.ft-thumb-drag{background:#8c9bab;}
+.ft-track:hover .ft-thumb{background:${v('scrollbar-hover')};}
+.ft-thumb:active,.ft-thumb.ft-thumb-drag{background:${v('scrollbar-active')};}
 
 /* Column resize grip: a hit area straddling the header's right edge that only paints a
    line on hover / while dragging — drawn permanently, twenty columns would read as
@@ -517,3830 +867,4332 @@
   touch-action:none;user-select:none;z-index:6;}
 .ft-resizer::after{content:"";position:absolute;top:5px;bottom:5px;right:4px;width:2px;
   border-radius:1px;background:transparent;}
-.ft-resizer:hover::after,.ft-resizer.ft-resizing::after{background:#0070C2;}
+.ft-resizer:hover::after,.ft-resizer.ft-resizing::after{background:${v('resize-line')};}
 /* The line that follows the pointer during a resize. The drag never writes width state
    per frame (see startColResize) — this guide is the only thing that moves. */
-.ft-resize-guide{position:absolute;top:0;bottom:0;left:0;width:2px;background:#0070C2;
+.ft-resize-guide{position:absolute;top:0;bottom:0;left:0;width:2px;background:${v('resize-line')};
   opacity:.7;pointer-events:none;z-index:7;}
 
 /* Toolbar: a plain button strip above the table, and the popovers its two menus open in.
    Both live OUTSIDE .ft-wrap — a menu with its own overflow inside the scrollport would
    become the sticky container for the cells beneath it and break the column freeze. */
-.ft-btn{display:inline-flex;align-items:center;gap:5px;border:1px solid #d7dde5;border-radius:4px;
-  background:#fff;color:#243447;padding:4px 9px;cursor:pointer;font:inherit;line-height:1.4;
+.ft-btn{display:inline-flex;align-items:center;gap:5px;border:1px solid ${v('btn-border')};
+  border-radius:${v('radius')};
+  background:${v('btn-bg')};color:${v('btn-text')};padding:4px 9px;cursor:pointer;font:inherit;line-height:1.4;
   white-space:nowrap;}
-.ft-btn:hover{background:#f2f6fa;border-color:#c2ccd8;}
-.ft-btn:focus-visible{outline:2px solid #0070C2;outline-offset:1px;}
-.ft-btn[aria-expanded="true"]{background:#e9f2fb;border-color:#9dc4e8;}
+.ft-btn:hover{background:${v('btn-hover-bg')};border-color:${v('btn-hover-border')};}
+.ft-btn:focus-visible{outline:2px solid ${v('focus-ring')};outline-offset:1px;}
+.ft-btn[aria-expanded="true"]{background:${v('btn-active-bg')};border-color:${v('btn-active-border')};}
 .ft-btn[disabled]{opacity:.45;cursor:default;}
 .ft-menu{position:absolute;top:100%;margin-top:4px;z-index:9;min-width:210px;max-height:320px;
-  overflow-y:auto;background:#fff;border:1px solid #dde3ea;border-radius:6px;
-  box-shadow:0 6px 20px rgba(20,32,48,.16);padding:4px;}
-.ft-menu-head{padding:6px 8px 4px;font-weight:700;color:#66738a;text-transform:uppercase;
+  overflow-y:auto;background:${v('menu-bg')};border:1px solid ${v('menu-border')};
+  border-radius:${v('radius-menu')};
+  box-shadow:${v('shadow-menu')};padding:4px;}
+.ft-menu-head{padding:6px 8px 4px;font-weight:700;color:${v('menu-head-text')};text-transform:uppercase;
   letter-spacing:.4px;}
 .ft-menu-item{display:flex;align-items:center;gap:8px;width:100%;box-sizing:border-box;
-  border:0;background:none;font:inherit;color:#243447;text-align:left;padding:5px 8px;
-  border-radius:4px;cursor:pointer;}
-.ft-menu-item:hover:not([disabled]){background:#f0f5fa;}
+  border:0;background:none;font:inherit;color:${v('menu-text')};text-align:left;padding:5px 8px;
+  border-radius:${v('radius')};cursor:pointer;}
+.ft-menu-item:hover:not([disabled]){background:${v('menu-item-hover')};}
 .ft-menu-item[disabled]{opacity:.4;cursor:default;}
-.ft-menu-item[aria-checked="true"],.ft-menu-item[aria-current="true"]{background:#e9f2fb;color:#0a4d84;}
-.ft-menu-sep{height:1px;background:#eceff3;margin:4px 0;}
-.ft-menu-move{border:0;background:none;padding:0 3px;cursor:pointer;color:#8794a8;font:inherit;
+.ft-menu-item[aria-checked="true"],.ft-menu-item[aria-current="true"]{background:${v('menu-item-active-bg')};color:${v('menu-item-active-text')};}
+.ft-menu-sep{height:1px;background:${v('menu-sep')};margin:4px 0;}
+.ft-menu-move{border:0;background:none;padding:0 3px;cursor:pointer;color:${v('menu-move-text')};font:inherit;
   line-height:1;border-radius:3px;}
-.ft-menu-move:hover:not([disabled]){background:#dfe7f0;color:#243447;}
+.ft-menu-move:hover:not([disabled]){background:${v('menu-move-hover')};color:${v('menu-text')};}
 .ft-menu-move[disabled]{opacity:.25;cursor:default;}
 
 /* Column reorder. Same deal as the resize guide: the drop line is the ONLY thing that
    moves while the pointer is down (see startColReorder), and the header being carried
    dims so the line reads as "this column lands here" rather than as a second cursor. */
 .ft-th-dragging{opacity:.4;}
-.ft-drop-line{position:absolute;top:0;bottom:0;left:0;width:3px;background:#0070C2;
+.ft-drop-line{position:absolute;top:0;bottom:0;left:0;width:3px;background:${v('drop-line')};
   border-radius:2px;pointer-events:none;z-index:7;}
 `;
-	let injected = false;
-
-	/** Idempotent — safe to call from every mount and under React StrictMode. */
-	const injectStyles = () => {
-	  if (injected || typeof document === 'undefined') return;
-	  if (document.getElementById(STYLE_ID)) {
-	    injected = true;
-	    return;
-	  }
-	  const el = document.createElement('style');
-	  el.id = STYLE_ID;
-	  el.textContent = STYLESHEET;
-	  document.head.appendChild(el);
-	  injected = true;
-	};
-
-	/** `useLayoutEffect` that degrades to `useEffect` on the server (no SSR warning). */
-	const useIsoLayoutEffect = typeof window !== 'undefined' ? React.useLayoutEffect : React.useEffect;
-	const svgBase = size => ({
-	  width: size,
-	  height: size,
-	  display: 'inline-block',
-	  verticalAlign: 'middle',
-	  flexShrink: 0
-	});
-
-	/**
-	 * Sort indicator. `direction`: 'asc' | 'desc' | null (null = sortable but unsorted,
-	 * shown as the two-arrow "sortable" glyph, matching Semantic's `sort` icon).
-	 */
-	const SortIcon = ({
-	  direction,
-	  color = '#000000',
-	  size = 9
-	}) => /*#__PURE__*/React.createElement("svg", {
-	  viewBox: "0 0 10 14",
-	  "aria-hidden": "true",
-	  focusable: "false",
-	  style: {
-	    ...svgBase(size),
-	    fill: color
-	  }
-	}, direction !== 'desc' && /*#__PURE__*/React.createElement("polygon", {
-	  points: "5,1 9.2,5.8 0.8,5.8",
-	  opacity: direction === 'asc' ? 1 : 0.85
-	}), direction !== 'asc' && /*#__PURE__*/React.createElement("polygon", {
-	  points: "5,13 9.2,8.2 0.8,8.2",
-	  opacity: direction === 'desc' ? 1 : 0.85
-	}));
-
-	/** Pin / thumbtack — marks the freeze-boundary column. */
-	const PinIcon = ({
-	  color = '#0070C2',
-	  size = 10,
-	  title
-	}) => /*#__PURE__*/React.createElement("svg", {
-	  viewBox: "0 0 16 16",
-	  focusable: "false",
-	  style: {
-	    ...svgBase(size),
-	    fill: color
-	  },
-	  role: title ? 'img' : undefined,
-	  "aria-hidden": title ? undefined : 'true'
-	}, title ? /*#__PURE__*/React.createElement("title", null, title) : null, /*#__PURE__*/React.createElement("path", {
-	  d: "M9.6 1a1 1 0 0 0-.7 1.7l.3.3-3.4 2.5-2-.4a1 1 0 0 0-.9 1.7l3 3-3.4 4 4.6-3 3 3a1 1 0 0 0 1.7-.9l-.4-2 2.5-3.4.3.3A1 1 0 0 0 15.6 7L9.6 1z"
-	}));
-
-	/** Soft empty-state glyph (Semantic's `inbox`). */
-	const InboxIcon = ({
-	  color = '#c2cbd6',
-	  size = 34
-	}) => /*#__PURE__*/React.createElement("svg", {
-	  viewBox: "0 0 24 24",
-	  "aria-hidden": "true",
-	  focusable: "false",
-	  style: {
-	    ...svgBase(size),
-	    fill: 'none',
-	    stroke: color,
-	    strokeWidth: 1.6,
-	    strokeLinecap: 'round',
-	    strokeLinejoin: 'round'
-	  }
-	}, /*#__PURE__*/React.createElement("path", {
-	  d: "M3 13h4l1.5 3h7L17 13h4"
-	}), /*#__PURE__*/React.createElement("path", {
-	  d: "M5.2 4.5h13.6L21 13v5.5a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 18.5V13z"
-	}));
-	const SearchIcon = ({
-	  color = 'rgba(0,0,0,.45)',
-	  size = 11
-	}) => /*#__PURE__*/React.createElement("svg", {
-	  viewBox: "0 0 16 16",
-	  "aria-hidden": "true",
-	  focusable: "false",
-	  style: {
-	    ...svgBase(size),
-	    fill: 'none',
-	    stroke: color,
-	    strokeWidth: 2,
-	    strokeLinecap: 'round'
-	  }
-	}, /*#__PURE__*/React.createElement("circle", {
-	  cx: "6.8",
-	  cy: "6.8",
-	  r: "4.6"
-	}), /*#__PURE__*/React.createElement("path", {
-	  d: "M10.4 10.4 14 14"
-	}));
-
-	/**
-	 * The per-column filter box — a plain `<input>` dressed to match the compact
-	 * Semantic "mini icon input" the table was designed around.
-	 */
-	const FilterInput = ({
-	  value,
-	  onChange,
-	  onClick,
-	  placeholder,
-	  fontSize = 11
-	}) => /*#__PURE__*/React.createElement("div", {
-	  style: {
-	    position: 'relative',
-	    width: '100%',
-	    display: 'flex',
-	    alignItems: 'center'
-	  }
-	}, /*#__PURE__*/React.createElement("span", {
-	  style: {
-	    position: 'absolute',
-	    left: 6,
-	    top: '50%',
-	    transform: 'translateY(-50%)',
-	    display: 'flex',
-	    pointerEvents: 'none'
-	  }
-	}, /*#__PURE__*/React.createElement(SearchIcon, {
-	  size: Math.max(10, fontSize)
-	})), /*#__PURE__*/React.createElement("input", {
-	  type: "text",
-	  className: "ft-filter-input",
-	  value: value,
-	  onClick: onClick,
-	  onChange: onChange,
-	  placeholder: placeholder,
-	  style: {
-	    fontSize: `${fontSize}px`
-	  }
-	}));
-
-	/** Stacked-columns glyph for the toolbar's column menu. */
-	const ColumnsIcon = ({
-	  color = '#5a6b82',
-	  size = 12
-	}) => /*#__PURE__*/React.createElement("svg", {
-	  viewBox: "0 0 16 16",
-	  "aria-hidden": "true",
-	  focusable: "false",
-	  style: {
-	    ...svgBase(size),
-	    fill: color
-	  }
-	}, /*#__PURE__*/React.createElement("rect", {
-	  x: "1",
-	  y: "2",
-	  width: "3.4",
-	  height: "12",
-	  rx: "1"
-	}), /*#__PURE__*/React.createElement("rect", {
-	  x: "6.3",
-	  y: "2",
-	  width: "3.4",
-	  height: "12",
-	  rx: "1",
-	  opacity: ".65"
-	}), /*#__PURE__*/React.createElement("rect", {
-	  x: "11.6",
-	  y: "2",
-	  width: "3.4",
-	  height: "12",
-	  rx: "1",
-	  opacity: ".4"
-	}));
-
-	/** Tick for a checked menu entry. Rendered in a fixed-width box so labels stay aligned. */
-	const CheckIcon = ({
-	  color = '#0070C2',
-	  size = 11,
-	  checked
-	}) => /*#__PURE__*/React.createElement("svg", {
-	  viewBox: "0 0 16 16",
-	  "aria-hidden": "true",
-	  focusable: "false",
-	  style: {
-	    ...svgBase(size),
-	    fill: 'none',
-	    stroke: checked ? color : 'transparent',
-	    strokeWidth: 2.2,
-	    strokeLinecap: 'round',
-	    strokeLinejoin: 'round'
-	  }
-	}, /*#__PURE__*/React.createElement("path", {
-	  d: "M2.5 8.5 6.2 12 13.5 4"
-	}));
-
-	/** Centred loading spinner + caption. */
-	const Spinner = ({
-	  text,
-	  size = 32,
-	  color = '#0070C2'
-	}) => /*#__PURE__*/React.createElement("div", {
-	  style: {
-	    display: 'flex',
-	    flexDirection: 'column',
-	    alignItems: 'center',
-	    gap: 10
-	  }
-	}, /*#__PURE__*/React.createElement("span", {
-	  className: "ft-spinner",
-	  style: {
-	    width: size,
-	    height: size,
-	    borderTopColor: color
-	  }
-	}), text ? /*#__PURE__*/React.createElement("span", {
-	  style: {
-	    color,
-	    fontSize: '13px'
-	  }
-	}, text) : null);
-
-	/**
-	 * Pure column maths — no React, no DOM. Everything here is a function of its arguments,
-	 * which is the point: the freeze offsets, the pin caps and the order reconciliation are
-	 * the parts of this component most likely to break silently under a refactor, and
-	 * keeping them out of the render tree is what makes them testable on their own
-	 * (`npm run test:unit`).
-	 */
-
-	// Shared single-line ellipsis style for cells (kept exported so callers can reuse it).
-	const ELLIPSIS = {
-	  width: '100%',
-	  whiteSpace: 'nowrap',
-	  overflow: 'hidden',
-	  textOverflow: 'ellipsis'
-	};
-
-	// How many rows to render above / below the viewport.
-	const OVERSCAN = 6;
-
-	// Smallest width a drag can leave a column at. Below roughly this the header label and
-	// the filter box have nowhere to go and the column stops being a usable hit target.
-	const COL_MIN_WIDTH = 48;
-
-	// How far the pointer must travel across a header before the press stops being a
-	// click (sort) and becomes a reorder drag. Small enough that a deliberate drag arms
-	// immediately, large enough that the shake in an ordinary click never does.
-	const DRAG_SLOP = 4;
-
-	// Minimum viewport width that must stay available for the SCROLLING (unpinned)
-	// columns — the pin cap keeps the frozen block at least this much narrower than the
-	// table. See computeMaxLeftPinCount for why exceeding it breaks the scroller.
-	const PIN_MIN_SCROLLABLE = 250;
-
-	// react-table's default column width / floor, mirrored here because the width maths
-	// below has to agree with what react-table will actually render.
-	const DEFAULT_COL_WIDTH = 1;
-	const DEFAULT_COL_MIN_WIDTH = 90;
-	const alignFlex = a => a === 'right' ? 'flex-end' : a === 'center' ? 'center' : 'flex-start';
-
-	// react-table's effective column width: min(max(minWidth, width), maxWidth). Used both
-	// for the pin caps and for the sticky `left` / `right` offset of each pinned column.
-	const colWidthOf = c => Math.min(Math.max(c.minWidth != null ? c.minWidth : DEFAULT_COL_MIN_WIDTH, c.width != null ? c.width : DEFAULT_COL_WIDTH), c.maxWidth != null ? c.maxWidth : Infinity);
-
-	// The id react-table will key a column by: an explicit `id`, else a string accessor.
-	// A column with neither (an accessor FUNCTION and no id) cannot be addressed by the
-	// width / visibility APIs — react-table rejects such a column outright, so this is not
-	// a restriction this component adds.
-	const colIdOf = c => c.id || (typeof c.accessor === 'string' ? c.accessor : undefined);
-
-	// The key a column takes part in the ORDER under. Columns with no addressable id still
-	// need a slot, or the order list would be incomplete and they could not be placed
-	// relative to their neighbours; they ride along under a positional key and simply
-	// cannot be dragged.
-	const orderKeyOf = (c, i) => colIdOf(c) || `__col${i}`;
-
-	/**
-	 * Merge a user / stored column order with the CONFIG order. Ids the config no longer
-	 * carries are dropped, and ids the order does not mention — a column added to the
-	 * caller's array since the layout was saved — are put back where the CONFIG puts them,
-	 * next to the neighbour they were configured after. Appending them at the end instead
-	 * would make every newly added column look as though the user had dragged it there.
-	 */
-	const reconcileOrder = (configIds, wanted) => {
-	  if (!wanted || !wanted.length) return configIds.slice();
-	  const known = new Set(configIds);
-	  const placed = new Set();
-	  const out = [];
-	  wanted.forEach(id => {
-	    if (known.has(id) && !placed.has(id)) {
-	      placed.add(id);
-	      out.push(id);
-	    }
-	  });
-	  configIds.forEach((id, i) => {
-	    if (placed.has(id)) return;
-	    placed.add(id);
-	    // Land it just after the nearest preceding config neighbour that is already
-	    // placed; if none of them is, the column is configured first, so it goes first.
-	    let at = 0;
-	    for (let k = i - 1; k >= 0; k--) {
-	      const p = out.indexOf(configIds[k]);
-	      if (p >= 0) {
-	        at = p + 1;
-	        break;
-	      }
-	    }
-	    out.splice(at, 0, id);
-	  });
-	  return out;
-	};
-
-	/**
-	 * The caller's column array as an order list, with the Action column spliced in at the
-	 * position `actionIndex` asks for. This is the DEFAULT order — what the user's own
-	 * order is reconciled against.
-	 */
-	const buildConfigOrder = ({
-	  columns,
-	  hasActions,
-	  actionIndex
-	}) => {
-	  const ids = columns.map(orderKeyOf);
-	  if (hasActions) {
-	    const at = actionIndex === 'first' ? 0 : actionIndex === 'last' || actionIndex == null ? ids.length : Math.max(0, Math.min(ids.length, parseInt(actionIndex, 10) || 0));
-	    ids.splice(at, 0, '__actions');
-	  }
-	  return ids;
-	};
-
-	/**
-	 * The caller's columns as they are actually laid out: hidden ones dropped, resized ones
-	 * carrying their new width, all of them in the user's order. EVERYTHING downstream —
-	 * the pin defaults, the pin caps, `pinIndex`, the sticky offsets — is computed from
-	 * this list rather than from the `columns` prop, so a hidden column simply does not
-	 * exist as far as freezing and the cumulative left/right offsets are concerned, and a
-	 * moved column freezes according to where it now IS.
-	 *
-	 * A resize writes the same number into ALL THREE of width / minWidth / maxWidth,
-	 * because react-table renders a column at `min(max(minWidth, width), maxWidth)`:
-	 * writing only `width` would leave a column with `minWidth: 200` stuck at 200 however
-	 * far left it was dragged, and a column with a `maxWidth` could not be widened past it.
-	 * Setting all three collapses that expression to exactly the dragged number — the
-	 * config's floor and ceiling are the DEFAULT, and an explicit drag outranks them.
-	 *
-	 * `actionPos` comes out of the same pass: it is the Action column's insertion index
-	 * among the VISIBLE caller columns, which is what the pin maths needs (the frozen runs
-	 * are counted in caller columns, and the Action column is inside a run or outside it
-	 * depending on where it now sits).
-	 */
-	const applyLayout = ({
-	  columns,
-	  hiddenIds,
-	  colWidths,
-	  order,
-	  hasActions
-	}) => {
-	  const hide = new Set(hiddenIds);
-	  const byKey = new Map();
-	  columns.forEach((c, i) => {
-	    const id = colIdOf(c);
-	    if (id && c.hideable !== false && hide.has(id)) return;
-	    const w = id ? colWidths[id] : undefined;
-	    byKey.set(orderKeyOf(c, i), w ? {
-	      ...c,
-	      width: w,
-	      minWidth: w,
-	      maxWidth: w
-	    } : c);
-	  });
-	  // Hiding literally every column would leave react-table with nothing to render — and
-	  // no header row to un-hide anything from. Falling back to the full list keeps the
-	  // table recoverable instead of blank.
-	  if (!byKey.size) return {
-	    cols: columns,
-	    actionPos: hasActions ? columns.length : -1
-	  };
-	  const out = [];
-	  let actionPos = -1;
-	  order.forEach(id => {
-	    if (id === '__actions') {
-	      actionPos = out.length;
-	      return;
-	    }
-	    if (byKey.has(id)) {
-	      out.push(byKey.get(id));
-	      byKey.delete(id);
-	    }
-	  });
-	  byKey.forEach(c => out.push(c)); // anything the order somehow missed keeps its place
-	  return {
-	    cols: out,
-	    actionPos: hasActions ? actionPos < 0 ? out.length : actionPos : -1
-	  };
-	};
-
-	// How many LEADING columns the config wants frozen on the left, and how many TRAILING
-	// ones on the right. `pinned: true` / `'left'` freeze from the left, `'right'` from the
-	// right. Only the leading run counts on the left and only the trailing run on the right
-	// — a frozen column in the middle would have its neighbours scroll out from under it,
-	// so each side is fully described by a single count.
-	const countLeadingPinned = cols => {
-	  let n = 0;
-	  for (const c of cols) {
-	    if (c.pinned && c.pinned !== 'right') n++;else break;
-	  }
-	  return n;
-	};
-	const countTrailingPinned = cols => {
-	  let n = 0;
-	  for (let i = cols.length - 1; i >= 0; i--) {
-	    if (cols[i].pinned === 'right') n++;else break;
-	  }
-	  return n;
-	};
-
-	/**
-	 * HARD CAP: the pinned block must never be as wide as the viewport. Beyond that there is
-	 * no room left to actually read the scrolling columns, and the frozen block starts
-	 * fighting the scroller instead of helping. Capping also matches the UX reality of
-	 * "freeze panes" in any spreadsheet.
-	 *
-	 * The right block is measured first (it is usually one or two columns, and the Action
-	 * column often rides along with it), then whatever viewport is left funds the left
-	 * block. A run of the last n caller columns also carries the Action column whenever the
-	 * Action column sits inside that run — i.e. from `cols.length - n` onwards. Only then
-	 * does its width come out of the right-hand budget.
-	 */
-	const computeMaxRightPinCount = ({
-	  cols,
-	  wrapW,
-	  hasActions,
-	  actionPos,
-	  actionColWidth
-	}) => {
-	  if (!wrapW) return cols.length; // not measured yet — the cap kicks in right after mount
-	  const budget = wrapW - PIN_MIN_SCROLLABLE;
-	  let used = hasActions && actionPos === cols.length ? actionColWidth : 0;
-	  let n = 0;
-	  for (let i = cols.length - 1; i >= 0; i--) {
-	    used += colWidthOf(cols[i]);
-	    if (hasActions && actionPos === i) used += actionColWidth;
-	    if (used > budget) break;
-	    n++;
-	  }
-	  return n;
-	};
-
-	/** Mirror of computeMaxRightPinCount for the left edge, funded by what it leaves over. */
-	const computeMaxLeftPinCount = ({
-	  cols,
-	  wrapW,
-	  hasActions,
-	  actionPos,
-	  actionColWidth,
-	  stripWidth,
-	  rightBlockWidth,
-	  effectiveRightPinCount
-	}) => {
-	  if (!wrapW) return cols.length;
-	  const budget = wrapW - PIN_MIN_SCROLLABLE - rightBlockWidth;
-	  let used = stripWidth;
-	  let n = 0;
-	  for (let i = 0; i < cols.length; i++) {
-	    if (hasActions && actionPos === i) used += actionColWidth; // swept into this prefix
-	    used += colWidthOf(cols[i]);
-	    if (used > budget) break;
-	    n++;
-	  }
-	  return Math.min(n, cols.length - effectiveRightPinCount);
-	};
-
-	/** Total width of the right-hand frozen block, Action column included when it is in it. */
-	const rightBlockWidthOf = ({
-	  cols,
-	  effectiveRightPinCount,
-	  actionsPinnedRight,
-	  actionColWidth
-	}) => {
-	  let w = actionsPinnedRight ? actionColWidth : 0;
-	  for (let i = cols.length - effectiveRightPinCount; i < cols.length; i++) w += colWidthOf(cols[i]);
-	  return w;
-	};
-
-	/**
-	 * Sticky `left` for each left-frozen column = total width of the frozen columns before
-	 * it, and the mirror image for the right block (walk backwards, accumulating the widths
-	 * beyond it). Keyed by the id react-table will use.
-	 */
-	const stickyOffsets = allColumns => {
-	  const left = {};
-	  const right = {};
-	  let acc = 0;
-	  allColumns.forEach(c => {
-	    if (!c.pinned) return;
-	    const id = colIdOf(c);
-	    if (id) left[id] = acc;
-	    acc += colWidthOf(c);
-	  });
-	  acc = 0;
-	  for (let i = allColumns.length - 1; i >= 0; i--) {
-	    const c = allColumns[i];
-	    if (!c.pinnedRight) continue;
-	    const id = colIdOf(c);
-	    if (id) right[id] = acc;
-	    acc += colWidthOf(c);
-	  }
-	  return {
-	    left,
-	    right
-	  };
-	};
-
-	/**
-	 * What a column renders when it configures neither a `Cell` nor a `Filter`.
-	 *
-	 * The default cell prints the raw value on one line with an ellipsis and a `title`, so a
-	 * clipped value is still readable on hover. `0` / `'0'` / `'NULL'` are blanked
-	 * deliberately: these lists are financial, and a column of zeros is noise that hides the
-	 * rows that do carry a figure.
-	 */
-	const DefaultCell = ({
-	  value
-	}) => {
-	  const show = value !== undefined && value !== null && value !== 'NULL' && value !== 0 && value !== '0';
-	  return /*#__PURE__*/React.createElement("div", {
-	    style: ELLIPSIS,
-	    title: show ? String(value) : ''
-	  }, show ? value : '');
-	};
-
-	/** The per-column search box. Its click is stopped so it never toggles the sort. */
-	const DefaultColumnFilter = ({
-	  column: {
-	    filterValue,
-	    setFilter,
-	    preFilteredRows
-	  }
-	}) => /*#__PURE__*/React.createElement(FilterInput, {
-	  value: filterValue || '',
-	  onClick: e => e.stopPropagation(),
-	  onChange: e => setFilter(e.target.value || undefined),
-	  placeholder: `Search ${preFilteredRows.length}...`
-	});
-
-	/**
-	 * The four absolutely-positioned overlays that live beside the scrollport, all of them
-	 * driven imperatively (never by React state) so that nothing here re-renders during a
-	 * scroll or a drag:
-	 *
-	 *   - the two overlay scrollbar tracks, drawn because the native bars have to be hidden
-	 *     (see useOverlayScrollbars for why). The vertical track is inset by the header and
-	 *     footer heights so it runs beside the ROWS only.
-	 *   - the resize guide, a vertical line following the pointer during a column resize.
-	 *   - the drop line, showing where a dragged column will land.
-	 */
-	const OverlayBars = ({
-	  headH,
-	  listH,
-	  topOffset = 0,
-	  vTrackRef,
-	  vThumbRef,
-	  hTrackRef,
-	  hThumbRef,
-	  startThumbDrag,
-	  onTrackDown,
-	  guideRef,
-	  dropRef
-	}) => /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
-	  className: "ft-track ft-track-v",
-	  ref: vTrackRef,
-	  onPointerDown: onTrackDown('y'),
-	  style: {
-	    right: 0,
-	    top: topOffset + headH,
-	    height: listH,
-	    display: 'none'
-	  }
-	}, /*#__PURE__*/React.createElement("div", {
-	  className: "ft-thumb",
-	  ref: vThumbRef,
-	  onPointerDown: startThumbDrag('y')
-	})), /*#__PURE__*/React.createElement("div", {
-	  className: "ft-track ft-track-h",
-	  ref: hTrackRef,
-	  onPointerDown: onTrackDown('x'),
-	  style: {
-	    left: 0,
-	    right: 11,
-	    bottom: 0,
-	    display: 'none'
-	  }
-	}, /*#__PURE__*/React.createElement("div", {
-	  className: "ft-thumb",
-	  ref: hThumbRef,
-	  onPointerDown: startThumbDrag('x')
-	})), /*#__PURE__*/React.createElement("div", {
-	  className: "ft-resize-guide",
-	  ref: guideRef,
-	  style: {
-	    display: 'none',
-	    top: topOffset || undefined
-	  }
-	}), /*#__PURE__*/React.createElement("div", {
-	  className: "ft-drop-line",
-	  ref: dropRef,
-	  style: {
-	    display: 'none',
-	    top: topOffset || undefined
-	  }
-	}));
-
-	/**
-	 * One windowed row, absolutely positioned at `index * rowHeight` inside a
-	 * full-content-height container.
-	 *
-	 * Memoized, and it **must not** re-render on a selection change: the row reads the
-	 * selected index from a REF for its initial paint, and the selection-highlight effect in
-	 * FreezeTable repaints backgrounds imperatively (via the `data-ct-*` attributes below).
-	 * Without this, every ↑/↓ press re-rendered all visible rows — each with icon-heavy
-	 * action cells — which made arrow navigation visibly laggy on wide lists. Putting
-	 * `selectedIndex` into `itemData` reintroduces exactly that lag.
-	 */
-	const VirtualRow = /*#__PURE__*/React.memo(function VirtualRow({
-	  data,
-	  index
-	}) {
-	  const {
-	    rows,
-	    prepareRow,
-	    rowStyle,
-	    selectedBg,
-	    rowNavigation,
-	    fontPx,
-	    selectedIndexRef,
-	    onSelect,
-	    rowHeight,
-	    pinnedLeft,
-	    pinnedRight,
-	    rowSnap
-	  } = data;
-	  const style = {
-	    position: 'absolute',
-	    top: index * rowHeight,
-	    left: 0,
-	    width: '100%',
-	    height: rowHeight
-	  };
-	  const row = rows[index];
-	  prepareRow(row);
-	  const {
-	    key: rowKey,
-	    ...rowProps
-	  } = row.getRowProps({
-	    style
-	  });
-	  const custom = rowStyle && rowStyle(row.original) || {};
-	  const customBg = custom.backgroundColor || '';
-	  const isSelected = rowNavigation && index === selectedIndexRef.current;
-	  // A status tint wins over the selection/hover highlight: it carries business
-	  // meaning (cancelled, failed to post) that must not be masked by a blue row.
-	  const baseBg = customBg || (isSelected ? selectedBg : '#ffffff');
-	  return /*#__PURE__*/React.createElement("div", _extends({
-	    key: rowKey
-	  }, rowProps, {
-	    className: "ft-row ct-row",
-	    "data-ct-index": index,
-	    "data-ct-bg": customBg || '#ffffff',
-	    "data-ct-custom": customBg ? '1' : '',
-	    onMouseEnter: e => {
-	      if (index !== selectedIndexRef.current && !customBg) e.currentTarget.style.backgroundColor = '#eef4fb';
-	    },
-	    onMouseLeave: e => {
-	      const sel = rowNavigation && index === selectedIndexRef.current;
-	      e.currentTarget.style.backgroundColor = customBg || (sel ? selectedBg : '#ffffff');
-	    },
-	    onClick: () => onSelect(index),
-	    style: {
-	      ...rowProps.style,
-	      color: custom.color,
-	      backgroundColor: baseBg,
-	      borderBottom: '1px solid #edf0f3',
-	      cursor: 'default',
-	      // Snap target — see the scrollSnapType/scrollPaddingTop pair on .ft-wrap.
-	      scrollSnapAlign: rowSnap ? 'start' : undefined
-	    }
-	  }), row.cells.map(cell => {
-	    const {
-	      key: cellKey,
-	      ...cellProps
-	    } = cell.getCellProps();
-	    const pinned = cell.column.pinned;
-	    const pinnedR = cell.column.pinnedRight;
-	    // Frozen by the browser, not by JS: sticky offsets are resolved against .ft-wrap,
-	    // the single scrollport for both axes.
-	    return /*#__PURE__*/React.createElement("div", _extends({
-	      key: cellKey
-	    }, cellProps, {
-	      className: "ft-td ct-td",
-	      "data-ct-pin": pinned || pinnedR ? '1' : undefined,
-	      "data-ct-pin-last": pinned && cell.column.pinnedLast ? '1' : undefined,
-	      "data-ct-pin-right-first": pinnedR && cell.column.pinnedRightFirst ? '1' : undefined,
-	      style: {
-	        ...cellProps.style,
-	        display: 'flex',
-	        alignItems: 'center',
-	        justifyContent: alignFlex(cell.column.align),
-	        padding: cell.column.noPadding ? 0 : '0 12px',
-	        fontSize: fontPx,
-	        overflow: 'hidden',
-	        textAlign: cell.column.align || 'left',
-	        // `background: inherit` tracks the row's imperative bg changes
-	        // (selection / hover / status tint) with zero extra bookkeeping.
-	        ...(pinned || pinnedR ? {
-	          position: 'sticky',
-	          ...(pinned ? {
-	            left: pinnedLeft[cell.column.id] || 0
-	          } : {
-	            right: pinnedRight[cell.column.id] || 0
-	          }),
-	          zIndex: 2,
-	          background: 'inherit'
-	        } : {})
-	      }
-	    }), cell.render('Cell'));
-	  }));
-	});
-
-	/**
-	 * The row band, and the two states that replace it.
-	 *
-	 * Only the visible slice is mounted; each row is absolutely positioned at
-	 * `index * rowHeight` inside a container of the full content height, so the wrap's
-	 * (overlaid) scrollbar covers the whole list even though only ~20 rows exist in the DOM.
-	 *
-	 * Rows render only once `listH > 0` — i.e. after the row band has been measured. Before
-	 * that the window would be one row tall, and on the server there is nothing to measure
-	 * at all, which is why server-rendered markup carries the header and footer but no rows.
-	 */
-	const TableBody = ({
-	  bodyProps,
-	  bodyWrapRef,
-	  rows,
-	  rowHeight,
-	  listH,
-	  firstIdx,
-	  lastIdx,
-	  itemData,
-	  loading,
-	  loadingText,
-	  dataFetched,
-	  emptyText
-	}) => /*#__PURE__*/React.createElement("div", _extends({}, bodyProps, {
-	  ref: bodyWrapRef,
-	  style: {
-	    flex: '1 0 auto',
-	    position: 'relative',
-	    height: rows.length ? rows.length * rowHeight : undefined
-	  }
-	}), loading ? /*#__PURE__*/React.createElement("div", {
-	  style: {
-	    padding: '90px 0',
-	    textAlign: 'center'
-	  }
-	}, /*#__PURE__*/React.createElement(Spinner, {
-	  text: loadingText
-	})) : rows.length === 0 && dataFetched ? /*#__PURE__*/React.createElement("div", {
-	  style: {
-	    padding: '80px 0',
-	    textAlign: 'center',
-	    color: '#8a94a6'
-	  }
-	}, /*#__PURE__*/React.createElement(InboxIcon, null), /*#__PURE__*/React.createElement("div", {
-	  style: {
-	    marginTop: 8,
-	    fontSize: '13px'
-	  }
-	}, emptyText)) : listH > 0 ? Array.from({
-	  length: Math.max(0, lastIdx - firstIdx + 1)
-	}, (_, k) => {
-	  const index = firstIdx + k;
-	  return /*#__PURE__*/React.createElement(VirtualRow, {
-	    key: rows[index].id != null ? rows[index].id : index,
-	    data: itemData,
-	    index: index
-	  });
-	}) : null);
-
-	/**
-	 * The sticky totals footer. A column's `Footer` function receives the table instance, so
-	 * `info.rows` is the FILTERED row set — the totals follow the search boxes.
-	 *
-	 * `footerLeft` is a static label laid over the row absolutely (it belongs to no column),
-	 * and is `pointerEvents: none` so it never swallows a click meant for the footer cell
-	 * underneath it.
-	 */
-	const TableFoot = ({
-	  footerGroups,
-	  footRef,
-	  fontPx,
-	  footerLeft,
-	  pinnedLeft,
-	  pinnedRight
-	}) => /*#__PURE__*/React.createElement(React.Fragment, null, footerGroups.map(group => {
-	  const {
-	    key: footerGroupKey,
-	    ...footerGroupProps
-	  } = group.getFooterGroupProps();
-	  return /*#__PURE__*/React.createElement("div", _extends({
-	    key: footerGroupKey
-	  }, footerGroupProps, {
-	    ref: footRef,
-	    className: "ft-foot ct-foot",
-	    style: {
-	      ...footerGroupProps.style,
-	      flex: '0 0 auto',
-	      position: 'sticky',
-	      bottom: 0,
-	      zIndex: 4,
-	      background: '#f4f5f7',
-	      borderTop: '1px solid #e3e8ee'
-	    }
-	  }), group.headers.map(column => {
-	    const {
-	      key: footerKey,
-	      ...footerProps
-	    } = column.getFooterProps();
-	    return /*#__PURE__*/React.createElement("div", _extends({
-	      key: footerKey
-	    }, footerProps, {
-	      className: "ft-tf ct-tf",
-	      "data-ct-pin": column.pinned || column.pinnedRight ? '1' : undefined,
-	      "data-ct-pin-last": column.pinnedLast ? '1' : undefined,
-	      "data-ct-pin-right-first": column.pinnedRightFirst ? '1' : undefined,
-	      style: {
-	        ...footerProps.style,
-	        display: 'flex',
-	        alignItems: 'center',
-	        justifyContent: alignFlex(column.align),
-	        padding: column.noPadding ? 0 : '8px 12px',
-	        fontSize: fontPx,
-	        fontWeight: 700,
-	        color: '#000000',
-	        whiteSpace: 'nowrap',
-	        overflow: 'hidden',
-	        textAlign: column.align || 'left',
-	        ...(column.pinned || column.pinnedRight ? {
-	          position: 'sticky',
-	          ...(column.pinned ? {
-	            left: pinnedLeft[column.id] || 0
-	          } : {
-	            right: pinnedRight[column.id] || 0
-	          }),
-	          zIndex: 5,
-	          background: '#f4f5f7'
-	        } : {})
-	      }
-	    }), column.render('Footer'));
-	  }), footerLeft != null && /*#__PURE__*/React.createElement("div", {
-	    style: {
-	      position: 'absolute',
-	      left: 12,
-	      top: 0,
-	      height: '100%',
-	      display: 'flex',
-	      alignItems: 'center',
-	      fontSize: fontPx,
-	      fontWeight: 700,
-	      color: '#000000',
-	      whiteSpace: 'nowrap',
-	      pointerEvents: 'none'
-	    }
-	  }, footerLeft));
-	}));
-
-	/**
-	 * The sticky header row: label + sort arrow, the per-column filter box, the resize grip
-	 * and the pin marker on whichever column is currently the freeze boundary.
-	 *
-	 * The header cell is also the drag surface for BOTH header drags — see useColumnDrag for
-	 * how one press is split between sorting, reordering and resizing.
-	 */
-	const TableHead = ({
-	  headerGroups,
-	  headRef,
-	  fontPx,
-	  sortable,
-	  searchable,
-	  resizable,
-	  reorderable,
-	  pinnedLeft,
-	  pinnedRight,
-	  startColReorder,
-	  startColResize,
-	  onHeaderClickCapture,
-	  resetColumnWidths
-	}) => /*#__PURE__*/React.createElement(React.Fragment, null, headerGroups.map(headerGroup => {
-	  const {
-	    key: headerGroupKey,
-	    ...headerGroupProps
-	  } = headerGroup.getHeaderGroupProps();
-	  return /*#__PURE__*/React.createElement("div", _extends({
-	    key: headerGroupKey
-	  }, headerGroupProps, {
-	    ref: headRef,
-	    className: "ft-head ct-head",
-	    style: {
-	      ...headerGroupProps.style,
-	      flex: '0 0 auto',
-	      background: '#ffffff',
-	      borderBottom: '1px solid #e3e8ee',
-	      position: 'sticky',
-	      top: 0,
-	      zIndex: 4
-	    }
-	  }), headerGroup.headers.map(column => {
-	    const canSort = sortable && !column.disableSortBy;
-	    const canSearch = searchable && column.canFilter && !column.disableFilters;
-	    // The status strip is a fixed 4px bar — there is nothing in it to resize.
-	    const canResize = resizable && !column.disableResizing && column.id !== '__strip';
-	    // …and nothing to move: it belongs to the row, not to the caller's columns.
-	    const canReorder = reorderable && !column.disableReordering && column.id !== '__strip';
-	    const {
-	      key: headerKey,
-	      ...headerProps
-	    } = column.getHeaderProps();
-	    const sortDir = column.isSorted ? column.isSortedDesc ? 'desc' : 'asc' : null;
-	    return /*#__PURE__*/React.createElement("div", _extends({
-	      key: headerKey
-	    }, headerProps, {
-	      className: "ft-th ct-th",
-	      "data-ct-col": column.id,
-	      onPointerDown: canReorder ? startColReorder(column.id) : undefined,
-	      onClickCapture: canReorder ? onHeaderClickCapture : undefined,
-	      "data-ct-pin": column.pinned || column.pinnedRight ? '1' : undefined,
-	      "data-ct-pin-last": column.pinnedLast ? '1' : undefined,
-	      "data-ct-pin-right-first": column.pinnedRightFirst ? '1' : undefined,
-	      style: {
-	        ...headerProps.style,
-	        padding: column.noPadding ? 0 : '7px 12px 9px',
-	        boxSizing: 'border-box',
-	        // Containing block for the resize grip. A pinned header overrides
-	        // this with `sticky`, which is just as good an anchor.
-	        position: 'relative',
-	        ...(column.pinned || column.pinnedRight ? {
-	          position: 'sticky',
-	          ...(column.pinned ? {
-	            left: pinnedLeft[column.id] || 0
-	          } : {
-	            right: pinnedRight[column.id] || 0
-	          }),
-	          // above the scrolling header cells it overlaps
-	          zIndex: 5,
-	          background: '#ffffff'
-	        } : {})
-	      }
-	    }), /*#__PURE__*/React.createElement("div", _extends({}, canSort ? column.getSortByToggleProps({
-	      title: undefined
-	    }) : {}, {
-	      className: "ft-th-label ct-th-label",
-	      style: {
-	        display: 'flex',
-	        alignItems: 'center',
-	        // sort icon sits at the opposite end of the column from the header text:
-	        // left-aligned header -> icon pushed to the far right; right-aligned -> far left.
-	        justifyContent: canSort && column.align !== 'center' ? 'space-between' : alignFlex(column.align),
-	        gap: 4,
-	        cursor: canSort ? 'pointer' : 'default',
-	        userSelect: 'none',
-	        fontWeight: 700,
-	        fontSize: fontPx,
-	        color: '#000000',
-	        whiteSpace: 'nowrap'
-	      }
-	    }), canSort && column.align === 'right' && /*#__PURE__*/React.createElement(SortIcon, {
-	      direction: sortDir
-	    }), /*#__PURE__*/React.createElement("span", {
-	      style: {
-	        display: 'inline-flex',
-	        alignItems: 'center',
-	        gap: 4,
-	        minWidth: 0
-	      }
-	    }, /*#__PURE__*/React.createElement("span", {
-	      style: {
-	        overflow: 'hidden',
-	        textOverflow: 'ellipsis'
-	      }
-	    }, column.render('Header')), (column.pinnedLast && column.pinIndex != null || column.pinnedRightFirst) && /*#__PURE__*/React.createElement(PinIcon, {
-	      title: column.pinnedLast ? 'Columns up to here are pinned' : 'Columns from here are pinned to the right'
-	    })), canSort && column.align !== 'right' && /*#__PURE__*/React.createElement(SortIcon, {
-	      direction: sortDir
-	    })), canSearch && /*#__PURE__*/React.createElement("div", {
-	      className: "ft-th-filter ct-th-filter",
-	      style: {
-	        marginTop: 4
-	      }
-	    }, column.render('Filter')), canResize && /*#__PURE__*/React.createElement("div", {
-	      className: "ft-resizer ct-resizer",
-	      onPointerDown: startColResize(column.id),
-	      onDoubleClick: () => resetColumnWidths(column.id),
-	      title: "Drag to resize \xB7 double-click to reset"
-	    }));
-	  }));
-	}));
-
-	/**
-	 * The built-in toolbar — the two menus that used to be "yours to render".
-	 *
-	 * Everything it drives already existed on the imperative ref, and a caller who wants
-	 * their own design system's dropdowns still has that route; this is the version for the
-	 * far more common case, where a list wants the standard freeze / show-hide / reorder
-	 * menus and nobody wants to write them again per screen.
-	 *
-	 * It sits OUTSIDE `.ft-wrap`, inside `.ft-root`. That matters: the menus have their own
-	 * `overflow-y`, and a scroll container inside the scrollport would become the sticky
-	 * container for the cells beneath it and break the column freeze.
-	 *
-	 * Menu state is local and deliberately dumb — one open menu at a time, closed by a click
-	 * anywhere else, by Escape, or by making a choice. Every choice hands focus back to the
-	 * table, so the arrow keys keep working without a click on the rows.
-	 */
-
-	const usePopover = (open, onClose) => {
-	  const ref = React.useRef(null);
-	  React.useEffect(() => {
-	    if (!open) return undefined; // nothing to dismiss — do not listen on the document
-	    const onDown = e => {
-	      if (ref.current && !ref.current.contains(e.target)) onClose();
-	    };
-	    const onKey = e => {
-	      if (e.key === 'Escape') onClose();
-	    };
-	    document.addEventListener('pointerdown', onDown);
-	    document.addEventListener('keydown', onKey);
-	    return () => {
-	      document.removeEventListener('pointerdown', onDown);
-	      document.removeEventListener('keydown', onKey);
-	    };
-	  }, [open, onClose]);
-	  return ref;
-	};
-	const Menu = ({
-	  children,
-	  align = 'left'
-	}) => /*#__PURE__*/React.createElement("div", {
-	  className: "ft-menu",
-	  style: align === 'right' ? {
-	    right: 0
-	  } : {
-	    left: 0
-	  },
-	  role: "menu"
-	}, children);
-
-	/** Show / hide, move up / down, and the three resets. */
-	const ColumnMenu = ({
-	  list,
-	  onToggle,
-	  onMove,
-	  onShowAll,
-	  onResetWidths,
-	  onResetOrder
-	}) => /*#__PURE__*/React.createElement(Menu, null, /*#__PURE__*/React.createElement("div", {
-	  className: "ft-menu-head"
-	}, "Columns"), list.map(c => /*#__PURE__*/React.createElement("div", {
-	  key: c.id || c.position,
-	  style: {
-	    display: 'flex',
-	    alignItems: 'center'
-	  }
-	}, /*#__PURE__*/React.createElement("button", {
-	  type: "button",
-	  role: "menuitemcheckbox",
-	  "aria-checked": !c.hidden,
-	  className: "ft-menu-item",
-	  disabled: !c.hideable,
-	  onClick: () => onToggle(c.id)
-	  // A column with no header text (or a node for one) still has to be listable, or
-	  // the menu would silently be missing rows the table is showing.
-	  ,
-	  title: c.hideable ? undefined : 'This column cannot be hidden'
-	}, /*#__PURE__*/React.createElement(CheckIcon, {
-	  checked: !c.hidden
-	}), /*#__PURE__*/React.createElement("span", {
-	  style: {
-	    flex: 1,
-	    overflow: 'hidden',
-	    textOverflow: 'ellipsis',
-	    whiteSpace: 'nowrap'
-	  }
-	}, c.header || c.id)), /*#__PURE__*/React.createElement("span", {
-	  style: {
-	    display: 'flex',
-	    paddingRight: 4
-	  }
-	}, /*#__PURE__*/React.createElement("button", {
-	  type: "button",
-	  className: "ft-menu-move",
-	  disabled: !c.movable || c.position === 0,
-	  onClick: () => onMove(c.id, c.position - 1),
-	  title: "Move left",
-	  "aria-label": `Move ${c.header || c.id} left`
-	}, "\u2191"), /*#__PURE__*/React.createElement("button", {
-	  type: "button",
-	  className: "ft-menu-move",
-	  disabled: !c.movable || c.position === list.length - 1,
-	  onClick: () => onMove(c.id, c.position + 1),
-	  title: "Move right",
-	  "aria-label": `Move ${c.header || c.id} right`
-	}, "\u2193")))), /*#__PURE__*/React.createElement("div", {
-	  className: "ft-menu-sep"
-	}), /*#__PURE__*/React.createElement("button", {
-	  type: "button",
-	  role: "menuitem",
-	  className: "ft-menu-item",
-	  onClick: onShowAll
-	}, "Show all columns"), /*#__PURE__*/React.createElement("button", {
-	  type: "button",
-	  role: "menuitem",
-	  className: "ft-menu-item",
-	  onClick: onResetWidths
-	}, "Reset widths"), /*#__PURE__*/React.createElement("button", {
-	  type: "button",
-	  role: "menuitem",
-	  className: "ft-menu-item",
-	  onClick: onResetOrder
-	}, "Reset order"));
-
-	/**
-	 * "Pin up to here" on the left, "pin from here" on the right. Entries past the viewport
-	 * cap are disabled rather than hidden, so the menu shows WHY a column cannot be frozen
-	 * (there would be no room left to read the scrolling ones) instead of quietly omitting it.
-	 */
-	const PinMenu = ({
-	  columns,
-	  left,
-	  maxLeft,
-	  right,
-	  maxRight,
-	  onLeft,
-	  onRight
-	}) => /*#__PURE__*/React.createElement(Menu, {
-	  align: "right"
-	}, /*#__PURE__*/React.createElement("div", {
-	  className: "ft-menu-head"
-	}, "Freeze left"), /*#__PURE__*/React.createElement("button", {
-	  type: "button",
-	  role: "menuitemradio",
-	  "aria-checked": left === 0,
-	  "aria-current": left === 0,
-	  className: "ft-menu-item",
-	  onClick: () => onLeft(0)
-	}, /*#__PURE__*/React.createElement(CheckIcon, {
-	  checked: left === 0
-	}), /*#__PURE__*/React.createElement("span", null, "No freeze")), columns.map((c, i) => /*#__PURE__*/React.createElement("button", {
-	  key: 'l' + i,
-	  type: "button",
-	  role: "menuitemradio",
-	  "aria-checked": left === i + 1,
-	  "aria-current": left === i + 1,
-	  className: "ft-menu-item",
-	  disabled: i + 1 > maxLeft,
-	  onClick: () => onLeft(i + 1),
-	  title: i + 1 > maxLeft ? 'Not enough room left for the scrolling columns' : undefined
-	}, /*#__PURE__*/React.createElement(CheckIcon, {
-	  checked: left === i + 1
-	}), /*#__PURE__*/React.createElement("span", {
-	  style: {
-	    overflow: 'hidden',
-	    textOverflow: 'ellipsis',
-	    whiteSpace: 'nowrap'
-	  }
-	}, "Up to ", c.label))), /*#__PURE__*/React.createElement("div", {
-	  className: "ft-menu-sep"
-	}), /*#__PURE__*/React.createElement("div", {
-	  className: "ft-menu-head"
-	}, "Freeze right"), /*#__PURE__*/React.createElement("button", {
-	  type: "button",
-	  role: "menuitemradio",
-	  "aria-checked": right === 0,
-	  "aria-current": right === 0,
-	  className: "ft-menu-item",
-	  onClick: () => onRight(0)
-	}, /*#__PURE__*/React.createElement(CheckIcon, {
-	  checked: right === 0
-	}), /*#__PURE__*/React.createElement("span", null, "No freeze")), columns.map((c, i) => {
-	  const n = columns.length - i;
-	  return /*#__PURE__*/React.createElement("button", {
-	    key: 'r' + i,
-	    type: "button",
-	    role: "menuitemradio",
-	    "aria-checked": right === n,
-	    "aria-current": right === n,
-	    className: "ft-menu-item",
-	    disabled: n > maxRight,
-	    onClick: () => onRight(n),
-	    title: n > maxRight ? 'Not enough room left for the scrolling columns' : undefined
-	  }, /*#__PURE__*/React.createElement(CheckIcon, {
-	    checked: right === n
-	  }), /*#__PURE__*/React.createElement("span", {
-	    style: {
-	      overflow: 'hidden',
-	      textOverflow: 'ellipsis',
-	      whiteSpace: 'nowrap'
-	    }
-	  }, "From ", c.label));
-	}));
-	const Toolbar = ({
-	  toolbarRef,
-	  fontPx,
-	  config,
-	  columnList,
-	  pinColumns,
-	  pin,
-	  api,
-	  refocus
-	}) => {
-	  const [open, setOpen] = React.useState(null);
-	  const close = React.useCallback(() => setOpen(null), []);
-	  const boxRef = usePopover(open !== null, close);
-
-	  // Every action closes the menu and hands the keyboard back to the rows — a menu that
-	  // stays open after a choice leaves the table unfocused, and the arrow keys dead.
-	  const run = f => (...args) => {
-	    f(...args);
-	    close();
-	    refocus();
-	  };
-	  // …except show/hide and move, where the point is to make several changes in a row.
-	  const keepOpen = f => (...args) => f(...args);
-	  const showColumns = config.columns !== false;
-	  const showPin = config.pin !== false && pinColumns.length > 0;
-	  return /*#__PURE__*/React.createElement("div", {
-	    ref: toolbarRef,
-	    className: "ft-toolbar ct-toolbar",
-	    style: {
-	      flex: '0 0 auto',
-	      display: 'flex',
-	      alignItems: 'center',
-	      gap: 8,
-	      padding: '6px 8px',
-	      borderBottom: '1px solid #e3e8ee',
-	      background: '#fbfcfd',
-	      fontSize: fontPx,
-	      boxSizing: 'border-box'
-	    }
-	  }, config.left != null && /*#__PURE__*/React.createElement("div", {
-	    style: {
-	      display: 'flex',
-	      alignItems: 'center',
-	      gap: 8,
-	      minWidth: 0
-	    }
-	  }, config.left), /*#__PURE__*/React.createElement("div", {
-	    style: {
-	      flex: 1
-	    }
-	  }), config.right != null && /*#__PURE__*/React.createElement("div", {
-	    style: {
-	      display: 'flex',
-	      alignItems: 'center',
-	      gap: 8
-	    }
-	  }, config.right), /*#__PURE__*/React.createElement("div", {
-	    ref: boxRef,
-	    style: {
-	      display: 'flex',
-	      alignItems: 'center',
-	      gap: 8
-	    }
-	  }, showColumns && /*#__PURE__*/React.createElement("div", {
-	    style: {
-	      position: 'relative'
-	    }
-	  }, /*#__PURE__*/React.createElement("button", {
-	    type: "button",
-	    className: "ft-btn",
-	    "aria-haspopup": "menu",
-	    "aria-expanded": open === 'columns',
-	    onClick: () => setOpen(open === 'columns' ? null : 'columns')
-	  }, /*#__PURE__*/React.createElement(ColumnsIcon, null), "Columns"), open === 'columns' && /*#__PURE__*/React.createElement(ColumnMenu, {
-	    list: columnList,
-	    onToggle: keepOpen(api.toggleColumn),
-	    onMove: keepOpen(api.moveColumn),
-	    onShowAll: run(api.showAllColumns),
-	    onResetWidths: run(api.resetColumnWidths),
-	    onResetOrder: run(api.resetColumnOrder)
-	  })), showPin && /*#__PURE__*/React.createElement("div", {
-	    style: {
-	      position: 'relative'
-	    }
-	  }, /*#__PURE__*/React.createElement("button", {
-	    type: "button",
-	    className: "ft-btn",
-	    "aria-haspopup": "menu",
-	    "aria-expanded": open === 'pin',
-	    onClick: () => setOpen(open === 'pin' ? null : 'pin')
-	  }, /*#__PURE__*/React.createElement(PinIcon, {
-	    color: "#5a6b82",
-	    size: 11
-	  }), "Freeze", pin.left + pin.right > 0 && /*#__PURE__*/React.createElement("span", {
-	    style: {
-	      color: '#0070C2',
-	      fontWeight: 700
-	    }
-	  }, pin.left > 0 ? ' ' + pin.left : '', pin.left > 0 && pin.right > 0 ? ' +' : '', pin.right > 0 ? ' ' + pin.right : '')), open === 'pin' && /*#__PURE__*/React.createElement(PinMenu, {
-	    columns: pinColumns,
-	    left: pin.left,
-	    maxLeft: pin.maxLeft,
-	    right: pin.right,
-	    maxRight: pin.maxRight,
-	    onLeft: run(api.setLeftPinCount),
-	    onRight: run(api.setRightPinCount)
-	  }))));
-	};
-
-	/**
-	 * The two header drags.
-	 *
-	 * A header press has to serve three gestures: a click sorts, a sideways drag reorders,
-	 * and a drag on the right-edge grip resizes. The grip's own handler stops propagation so
-	 * it never starts a reorder; the reorder arms itself only after DRAG_SLOP pixels, so a
-	 * plain click falls straight through to the sort toggle, and once it HAS armed the click
-	 * that pointer-up fires is swallowed in the capture phase (otherwise every reorder would
-	 * flip the sort on its way out).
-	 *
-	 * NEITHER drag writes to state per frame. Both paint a line and commit exactly once, on
-	 * pointer-up: the column defs are what `itemData` hangs off, so a live width or a live
-	 * order would re-render every visible row sixty times a second — the same cost the
-	 * memoized rows and the imperative selection highlight exist to avoid. (It is also what
-	 * Excel and Sheets do.)
-	 */
-	const useColumnDrag = ({
-	  rootRef,
-	  containerRef,
-	  guideRef,
-	  dropRef,
-	  orderRef,
-	  minColumnWidth,
-	  setColumnWidth,
-	  setColumnOrder
-	}) => {
-	  const startColResize = React.useCallback(id => e => {
-	    if (e.button !== 0) return;
-	    e.preventDefault();
-	    e.stopPropagation(); // never let the press reach the header's sort toggle
-	    const handle = e.currentTarget;
-	    const th = handle.parentElement;
-	    const root = rootRef.current;
-	    const guide = guideRef.current;
-	    if (!th || !root) return;
-	    const startX = e.clientX;
-	    // Measured, not configured: `width` is only a request — the rendered size is
-	    // `min(max(minWidth, width), maxWidth)`, so a column configured `width: 1,
-	    // minWidth: 90` is 90px on screen. Starting the drag from the config would make
-	    // the column jump on the first pixel of pointer movement.
-	    const startW = th.offsetWidth;
-	    const rootRect = root.getBoundingClientRect();
-	    const thLeft = th.getBoundingClientRect().left - rootRect.left;
-	    let width = startW;
-	    const paint = clientX => {
-	      width = Math.max(minColumnWidth, Math.round(startW + (clientX - startX)));
-	      if (!guide) return;
-	      guide.style.display = 'block';
-	      // Clamped to the table box — the pointer can travel far past either edge, and a
-	      // guide drawn outside the root would streak across the page around it.
-	      guide.style.transform = `translateX(${Math.min(Math.max(0, thLeft + width), rootRect.width - 2)}px)`;
-	    };
-	    paint(e.clientX);
-	    handle.classList.add('ft-resizing');
-	    document.body.style.userSelect = 'none';
-	    document.body.style.cursor = 'col-resize';
-	    const onMove = ev => paint(ev.clientX);
-	    const onUp = () => {
-	      window.removeEventListener('pointermove', onMove);
-	      window.removeEventListener('pointerup', onUp);
-	      if (guide) guide.style.display = 'none';
-	      handle.classList.remove('ft-resizing');
-	      document.body.style.userSelect = '';
-	      document.body.style.cursor = '';
-	      if (width !== startW) setColumnWidth(id, width);
-	    };
-	    window.addEventListener('pointermove', onMove);
-	    window.addEventListener('pointerup', onUp);
-	  }, [rootRef, guideRef, minColumnWidth, setColumnWidth]);
-	  const dragEndedRef = React.useRef(false);
-	  const startColReorder = React.useCallback(id => e => {
-	    // Mouse only: on a touch screen, dragging a header sideways is how the user pans a
-	    // wide table, and stealing that gesture would leave the table unscrollable.
-	    if (e.button !== 0 || e.pointerType && e.pointerType !== 'mouse') return;
-	    const tag = e.target && e.target.tagName;
-	    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return; // the filter box
-	    dragEndedRef.current = false; // a previous drag that ended off-target never fired its click
-	    const th = e.currentTarget;
-	    const root = rootRef.current;
-	    const wrap = containerRef.current;
-	    const line = dropRef.current;
-	    if (!root || !wrap) return;
-	    const startX = e.clientX;
-	    const EDGE = 48; // auto-scroll band at either end of the scrollport
-	    let pointerX = startX;
-	    let dragging = false;
-	    let beforeId = null; // the column the dragged one will land in front of; null = last
-	    let raf = 0;
-	    const frame = () => {
-	      if (!dragging) {
-	        raf = 0;
-	        return;
-	      }
-	      const wrapRect = wrap.getBoundingClientRect();
-	      // Auto-scroll while the pointer rests near an edge. On a table wide enough to
-	      // want frozen columns, the place you are dragging TO is usually off screen, and
-	      // without this the drag can only reach as far as the current viewport.
-	      if (pointerX < wrapRect.left + EDGE) wrap.scrollLeft -= Math.ceil((wrapRect.left + EDGE - pointerX) / 4);else if (pointerX > wrapRect.right - EDGE) wrap.scrollLeft += Math.ceil((pointerX - (wrapRect.right - EDGE)) / 4);
-
-	      // Live rects every frame rather than a snapshot taken at pointer-down: a frozen
-	      // header sits nowhere near its layout position, and the auto-scroll above moves
-	      // every unfrozen one under the pointer.
-	      const rootRect = root.getBoundingClientRect();
-	      const heads = root.querySelectorAll('.ft-th[data-ct-col]');
-	      let edgeX = null;
-	      let lastRight = null;
-	      beforeId = null;
-	      for (let i = 0; i < heads.length; i++) {
-	        const cid = heads[i].getAttribute('data-ct-col');
-	        if (cid === '__strip') continue; // the status strip is never a drop target
-	        const r = heads[i].getBoundingClientRect();
-	        lastRight = r.right;
-	        if (beforeId == null && pointerX < r.left + r.width / 2) {
-	          beforeId = cid;
-	          edgeX = r.left;
-	        }
-	      }
-	      if (beforeId == null) edgeX = lastRight; // past the midpoint of the last one = drop at the end
-	      if (line && edgeX != null) {
-	        line.style.display = 'block';
-	        // Clamped to the table box, exactly like the resize guide: the pointer can
-	        // travel far outside it and a line drawn there would streak across the page.
-	        line.style.transform = `translateX(${Math.min(Math.max(0, edgeX - rootRect.left), rootRect.width - 3)}px)`;
-	      }
-	      raf = window.requestAnimationFrame(frame);
-	    };
-	    const onMove = ev => {
-	      pointerX = ev.clientX;
-	      if (!dragging) {
-	        if (Math.abs(pointerX - startX) < DRAG_SLOP) return;
-	        dragging = true;
-	        th.classList.add('ft-th-dragging');
-	        document.body.style.userSelect = 'none';
-	        document.body.style.cursor = 'grabbing';
-	      }
-	      if (!raf) raf = window.requestAnimationFrame(frame);
-	    };
-	    const onUp = () => {
-	      window.removeEventListener('pointermove', onMove);
-	      window.removeEventListener('pointerup', onUp);
-	      if (raf) window.cancelAnimationFrame(raf);
-	      if (!dragging) return; // never armed — leave the click alone, it is a sort
-	      dragging = false;
-	      th.classList.remove('ft-th-dragging');
-	      if (line) line.style.display = 'none';
-	      document.body.style.userSelect = '';
-	      document.body.style.cursor = '';
-	      dragEndedRef.current = true;
-	      const cur = orderRef.current.filter(x => x !== id);
-	      const at = beforeId && beforeId !== id ? cur.indexOf(beforeId) : -1;
-	      cur.splice(at < 0 ? cur.length : at, 0, id);
-	      // Dropping a column back where it started is a no-op, not a layout change worth
-	      // persisting or telling the caller about.
-	      if (cur.some((x, i) => x !== orderRef.current[i])) setColumnOrder(cur);
-	    };
-	    window.addEventListener('pointermove', onMove);
-	    window.addEventListener('pointerup', onUp);
-	  }, [rootRef, containerRef, dropRef, orderRef, setColumnOrder]);
-
-	  // Swallow the click a completed reorder drag leaves behind (it would reach the
-	  // header's sort toggle). Capture phase, because the toggle's own onClick sits deeper.
-	  const onHeaderClickCapture = React.useCallback(e => {
-	    if (!dragEndedRef.current) return;
-	    dragEndedRef.current = false;
-	    e.stopPropagation();
-	    e.preventDefault();
-	  }, []);
-	  return {
-	    startColResize,
-	    startColReorder,
-	    onHeaderClickCapture
-	  };
-	};
-
-	/**
-	 * Column shorthands — the "you should not have to write this again" layer.
-	 *
-	 * Before this existed, every list repeated the same three or four lines per column: an
-	 * ellipsis `Cell` with a `title`, a right-aligned amount column with a `toLocaleString`
-	 * in it, a `Footer` doing `rows.reduce(...)`, a serial column doing
-	 * `rows.indexOf(row) + 1`, and `width: 120, minWidth: 120` on every single one because a
-	 * bare `width` under react-table's 90px floor was silently ignored.
-	 *
-	 * `normalizeColumns` folds all of that into two config keys — `type` and `footer` — and
-	 * one rule: **anything written explicitly on the column always wins.** A `type` only
-	 * fills in what the caller left out, so `{ type: 'currency', align: 'left' }` is a
-	 * left-aligned currency column, not an argument.
-	 */
-
-	// ---------------------------------------------------------------- value formatting
-
-	const pad2 = n => n < 10 ? '0' + n : String(n);
-
-	/**
-	 * Anything a date column is likely to hold: a Date, an epoch number, an ISO string, or
-	 * the 'YYYY-MM-DD HH:mm:ss' a SQL backend hands back (which Safari refuses to parse
-	 * until the space becomes a 'T'). Returns null for anything else, and the caller then
-	 * prints the raw value rather than a confident 'Invalid Date'.
-	 */
-	const toDate = v => {
-	  if (v == null || v === '' || v === 'NULL') return null;
-	  if (v instanceof Date) return Number.isNaN(v.getTime()) ? null : v;
-	  if (typeof v === 'number') {
-	    const d = new Date(v);
-	    return Number.isNaN(d.getTime()) ? null : d;
-	  }
-	  if (typeof v !== 'string') return null;
-	  const s = /^\d{4}-\d{2}-\d{2}[ ]\d{2}:\d{2}/.test(v) ? v.replace(' ', 'T') : v;
-	  const d = new Date(s);
-	  return Number.isNaN(d.getTime()) ? null : d;
-	};
-	const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-	const TOKEN = /YYYY|YY|MMM|MM|DD|HH|hh|mm|ss|A/g;
-
-	/**
-	 * Token formatter — deliberately tiny, because pulling in a date library for this would
-	 * be the single largest thing in the bundle. Understands YYYY YY MMM MM DD HH mm ss, plus
-	 * hh/A for 12-hour clocks.
-	 */
-	const formatDate = (date, pattern) => {
-	  const h24 = date.getHours();
-	  const map = {
-	    YYYY: String(date.getFullYear()),
-	    YY: pad2(date.getFullYear() % 100),
-	    MMM: MONTHS[date.getMonth()],
-	    MM: pad2(date.getMonth() + 1),
-	    DD: pad2(date.getDate()),
-	    HH: pad2(h24),
-	    hh: pad2(h24 % 12 === 0 ? 12 : h24 % 12),
-	    mm: pad2(date.getMinutes()),
-	    ss: pad2(date.getSeconds()),
-	    A: h24 < 12 ? 'AM' : 'PM'
-	  };
-	  return pattern.replace(TOKEN, t => map[t]);
-	};
-
-	// Intl.NumberFormat construction is expensive enough to matter when it happens once per
-	// cell per render, and the argument set is tiny, so they are cached by their key.
-	const numberFormatters = {};
-	const numberFormatter = (locale, min, max) => {
-	  const key = (locale || '') + '|' + min + '|' + max;
-	  if (!numberFormatters[key]) {
-	    numberFormatters[key] = new Intl.NumberFormat(locale || undefined, {
-	      minimumFractionDigits: min,
-	      maximumFractionDigits: max
-	    });
-	  }
-	  return numberFormatters[key];
-	};
-	const formatNumber = (value, {
-	  locale,
-	  decimals
-	}) => {
-	  const n = typeof value === 'number' ? value : parseFloat(value);
-	  if (!Number.isFinite(n)) return null;
-	  const min = decimals == null ? 0 : decimals;
-	  const max = decimals == null ? 3 : decimals;
-	  return numberFormatter(locale, min, max).format(n);
-	};
-
-	// ---------------------------------------------------------------- the types
-
-	const isBlank = v => v == null || v === '' || v === 'NULL';
-
-	// The untyped default cell blanks a zero on purpose: these lists are financial, and a
-	// column of zeros is noise that hides the rows actually carrying a figure. `type: 'text'`
-	// keeps that (it has to stay a drop-in for no type at all), while `number` and
-	// `currency` show it — a formatted 0.00 in an amount column is information, not noise.
-	// `blankZero` overrides either way.
-	const blanksZero = (c, v) => {
-	  const dflt = c.type == null || c.type === 'text';
-	  return (c.blankZero === undefined ? dflt : c.blankZero) && (v === 0 || v === '0');
-	};
-	const textCell = render => {
-	  // Every typed cell is the same single-line ellipsis box with a `title`, so a value too
-	  // wide for its column is still readable on hover. Only the string differs.
-	  const Cell = ({
-	    value,
-	    row
-	  }) => {
-	    const out = render(value, row);
-	    if (out == null || out === '') return /*#__PURE__*/React.createElement("div", {
-	      style: ELLIPSIS,
-	      title: ""
-	    });
-	    return /*#__PURE__*/React.createElement("div", {
-	      style: ELLIPSIS,
-	      title: String(out)
-	    }, out);
-	  };
-	  return Cell;
-	};
-
-	/**
-	 * One entry per `type`. `defaults` are merged UNDER the caller's config; `cell` builds
-	 * the renderer from the column's own options (so `decimals` / `dateFormat` can be set
-	 * per column as well as per table).
-	 */
-	const TYPES = {
-	  text: {
-	    defaults: {},
-	    cell: c => textCell(v => isBlank(v) || blanksZero(c, v) ? '' : v)
-	  },
-	  number: {
-	    defaults: {
-	      align: 'right'
-	    },
-	    cell: (c, opts) => textCell(v => {
-	      if (isBlank(v) || blanksZero(c, v)) return '';
-	      const s = formatNumber(v, {
-	        locale: opts.locale,
-	        decimals: c.decimals
-	      });
-	      return s == null ? v : s;
-	    })
-	  },
-	  currency: {
-	    defaults: {
-	      align: 'right'
-	    },
-	    cell: (c, opts) => textCell(v => {
-	      if (isBlank(v) || blanksZero(c, v)) return '';
-	      const decimals = c.decimals == null ? 2 : c.decimals;
-	      const s = formatNumber(v, {
-	        locale: opts.locale,
-	        decimals
-	      });
-	      if (s == null) return v;
-	      return opts.currencySymbol ? opts.currencySymbol + ' ' + s : s;
-	    })
-	  },
-	  // A date column is 110px because 'DD-MM-YYYY' does not fit in the 90px default, and a
-	  // date-time one is 150px for the same reason — the two most common "why is my column
-	  // clipped" reports this package ever got.
-	  date: {
-	    defaults: {
-	      minWidth: 110
-	    },
-	    cell: (c, opts) => textCell(v => {
-	      const d = toDate(v);
-	      return d ? formatDate(d, c.dateFormat || opts.dateFormat) : isBlank(v) ? '' : v;
-	    })
-	  },
-	  datetime: {
-	    defaults: {
-	      minWidth: 150
-	    },
-	    cell: (c, opts) => textCell(v => {
-	      const d = toDate(v);
-	      return d ? formatDate(d, c.dateFormat || opts.dateTimeFormat) : isBlank(v) ? '' : v;
-	    })
-	  },
-	  boolean: {
-	    defaults: {
-	      align: 'center'
-	    },
-	    cell: c => textCell(v => {
-	      const yes = v === true || v === 1 || v === '1' || v === 'Y' || v === 'true' || v === 'TRUE';
-	      const labels = c.booleanLabels || ['✓', ''];
-	      return yes ? labels[0] : labels[1];
-	    })
-	  },
-	  // The display-order serial number every list starts with. It counts through `rows` —
-	  // the FILTERED and SORTED set — so the numbering stays 1..N after any sort or search;
-	  // `row.index` would shuffle. It sorts and filters by nothing, because there is no
-	  // underlying value to sort or filter by.
-	  serial: {
-	    defaults: {
-	      Header: '#',
-	      id: '__serial',
-	      width: 50,
-	      align: 'right',
-	      disableFilters: true,
-	      disableSortBy: true
-	    },
-	    cell: () => {
-	      const Cell = ({
-	        row,
-	        rows
-	      }) => rows.indexOf(row) + 1;
-	      return Cell;
-	    }
-	  }
-	};
-
-	// ---------------------------------------------------------------- footer shorthands
-
-	const REDUCERS = {
-	  sum: nums => nums.reduce((s, n) => s + n, 0),
-	  avg: nums => nums.length ? nums.reduce((s, n) => s + n, 0) / nums.length : 0,
-	  min: nums => nums.length ? Math.min.apply(null, nums) : 0,
-	  max: nums => nums.length ? Math.max.apply(null, nums) : 0
-	};
-
-	/**
-	 * `footer: 'sum'` and friends. The total is computed over `info.rows`, which react-table
-	 * gives as the FILTERED rows — so the footer follows the search boxes, which is the whole
-	 * reason a `Footer` has to be a function rather than a precomputed number.
-	 *
-	 * A numeric total is formatted with the column's OWN formatter, so a currency column's
-	 * total lands with the same decimals and grouping as the cells above it.
-	 */
-	const buildFooter = (c, opts) => {
-	  const kind = c.footer;
-	  if (typeof kind === 'function' || /*#__PURE__*/React.isValidElement(kind)) return kind;
-	  if (kind === 'count') {
-	    const Footer = info => `Count : ${info.rows.length}`;
-	    return Footer;
-	  }
-	  const reduce = REDUCERS[kind];
-	  if (!reduce) return undefined;
-	  const decimals = c.decimals == null ? c.type === 'currency' ? 2 : 0 : c.decimals;
-	  const Footer = info => {
-	    const id = c.id || (typeof c.accessor === 'string' ? c.accessor : undefined);
-	    const nums = [];
-	    info.rows.forEach(r => {
-	      const raw = id ? r.values[id] : undefined;
-	      const n = typeof raw === 'number' ? raw : parseFloat(raw);
-	      if (Number.isFinite(n)) nums.push(n);
-	    });
-	    const total = reduce(nums);
-	    const s = formatNumber(total, {
-	      locale: opts.locale,
-	      decimals
-	    });
-	    if (s == null) return '';
-	    return opts.currencySymbol && c.type === 'currency' ? opts.currencySymbol + ' ' + s : s;
-	  };
-	  return Footer;
-	};
-
-	// ---------------------------------------------------------------- normalization
-
-	const FORMAT_DEFAULTS = {
-	  dateFormat: 'DD-MM-YYYY',
-	  dateTimeFormat: 'DD-MM-YYYY HH:mm'};
-
-	/**
-	 * Turn one caller column into the column react-table gets. Order of precedence, highest
-	 * first: what the caller wrote → what the `type` implies → react-table's own defaults.
-	 *
-	 * The one rule that applies to EVERY column, typed or not: **a `width` with no
-	 * `minWidth` sets the minWidth too.** react-table renders `min(max(minWidth, width),
-	 * maxWidth)` against a default minWidth of 90, so `{ width: 45 }` used to render 90px
-	 * wide and the only fix was to repeat the number. Now one number means one width.
-	 */
-	const normalizeColumn = (c, opts, index) => {
-	  const type = TYPES[c.type] ? c.type : null;
-	  const needsWidth = c.width != null && c.minWidth == null;
-	  const needsCell = c.Cell == null && typeof c.format === 'function';
-	  const needsFooter = c.Footer == null && c.footer != null;
-	  // Untouched columns are returned AS THEY CAME, identity included, so a config that
-	  // uses none of this does not break the memo chain downstream by being re-cloned.
-	  if (!type && !needsWidth && !needsCell && !needsFooter) return c;
-	  const spec = type ? TYPES[type] : null;
-	  const out = spec ? {
-	    ...spec.defaults,
-	    ...c
-	  } : {
-	    ...c
-	  };
-
-	  // A width with no floor sets its own floor — see the doc comment above. `minWidth: 0`
-	  // is a deliberate "let it shrink", so only an ABSENT minWidth is filled in. Read from
-	  // the CALLER's config, not the merged column: a `type: 'date'` brings a 110px floor
-	  // with it, and `{ type: 'date', width: 60 }` has to mean 60, not "110 because the type
-	  // said so". One number always means one width.
-	  if (c.width != null && c.minWidth == null) out.minWidth = c.width;
-	  if (out.Cell == null) {
-	    if (typeof c.format === 'function') out.Cell = textCell((v, row) => c.format(v, row && row.original));else if (spec) out.Cell = spec.cell(out, opts);
-	  }
-	  if (out.Footer == null && c.footer != null) {
-	    const f = buildFooter(out, opts);
-	    if (f !== undefined) out.Footer = f;
-	  }
-
-	  // A serial column with no id would collide with the next one; give each its own.
-	  if (type === 'serial' && index > 0 && c.id == null) out.id = `__serial${index}`;
-	  return out;
-	};
-
-	/**
-	 * Map over the caller's columns, returning the SAME array when nothing needed changing so
-	 * the memo chain downstream keeps its identity.
-	 */
-	const normalizeColumns = (columns, opts) => {
-	  let changed = false;
-	  const out = columns.map((c, i) => {
-	    const n = normalizeColumn(c, opts, i);
-	    if (n !== c) changed = true;
-	    return n;
-	  });
-	  return changed ? out : columns;
-	};
-
-	/**
-	 * Column widths, visibility and order — three user choices built on one pattern: the
-	 * column config carries the DEFAULT (`width` / `minWidth`, `hidden`, the array order),
-	 * the user's choice lives in state here and is applied on top, and each one persists
-	 * under `pinStorageKey`.
-	 *
-	 * `hideable: false` locks a column visible (a key column the list is unusable without);
-	 * `disableResizing` / `disableReordering` drop its grip / its drag.
-	 *
-	 * Every setter also writes its value into a REF before calling setState, because they
-	 * are called from pointer handlers and from the imperative ref, both of which can hold
-	 * a closure from an older render — and because a caller that calls a setter and then a
-	 * getter in the SAME handler (`toggleColumn(id)` then `getHiddenColumns()` to refresh
-	 * its menu) would otherwise read the value from before its own call.
-	 */
-	const useColumnLayout = ({
-	  columns: rawColumns,
-	  formatOptions,
-	  defaultLayout,
-	  hasActions,
-	  actionIndex,
-	  minColumnWidth,
-	  storage,
-	  onColumnResize,
-	  onColumnVisibilityChange,
-	  onColumnOrderChange
-	}) => {
-	  const {
-	    readJson,
-	    persist
-	  } = storage;
-
-	  // The caller's config with the `type` / `footer` / `format` shorthands expanded (and a
-	  // bare `width` given a matching `minWidth`). Everything below — including
-	  // getColumnList() — works on the EXPANDED columns, so a `type: 'date'` column reports
-	  // the 110px width it actually renders at rather than the 90px default it was never
-	  // given. Columns that use none of the shorthands come back untouched, identity
-	  // included, so this cannot break the memo chain on its own.
-	  const columns = React.useMemo(() => normalizeColumns(rawColumns, formatOptions), [rawColumns, formatOptions]);
-
-	  // Initial state for all three choices, highest priority first: what localStorage has
-	  // for this `pinStorageKey`, then the caller's `defaultLayout` (a layout loaded from a
-	  // server, say), then the column config's own defaults. A stored layout wins because it
-	  // is the more recent expression of the same user's preference.
-	  // ----- Widths -----
-	  const [colWidths, setColWidths] = React.useState(() => readJson('ctW') || defaultLayout && defaultLayout.widths || {});
-
-	  // ----- Visibility -----
-	  const lockedIds = React.useMemo(() => new Set(columns.filter(c => c.hideable === false).map(colIdOf).filter(Boolean)), [columns]);
-	  const defaultHidden = React.useMemo(() => columns.filter(c => c.hidden && c.hideable !== false).map(colIdOf).filter(Boolean), [columns]);
-	  const [userHidden, setUserHidden] = React.useState(() => {
-	    const stored = readJson('ctHide');
-	    if (Array.isArray(stored)) return stored;
-	    const seed = defaultLayout && defaultLayout.hidden;
-	    return Array.isArray(seed) ? seed : null;
-	  });
-	  const hiddenIds = userHidden != null ? userHidden : defaultHidden;
-
-	  // ----- Order -----
-	  // The Action column takes part as `'__actions'` — it is a real column in the layout,
-	  // so there is no reason it should be nailed to the right-hand end; `actionIndex` says
-	  // where it starts out.
-	  const configOrder = React.useMemo(() => buildConfigOrder({
-	    columns,
-	    hasActions,
-	    actionIndex
-	  }), [columns, hasActions, actionIndex]);
-	  const [userOrder, setUserOrder] = React.useState(() => {
-	    const stored = readJson('ctOrd');
-	    if (Array.isArray(stored) && stored.length) return stored;
-	    const seed = defaultLayout && defaultLayout.order;
-	    return Array.isArray(seed) && seed.length ? seed : null;
-	  });
-	  // Always a complete, de-duplicated list of every configured column — a stored order
-	  // from an older version of the column config is merged, not trusted wholesale.
-	  const order = React.useMemo(() => reconcileOrder(configOrder, userOrder), [configOrder, userOrder]);
-
-	  // The laid-out caller columns (hidden dropped, widths applied, in the user's order)
-	  // plus where the Action column now sits among them.
-	  const layout = React.useMemo(() => applyLayout({
-	    columns,
-	    hiddenIds,
-	    colWidths,
-	    order,
-	    hasActions
-	  }), [columns, hiddenIds, colWidths, order, hasActions]);
-
-	  // Latest-value mirrors — see the note in the doc comment above.
-	  const colWidthsRef = React.useRef(colWidths);
-	  colWidthsRef.current = colWidths;
-	  const hiddenRef = React.useRef(hiddenIds);
-	  hiddenRef.current = hiddenIds;
-	  const orderRef = React.useRef(order);
-	  orderRef.current = order;
-	  const configOrderRef = React.useRef(configOrder);
-	  configOrderRef.current = configOrder;
-	  const setColumnWidth = React.useCallback((id, px) => {
-	    if (!id) return;
-	    const w = Math.max(minColumnWidth, Math.round(parseFloat(px) || 0));
-	    const next = {
-	      ...colWidthsRef.current,
-	      [id]: w
-	    };
-	    colWidthsRef.current = next;
-	    setColWidths(next);
-	    persist('ctW', next);
-	    if (onColumnResize) onColumnResize(id, w, next);
-	  }, [persist, minColumnWidth, onColumnResize]);
-
-	  // Replace the whole width map at once — what setLayout() and a "reset widths" menu
-	  // entry need. `null` falls back to the configured widths.
-	  const setColumnWidths = React.useCallback(map => {
-	    const next = {};
-	    Object.keys(map || {}).forEach(id => {
-	      const w = Math.max(minColumnWidth, Math.round(parseFloat(map[id]) || 0));
-	      if (id && Number.isFinite(w)) next[id] = w;
-	    });
-	    colWidthsRef.current = next;
-	    setColWidths(next);
-	    persist('ctW', next);
-	    if (onColumnResize) onColumnResize(null, null, next);
-	  }, [persist, minColumnWidth, onColumnResize]);
-
-	  // No id = clear every override and fall back to the configured widths.
-	  const resetColumnWidths = React.useCallback(id => {
-	    let next;
-	    if (id == null) next = {};else {
-	      next = {
-	        ...colWidthsRef.current
-	      };
-	      delete next[id];
-	    }
-	    colWidthsRef.current = next;
-	    setColWidths(next);
-	    persist('ctW', next);
-	    if (onColumnResize) onColumnResize(id == null ? null : id, null, next);
-	  }, [persist, onColumnResize]);
-	  const setHiddenColumns = React.useCallback(ids => {
-	    const next = Array.from(new Set((ids || []).filter(id => id && !lockedIds.has(id))));
-	    hiddenRef.current = next;
-	    setUserHidden(next);
-	    persist('ctHide', next);
-	    if (onColumnVisibilityChange) onColumnVisibilityChange(next);
-	  }, [persist, lockedIds, onColumnVisibilityChange]);
-	  const toggleColumn = React.useCallback((id, visible) => {
-	    if (!id) return;
-	    const isHidden = hiddenRef.current.indexOf(id) >= 0;
-	    const show = visible === undefined ? isHidden : !!visible;
-	    setHiddenColumns(show ? hiddenRef.current.filter(x => x !== id) : hiddenRef.current.concat(id));
-	  }, [setHiddenColumns]);
-
-	  // Replace the whole order. `null` clears the user's choice and falls back to the
-	  // caller's array order. Whatever comes in is reconciled first, so a caller can pass a
-	  // partial list ("these three first") and the rest stays where the config put it.
-	  const setColumnOrder = React.useCallback(ids => {
-	    const next = ids == null ? null : reconcileOrder(configOrderRef.current, ids.slice());
-	    orderRef.current = next || configOrderRef.current;
-	    setUserOrder(next);
-	    // An empty array reads back as "no stored order" — one entry instead of a
-	    // remove/set split, and a reset then behaves the same on a reload as in place.
-	    persist('ctOrd', next || []);
-	    if (onColumnOrderChange) onColumnOrderChange(orderRef.current.slice());
-	  }, [persist, onColumnOrderChange]);
-
-	  // Move one column to a position in the order list — what a menu's ↑ / ↓ buttons want.
-	  // `toIndex` is read AFTER the column has been lifted out, so `position - 1` /
-	  // `position + 1` step it one place either way.
-	  const moveColumn = React.useCallback((id, toIndex) => {
-	    const cur = orderRef.current.slice();
-	    const from = cur.indexOf(id);
-	    if (from < 0) return;
-	    cur.splice(from, 1);
-	    const to = Math.max(0, Math.min(cur.length, parseInt(toIndex, 10) || 0));
-	    if (to === from) return;
-	    cur.splice(to, 0, id);
-	    setColumnOrder(cur);
-	  }, [setColumnOrder]);
-
-	  /**
-	   * One entry per column IN DISPLAY ORDER — everything a column menu needs, including
-	   * the Action column, so the menu can move that one too. `index` is the column's place
-	   * in the caller's `columns` array (null for the Action column); `position` is its
-	   * place in the order, which is what moveColumn() takes.
-	   */
-	  const getColumnList = React.useCallback(({
-	    resizable,
-	    reorderable,
-	    actionWidth
-	  }) => {
-	    const byId = new Map();
-	    columns.forEach((c, i) => byId.set(colIdOf(c) || `__col${i}`, {
-	      c,
-	      i
-	    }));
-	    return orderRef.current.map((key, position) => {
-	      if (key === '__actions') {
-	        return {
-	          id: '__actions',
-	          index: null,
-	          position,
-	          header: 'Action',
-	          hidden: false,
-	          hideable: false,
-	          resizable: resizable,
-	          movable: reorderable,
-	          width: colWidthsRef.current.__actions != null ? colWidthsRef.current.__actions : actionWidth
-	        };
-	      }
-	      const entry = byId.get(key);
-	      if (!entry) return null;
-	      const {
-	        c,
-	        i
-	      } = entry;
-	      const id = colIdOf(c);
-	      return {
-	        id,
-	        index: i,
-	        position,
-	        header: typeof c.Header === 'string' ? c.Header : undefined,
-	        hidden: !!(id && c.hideable !== false && hiddenRef.current.indexOf(id) >= 0),
-	        hideable: !!id && c.hideable !== false,
-	        resizable: !!id && resizable && !c.disableResizing,
-	        movable: !!id && reorderable && !c.disableReordering,
-	        width: id && colWidthsRef.current[id] != null ? colWidthsRef.current[id] : colWidthOf(c)
-	      };
-	    }).filter(Boolean);
-	  }, [columns]);
-	  return {
-	    cols: layout.cols,
-	    actionPos: layout.actionPos,
-	    colWidths,
-	    hiddenIds,
-	    order,
-	    colWidthsRef,
-	    hiddenRef,
-	    orderRef,
-	    setColumnWidth,
-	    setColumnWidths,
-	    resetColumnWidths,
-	    setHiddenColumns,
-	    toggleColumn,
-	    setColumnOrder,
-	    moveColumn,
-	    getColumnList
-	  };
-	};
-
-	/**
-	 * The `pinStorageKey` side of the layout: every per-user choice rides on the same key,
-	 * each in its own `localStorage` entry — the freeze boundaries (`ctPin:` / `ctPinR:`,
-	 * plain numbers), the dragged column widths (`ctW:`, an id -> px map), the hidden
-	 * columns (`ctHide:`, a list of ids) and the column order (`ctOrd:`, a list of ids).
-	 * Without the key nothing is persisted and every choice is per-mount.
-	 *
-	 * Every read is wrapped: `localStorage` throws outright in a sandboxed iframe and in
-	 * Safari's private mode, and a stored value can be left over from an older version of
-	 * the column config. A bad read always falls back to the config default rather than
-	 * taking the table down.
-	 */
-	const useLayoutStorage = pinStorageKey => {
-	  const readNumber = React.useCallback(key => {
-	    if (!pinStorageKey) return null;
-	    try {
-	      const v = window.localStorage.getItem(`${key}:${pinStorageKey}`);
-	      if (v != null && v !== '') {
-	        const n = parseInt(v, 10);
-	        if (!Number.isNaN(n) && n >= 0) return n;
-	      }
-	    } catch (e) {/* storage unavailable — fall back to config default */}
-	    return null;
-	  }, [pinStorageKey]);
-	  const readJson = React.useCallback(key => {
-	    if (!pinStorageKey) return null;
-	    try {
-	      const v = window.localStorage.getItem(`${key}:${pinStorageKey}`);
-	      if (v) {
-	        const parsed = JSON.parse(v);
-	        if (parsed && typeof parsed === 'object') return parsed;
-	      }
-	    } catch (e) {/* unreadable or no longer JSON — fall back to the config default */}
-	    return null;
-	  }, [pinStorageKey]);
-	  const persist = React.useCallback((key, value) => {
-	    if (!pinStorageKey) return;
-	    try {
-	      window.localStorage.setItem(`${key}:${pinStorageKey}`, typeof value === 'object' ? JSON.stringify(value) : String(value));
-	    } catch (e) {/* ignore */}
-	  }, [pinStorageKey]);
-	  return {
-	    readNumber,
-	    readJson,
-	    persist
-	  };
-	};
-
-	/**
-	 * The scrollport's own width. The pin caps need it before the column defs are built:
-	 * how many columns may freeze is a question about how much viewport is left over.
-	 */
-	const useWrapWidth = containerRef => {
-	  const [wrapW, setWrapW] = React.useState(0);
-	  useIsoLayoutEffect(() => {
-	    const el = containerRef.current;
-	    if (!el) return undefined;
-	    const update = () => setWrapW(el.clientWidth);
-	    update();
-	    let ro;
-	    if (typeof ResizeObserver !== 'undefined') {
-	      ro = new ResizeObserver(update);
-	      ro.observe(el);
-	    }
-	    window.addEventListener('resize', update);
-	    return () => {
-	      if (ro) ro.disconnect();
-	      window.removeEventListener('resize', update);
-	    };
-	  }, []);
-	  return wrapW;
-	};
-
-	/**
-	 * The band left for rows: the wrap's viewport minus the sticky header and footer, which
-	 * overlay the top / bottom of it. Drives both the windowing maths and scrollToRow, so
-	 * rows exactly fill the gap — no clipped last row. The header height is returned too:
-	 * rows scroll UNDER it, so it is also how far the snapport's top edge has to be pushed
-	 * down for a snapped row to land just below it.
-	 */
-	const useBandHeights = ({
-	  containerRef,
-	  headRef,
-	  footRef,
-	  toolbarRef,
-	  deps
-	}) => {
-	  const [listH, setListH] = React.useState(0);
-	  const [headH, setHeadH] = React.useState(0);
-	  const [footH, setFootH] = React.useState(0);
-	  // The toolbar is a flex sibling of the scrollport, so it never eats into listH — but
-	  // the overlay scrollbars and the drag guides are positioned against the ROOT, and have
-	  // to start below it.
-	  const [toolH, setToolH] = React.useState(0);
-	  useIsoLayoutEffect(() => {
-	    const wrap = containerRef.current;
-	    if (!wrap) return undefined;
-	    const update = () => {
-	      const hh = headRef.current ? headRef.current.offsetHeight : 0;
-	      const fh = footRef.current ? footRef.current.offsetHeight : 0;
-	      setHeadH(hh);
-	      setFootH(fh);
-	      setToolH(toolbarRef && toolbarRef.current ? toolbarRef.current.offsetHeight : 0);
-	      setListH(Math.max(0, wrap.clientHeight - hh - fh));
-	    };
-	    update();
-	    let ro;
-	    if (typeof ResizeObserver !== 'undefined') {
-	      ro = new ResizeObserver(update);
-	      ro.observe(wrap);
-	      if (headRef.current) ro.observe(headRef.current);
-	      if (footRef.current) ro.observe(footRef.current);
-	      if (toolbarRef && toolbarRef.current) ro.observe(toolbarRef.current);
-	    }
-	    window.addEventListener('resize', update);
-	    return () => {
-	      if (ro) ro.disconnect();
-	      window.removeEventListener('resize', update);
-	    };
-	    // eslint-disable-next-line react-hooks/exhaustive-deps
-	  }, deps);
-	  return {
-	    listH,
-	    headH,
-	    footH,
-	    toolH
-	  };
-	};
-
-	// Below this a thumb stops being a usable drag target.
-	const MIN_THUMB = 24;
-
-	/**
-	 * The native vertical scrollbar runs the whole height of `.ft-wrap` — alongside the
-	 * header and the footer, not just the rows — because `.ft-wrap` is the single scrollport
-	 * for both axes. Giving the body its own vertical overflow would fix the bar but break
-	 * the column freeze: an element that scrolls in y is a scroll container in x too, so it
-	 * would become the sticky scrollport for the pinned cells and they would slide away
-	 * (exactly the react-window problem this component was rewritten to escape). So the
-	 * native bars are hidden (`.ft-nobar`) and redrawn as overlays, with the vertical track
-	 * spanning only the row band.
-	 *
-	 * Thumbs are positioned imperatively from the same rAF-throttled scroll handler that
-	 * drives the windowing — no React re-render per frame.
-	 */
-	const useOverlayScrollbars = ({
-	  containerRef,
-	  listH,
-	  syncBarsRef,
-	  onWrapScroll
-	}) => {
-	  const vTrackRef = React.useRef(null);
-	  const vThumbRef = React.useRef(null);
-	  const hTrackRef = React.useRef(null);
-	  const hThumbRef = React.useRef(null);
-	  const syncBars = React.useCallback(() => {
-	    const el = containerRef.current;
-	    if (!el) return;
-	    const maxY = Math.max(0, el.scrollHeight - el.clientHeight);
-	    const maxX = Math.max(0, el.scrollWidth - el.clientWidth);
-	    const vTrack = vTrackRef.current;
-	    const vThumb = vThumbRef.current;
-	    if (vTrack && vThumb) {
-	      const bandH = listH;
-	      if (maxY <= 0 || bandH <= MIN_THUMB) {
-	        vTrack.style.display = 'none';
-	      } else {
-	        vTrack.style.display = 'block';
-	        const th = Math.max(MIN_THUMB, Math.round(bandH * (el.clientHeight / el.scrollHeight)));
-	        vThumb.style.height = th + 'px';
-	        vThumb.style.transform = 'translateY(' + Math.round(el.scrollTop / maxY * (bandH - th)) + 'px)';
-	      }
-	    }
-	    const hTrack = hTrackRef.current;
-	    const hThumb = hThumbRef.current;
-	    if (hTrack && hThumb) {
-	      if (maxX <= 0) {
-	        hTrack.style.display = 'none';
-	      } else {
-	        hTrack.style.display = 'block';
-	        const bandW = hTrack.clientWidth;
-	        const tw = Math.max(MIN_THUMB, Math.round(bandW * (el.clientWidth / el.scrollWidth)));
-	        hThumb.style.width = tw + 'px';
-	        hThumb.style.transform = 'translateX(' + Math.round(el.scrollLeft / maxX * (bandW - tw)) + 'px)';
-	      }
-	    }
-	  }, [containerRef, listH]);
-
-	  // Re-measure whenever the geometry could have changed (mount, resize, row count,
-	  // footer toggle, a new pin boundary) — hence no dependency array.
-	  useIsoLayoutEffect(() => {
-	    syncBarsRef.current = syncBars;
-	    syncBars();
-	    onWrapScroll(); // sets the pin shadows for the initial (unscrolled) position too
-	  });
-
-	  // Dragging a thumb. Snapping is switched off for the duration: `proximity` snapping
-	  // re-settles the scroll on every programmatic write, which makes a drag feel sticky.
-	  const startThumbDrag = React.useCallback(axis => e => {
-	    const el = containerRef.current;
-	    const thumb = axis === 'y' ? vThumbRef.current : hThumbRef.current;
-	    if (!el || !thumb || e.button !== 0) return;
-	    e.preventDefault();
-	    e.stopPropagation();
-	    const vertical = axis === 'y';
-	    const startPos = vertical ? e.clientY : e.clientX;
-	    const startScroll = vertical ? el.scrollTop : el.scrollLeft;
-	    const trackLen = vertical ? listH : hTrackRef.current.clientWidth;
-	    const thumbLen = vertical ? thumb.offsetHeight : thumb.offsetWidth;
-	    const maxScroll = vertical ? el.scrollHeight - el.clientHeight : el.scrollWidth - el.clientWidth;
-	    const ratio = maxScroll / Math.max(1, trackLen - thumbLen);
-	    const prevSnap = el.style.scrollSnapType;
-	    el.style.scrollSnapType = 'none';
-	    thumb.classList.add('ft-thumb-drag');
-	    document.body.style.userSelect = 'none';
-	    const onMove = ev => {
-	      const delta = (vertical ? ev.clientY : ev.clientX) - startPos;
-	      const next = startScroll + delta * ratio;
-	      if (vertical) el.scrollTop = next;else el.scrollLeft = next;
-	    };
-	    const onUp = () => {
-	      window.removeEventListener('pointermove', onMove);
-	      window.removeEventListener('pointerup', onUp);
-	      el.style.scrollSnapType = prevSnap;
-	      thumb.classList.remove('ft-thumb-drag');
-	      document.body.style.userSelect = '';
-	    };
-	    window.addEventListener('pointermove', onMove);
-	    window.addEventListener('pointerup', onUp);
-	  }, [containerRef, listH]);
-
-	  // Clicking the bare track jumps so the thumb centres on the click.
-	  const onTrackDown = React.useCallback(axis => e => {
-	    if (e.target !== e.currentTarget) return; // the thumb handles its own presses
-	    const el = containerRef.current;
-	    const thumb = axis === 'y' ? vThumbRef.current : hThumbRef.current;
-	    if (!el || !thumb) return;
-	    const rect = e.currentTarget.getBoundingClientRect();
-	    if (axis === 'y') {
-	      const pos = e.clientY - rect.top - thumb.offsetHeight / 2;
-	      el.scrollTop = pos / Math.max(1, listH - thumb.offsetHeight) * (el.scrollHeight - el.clientHeight);
-	    } else {
-	      const pos = e.clientX - rect.left - thumb.offsetWidth / 2;
-	      el.scrollLeft = pos / Math.max(1, e.currentTarget.clientWidth - thumb.offsetWidth) * (el.scrollWidth - el.clientWidth);
-	    }
-	  }, [containerRef, listH]);
-	  return {
-	    vTrackRef,
-	    vThumbRef,
-	    hTrackRef,
-	    hThumbRef,
-	    startThumbDrag,
-	    onTrackDown
-	  };
-	};
-
-	/**
-	 * The freeze boundaries. The `pinned` flags in the column config are only the DEFAULT;
-	 * the whole choice is TWO NUMBERS — how many leading columns are frozen against the left
-	 * edge and how many trailing ones against the right. Freezing only makes sense as a
-	 * run at an edge: a frozen middle column would have its neighbours scroll away
-	 * underneath it, so each side is fully described by a single count.
-	 *
-	 * The caller changes them at runtime through the imperative ref, and both persist under
-	 * `pinStorageKey`. Everything here is computed from the LAID-OUT columns (`cols`), never
-	 * from the `columns` prop, so a hidden column does not count towards a boundary and a
-	 * dragged one freezes according to where it now is.
-	 */
-	const usePinning = ({
-	  cols,
-	  wrapW,
-	  hasActions,
-	  actionPos,
-	  actionColWidth,
-	  pinActions,
-	  rowStripColor,
-	  stripWidth,
-	  storage,
-	  defaultLayout
-	}) => {
-	  const {
-	    readNumber,
-	    persist
-	  } = storage;
-	  const seed = defaultLayout && defaultLayout.pins || {};
-	  const defaultPinCount = React.useMemo(() => countLeadingPinned(cols), [cols]);
-	  const defaultRightPinCount = React.useMemo(() => countTrailingPinned(cols), [cols]);
-	  // Stored choice, else the caller's `defaultLayout`, else the column config's flags.
-	  const [userPinCount, setUserPinCount] = React.useState(() => {
-	    const stored = readNumber('ctPin');
-	    return stored != null ? stored : seed.left != null ? seed.left : null;
-	  });
-	  const [userRightPinCount, setUserRightPinCount] = React.useState(() => {
-	    const stored = readNumber('ctPinR');
-	    return stored != null ? stored : seed.right != null ? seed.right : null;
-	  });
-	  const pinCount = userPinCount != null ? userPinCount : defaultPinCount;
-	  const rightPinCount = userRightPinCount != null ? userRightPinCount : defaultRightPinCount;
-
-	  // The right block is budgeted first, then whatever viewport is left funds the left one.
-	  const maxRightPinCount = React.useMemo(() => computeMaxRightPinCount({
-	    cols,
-	    wrapW,
-	    hasActions,
-	    actionPos,
-	    actionColWidth
-	  }), [cols, wrapW, hasActions, actionPos, actionColWidth]);
-	  const effectiveRightPinCount = Math.min(rightPinCount, maxRightPinCount);
-
-	  // Where the Action column freezes now that it can be dragged anywhere. It joins
-	  // whichever block it is INSIDE — a frozen run has to stay contiguous, so an Action
-	  // column parked in the middle of the scrolling columns cannot freeze at all, and
-	  // `pinActions` only means anything while it still sits at one end.
-	  //   left run  = the first n caller columns, so it is inside iff actionPos < n
-	  //   right run = the last  m caller columns, so it is inside iff actionPos >= len - m
-	  const actionsPinnedRight = hasActions && (effectiveRightPinCount > 0 && actionPos >= cols.length - effectiveRightPinCount || pinActions && actionPos === cols.length);
-	  const rightBlockWidth = React.useMemo(() => rightBlockWidthOf({
-	    cols,
-	    effectiveRightPinCount,
-	    actionsPinnedRight,
-	    actionColWidth
-	  }), [cols, effectiveRightPinCount, actionsPinnedRight, actionColWidth]);
-	  const maxPinCount = React.useMemo(() => computeMaxLeftPinCount({
-	    cols,
-	    wrapW,
-	    hasActions,
-	    actionPos,
-	    actionColWidth,
-	    stripWidth: rowStripColor ? stripWidth : 0,
-	    rightBlockWidth,
-	    effectiveRightPinCount
-	  }), [cols, wrapW, hasActions, actionPos, actionColWidth, rowStripColor, stripWidth, rightBlockWidth, effectiveRightPinCount]);
-	  const effectivePinCount = Math.min(pinCount, maxPinCount);
-
-	  // Mirror of actionsPinnedRight for the left edge — the Action column dragged in front
-	  // of the frozen leading run (or, with `pinActions`, right to the front of the table)
-	  // freezes there instead. Right wins if both somehow claim it; the caps keep the two
-	  // runs from overlapping, so that only happens with a single-column table.
-	  const actionsPinnedLeft = hasActions && !actionsPinnedRight && (effectivePinCount > 0 && actionPos < effectivePinCount || pinActions && actionPos === 0);
-	  const setPinCount = React.useCallback(n => {
-	    setUserPinCount(n);
-	    persist('ctPin', n);
-	  }, [persist]);
-	  const setRightPinCount = React.useCallback(n => {
-	    setUserRightPinCount(n);
-	    persist('ctPinR', n);
-	  }, [persist]);
-	  return {
-	    // The UNCAPPED counts, for saving a layout: a boundary the current viewport cannot
-	    // honour is still what the user asked for, and must come back on a wider screen
-	    // rather than being permanently trimmed by whatever window it was saved from.
-	    pinCount,
-	    rightPinCount,
-	    effectivePinCount,
-	    maxPinCount,
-	    effectiveRightPinCount,
-	    maxRightPinCount,
-	    actionsPinnedLeft,
-	    actionsPinnedRight,
-	    setPinCount,
-	    setRightPinCount
-	  };
-	};
-
-	/**
-	 * Keyboard row navigation (↑/↓/Home/End/Enter), the selection highlight, and the two
-	 * "restore where I was" behaviours that go with them.
-	 *
-	 * The highlight is repainted IMPERATIVELY, by walking the `[data-ct-index]` nodes,
-	 * because the rows are memoized and must not re-render on a selection change: a
-	 * state-driven highlight re-rendered every visible row (each with icon-heavy action
-	 * cells) on every keypress, which is what made arrow navigation visibly laggy on wide
-	 * lists. `selectedIndexRef` is what a freshly mounted row reads for its first paint.
-	 */
-	const useRowNavigation = ({
-	  containerRef,
-	  rows,
-	  prepareRow,
-	  rowHeight,
-	  listH,
-	  rowNavigation,
-	  onRowSelect,
-	  onRowEnter,
-	  selectedBg,
-	  initialSelectedId,
-	  rowIdKey,
-	  initialScrollLeft
-	}) => {
-	  const [selectedIndex, setSelectedIndex] = React.useState(0);
-	  const selectedIndexRef = React.useRef(0);
-	  const scrollPendingRef = React.useRef(null);
-
-	  // Restore selection to a specific row (by id) once — e.g. coming back from an edit
-	  // screen, keep the previously-selected row highlighted instead of jumping to row 0.
-	  const initialAppliedRef = React.useRef(false);
-	  React.useEffect(() => {
-	    if (initialAppliedRef.current) return;
-	    if (initialSelectedId == null) {
-	      initialAppliedRef.current = true;
-	      return;
-	    }
-	    if (rows.length === 0) return; // wait for data to load
-	    const idx = rows.findIndex(r => r.original && r.original[rowIdKey] === initialSelectedId);
-	    initialAppliedRef.current = true;
-	    if (idx >= 0) {
-	      setSelectedIndex(idx);
-	      scrollPendingRef.current = {
-	        index: idx,
-	        align: 'center'
-	      };
-	    }
-	  }, [rows, initialSelectedId, rowIdKey]);
-
-	  // Scroll a row into view inside .ft-wrap. Row i occupies [i*rowHeight, (i+1)*rowHeight]
-	  // in body coordinates, and the sticky header/footer eat listH's worth of viewport, so
-	  // the visible band is exactly [scrollTop, scrollTop + listH].
-	  const scrollToRow = React.useCallback((index, align_) => {
-	    const el = containerRef.current;
-	    if (!el || listH <= 0) return;
-	    const rowTop = index * rowHeight;
-	    const rowBottom = rowTop + rowHeight;
-	    let top = el.scrollTop;
-	    if (align_ === 'center') {
-	      top = rowTop - Math.max(0, (listH - rowHeight) / 2);
-	    } else if (rowTop < top) {
-	      top = rowTop;
-	    } else if (rowBottom > top + listH) {
-	      top = rowBottom - listH;
-	    }
-	    el.scrollTop = Math.max(0, top);
-	  }, [containerRef, listH, rowHeight]);
-
-	  // Flush a pending scroll (initial restore / arrow move) once the body is measured.
-	  // Scrolling must happen here, NOT inside a setState updater — updaters run during the
-	  // render phase.
-	  React.useEffect(() => {
-	    const pending = scrollPendingRef.current;
-	    if (pending != null && listH > 0) {
-	      scrollToRow(pending.index, pending.align);
-	      scrollPendingRef.current = null;
-	    }
-	  });
-
-	  // Restore the horizontal scroll once, after the rows are on screen — otherwise a
-	  // wide table always snaps back to column 1 on re-entry and the user has to scroll
-	  // across every column again. No dep array: retry each render until it lands.
-	  const hScrollAppliedRef = React.useRef(false);
-	  React.useEffect(() => {
-	    if (hScrollAppliedRef.current) return;
-	    if (!initialScrollLeft) {
-	      hScrollAppliedRef.current = true;
-	      return;
-	    }
-	    if (rows.length === 0 || listH === 0 || !containerRef.current) return; // wait for data
-	    containerRef.current.scrollLeft = initialScrollLeft;
-	    hScrollAppliedRef.current = true;
-	  });
-
-	  // Keep the selection valid when the row set changes (e.g. after filtering).
-	  React.useEffect(() => {
-	    setSelectedIndex(i => Math.min(Math.max(0, i), Math.max(0, rows.length - 1)));
-	  }, [rows.length]);
-
-	  // Focus the table on first render so arrow keys work immediately.
-	  React.useEffect(() => {
-	    if (rowNavigation && containerRef.current) {
-	      containerRef.current.focus({
-	        preventScroll: true
-	      });
-	    }
-	  }, [containerRef, rowNavigation]);
-
-	  // Notify the caller whenever the selected row changes.
-	  React.useEffect(() => {
-	    if (onRowSelect && rows[selectedIndex]) {
-	      prepareRow(rows[selectedIndex]);
-	      onRowSelect(rows[selectedIndex].original, selectedIndex);
-	    }
-	    // eslint-disable-next-line react-hooks/exhaustive-deps
-	  }, [selectedIndex, rows]);
-	  const moveSelection = React.useCallback(delta => {
-	    setSelectedIndex(i => {
-	      const next = Math.min(Math.max(0, i + delta), Math.max(0, rows.length - 1));
-	      // Ref write only — the scroll itself runs in the flush effect above (scrolling
-	      // from inside a state updater would run during the render phase).
-	      if (next !== i) scrollPendingRef.current = {
-	        index: next,
-	        align: 'smart'
-	      };
-	      return next;
-	    });
-	  }, [rows.length]);
-	  const onKeyDown = React.useCallback(e => {
-	    if (!rowNavigation) return;
-	    const tag = e.target && e.target.tagName;
-	    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return; // don't hijack search typing
-	    if (e.key === 'ArrowDown') {
-	      e.preventDefault();
-	      moveSelection(1);
-	    } else if (e.key === 'ArrowUp') {
-	      e.preventDefault();
-	      moveSelection(-1);
-	    } else if (e.key === 'Home') {
-	      e.preventDefault();
-	      setSelectedIndex(0);
-	      scrollToRow(0, 'smart');
-	    } else if (e.key === 'End') {
-	      e.preventDefault();
-	      const last = Math.max(0, rows.length - 1);
-	      setSelectedIndex(last);
-	      scrollToRow(last, 'smart');
-	    } else if (e.key === 'Enter') {
-	      if (onRowEnter && rows[selectedIndex]) {
-	        e.preventDefault();
-	        prepareRow(rows[selectedIndex]);
-	        onRowEnter(rows[selectedIndex].original, selectedIndex);
-	      }
-	    }
-	  }, [rowNavigation, moveSelection, rows, selectedIndex, onRowEnter, prepareRow, scrollToRow]);
-
-	  // Selection highlight, applied imperatively so only the affected DOM nodes change on
-	  // ↑/↓ (see the note at the top of this file).
-	  React.useEffect(() => {
-	    selectedIndexRef.current = selectedIndex;
-	    const el = containerRef.current;
-	    if (!el || !rowNavigation) return;
-	    el.querySelectorAll('.ft-row').forEach(r => {
-	      const idx = parseInt(r.getAttribute('data-ct-index'), 10);
-	      const hasCustomBg = r.getAttribute('data-ct-custom') === '1';
-	      const baseBg = r.getAttribute('data-ct-bg') || '#ffffff';
-	      r.style.backgroundColor = hasCustomBg ? baseBg : idx === selectedIndex ? selectedBg : baseBg;
-	    });
-	  }, [containerRef, selectedIndex, selectedBg, rowNavigation, rows]);
-
-	  // Move the selection (and the focus) to a row — e.g. a list that re-fetches on a
-	  // Search click wants the first row selected + focused once the results land, but the
-	  // table is already mounted so the mount-time focus effect won't fire again.
-	  const selectRow = React.useCallback(index => {
-	    const i = Math.max(0, parseInt(index, 10) || 0);
-	    setSelectedIndex(i);
-	    scrollPendingRef.current = {
-	      index: i,
-	      align: 'smart'
-	    };
-	    if (containerRef.current) containerRef.current.focus({
-	      preventScroll: true
-	    });
-	  }, [containerRef]);
-	  return {
-	    selectedIndex,
-	    setSelectedIndex,
-	    selectedIndexRef,
-	    onKeyDown,
-	    selectRow
-	  };
-	};
-
-	/**
-	 * Assembles the column list react-table actually receives:
-	 *
-	 *   [ optional __strip ] + the laid-out caller columns + [ optional __actions ]
-	 *
-	 * and annotates every one of them with the freeze flags the header, body and footer
-	 * cells render from (`pinned`, `pinnedRight`, `pinnedLast`, `pinnedRightFirst`) plus
-	 * `pinIndex`, the column's position among the caller's VISIBLE columns — the number a
-	 * pin menu talks in ("pin up to here").
-	 *
-	 * Also returns the sticky `left` / `right` offset maps, which are just the cumulative
-	 * widths of the frozen columns before / beyond each frozen column.
-	 */
-	const useTableColumns = ({
-	  cols,
-	  colWidths,
-	  Actions,
-	  fn,
-	  actionWidth,
-	  actionPos,
-	  rowStripColor,
-	  rowStripTitle,
-	  stripWidth,
-	  effectivePinCount,
-	  effectiveRightPinCount,
-	  actionsPinnedLeft,
-	  actionsPinnedRight
-	}) => {
-	  const allColumns = React.useMemo(() => {
-	    const firstRight = cols.length - effectiveRightPinCount;
-	    const base = cols.map((c, i) => ({
-	      ...c,
-	      pinIndex: i,
-	      pinned: i < effectivePinCount,
-	      pinnedRight: effectiveRightPinCount > 0 && i >= firstRight,
-	      pinnedLast: false,
-	      pinnedRightFirst: false
-	    }));
-	    // Status strip as a real (fixed-width) first column, so it stays aligned with the
-	    // header and scrolls horizontally together with the rest of the row.
-	    if (rowStripColor) {
-	      base.unshift({
-	        id: '__strip',
-	        Header: '',
-	        width: stripWidth,
-	        minWidth: stripWidth,
-	        maxWidth: stripWidth,
-	        disableFilters: true,
-	        disableSortBy: true,
-	        noPadding: true,
-	        Cell: ({
-	          row
-	        }) => {
-	          const color = rowStripColor(row.original);
-	          if (!color) return null;
-	          // Optional hover tooltip naming the status (e.g. "Cancelled"). The title sits
-	          // on a full-cell wrapper — the 4px bar alone is too small a hover target.
-	          const title = rowStripTitle ? rowStripTitle(row.original) : undefined;
-	          return /*#__PURE__*/React.createElement("div", {
-	            title: title || undefined,
-	            style: {
-	              width: '100%',
-	              height: '100%',
-	              display: 'flex',
-	              alignItems: 'center',
-	              justifyContent: 'center'
-	            }
-	          }, /*#__PURE__*/React.createElement("div", {
-	            style: {
-	              width: 4,
-	              height: 'calc(100% - 8px)',
-	              backgroundColor: color,
-	              borderRadius: 1
-	            }
-	          }));
-	        }
-	      });
-	    }
-	    if (Actions) {
-	      // The Action column is resizable like any other; a dragged width replaces the
-	      // `actionWidth` prop for this list (and, with a pinStorageKey, for the next visit).
-	      // It is spliced in at the position the column ORDER gives it — normally the end,
-	      // but it is a real column and can be dragged anywhere the others can.
-	      const actionW = colWidths.__actions;
-	      const actionCol = {
-	        id: '__actions',
-	        Header: 'Action',
-	        align: 'center',
-	        width: actionW || 0.6,
-	        minWidth: actionW || actionWidth,
-	        disableFilters: true,
-	        disableSortBy: true,
-	        pinIndex: null,
-	        pinned: actionsPinnedLeft,
-	        pinnedRight: actionsPinnedRight,
-	        pinnedLast: false,
-	        pinnedRightFirst: false,
-	        Cell: ({
-	          row
-	        }) => /*#__PURE__*/React.createElement(Actions, {
-	          object: row.original,
-	          fn: fn
-	        })
-	      };
-	      // A dragged width pins all three (see the width note in applyLayout), but WITHOUT
-	      // one there must be no `maxWidth` KEY at all — react-table merges the column over
-	      // its defaults with Object.assign, which copies an explicit `undefined` straight
-	      // over the default `Number.MAX_SAFE_INTEGER`. The width then resolves as
-	      // `min(max(minWidth, width), undefined)` = NaN, which propagates into
-	      // `totalColumnsWidth` and lands as `min-width: NaN` on the table element.
-	      if (actionW) actionCol.maxWidth = actionW;
-	      base.splice(rowStripColor ? actionPos + 1 : actionPos, 0, actionCol);
-	    }
-	    // The status strip auto-freezes with the leading run — it sits left of everything,
-	    // and would otherwise be stranded outside the block. (The Action column used to get
-	    // the same treatment on the right; now that it can be moved, it freezes according to
-	    // which run it actually lies in — see actionsPinnedLeft / actionsPinnedRight.)
-	    let lastPinned = null;
-	    let firstPinnedRight = null;
-	    base.forEach(c => {
-	      if (c.id === '__strip') c.pinned = effectivePinCount > 0;
-	      if (c.pinned) lastPinned = c;
-	      if (c.pinnedRight && !firstPinnedRight) firstPinnedRight = c;
-	    });
-	    if (lastPinned) lastPinned.pinnedLast = true;
-	    if (firstPinnedRight) firstPinnedRight.pinnedRightFirst = true;
-	    return base;
-	  }, [cols, colWidths, Actions, fn, actionWidth, actionPos, rowStripColor, rowStripTitle, stripWidth, effectivePinCount, effectiveRightPinCount, actionsPinnedLeft, actionsPinnedRight]);
-	  const hasPinned = React.useMemo(() => allColumns.some(c => c.pinned), [allColumns]);
-	  const hasPinnedRight = React.useMemo(() => allColumns.some(c => c.pinnedRight), [allColumns]);
-	  const offsets = React.useMemo(() => stickyOffsets(allColumns), [allColumns]);
-	  return {
-	    allColumns,
-	    hasPinned,
-	    hasPinnedRight,
-	    pinnedLeft: offsets.left,
-	    pinnedRight: offsets.right
-	  };
-	};
-
-	/**
-	 * The imperative `ref` API — the whole of what a caller's toolbar talks to.
-	 *
-	 * Two rules run through all of it:
-	 *
-	 *  - **getters read the mirrors, not this render's state.** A caller that calls a setter
-	 *    and then a getter in the SAME handler (`toggleColumn(id)` then `getHiddenColumns()`
-	 *    to refresh its menu) would otherwise read the value from before its own call —
-	 *    React has not re-rendered at that point.
-	 *  - **pin getters report the EFFECTIVE (viewport-capped) boundary**, and `getMax…`
-	 *    reports the cap itself, so a menu can disable the entries beyond it.
-	 */
-	const useTableHandle = (ref, {
-	  containerRef,
-	  pinning,
-	  layout,
-	  resizable,
-	  reorderable,
-	  actionWidth,
-	  selectRow
-	}) => {
-	  const {
-	    pinCount,
-	    rightPinCount,
-	    effectivePinCount,
-	    maxPinCount,
-	    effectiveRightPinCount,
-	    maxRightPinCount,
-	    setPinCount,
-	    setRightPinCount
-	  } = pinning;
-	  const {
-	    colWidthsRef,
-	    hiddenRef,
-	    orderRef,
-	    setColumnWidth,
-	    setColumnWidths,
-	    resetColumnWidths,
-	    setHiddenColumns,
-	    toggleColumn,
-	    setColumnOrder,
-	    moveColumn,
-	    getColumnList
-	  } = layout;
-	  React.useImperativeHandle(ref, () => ({
-	    // Let the parent re-focus the table (e.g. after a modal closes, return focus to the
-	    // rows) and read the current horizontal scroll, so it can be handed back as
-	    // `initialScrollLeft` when the list is re-entered.
-	    focus: () => containerRef.current && containerRef.current.focus({
-	      preventScroll: true
-	    }),
-	    getScrollLeft: () => containerRef.current ? containerRef.current.scrollLeft : 0,
-	    // ----- Freeze boundaries -----
-	    // 0 = nothing frozen on that edge; N = the FIRST N caller columns on the left, the
-	    // LAST N on the right. Both are persisted via pinStorageKey.
-	    getLeftPinCount: () => effectivePinCount,
-	    getMaxLeftPinCount: () => maxPinCount,
-	    setLeftPinCount: n => setPinCount(Math.max(0, parseInt(n, 10) || 0)),
-	    getRightPinCount: () => effectiveRightPinCount,
-	    getMaxRightPinCount: () => maxRightPinCount,
-	    setRightPinCount: n => setRightPinCount(Math.max(0, parseInt(n, 10) || 0)),
-	    // Pre-0.6 names for the left edge, kept working so existing callers do not break.
-	    // They were renamed precisely because nothing in the name said which edge they meant.
-	    getPinCount: () => effectivePinCount,
-	    getMaxPinCount: () => maxPinCount,
-	    setPinCount: n => setPinCount(Math.max(0, parseInt(n, 10) || 0)),
-	    // ----- Column widths -----
-	    // Widths are normally set by dragging a header's right edge; these are for a toolbar
-	    // ("Reset column widths") or for restoring a layout the caller stored itself.
-	    // getColumnWidths() reports only the columns the USER has resized — a column nobody
-	    // has touched is absent from the map and renders at its configured width.
-	    getColumnWidths: () => ({
-	      ...colWidthsRef.current
-	    }),
-	    setColumnWidth: (id, px) => setColumnWidth(id, px),
-	    resetColumnWidths: id => resetColumnWidths(id),
-	    // ----- Column visibility -----
-	    getHiddenColumns: () => hiddenRef.current.slice(),
-	    setHiddenColumns: ids => setHiddenColumns(ids),
-	    toggleColumn: (id, visible) => toggleColumn(id, visible),
-	    showAllColumns: () => setHiddenColumns([]),
-	    // ----- Column order -----
-	    // A flat list of ids in DISPLAY order, hidden columns included (it is a layout, not a
-	    // view) and with `'__actions'` in it whenever an Actions renderer is given. A list
-	    // passed to setColumnOrder does not have to be complete: ids it leaves out are
-	    // slotted back in beside their CONFIGURED neighbours (the same merge a stored order
-	    // gets when the column config has grown since). `null` drops the user's order
-	    // entirely and goes back to the caller's array order.
-	    getColumnOrder: () => orderRef.current.slice(),
-	    setColumnOrder: ids => setColumnOrder(ids),
-	    moveColumn: (id, toIndex) => moveColumn(id, toIndex),
-	    resetColumnOrder: () => setColumnOrder(null),
-	    // Everything a column menu needs, in display order, the Action column included.
-	    getColumnList: () => getColumnList({
-	      resizable,
-	      reorderable,
-	      actionWidth
-	    }),
-	    // ----- The whole layout, as one value -----
-	    // Four separate choices (freeze boundaries, widths, hidden set, order) that a user
-	    // makes together and expects to get back together. `pinStorageKey` already persists
-	    // them per browser; this is the same state as a plain object, so it can be stored
-	    // per USER instead — saved views, a layout that follows someone between machines, or
-	    // an "apply this preset" button. Pins are reported UNCAPPED, so a boundary saved on a
-	    // wide screen is not trimmed by whatever window it happened to be read from.
-	    getLayout: () => ({
-	      pins: {
-	        left: pinCount,
-	        right: rightPinCount
-	      },
-	      widths: {
-	        ...colWidthsRef.current
-	      },
-	      hidden: hiddenRef.current.slice(),
-	      order: orderRef.current.slice()
-	    }),
-	    // Every key is optional: pass only `{ hidden: [...] }` and the rest is left alone.
-	    // `null` (or `{}` with `reset: true`) puts everything back to the column config.
-	    setLayout: next => {
-	      if (next == null) {
-	        setPinCount(null);
-	        setRightPinCount(null);
-	        setColumnWidths({});
-	        setHiddenColumns([]);
-	        setColumnOrder(null);
-	        return;
-	      }
-	      if (next.pins) {
-	        if (next.pins.left !== undefined) setPinCount(next.pins.left == null ? null : Math.max(0, parseInt(next.pins.left, 10) || 0));
-	        if (next.pins.right !== undefined) setRightPinCount(next.pins.right == null ? null : Math.max(0, parseInt(next.pins.right, 10) || 0));
-	      }
-	      if (next.widths !== undefined) setColumnWidths(next.widths || {});
-	      if (next.hidden !== undefined) setHiddenColumns(next.hidden || []);
-	      if (next.order !== undefined) setColumnOrder(next.order && next.order.length ? next.order : null);
-	    },
-	    resetLayout: () => {
-	      setPinCount(null);
-	      setRightPinCount(null);
-	      setColumnWidths({});
-	      setHiddenColumns([]);
-	      setColumnOrder(null);
-	    },
-	    selectRow
-	  }));
-	};
-
-	const useStabilityWarning = (name, value) => {
-	  React.useRef({
-	    last: null,
-	    strikes: 0,
-	    warned: false
-	  });
-	  return;
-	};
-
-	/**
-	 * Everything that happens when `.ft-wrap` scrolls — which is deliberately almost
-	 * nothing.
-	 *
-	 * Pinned columns are frozen with plain CSS `position: sticky`, so the browser keeps them
-	 * in place on the compositor: NOTHING runs in JS per scroll frame to hold them there.
-	 * That is only possible because `.ft-wrap` is the ONE scrollport for both axes (hence
-	 * the hand-rolled row windowing instead of react-window, whose outer div would otherwise
-	 * become the sticky scrollport for the body cells and break the freeze). The only things
-	 * left for JS are the two separator shadows (each flipped once, when the scroll crosses
-	 * an edge), the overlay scrollbar thumbs and the vertical offset that drives the
-	 * windowing — the last two behind a rAF gate.
-	 *
-	 * `onFrame` is taken as a REF so the listener never has to be re-attached when the
-	 * scrollbar sync closure changes.
-	 */
-	const useTableScroll = ({
-	  containerRef,
-	  hasPinned,
-	  hasPinnedRight,
-	  rowSnap,
-	  onFrameRef
-	}) => {
-	  const pinScrolledRef = React.useRef(false);
-	  const pinScrolledEndRef = React.useRef(false);
-	  // Snapping is suspended WHILE scrolling and restored a moment after it stops. Left
-	  // permanently on, `proximity` re-settles the scroll on every wheel notch, which reads
-	  // as the list stuttering / catching mid-scroll rather than gliding.
-	  const snapTimerRef = React.useRef(null);
-	  const scrollTickRef = React.useRef(false);
-	  const [scrollTop, setScrollTop] = React.useState(0);
-	  const onWrapScroll = React.useCallback(() => {
-	    const el = containerRef.current;
-	    if (!el) return;
-	    const scrolled = hasPinned && el.scrollLeft > 0;
-	    if (scrolled !== pinScrolledRef.current) {
-	      pinScrolledRef.current = scrolled;
-	      if (scrolled) el.setAttribute('data-ct-scrolled', '1');else el.removeAttribute('data-ct-scrolled');
-	    }
-	    // The right block only casts its shadow while columns are still hidden beneath it,
-	    // i.e. until the scroll reaches the end.
-	    const atEnd = el.scrollLeft >= el.scrollWidth - el.clientWidth - 1;
-	    const shadeRight = hasPinnedRight && !atEnd;
-	    if (shadeRight !== pinScrolledEndRef.current) {
-	      pinScrolledEndRef.current = shadeRight;
-	      if (shadeRight) el.setAttribute('data-ct-scrolled-end', '1');else el.removeAttribute('data-ct-scrolled-end');
-	    }
-	    if (rowSnap) {
-	      if (el.style.scrollSnapType !== 'none') el.style.scrollSnapType = 'none';
-	      if (snapTimerRef.current) clearTimeout(snapTimerRef.current);
-	      snapTimerRef.current = setTimeout(() => {
-	        const node = containerRef.current;
-	        if (node) node.style.scrollSnapType = 'y proximity';
-	      }, 160);
-	    }
-	    if (scrollTickRef.current) return;
-	    scrollTickRef.current = true;
-	    window.requestAnimationFrame(() => {
-	      scrollTickRef.current = false;
-	      const node = containerRef.current;
-	      if (!node) return;
-	      onFrameRef.current();
-	      setScrollTop(node.scrollTop);
-	    });
-	  }, [containerRef, hasPinned, hasPinnedRight, rowSnap, onFrameRef]);
-	  React.useEffect(() => () => {
-	    if (snapTimerRef.current) clearTimeout(snapTimerRef.current);
-	  }, []);
-
-	  // Passive listener: React's onScroll attaches a non-passive handler on a scroll-linked
-	  // path, which can hold up the compositor.
-	  React.useEffect(() => {
-	    const el = containerRef.current;
-	    if (!el) return undefined;
-	    el.addEventListener('scroll', onWrapScroll, {
-	      passive: true
-	    });
-	    return () => el.removeEventListener('scroll', onWrapScroll);
-	  }, [containerRef, onWrapScroll]);
-	  return {
-	    scrollTop,
-	    onWrapScroll
-	  };
-	};
-
-	/**
-	 * Small prop helpers, kept out of the component so they can be read (and tested) on
-	 * their own.
-	 */
-
-	/**
-	 * The `height` prop, as a CSS value.
-	 *
-	 * It used to be `parseFloat(height)`, which quietly turned `height="100%"` into a 100px
-	 * table and `height="60vh"` into a 60px one — the number parsed, the unit was thrown
-	 * away, and nothing complained. A bare number (or a numeric string) is still pixels;
-	 * anything carrying a unit is passed straight through, and `'fill'` is the readable
-	 * spelling of "as tall as whatever contains me".
-	 *
-	 * A percentage only resolves against a parent with a definite height — the usual reason
-	 * `height="100%"` collapses to nothing is that the parent has none.
-	 */
-	const resolveHeight = height => {
-	  if (height == null) return undefined;
-	  if (typeof height === 'number') return height;
-	  const s = String(height).trim();
-	  if (s === 'fill' || s === 'full') return '100%';
-	  if (/^-?\d*\.?\d+$/.test(s)) return parseFloat(s); // '500' -> 500px, as before
-	  return s; // '100%', '60vh', 'calc(100vh - 120px)'
-	};
-
-	// react-table's per-column fallbacks. Module-level, so the identity is stable and the
-	// table instance is not rebuilt on every render.
-	const DEFAULT_COLUMN = {
-	  Cell: DefaultCell,
-	  Filter: DefaultColumnFilter,
-	  Footer: () => null,
-	  minWidth: 90,
-	  width: 1
-	};
-
-	/**
-	 * FreezeTable — a virtualized react-table list with frozen columns.
-	 *
-	 * Layout is flexbox + inline styles only, and the few UI atoms it needs (sort arrows,
-	 * pin marker, filter box, spinner, empty-state glyph) are inline SVG, so the package
-	 * pulls in no UI library and needs no CSS import.
-	 *
-	 * ## The one invariant everything else follows from
-	 *
-	 * `.ft-wrap` is the SINGLE scrollport for both axes. Frozen columns are plain CSS
-	 * `position: sticky` resolved against it, so nothing runs in JS per scroll frame. That
-	 * is why the rows are windowed by hand (a virtualization library's own `overflow` div
-	 * would become the sticky scrollport for the body cells and the freeze would break),
-	 * and why the native scrollbars are hidden and redrawn as overlays (an element that
-	 * scrolls in y is a scroll container in x too). Anything that introduces a nested scroll
-	 * container inside `.ft-wrap` silently breaks column freezing — check that first when
-	 * the pinned block "slides away".
-	 *
-	 * ## How the pieces fit
-	 *
-	 *   useColumnLayout   the user's widths / hidden set / order, persisted  -> `cols`
-	 *   usePinning        how many columns freeze at each edge, and the caps
-	 *   useTableColumns   `cols` + the synthetic __strip / __actions columns -> react-table
-	 *   useTableScroll    the one passive scroll listener: shadows + windowing
-	 *   useRowNavigation  selection, ↑/↓, and the imperative highlight
-	 *   useColumnDrag     the resize and reorder drags (both commit on pointer-up only)
-	 *
-	 * Everything downstream of `useColumnLayout` reads `cols`, NEVER the `columns` prop:
-	 * a hidden column does not exist as far as freezing and the sticky offsets are
-	 * concerned, and a moved column freezes according to where it now is.
-	 *
-	 * The full prop and column-config reference lives in README.md — this file documents
-	 * the mechanics, the README documents the API.
-	 */
-	const FreezeTable = /*#__PURE__*/React.forwardRef(function FreezeTable({
-	  columns,
-	  data,
-	  Actions,
-	  fn,
-	  height = 500,
-	  rowHeight = 44,
-	  userList,
-	  context,
-	  locale,
-	  dateFormat = FORMAT_DEFAULTS.dateFormat,
-	  dateTimeFormat = FORMAT_DEFAULTS.dateTimeFormat,
-	  currencySymbol,
-	  status,
-	  sortable = true,
-	  searchable = true,
-	  loading = false,
-	  dataFetched = true,
-	  emptyText = 'No records found',
-	  loadingText = 'Fetching records…',
-	  actionWidth = 110,
-	  footerLeft = null,
-	  showFooter,
-	  rowNavigation = true,
-	  rowSnap = false,
-	  pinActions = false,
-	  onRowSelect,
-	  onRowEnter,
-	  selectedBg = '#d3e5f8',
-	  rowIdKey = 'id',
-	  initialSelectedId = null,
-	  rowStripColor,
-	  rowStripTitle,
-	  rowStyle,
-	  stripWidth = 14,
-	  initialScrollLeft = 0,
-	  fontSize = 12,
-	  pinStorageKey,
-	  resizable = true,
-	  reorderable = true,
-	  actionIndex = 'last',
-	  minColumnWidth = COL_MIN_WIDTH,
-	  onColumnResize,
-	  onColumnVisibilityChange,
-	  onColumnOrderChange,
-	  defaultLayout,
-	  onLayoutChange,
-	  toolbar = false,
-	  className,
-	  style
-	}, ref) {
-	  // One <style> tag for the handful of things inline styles cannot express
-	  // (keyframes, :focus, ::placeholder, the pinned-column shadow selector).
-	  useIsoLayoutEffect(() => {
-	    injectStyles();
-	  }, []);
-
-	  // Development-only: says so when `columns` / `data` are rebuilt unchanged every render.
-	  useStabilityWarning();
-	  useStabilityWarning();
-	  const fontPx = `${parseFloat(fontSize)}px`;
-	  const hasActions = !!Actions;
-
-	  // `status` is the one-prop replacement for the `loading` + `dataFetched` pair, which
-	  // had to be wired together correctly to avoid flashing "No records found" over a list
-	  // that was still loading. The old pair still works; `status` simply wins when given.
-	  const isLoading = status === undefined ? loading : status === 'loading';
-	  const isFetched = status === undefined ? dataFetched : status !== 'idle';
-
-	  // Formatting options for the column `type` shorthands, in one memoized object so a
-	  // caller passing none of them does not rebuild every typed cell renderer per render.
-	  const formatOptions = React.useMemo(() => ({
-	    locale,
-	    dateFormat,
-	    dateTimeFormat,
-	    currencySymbol
-	  }), [locale, dateFormat, dateTimeFormat, currencySymbol]);
-
-	  // The outer scroller. Measured early: the pin caps need the wrap's width before the
-	  // column defs are built.
-	  const rootRef = React.useRef(null);
-	  const containerRef = React.useRef(null);
-	  const wrapW = useWrapWidth(containerRef);
-
-	  // ----- The user's layout: widths, hidden columns, order -----
-	  const storage = useLayoutStorage(pinStorageKey);
-	  const layout = useColumnLayout({
-	    columns,
-	    formatOptions,
-	    defaultLayout,
-	    hasActions,
-	    actionIndex,
-	    minColumnWidth,
-	    storage,
-	    onColumnResize,
-	    onColumnVisibilityChange,
-	    onColumnOrderChange
-	  });
-	  const {
-	    cols,
-	    actionPos,
-	    colWidths
-	  } = layout;
-	  // The Action column's rendered width: a dragged width replaces the `actionWidth` prop,
-	  // and both the pin caps and the column def built in useTableColumns have to agree.
-	  const actionColWidth = colWidths.__actions || actionWidth;
-
-	  // ----- Freeze boundaries -----
-	  const pinning = usePinning({
-	    cols,
-	    wrapW,
-	    hasActions,
-	    actionPos,
-	    actionColWidth,
-	    pinActions,
-	    rowStripColor,
-	    stripWidth,
-	    storage,
-	    defaultLayout
-	  });
-
-	  // One callback for all four layout choices, so a caller saving a layout per user does
-	  // not have to stitch together onColumnResize + onColumnVisibilityChange +
-	  // onColumnOrderChange and then discover the pin boundaries have no callback at all.
-	  // Effect, not a call inside each setter: the setters live in two different hooks, and
-	  // this way one gesture that changes two things still reports one settled layout.
-	  const layoutRef = React.useRef(null);
-	  React.useEffect(() => {
-	    if (!onLayoutChange) return;
-	    const next = {
-	      pins: {
-	        left: pinning.pinCount,
-	        right: pinning.rightPinCount
-	      },
-	      widths: layout.colWidths,
-	      hidden: layout.hiddenIds,
-	      order: layout.order
-	    };
-	    const key = JSON.stringify(next);
-	    if (layoutRef.current === key) return;
-	    const first = layoutRef.current === null;
-	    layoutRef.current = key;
-	    if (!first) onLayoutChange(next); // the initial layout is not a change
-	  }, [onLayoutChange, pinning.pinCount, pinning.rightPinCount, layout.colWidths, layout.hiddenIds, layout.order]);
-
-	  // ----- The column list react-table actually gets -----
-	  const {
-	    allColumns,
-	    hasPinned,
-	    hasPinnedRight,
-	    pinnedLeft,
-	    pinnedRight
-	  } = useTableColumns({
-	    cols,
-	    colWidths,
-	    Actions,
-	    fn,
-	    actionWidth,
-	    actionPos,
-	    rowStripColor,
-	    rowStripTitle,
-	    stripWidth,
-	    effectivePinCount: pinning.effectivePinCount,
-	    effectiveRightPinCount: pinning.effectiveRightPinCount,
-	    actionsPinnedLeft: pinning.actionsPinnedLeft,
-	    actionsPinnedRight: pinning.actionsPinnedRight
-	  });
-	  const {
-	    getTableProps,
-	    getTableBodyProps,
-	    headerGroups,
-	    footerGroups,
-	    rows,
-	    prepareRow,
-	    totalColumnsWidth
-	  } = reactTableExports.useTable({
-	    columns: allColumns,
-	    data,
-	    defaultColumn: DEFAULT_COLUMN,
-	    // Forwarded onto the table instance, which is what a `Cell` receives spread: this
-	    // is how a cell reaches the caller's own callbacks and lookups without the column
-	    // config having to be rebuilt as a factory closure.
-	    userList,
-	    context,
-	    // `data` is often recreated each render (e.g. Object.values(byId)); without these
-	    // react-table resets sort/filter on every data change, so clicking a header appears
-	    // to do nothing (sort is set then immediately reset).
-	    autoResetSortBy: false,
-	    autoResetFilters: false,
-	    autoResetGlobalFilter: false
-	  }, reactTableExports.useFilters, reactTableExports.useSortBy, reactTableExports.useFlexLayout);
-	  const hasColumnFooter = React.useMemo(() => cols.some(c => c.Footer), [cols]);
-	  const renderFooter = showFooter !== undefined ? showFooter : footerLeft != null || hasColumnFooter;
-
-	  // ----- Geometry -----
-	  const bodyWrapRef = React.useRef(null);
-	  const headRef = React.useRef(null);
-	  const footRef = React.useRef(null);
-	  const toolbarRef = React.useRef(null);
-	  // `toolbar` is either a boolean or a config object; normalize once so the rest reads
-	  // one shape. It sits OUTSIDE the scrollport — see the note in Toolbar.js.
-	  const showToolbar = !!toolbar;
-	  const toolbarConfig = toolbar && typeof toolbar === 'object' ? toolbar : {};
-	  const {
-	    listH,
-	    headH,
-	    toolH
-	  } = useBandHeights({
-	    containerRef,
-	    headRef,
-	    footRef,
-	    toolbarRef,
-	    deps: [renderFooter, height, rows.length, showToolbar]
-	  });
-
-	  // ----- Scrolling, windowing and the overlay bars -----
-	  // The scroll handler drives the bars through a ref, so the (passive) listener never has
-	  // to be re-attached when the sync closure changes.
-	  const syncBarsRef = React.useRef(() => {});
-	  const {
-	    scrollTop,
-	    onWrapScroll
-	  } = useTableScroll({
-	    containerRef,
-	    hasPinned,
-	    hasPinnedRight,
-	    rowSnap,
-	    onFrameRef: syncBarsRef
-	  });
-	  const bars = useOverlayScrollbars({
-	    containerRef,
-	    listH,
-	    syncBarsRef,
-	    onWrapScroll
-	  });
-
-	  // ----- Selection and keyboard navigation -----
-	  const {
-	    setSelectedIndex,
-	    selectedIndexRef,
-	    onKeyDown,
-	    selectRow
-	  } = useRowNavigation({
-	    containerRef,
-	    rows,
-	    prepareRow,
-	    rowHeight,
-	    listH,
-	    rowNavigation,
-	    onRowSelect,
-	    onRowEnter,
-	    selectedBg,
-	    initialSelectedId,
-	    rowIdKey,
-	    initialScrollLeft
-	  });
-
-	  // ----- Header drags -----
-	  const guideRef = React.useRef(null);
-	  const dropRef = React.useRef(null);
-	  const {
-	    startColResize,
-	    startColReorder,
-	    onHeaderClickCapture
-	  } = useColumnDrag({
-	    rootRef,
-	    containerRef,
-	    guideRef,
-	    dropRef,
-	    orderRef: layout.orderRef,
-	    minColumnWidth,
-	    setColumnWidth: layout.setColumnWidth,
-	    setColumnOrder: layout.setColumnOrder
-	  });
-	  useTableHandle(ref, {
-	    containerRef,
-	    pinning,
-	    layout,
-	    resizable,
-	    reorderable,
-	    actionWidth,
-	    selectRow
-	  });
-
-	  // ----- What the built-in toolbar needs -----
-	  // The freeze menu counts in VISIBLE CALLER columns — the same units as the pin
-	  // boundaries themselves — so it is built from `cols`, not from the raw config.
-	  const pinColumns = React.useMemo(() => showToolbar ? cols.map((c, i) => ({
-	    label: typeof c.Header === 'string' && c.Header ? c.Header : colIdOf(c) || `Column ${i + 1}`
-	  })) : [], [cols, showToolbar]);
-	  const refocus = React.useCallback(() => {
-	    if (containerRef.current) containerRef.current.focus({
-	      preventScroll: true
-	    });
-	  }, []);
-	  const toolbarApi = React.useMemo(() => ({
-	    toggleColumn: layout.toggleColumn,
-	    moveColumn: layout.moveColumn,
-	    showAllColumns: () => layout.setHiddenColumns([]),
-	    resetColumnWidths: () => layout.resetColumnWidths(),
-	    resetColumnOrder: () => layout.setColumnOrder(null),
-	    setLeftPinCount: pinning.setPinCount,
-	    setRightPinCount: pinning.setRightPinCount
-	  }), [layout.toggleColumn, layout.moveColumn, layout.setHiddenColumns, layout.resetColumnWidths, layout.setColumnOrder, pinning.setPinCount, pinning.setRightPinCount]);
-
-	  // Everything the memoized rows need. Deliberately does NOT include selectedIndex —
-	  // rows read it from selectedIndexRef so arrow navigation never re-renders them.
-	  const itemData = React.useMemo(() => ({
-	    rows,
-	    prepareRow,
-	    rowStyle,
-	    selectedBg,
-	    rowNavigation,
-	    fontPx,
-	    selectedIndexRef,
-	    rowHeight,
-	    pinnedLeft,
-	    pinnedRight,
-	    rowSnap,
-	    onSelect: i => setSelectedIndex(i),
-	    // Not read by VirtualRow — included so a pin-boundary change breaks the memo and
-	    // every visible row re-renders with the new pinned flags (otherwise rows could
-	    // keep stale pin attributes / sticky offsets).
-	    allColumns
-	  }), [rows, prepareRow, rowStyle, selectedBg, rowNavigation, fontPx, allColumns, rowHeight, pinnedLeft, pinnedRight, rowSnap, selectedIndexRef, setSelectedIndex]);
-
-	  // Which rows are actually rendered. The frozen columns are sticky, so this can lag a
-	  // frame behind the scroll without ever pulling them out of place.
-	  const firstIdx = Math.max(0, Math.floor(scrollTop / rowHeight) - OVERSCAN);
-	  const lastIdx = Math.min(rows.length - 1, Math.ceil((scrollTop + (listH || 0)) / rowHeight) + OVERSCAN);
-	  const tableProps = getTableProps();
-	  return /*#__PURE__*/React.createElement("div", {
-	    ref: rootRef,
-	    className: `ft-root ct-root${className ? ` ${className}` : ''}`,
-	    style: {
-	      position: 'relative',
-	      width: '100%',
-	      height: resolveHeight(height),
-	      // Only with a toolbar: the root becomes a column so the scrollport takes whatever
-	      // height is left over. Without one the scrollport is simply the whole root, and
-	      // the markup stays exactly as it always was.
-	      ...(showToolbar ? {
-	        display: 'flex',
-	        flexDirection: 'column'
-	      } : null),
-	      ...style
-	    }
-	  }, showToolbar && /*#__PURE__*/React.createElement(Toolbar, {
-	    toolbarRef: toolbarRef,
-	    fontPx: fontPx,
-	    config: toolbarConfig,
-	    columnList: layout.getColumnList({
-	      resizable,
-	      reorderable,
-	      actionWidth
-	    }),
-	    pinColumns: pinColumns,
-	    pin: {
-	      left: pinning.effectivePinCount,
-	      maxLeft: pinning.maxPinCount,
-	      right: pinning.effectiveRightPinCount,
-	      maxRight: pinning.maxRightPinCount
-	    },
-	    api: toolbarApi,
-	    refocus: refocus
-	  }), /*#__PURE__*/React.createElement("div", {
-	    className: "ft-wrap ct-wrap ft-nobar",
-	    ref: containerRef,
-	    tabIndex: rowNavigation ? 0 : undefined,
-	    onKeyDown: onKeyDown,
-	    style: {
-	      width: '100%',
-	      ...(showToolbar ? {
-	        flex: '1 1 auto',
-	        minHeight: 0
-	      } : {
-	        height: '100%'
-	      }),
-	      overflow: 'auto',
-	      outline: 'none',
-	      // Vertical scrolling settles on a row boundary (spreadsheet behaviour) instead of
-	      // leaving a half-row sliced by the sticky header. `scroll-padding-top` moves the
-	      // snapport's top edge below the header, which is what the rows scroll under —
-	      // without it a snapped row would align to the hidden top of the scrollport.
-	      // `proximity`, not `mandatory`: rows are windowed, so snap targets come and go,
-	      // and mandatory snapping fights programmatic scrolls and the end of the list.
-	      // Horizontal scrolling is untouched (the axis is `y`).
-	      ...(rowSnap ? {
-	        scrollSnapType: 'y proximity',
-	        scrollPaddingTop: headH
-	      } : {})
-	    }
-	  }, /*#__PURE__*/React.createElement("div", _extends({}, tableProps, {
-	    style: {
-	      ...tableProps.style,
-	      minWidth: totalColumnsWidth,
-	      minHeight: '100%',
-	      display: 'flex',
-	      flexDirection: 'column'
-	    }
-	  }), /*#__PURE__*/React.createElement(TableHead, {
-	    headerGroups: headerGroups,
-	    headRef: headRef,
-	    fontPx: fontPx,
-	    sortable: sortable,
-	    searchable: searchable,
-	    resizable: resizable,
-	    reorderable: reorderable,
-	    pinnedLeft: pinnedLeft,
-	    pinnedRight: pinnedRight,
-	    startColReorder: startColReorder,
-	    startColResize: startColResize,
-	    onHeaderClickCapture: onHeaderClickCapture,
-	    resetColumnWidths: layout.resetColumnWidths
-	  }), /*#__PURE__*/React.createElement(TableBody, {
-	    bodyProps: getTableBodyProps(),
-	    bodyWrapRef: bodyWrapRef,
-	    rows: rows,
-	    rowHeight: rowHeight,
-	    listH: listH,
-	    firstIdx: firstIdx,
-	    lastIdx: lastIdx,
-	    itemData: itemData,
-	    loading: isLoading,
-	    loadingText: loadingText,
-	    dataFetched: isFetched,
-	    emptyText: emptyText
-	  }), renderFooter && /*#__PURE__*/React.createElement(TableFoot, {
-	    footerGroups: footerGroups,
-	    footRef: footRef,
-	    fontPx: fontPx,
-	    footerLeft: footerLeft,
-	    pinnedLeft: pinnedLeft,
-	    pinnedRight: pinnedRight
-	  }))), /*#__PURE__*/React.createElement(OverlayBars, {
-	    headH: headH,
-	    listH: listH,
-	    topOffset: toolH,
-	    vTrackRef: bars.vTrackRef,
-	    vThumbRef: bars.vThumbRef,
-	    hTrackRef: bars.hTrackRef,
-	    hThumbRef: bars.hThumbRef,
-	    startThumbDrag: bars.startThumbDrag,
-	    onTrackDown: bars.onTrackDown,
-	    guideRef: guideRef,
-	    dropRef: dropRef
-	  }));
-	});
-
-	const FIRST = ['Ramesh', 'Sunita', 'Imran', 'Priya', 'Arjun', 'Fatima', 'Rakesh', 'Neha', 'Vikram', 'Anjali'];
-	const LAST = ['Kumar', 'Devi', 'Ali', 'Sharma', 'Singh', 'Khan', 'Verma', 'Gupta', 'Reddy', 'Nair'];
-	const CITY = ['Patna', 'Ranchi', 'Kolkata', 'Delhi', 'Mumbai', 'Jaipur', 'Pune', 'Chennai', 'Indore', 'Surat'];
-	const STATUS = ['Active', 'Pending', 'Cancelled', 'Posted'];
-
-	// Deterministic pseudo-random so the demo looks the same on every reload.
-	let seed = 42;
-	const rnd = () => (seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648;
-	const pick = a => a[Math.floor(rnd() * a.length)];
-	const ROWS = Array.from({
-	  length: 2000
-	}, (_, i) => {
-	  const qty = 1 + Math.floor(rnd() * 9);
-	  const rate = Math.round(rnd() * 90000) + 10000;
-	  return {
-	    id: `row-${i + 1}`,
-	    name: `${pick(FIRST)} ${pick(LAST)}`,
-	    city: pick(CITY),
-	    status: pick(STATUS),
-	    invoice: `INV/25-26/${String(1000 + i)}`,
-	    date: `2026-08-${String(1 + Math.floor(rnd() * 28)).padStart(2, '0')} 10:${String(Math.floor(rnd() * 60)).padStart(2, '0')}:00`,
-	    model: pick(['Nexon EV', 'Creta', 'Swift', 'Scorpio N', 'Punch', 'Baleno']),
-	    fuel: pick(['Petrol', 'Diesel', 'Electric', 'CNG']),
-	    vin: `MAT${Math.floor(rnd() * 1e9).toString().padStart(9, '0')}`,
-	    engine: `ENG${Math.floor(rnd() * 1e7)}`,
-	    colour: pick(['White', 'Black', 'Silver', 'Red', 'Blue']),
-	    delivered: rnd() > 0.4,
-	    qty,
-	    rate,
-	    amount: qty * rate,
-	    gst: Math.round(qty * rate * 0.28),
-	    executive: `${pick(FIRST)} ${pick(LAST)}`,
-	    branch: pick(['North', 'South', 'East', 'West']),
-	    remarks: 'Delivered against advance receipt, balance adjusted'
-	  };
-	});
-
-	// One line per column. `type` brings the alignment, the width floor, the ellipsis cell
-	// and the `title` with it; `footer: 'sum'` brings the reduce AND formats the total the
-	// same way as the cells above it. Only what is genuinely specific to this list is here.
-	const COLUMNS = [{
-	  type: 'serial',
-	  pinned: true
-	}, {
-	  Header: 'Invoice No',
-	  accessor: 'invoice',
-	  width: 150,
-	  pinned: true,
-	  footer: 'count'
-	}, {
-	  Header: 'Customer Name',
-	  accessor: 'name',
-	  width: 180,
-	  pinned: true
-	}, {
-	  Header: 'Date',
-	  accessor: 'date',
-	  type: 'datetime'
-	}, {
-	  Header: 'Status',
-	  accessor: 'status',
-	  width: 110
-	}, {
-	  Header: 'City',
-	  accessor: 'city',
-	  width: 120
-	}, {
-	  Header: 'Branch',
-	  accessor: 'branch',
-	  width: 100
-	}, {
-	  Header: 'Model',
-	  accessor: 'model',
-	  width: 140
-	}, {
-	  Header: 'Fuel',
-	  accessor: 'fuel',
-	  width: 100
-	}, {
-	  Header: 'Colour',
-	  accessor: 'colour',
-	  width: 100
-	}, {
-	  Header: 'Delivered',
-	  accessor: 'delivered',
-	  type: 'boolean',
-	  width: 90
-	}, {
-	  Header: 'VIN',
-	  accessor: 'vin',
-	  width: 160
-	}, {
-	  Header: 'Engine No',
-	  accessor: 'engine',
-	  width: 140
-	}, {
-	  Header: 'Qty',
-	  accessor: 'qty',
-	  type: 'number',
-	  width: 70,
-	  footer: 'sum'
-	}, {
-	  Header: 'Rate',
-	  accessor: 'rate',
-	  type: 'currency',
-	  width: 120
-	}, {
-	  Header: 'Amount',
-	  accessor: 'amount',
-	  type: 'currency',
-	  width: 140,
-	  footer: 'sum'
-	}, {
-	  Header: 'GST',
-	  accessor: 'gst',
-	  type: 'currency',
-	  width: 130,
-	  footer: 'sum'
-	}, {
-	  Header: 'Sales Executive',
-	  accessor: 'executive',
-	  width: 170
-	}, {
-	  Header: 'Remarks',
-	  accessor: 'remarks',
-	  width: 260,
-	  pinned: 'right'
-	}];
-	const STRIP = {
-	  Cancelled: '#e03e3e',
-	  Pending: '#e8912d',
-	  Posted: '#2aa76a'
-	};
-	const btn = {
-	  font: 'inherit',
-	  fontSize: 11,
-	  padding: '3px 10px',
-	  cursor: 'pointer',
-	  border: '1px solid #c9d2dd',
-	  borderRadius: 4,
-	  background: '#fff',
-	  color: '#1b2733'
-	};
-	const btnActive = {
-	  ...btn,
-	  background: '#0070C2',
-	  borderColor: '#0070C2',
-	  color: '#fff'
-	};
-
-	// The Action column's renderer. `context` is forwarded onto the table instance, so a
-	// cell can reach the caller's callbacks without the column config being rebuilt as a
-	// factory closure on every render.
-	const Actions = ({
-	  object,
-	  fn
-	}) => /*#__PURE__*/React.createElement("button", {
-	  type: "button",
-	  style: btn,
-	  onClick: () => fn(object)
-	}, "Open");
-	function Demo() {
-	  const tableRef = reactExports.useRef(null);
-	  const [selected, setSelected] = reactExports.useState(null);
-	  const [status, setStatus] = reactExports.useState('ready');
-	  const [empty, setEmpty] = reactExports.useState(false);
-	  const [saved, setSaved] = reactExports.useState(null);
-	  const columns = reactExports.useMemo(() => COLUMNS, []);
-	  const data = reactExports.useMemo(() => empty ? [] : ROWS, [empty]);
-	  return /*#__PURE__*/React.createElement("div", {
-	    style: {
-	      font: '13px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
-	      color: '#1b2733',
-	      padding: 20,
-	      background: '#f7f9fb',
-	      minHeight: '100vh'
-	    }
-	  }, /*#__PURE__*/React.createElement("h1", {
-	    style: {
-	      margin: '0 0 4px',
-	      fontSize: 20
-	    }
-	  }, "freeze-table"), /*#__PURE__*/React.createElement("p", {
-	    style: {
-	      margin: '0 0 14px',
-	      color: '#5a6a7a'
-	    }
-	  }, "2,000 rows \xB7 19 columns \xB7 ", /*#__PURE__*/React.createElement("strong", null, "Columns"), " aur ", /*#__PURE__*/React.createElement("strong", null, "Freeze"), " menu table ka apna hai (koi menu code likhna nahi pada) \xB7 header ko side mein drag karo to column move hota hai \xB7 right edge drag karke resize (double-click = reset) \xB7 arrow keys / Home / End / Enter chalte hain."), /*#__PURE__*/React.createElement("div", {
-	    style: {
-	      display: 'flex',
-	      gap: 8,
-	      alignItems: 'center',
-	      flexWrap: 'wrap',
-	      marginBottom: 10
-	    }
-	  }, /*#__PURE__*/React.createElement("button", {
-	    type: "button",
-	    style: status === 'loading' ? btnActive : btn,
-	    onClick: () => setStatus(s => s === 'loading' ? 'ready' : 'loading')
-	  }, "Loading state"), /*#__PURE__*/React.createElement("button", {
-	    type: "button",
-	    style: empty ? btnActive : btn,
-	    onClick: () => setEmpty(v => !v)
-	  }, "Empty state"), /*#__PURE__*/React.createElement("span", {
-	    style: {
-	      width: 16
-	    }
-	  }), /*#__PURE__*/React.createElement("button", {
-	    type: "button",
-	    style: btn,
-	    onClick: () => setSaved(tableRef.current.getLayout())
-	  }, "Save view"), /*#__PURE__*/React.createElement("button", {
-	    type: "button",
-	    style: btn,
-	    disabled: !saved,
-	    onClick: () => tableRef.current.setLayout(saved)
-	  }, "Restore view"), /*#__PURE__*/React.createElement("button", {
-	    type: "button",
-	    style: btn,
-	    onClick: () => tableRef.current.resetLayout()
-	  }, "Reset layout"), /*#__PURE__*/React.createElement("span", {
-	    style: {
-	      marginLeft: 'auto',
-	      color: '#5a6a7a'
-	    }
-	  }, "Selected: ", /*#__PURE__*/React.createElement("strong", null, selected ? `${selected.invoice} — ${selected.name}` : '—'))), /*#__PURE__*/React.createElement("div", {
-	    style: {
-	      background: '#fff',
-	      border: '1px solid #e3e8ee',
-	      borderRadius: 6,
-	      overflow: 'hidden'
-	    }
-	  }, /*#__PURE__*/React.createElement(FreezeTable, {
-	    ref: tableRef,
-	    columns: columns,
-	    data: data,
-	    height: 560,
-	    rowHeight: 38,
-	    fontSize: 12,
-	    status: empty ? 'ready' : status,
-	    toolbar: {
-	      left: /*#__PURE__*/React.createElement("strong", null, "Vehicle invoices")
-	    },
-	    locale: "en-IN",
-	    currencySymbol: "\u20B9",
-	    pinStorageKey: "freeze-table-demo",
-	    Actions: Actions,
-	    fn: row => setSelected(row),
-	    rowStripColor: r => STRIP[r.status] || null,
-	    rowStripTitle: r => r.status,
-	    rowStyle: r => r.status === 'Cancelled' ? {
-	      color: '#a11'
-	    } : undefined,
-	    onRowSelect: row => setSelected(row),
-	    onRowEnter: row => setSelected(row)
-	  })));
-	}
-	createRoot(document.getElementById('root')).render(/*#__PURE__*/React.createElement(Demo, null));
+
+  /**
+   * Zero-dependency stand-ins for the three Semantic UI React pieces the table
+   * originally used: `Icon` (sort arrows, pin, empty-state inbox, search),
+   * `Input` (per-column filter box) and `Loader` (loading state) — plus the menu atoms
+   * the toolbar is built from.
+   *
+   * Everything is inline SVG + inline styles, so the package needs no CSS import
+   * and no UI library. The one stylesheet the component injects (see `injectStyles`)
+   * carries the token ladder plus what inline styles cannot express: keyframes, `:focus`,
+   * `::placeholder` and the pinned-column shadow selector.
+   *
+   * Every component here is also the DEFAULT for a `components` slot — see
+   * `DEFAULT_COMPONENTS` at the bottom. Each one's props are its public contract from 1.1
+   * onwards, because a caller replacing it receives exactly them.
+   */
+
+  // Kept as exports because they were public before the tokens existed. They now resolve
+  // through `--ft-shadow-pin` / `--ft-shadow-pin-right`, so a consumer who themed by
+  // importing these constants still gets a working (if un-themeable) value.
+  LIGHT['shadow-pin'];
+  LIGHT['shadow-pin-right'];
+
+  // Which roots have been injected into. A Set rather than a boolean because `styleTarget`
+  // lets a caller inject into a shadow root, and each shadow root needs its own copy — a
+  // document.head stylesheet does not cross the boundary.
+  const injectedInto = new Set();
+
+  /**
+   * Idempotent — safe to call from every mount and under React StrictMode.
+   *
+   * `nonce` is forwarded onto the `<style>` element for apps whose Content-Security-Policy
+   * has a `style-src` without `'unsafe-inline'`; without it the browser drops the sheet and
+   * the table renders with only its inline `var()` fallbacks (readable, but no hover
+   * states, no scrollbar thumbs and no theming).
+   *
+   * `target` may be a ShadowRoot or any node with a `getRootNode`, for a table mounted
+   * inside a web component — `document.head` is invisible from in there.
+   */
+  const injectStyles = ({
+    nonce,
+    target
+  } = {}) => {
+    if (typeof document === 'undefined') return;
+    const root = target && typeof target.getRootNode === 'function' ? target.getRootNode() : document;
+    // A shadow root takes the <style> directly; a document takes it in <head>.
+    const host = root && root !== document && root.appendChild ? root : document.head;
+    if (!host || injectedInto.has(host)) return;
+    if (host.querySelector && host.querySelector(`#${STYLE_ID}`)) {
+      injectedInto.add(host);
+      return;
+    }
+    const el = document.createElement('style');
+    el.id = STYLE_ID;
+    if (nonce) el.setAttribute('nonce', nonce);
+    el.textContent = STYLESHEET;
+    // FIRST, not appended. The sheet lands when the component mounts, which is after every
+    // stylesheet the page loaded — so appending would put the library's rules last and let
+    // them win every specificity tie against the consumer's own CSS. The token blocks are
+    // additionally `:where()`-wrapped (see lib/stylesheet.js), which handles the tie for
+    // the variables no matter where this ends up; putting the element first extends the
+    // same courtesy to the rest of the rules.
+    host.insertBefore(el, host.firstChild);
+    injectedInto.add(host);
+  };
+
+  /** `useLayoutEffect` that degrades to `useEffect` on the server (no SSR warning). */
+  const useIsoLayoutEffect = typeof window !== 'undefined' ? React.useLayoutEffect : React.useEffect;
+  const svgBase = size => ({
+    width: size,
+    height: size,
+    display: 'inline-block',
+    verticalAlign: 'middle',
+    flexShrink: 0
+  });
+
+  /**
+   * Sort indicator. `direction`: 'asc' | 'desc' | null (null = sortable but unsorted,
+   * shown as the two-arrow "sortable" glyph, matching Semantic's `sort` icon).
+   */
+  const SortIcon = ({
+    direction,
+    color = v('sort-icon'),
+    size = 9
+  }) => /*#__PURE__*/React.createElement("svg", {
+    viewBox: "0 0 10 14",
+    "aria-hidden": "true",
+    focusable: "false",
+    style: {
+      ...svgBase(size),
+      fill: color
+    }
+  }, direction !== 'desc' && /*#__PURE__*/React.createElement("polygon", {
+    points: "5,1 9.2,5.8 0.8,5.8",
+    opacity: direction === 'asc' ? 1 : 0.85
+  }), direction !== 'asc' && /*#__PURE__*/React.createElement("polygon", {
+    points: "5,13 9.2,8.2 0.8,8.2",
+    opacity: direction === 'desc' ? 1 : 0.85
+  }));
+
+  /** Pin / thumbtack — marks the freeze-boundary column. */
+  const PinIcon = ({
+    color = v('accent'),
+    size = 10,
+    title
+  }) => /*#__PURE__*/React.createElement("svg", {
+    viewBox: "0 0 16 16",
+    focusable: "false",
+    style: {
+      ...svgBase(size),
+      fill: color
+    },
+    role: title ? 'img' : undefined,
+    "aria-hidden": title ? undefined : 'true'
+  }, title ? /*#__PURE__*/React.createElement("title", null, title) : null, /*#__PURE__*/React.createElement("path", {
+    d: "M9.6 1a1 1 0 0 0-.7 1.7l.3.3-3.4 2.5-2-.4a1 1 0 0 0-.9 1.7l3 3-3.4 4 4.6-3 3 3a1 1 0 0 0 1.7-.9l-.4-2 2.5-3.4.3.3A1 1 0 0 0 15.6 7L9.6 1z"
+  }));
+
+  /** Soft empty-state glyph (Semantic's `inbox`). */
+  const InboxIcon = ({
+    color = v('icon-muted'),
+    size = 34
+  }) => /*#__PURE__*/React.createElement("svg", {
+    viewBox: "0 0 24 24",
+    "aria-hidden": "true",
+    focusable: "false",
+    style: {
+      ...svgBase(size),
+      fill: 'none',
+      stroke: color,
+      strokeWidth: 1.6,
+      strokeLinecap: 'round',
+      strokeLinejoin: 'round'
+    }
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M3 13h4l1.5 3h7L17 13h4"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M5.2 4.5h13.6L21 13v5.5a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 18.5V13z"
+  }));
+  const SearchIcon = ({
+    color = v('search-icon'),
+    size = 11
+  }) => /*#__PURE__*/React.createElement("svg", {
+    viewBox: "0 0 16 16",
+    "aria-hidden": "true",
+    focusable: "false",
+    style: {
+      ...svgBase(size),
+      fill: 'none',
+      stroke: color,
+      strokeWidth: 2,
+      strokeLinecap: 'round'
+    }
+  }, /*#__PURE__*/React.createElement("circle", {
+    cx: "6.8",
+    cy: "6.8",
+    r: "4.6"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M10.4 10.4 14 14"
+  }));
+
+  /**
+   * The per-column filter box — a plain `<input>` dressed to match the compact
+   * Semantic "mini icon input" the table was designed around.
+   *
+   * Slot contract (`components.FilterInput`): `{ value, onChange, onClick, placeholder,
+   * fontSize }`. `onClick` must be attached to the input itself — it stops the click from
+   * reaching the header and toggling the sort.
+   */
+  const FilterInput = ({
+    value,
+    onChange,
+    onClick,
+    placeholder,
+    fontSize = 11
+  }) => /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: 'relative',
+      width: '100%',
+      display: 'flex',
+      alignItems: 'center'
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      position: 'absolute',
+      left: 6,
+      top: '50%',
+      transform: 'translateY(-50%)',
+      display: 'flex',
+      pointerEvents: 'none'
+    }
+  }, /*#__PURE__*/React.createElement(SearchIcon, {
+    size: Math.max(10, fontSize)
+  })), /*#__PURE__*/React.createElement("input", {
+    type: "text",
+    className: "ft-filter-input",
+    value: value,
+    onClick: onClick,
+    onChange: onChange,
+    placeholder: placeholder,
+    style: {
+      fontSize: `${fontSize}px`
+    }
+  }));
+
+  /** Stacked-columns glyph for the toolbar's column menu. */
+  const ColumnsIcon = ({
+    color = v('icon'),
+    size = 12
+  }) => /*#__PURE__*/React.createElement("svg", {
+    viewBox: "0 0 16 16",
+    "aria-hidden": "true",
+    focusable: "false",
+    style: {
+      ...svgBase(size),
+      fill: color
+    }
+  }, /*#__PURE__*/React.createElement("rect", {
+    x: "1",
+    y: "2",
+    width: "3.4",
+    height: "12",
+    rx: "1"
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: "6.3",
+    y: "2",
+    width: "3.4",
+    height: "12",
+    rx: "1",
+    opacity: ".65"
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: "11.6",
+    y: "2",
+    width: "3.4",
+    height: "12",
+    rx: "1",
+    opacity: ".4"
+  }));
+
+  /** Tick for a checked menu entry. Rendered in a fixed-width box so labels stay aligned. */
+  const CheckIcon = ({
+    color = v('accent'),
+    size = 11,
+    checked
+  }) => /*#__PURE__*/React.createElement("svg", {
+    viewBox: "0 0 16 16",
+    "aria-hidden": "true",
+    focusable: "false",
+    style: {
+      ...svgBase(size),
+      fill: 'none',
+      stroke: checked ? color : 'transparent',
+      strokeWidth: 2.2,
+      strokeLinecap: 'round',
+      strokeLinejoin: 'round'
+    }
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M2.5 8.5 6.2 12 13.5 4"
+  }));
+
+  /**
+   * Centred loading spinner + caption.
+   *
+   * Slot contract (`components.Spinner`): `{ text }`. The `size` / `color` props are the
+   * built-in's own and a replacement may ignore them.
+   */
+  const Spinner = ({
+    text,
+    size = 32,
+    color = v('accent')
+  }) => /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      gap: 10
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "ft-spinner",
+    style: {
+      width: size,
+      height: size,
+      borderTopColor: color
+    }
+  }), text ? /*#__PURE__*/React.createElement("span", {
+    style: {
+      color,
+      fontSize: '13px'
+    }
+  }, text) : null);
+
+  /**
+   * The "nothing to show" state.
+   *
+   * Slot contract (`components.Empty`): `{ text }` — whatever `emptyText` was set to.
+   */
+  const Empty = ({
+    text
+  }) => /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(InboxIcon, null), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 8,
+      fontSize: '13px'
+    }
+  }, text));
+
+  /**
+   * A toolbar button.
+   *
+   * Slot contract (`components.Button`): `{ children, onClick, className, ...aria }`. A
+   * replacement MUST spread the rest onto its own `<button>` — `aria-expanded` is what the
+   * built-in styling keys the open state off, and what a screen reader announces.
+   */
+  const Button = ({
+    children,
+    className,
+    ...rest
+  }) => /*#__PURE__*/React.createElement("button", _extends({
+    type: "button",
+    className: cx('ft-btn', className)
+  }, rest), children);
+
+  /**
+   * A toolbar popover.
+   *
+   * Slot contract (`components.Menu`): `{ children, align, className }`. It is positioned
+   * against a `position: relative` parent inside `.ft-root`, and it must NOT portal to
+   * `document.body`: the menus deliberately live inside the root (but outside `.ft-wrap`)
+   * so the table's own tokens are inherited and the freeze is unaffected.
+   */
+  const Menu = ({
+    children,
+    align = 'left',
+    className
+  }) => /*#__PURE__*/React.createElement("div", {
+    className: cx('ft-menu', className),
+    style: align === 'right' ? {
+      right: 0
+    } : {
+      left: 0
+    },
+    role: "menu"
+  }, children);
+
+  /**
+   * One entry in a menu.
+   *
+   * Slot contract (`components.MenuItem`): `{ children, checked, icon: Icon, className,
+   * ...rest }`. `checked` is `undefined` for a plain action entry, a boolean for a
+   * checkbox/radio one; the rest (`role`, `aria-checked`, `disabled`, `onClick`, `title`)
+   * is spread onto the button and a replacement must forward it.
+   *
+   * `icon` is the resolved `components.CheckIcon`, threaded through rather than imported
+   * so that overriding CheckIcon alone still reaches the menus — otherwise the two slots
+   * would silently not compose, and someone replacing the tick would have to replace the
+   * whole MenuItem to see it.
+   */
+  const MenuItem = ({
+    children,
+    checked,
+    icon: Icon = CheckIcon,
+    className,
+    ...rest
+  }) => /*#__PURE__*/React.createElement("button", _extends({
+    type: "button",
+    className: cx('ft-menu-item', className)
+  }, rest), checked !== undefined && Icon && /*#__PURE__*/React.createElement(Icon, {
+    checked: checked
+  }), children);
+
+  /** A group label inside a menu. Slot contract: `{ children }`. */
+  const MenuHeading = ({
+    children
+  }) => /*#__PURE__*/React.createElement("div", {
+    className: "ft-menu-head"
+  }, children);
+
+  /** A rule between menu groups. Slot contract: no props. */
+  const MenuSeparator = () => /*#__PURE__*/React.createElement("div", {
+    className: "ft-menu-sep"
+  });
+
+  /**
+   * The built-in for every `components` slot, in one object so `resolveComponents` has
+   * something to merge over and the identity stays stable when nothing is overridden.
+   */
+  const DEFAULT_COMPONENTS = {
+    FilterInput,
+    Button,
+    Menu,
+    MenuItem,
+    MenuHeading,
+    MenuSeparator,
+    Spinner,
+    Empty,
+    SortIcon,
+    PinIcon,
+    CheckIcon,
+    ColumnsIcon
+  };
+
+  /**
+   * Pure column maths — no React, no DOM. Everything here is a function of its arguments,
+   * which is the point: the freeze offsets, the pin caps and the order reconciliation are
+   * the parts of this component most likely to break silently under a refactor, and
+   * keeping them out of the render tree is what makes them testable on their own
+   * (`npm run test:unit`).
+   */
+
+  // Shared single-line ellipsis style for cells (kept exported so callers can reuse it).
+  const ELLIPSIS = {
+    width: '100%',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis'
+  };
+
+  // How many rows to render above / below the viewport.
+  const OVERSCAN = 6;
+
+  // Smallest width a drag can leave a column at. Below roughly this the header label and
+  // the filter box have nowhere to go and the column stops being a usable hit target.
+  const COL_MIN_WIDTH = 48;
+
+  // How far the pointer must travel across a header before the press stops being a
+  // click (sort) and becomes a reorder drag. Small enough that a deliberate drag arms
+  // immediately, large enough that the shake in an ordinary click never does.
+  const DRAG_SLOP = 4;
+
+  // Minimum viewport width that must stay available for the SCROLLING (unpinned)
+  // columns — the pin cap keeps the frozen block at least this much narrower than the
+  // table. See computeMaxLeftPinCount for why exceeding it breaks the scroller.
+  const PIN_MIN_SCROLLABLE = 250;
+
+  // react-table's default column width / floor, mirrored here because the width maths
+  // below has to agree with what react-table will actually render.
+  const DEFAULT_COL_WIDTH = 1;
+  const DEFAULT_COL_MIN_WIDTH = 90;
+  const alignFlex = a => a === 'right' ? 'flex-end' : a === 'center' ? 'center' : 'flex-start';
+
+  // react-table's effective column width: min(max(minWidth, width), maxWidth). Used both
+  // for the pin caps and for the sticky `left` / `right` offset of each pinned column.
+  const colWidthOf = c => Math.min(Math.max(c.minWidth != null ? c.minWidth : DEFAULT_COL_MIN_WIDTH, c.width != null ? c.width : DEFAULT_COL_WIDTH), c.maxWidth != null ? c.maxWidth : Infinity);
+
+  // The id react-table will key a column by: an explicit `id`, else a string accessor.
+  // A column with neither (an accessor FUNCTION and no id) cannot be addressed by the
+  // width / visibility APIs — react-table rejects such a column outright, so this is not
+  // a restriction this component adds.
+  const colIdOf = c => c.id || (typeof c.accessor === 'string' ? c.accessor : undefined);
+
+  // The key a column takes part in the ORDER under. Columns with no addressable id still
+  // need a slot, or the order list would be incomplete and they could not be placed
+  // relative to their neighbours; they ride along under a positional key and simply
+  // cannot be dragged.
+  const orderKeyOf = (c, i) => colIdOf(c) || `__col${i}`;
+
+  /**
+   * Merge a user / stored column order with the CONFIG order. Ids the config no longer
+   * carries are dropped, and ids the order does not mention — a column added to the
+   * caller's array since the layout was saved — are put back where the CONFIG puts them,
+   * next to the neighbour they were configured after. Appending them at the end instead
+   * would make every newly added column look as though the user had dragged it there.
+   */
+  const reconcileOrder = (configIds, wanted) => {
+    if (!wanted || !wanted.length) return configIds.slice();
+    const known = new Set(configIds);
+    const placed = new Set();
+    const out = [];
+    wanted.forEach(id => {
+      if (known.has(id) && !placed.has(id)) {
+        placed.add(id);
+        out.push(id);
+      }
+    });
+    configIds.forEach((id, i) => {
+      if (placed.has(id)) return;
+      placed.add(id);
+      // Land it just after the nearest preceding config neighbour that is already
+      // placed; if none of them is, the column is configured first, so it goes first.
+      let at = 0;
+      for (let k = i - 1; k >= 0; k--) {
+        const p = out.indexOf(configIds[k]);
+        if (p >= 0) {
+          at = p + 1;
+          break;
+        }
+      }
+      out.splice(at, 0, id);
+    });
+    return out;
+  };
+
+  /**
+   * The caller's column array as an order list, with the Action column spliced in at the
+   * position `actionIndex` asks for. This is the DEFAULT order — what the user's own
+   * order is reconciled against.
+   */
+  const buildConfigOrder = ({
+    columns,
+    hasActions,
+    actionIndex
+  }) => {
+    const ids = columns.map(orderKeyOf);
+    if (hasActions) {
+      const at = actionIndex === 'first' ? 0 : actionIndex === 'last' || actionIndex == null ? ids.length : Math.max(0, Math.min(ids.length, parseInt(actionIndex, 10) || 0));
+      ids.splice(at, 0, '__actions');
+    }
+    return ids;
+  };
+
+  /**
+   * The caller's columns as they are actually laid out: hidden ones dropped, resized ones
+   * carrying their new width, all of them in the user's order. EVERYTHING downstream —
+   * the pin defaults, the pin caps, `pinIndex`, the sticky offsets — is computed from
+   * this list rather than from the `columns` prop, so a hidden column simply does not
+   * exist as far as freezing and the cumulative left/right offsets are concerned, and a
+   * moved column freezes according to where it now IS.
+   *
+   * A resize writes the same number into ALL THREE of width / minWidth / maxWidth,
+   * because react-table renders a column at `min(max(minWidth, width), maxWidth)`:
+   * writing only `width` would leave a column with `minWidth: 200` stuck at 200 however
+   * far left it was dragged, and a column with a `maxWidth` could not be widened past it.
+   * Setting all three collapses that expression to exactly the dragged number — the
+   * config's floor and ceiling are the DEFAULT, and an explicit drag outranks them.
+   *
+   * `actionPos` comes out of the same pass: it is the Action column's insertion index
+   * among the VISIBLE caller columns, which is what the pin maths needs (the frozen runs
+   * are counted in caller columns, and the Action column is inside a run or outside it
+   * depending on where it now sits).
+   */
+  const applyLayout = ({
+    columns,
+    hiddenIds,
+    colWidths,
+    order,
+    hasActions
+  }) => {
+    const hide = new Set(hiddenIds);
+    const byKey = new Map();
+    columns.forEach((c, i) => {
+      const id = colIdOf(c);
+      if (id && c.hideable !== false && hide.has(id)) return;
+      const w = id ? colWidths[id] : undefined;
+      byKey.set(orderKeyOf(c, i), w ? {
+        ...c,
+        width: w,
+        minWidth: w,
+        maxWidth: w
+      } : c);
+    });
+    // Hiding literally every column would leave react-table with nothing to render — and
+    // no header row to un-hide anything from. Falling back to the full list keeps the
+    // table recoverable instead of blank.
+    if (!byKey.size) return {
+      cols: columns,
+      actionPos: hasActions ? columns.length : -1
+    };
+    const out = [];
+    let actionPos = -1;
+    order.forEach(id => {
+      if (id === '__actions') {
+        actionPos = out.length;
+        return;
+      }
+      if (byKey.has(id)) {
+        out.push(byKey.get(id));
+        byKey.delete(id);
+      }
+    });
+    byKey.forEach(c => out.push(c)); // anything the order somehow missed keeps its place
+    return {
+      cols: out,
+      actionPos: hasActions ? actionPos < 0 ? out.length : actionPos : -1
+    };
+  };
+
+  // How many LEADING columns the config wants frozen on the left, and how many TRAILING
+  // ones on the right. `pinned: true` / `'left'` freeze from the left, `'right'` from the
+  // right. Only the leading run counts on the left and only the trailing run on the right
+  // — a frozen column in the middle would have its neighbours scroll out from under it,
+  // so each side is fully described by a single count.
+  const countLeadingPinned = cols => {
+    let n = 0;
+    for (const c of cols) {
+      if (c.pinned && c.pinned !== 'right') n++;else break;
+    }
+    return n;
+  };
+  const countTrailingPinned = cols => {
+    let n = 0;
+    for (let i = cols.length - 1; i >= 0; i--) {
+      if (cols[i].pinned === 'right') n++;else break;
+    }
+    return n;
+  };
+
+  /**
+   * HARD CAP: the pinned block must never be as wide as the viewport. Beyond that there is
+   * no room left to actually read the scrolling columns, and the frozen block starts
+   * fighting the scroller instead of helping. Capping also matches the UX reality of
+   * "freeze panes" in any spreadsheet.
+   *
+   * The right block is measured first (it is usually one or two columns, and the Action
+   * column often rides along with it), then whatever viewport is left funds the left
+   * block. A run of the last n caller columns also carries the Action column whenever the
+   * Action column sits inside that run — i.e. from `cols.length - n` onwards. Only then
+   * does its width come out of the right-hand budget.
+   */
+  const computeMaxRightPinCount = ({
+    cols,
+    wrapW,
+    hasActions,
+    actionPos,
+    actionColWidth
+  }) => {
+    if (!wrapW) return cols.length; // not measured yet — the cap kicks in right after mount
+    const budget = wrapW - PIN_MIN_SCROLLABLE;
+    let used = hasActions && actionPos === cols.length ? actionColWidth : 0;
+    let n = 0;
+    for (let i = cols.length - 1; i >= 0; i--) {
+      used += colWidthOf(cols[i]);
+      if (hasActions && actionPos === i) used += actionColWidth;
+      if (used > budget) break;
+      n++;
+    }
+    return n;
+  };
+
+  /** Mirror of computeMaxRightPinCount for the left edge, funded by what it leaves over. */
+  const computeMaxLeftPinCount = ({
+    cols,
+    wrapW,
+    hasActions,
+    actionPos,
+    actionColWidth,
+    stripWidth,
+    rightBlockWidth,
+    effectiveRightPinCount
+  }) => {
+    if (!wrapW) return cols.length;
+    const budget = wrapW - PIN_MIN_SCROLLABLE - rightBlockWidth;
+    let used = stripWidth;
+    let n = 0;
+    for (let i = 0; i < cols.length; i++) {
+      if (hasActions && actionPos === i) used += actionColWidth; // swept into this prefix
+      used += colWidthOf(cols[i]);
+      if (used > budget) break;
+      n++;
+    }
+    return Math.min(n, cols.length - effectiveRightPinCount);
+  };
+
+  /** Total width of the right-hand frozen block, Action column included when it is in it. */
+  const rightBlockWidthOf = ({
+    cols,
+    effectiveRightPinCount,
+    actionsPinnedRight,
+    actionColWidth
+  }) => {
+    let w = actionsPinnedRight ? actionColWidth : 0;
+    for (let i = cols.length - effectiveRightPinCount; i < cols.length; i++) w += colWidthOf(cols[i]);
+    return w;
+  };
+
+  /**
+   * Sticky `left` for each left-frozen column = total width of the frozen columns before
+   * it, and the mirror image for the right block (walk backwards, accumulating the widths
+   * beyond it). Keyed by the id react-table will use.
+   */
+  const stickyOffsets = allColumns => {
+    const left = {};
+    const right = {};
+    let acc = 0;
+    allColumns.forEach(c => {
+      if (!c.pinned) return;
+      const id = colIdOf(c);
+      if (id) left[id] = acc;
+      acc += colWidthOf(c);
+    });
+    acc = 0;
+    for (let i = allColumns.length - 1; i >= 0; i--) {
+      const c = allColumns[i];
+      if (!c.pinnedRight) continue;
+      const id = colIdOf(c);
+      if (id) right[id] = acc;
+      acc += colWidthOf(c);
+    }
+    return {
+      left,
+      right
+    };
+  };
+
+  /**
+   * What a column renders when it configures neither a `Cell` nor a `Filter`.
+   *
+   * The default cell prints the raw value on one line with an ellipsis and a `title`, so a
+   * clipped value is still readable on hover. `0` / `'0'` / `'NULL'` are blanked
+   * deliberately: these lists are financial, and a column of zeros is noise that hides the
+   * rows that do carry a figure.
+   */
+  const DefaultCell = ({
+    value
+  }) => {
+    const show = value !== undefined && value !== null && value !== 'NULL' && value !== 0 && value !== '0';
+    return /*#__PURE__*/React.createElement("div", {
+      style: ELLIPSIS,
+      title: show ? String(value) : ''
+    }, show ? value : '');
+  };
+
+  /**
+   * The per-column search box. Its click is stopped so it never toggles the sort.
+   *
+   * ## Why the replaceable input is read off the instance and not closed over
+   *
+   * react-table's `decorateColumn` MUTATES each column object — `Object.assign(column,
+   * {...defaultColumn, ...column})` — so whatever `Filter` is stamped on a column the
+   * first time it is decorated stays there for the life of that object. Building this
+   * component around a captured `FilterInput` therefore froze the `components.FilterInput`
+   * slot at mount: changing it later did nothing, and the reason was three layers away
+   * inside a dependency.
+   *
+   * `render('Filter')` spreads the table instance into these props, and FreezeTable
+   * forwards the resolved slot map onto the instance as `ui` (the same route `userList`
+   * and `context` take). So the stamped function is permanently identical — which is what
+   * react-table wants — while the component it delegates to is read fresh on every render.
+   */
+  const DefaultColumnFilter = ({
+    ui,
+    column: {
+      filterValue,
+      setFilter,
+      preFilteredRows
+    }
+  }) => {
+    const FilterInput$1 = ui && ui.FilterInput || FilterInput;
+    return /*#__PURE__*/React.createElement(FilterInput$1, {
+      value: filterValue || '',
+      onClick: e => e.stopPropagation(),
+      onChange: e => setFilter(e.target.value || undefined),
+      placeholder: `Search ${preFilteredRows.length}...`
+    });
+  };
+
+  /**
+   * The four absolutely-positioned overlays that live beside the scrollport, all of them
+   * driven imperatively (never by React state) so that nothing here re-renders during a
+   * scroll or a drag:
+   *
+   *   - the two overlay scrollbar tracks, drawn because the native bars have to be hidden
+   *     (see useOverlayScrollbars for why). The vertical track is inset by the header and
+   *     footer heights so it runs beside the ROWS only.
+   *   - the resize guide, a vertical line following the pointer during a column resize.
+   *   - the drop line, showing where a dragged column will land.
+   */
+  const OverlayBars = ({
+    headH,
+    listH,
+    topOffset = 0,
+    vTrackRef,
+    vThumbRef,
+    hTrackRef,
+    hThumbRef,
+    startThumbDrag,
+    onTrackDown,
+    guideRef,
+    dropRef,
+    classNames
+  }) => /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: cx('ft-track ft-track-v', classNames.track),
+    ref: vTrackRef,
+    onPointerDown: onTrackDown('y'),
+    style: {
+      right: 0,
+      top: topOffset + headH,
+      height: listH,
+      display: 'none'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: cx('ft-thumb', classNames.thumb),
+    ref: vThumbRef,
+    onPointerDown: startThumbDrag('y')
+  })), /*#__PURE__*/React.createElement("div", {
+    className: cx('ft-track ft-track-h', classNames.track),
+    ref: hTrackRef,
+    onPointerDown: onTrackDown('x'),
+    style: {
+      left: 0,
+      right: 11,
+      bottom: 0,
+      display: 'none'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: cx('ft-thumb', classNames.thumb),
+    ref: hThumbRef,
+    onPointerDown: startThumbDrag('x')
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "ft-resize-guide",
+    ref: guideRef,
+    style: {
+      display: 'none',
+      top: topOffset || undefined
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "ft-drop-line",
+    ref: dropRef,
+    style: {
+      display: 'none',
+      top: topOffset || undefined
+    }
+  }));
+
+  /**
+   * One windowed row, absolutely positioned at `index * rowHeight` inside a
+   * full-content-height container.
+   *
+   * Memoized, and it **must not** re-render on a selection change: the row reads the
+   * selected index from a REF for its initial paint, and the selection-highlight effect in
+   * FreezeTable repaints backgrounds imperatively (via the `data-ct-*` attributes below).
+   * Without this, every ↑/↓ press re-rendered all visible rows — each with icon-heavy
+   * action cells — which made arrow navigation visibly laggy on wide lists. Putting
+   * `selectedIndex` into `itemData` reintroduces exactly that lag.
+   *
+   * ## Why the backgrounds are `var()` strings and not colours
+   *
+   * The hover is painted by the two handlers below writing `style.backgroundColor`
+   * directly, which no stylesheet rule can override. Writing a CSS variable REFERENCE
+   * instead is what makes the row hover themeable at all: the declaration is still inline
+   * and still wins, but the value it resolves to comes from `--ft-row-hover` on the root,
+   * i.e. from the consumer. The literal in each `v()` call stays as the fallback so a
+   * table whose stylesheet never loaded (CSP, `unstyled`) still paints the right colour.
+   */
+  const VirtualRow = /*#__PURE__*/React.memo(function VirtualRow({
+    data,
+    index
+  }) {
+    const {
+      rows,
+      prepareRow,
+      rowStyle,
+      selectedBg,
+      rowNavigation,
+      fontPx,
+      selectedIndexRef,
+      onSelect,
+      rowHeight,
+      pinnedLeft,
+      pinnedRight,
+      rowSnap,
+      classNames,
+      unstyled
+    } = data;
+    const style = {
+      position: 'absolute',
+      top: index * rowHeight,
+      left: 0,
+      width: '100%',
+      height: rowHeight
+    };
+    const row = rows[index];
+    prepareRow(row);
+    const {
+      key: rowKey,
+      ...rowProps
+    } = row.getRowProps({
+      style
+    });
+    const custom = rowStyle && rowStyle(row.original) || {};
+    const customBg = custom.backgroundColor || '';
+    const isSelected = rowNavigation && index === selectedIndexRef.current;
+    const rowBg = unstyled ? '' : v('row-bg');
+    // A status tint wins over the selection/hover highlight: it carries business
+    // meaning (cancelled, failed to post) that must not be masked by a blue row.
+    const baseBg = customBg || (isSelected ? selectedBg : rowBg);
+    return /*#__PURE__*/React.createElement("div", _extends({
+      key: rowKey
+    }, rowProps, {
+      className: cx('ft-row ct-row', classNames.row),
+      "data-ct-index": index,
+      "data-ct-bg": customBg || rowBg,
+      "data-ct-custom": customBg ? '1' : '',
+      onMouseEnter: e => {
+        if (unstyled || customBg || index === selectedIndexRef.current) return;
+        e.currentTarget.style.backgroundColor = v('row-hover');
+      },
+      onMouseLeave: e => {
+        if (unstyled) return;
+        const sel = rowNavigation && index === selectedIndexRef.current;
+        e.currentTarget.style.backgroundColor = customBg || (sel ? selectedBg : rowBg);
+      },
+      onClick: () => onSelect(index),
+      style: {
+        ...rowProps.style,
+        cursor: 'default',
+        // Snap target — see the scrollSnapType/scrollPaddingTop pair on .ft-wrap.
+        scrollSnapAlign: rowSnap ? 'start' : undefined,
+        // `rowStyle` is the caller's own decision and is honoured even when `unstyled`
+        // strips the package's paint: they asked for this row to be tinted.
+        color: custom.color,
+        ...(customBg ? {
+          backgroundColor: customBg
+        } : null),
+        ...skin(unstyled, {
+          backgroundColor: baseBg,
+          borderBottom: `1px solid ${v('row-border')}`
+        })
+      }
+    }), row.cells.map(cell => {
+      const {
+        key: cellKey,
+        ...cellProps
+      } = cell.getCellProps();
+      const pinned = cell.column.pinned;
+      const pinnedR = cell.column.pinnedRight;
+      // Frozen by the browser, not by JS: sticky offsets are resolved against .ft-wrap,
+      // the single scrollport for both axes.
+      return /*#__PURE__*/React.createElement("div", _extends({
+        key: cellKey
+      }, cellProps, {
+        className: cx('ft-td ct-td', classNames.cell),
+        "data-ct-pin": pinned || pinnedR ? '1' : undefined,
+        "data-ct-pin-last": pinned && cell.column.pinnedLast ? '1' : undefined,
+        "data-ct-pin-right-first": pinnedR && cell.column.pinnedRightFirst ? '1' : undefined,
+        style: {
+          ...cellProps.style,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: alignFlex(cell.column.align),
+          overflow: 'hidden',
+          textAlign: cell.column.align || 'left',
+          ...skin(unstyled, {
+            padding: cell.column.noPadding ? 0 : '0 12px',
+            fontSize: fontPx
+          }),
+          // `background: inherit` tracks the row's imperative bg changes
+          // (selection / hover / status tint) with zero extra bookkeeping.
+          ...(pinned || pinnedR ? {
+            position: 'sticky',
+            ...(pinned ? {
+              left: pinnedLeft[cell.column.id] || 0
+            } : {
+              right: pinnedRight[cell.column.id] || 0
+            }),
+            zIndex: 2,
+            // Structural, like the frozen header's background: a transparent
+            // frozen cell shows the scrolling columns sliding under it.
+            background: 'inherit'
+          } : {})
+        }
+      }), cell.render('Cell'));
+    }));
+  });
+
+  /**
+   * The row band, and the two states that replace it.
+   *
+   * Only the visible slice is mounted; each row is absolutely positioned at
+   * `index * rowHeight` inside a container of the full content height, so the wrap's
+   * (overlaid) scrollbar covers the whole list even though only ~20 rows exist in the DOM.
+   *
+   * Rows render only once `listH > 0` — i.e. after the row band has been measured. Before
+   * that the window would be one row tall, and on the server there is nothing to measure
+   * at all, which is why server-rendered markup carries the header and footer but no rows.
+   */
+  const TableBody = ({
+    bodyProps,
+    bodyWrapRef,
+    rows,
+    rowHeight,
+    listH,
+    firstIdx,
+    lastIdx,
+    itemData,
+    loading,
+    loadingText,
+    dataFetched,
+    emptyText,
+    classNames,
+    ui,
+    unstyled
+  }) => /*#__PURE__*/React.createElement("div", _extends({}, bodyProps, {
+    ref: bodyWrapRef,
+    className: cx(bodyProps.className, classNames.body),
+    style: {
+      flex: '1 0 auto',
+      position: 'relative',
+      height: rows.length ? rows.length * rowHeight : undefined
+    }
+  }), loading ? /*#__PURE__*/React.createElement("div", {
+    className: cx('ft-loading ct-loading', classNames.loading),
+    style: {
+      padding: '90px 0',
+      textAlign: 'center'
+    }
+  }, ui.Spinner && /*#__PURE__*/React.createElement(ui.Spinner, {
+    text: loadingText
+  })) : rows.length === 0 && dataFetched ? /*#__PURE__*/React.createElement("div", {
+    className: cx('ft-empty ct-empty', classNames.empty),
+    style: {
+      padding: '80px 0',
+      textAlign: 'center',
+      ...skin(unstyled, {
+        color: v('text-muted')
+      })
+    }
+  }, ui.Empty && /*#__PURE__*/React.createElement(ui.Empty, {
+    text: emptyText
+  })) : listH > 0 ? Array.from({
+    length: Math.max(0, lastIdx - firstIdx + 1)
+  }, (_, k) => {
+    const index = firstIdx + k;
+    return /*#__PURE__*/React.createElement(VirtualRow, {
+      key: rows[index].id != null ? rows[index].id : index,
+      data: itemData,
+      index: index
+    });
+  }) : null);
+
+  /**
+   * The sticky totals footer. A column's `Footer` function receives the table instance, so
+   * `info.rows` is the FILTERED row set — the totals follow the search boxes.
+   *
+   * `footerLeft` is a static label laid over the row absolutely (it belongs to no column),
+   * and is `pointerEvents: none` so it never swallows a click meant for the footer cell
+   * underneath it.
+   */
+  const TableFoot = ({
+    footerGroups,
+    footRef,
+    fontPx,
+    footerLeft,
+    pinnedLeft,
+    pinnedRight,
+    classNames,
+    unstyled
+  }) => /*#__PURE__*/React.createElement(React.Fragment, null, footerGroups.map(group => {
+    const {
+      key: footerGroupKey,
+      ...footerGroupProps
+    } = group.getFooterGroupProps();
+    return /*#__PURE__*/React.createElement("div", _extends({
+      key: footerGroupKey
+    }, footerGroupProps, {
+      ref: footRef,
+      className: cx('ft-foot ct-foot', classNames.foot),
+      style: {
+        ...footerGroupProps.style,
+        flex: '0 0 auto',
+        position: 'sticky',
+        bottom: 0,
+        zIndex: 4,
+        ...skin(unstyled, {
+          background: v('foot-bg'),
+          borderTop: `1px solid ${v('border')}`
+        })
+      }
+    }), group.headers.map(column => {
+      const {
+        key: footerKey,
+        ...footerProps
+      } = column.getFooterProps();
+      const isPinned = column.pinned || column.pinnedRight;
+      return /*#__PURE__*/React.createElement("div", _extends({
+        key: footerKey
+      }, footerProps, {
+        className: cx('ft-tf ct-tf', classNames.footCell),
+        "data-ct-pin": isPinned ? '1' : undefined,
+        "data-ct-pin-last": column.pinnedLast ? '1' : undefined,
+        "data-ct-pin-right-first": column.pinnedRightFirst ? '1' : undefined,
+        style: {
+          ...footerProps.style,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: alignFlex(column.align),
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textAlign: column.align || 'left',
+          ...skin(unstyled, {
+            padding: column.noPadding ? 0 : '8px 12px',
+            fontSize: fontPx,
+            fontWeight: 700,
+            color: v('foot-text')
+          }),
+          ...(isPinned ? {
+            position: 'sticky',
+            ...(column.pinned ? {
+              left: pinnedLeft[column.id] || 0
+            } : {
+              right: pinnedRight[column.id] || 0
+            }),
+            zIndex: 5,
+            // Structural: an opaque frozen footer cell, for the same reason
+            // the frozen header and body cells need one.
+            background: v('foot-bg')
+          } : {})
+        }
+      }), column.render('Footer'));
+    }), footerLeft != null && /*#__PURE__*/React.createElement("div", {
+      style: {
+        position: 'absolute',
+        left: 12,
+        top: 0,
+        height: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        whiteSpace: 'nowrap',
+        pointerEvents: 'none',
+        ...skin(unstyled, {
+          fontSize: fontPx,
+          fontWeight: 700,
+          color: v('foot-text')
+        })
+      }
+    }, footerLeft));
+  }));
+
+  /**
+   * The sticky header row: label + sort arrow, the per-column filter box, the resize grip
+   * and the pin marker on whichever column is currently the freeze boundary.
+   *
+   * The header cell is also the drag surface for BOTH header drags — see useColumnDrag for
+   * how one press is split between sorting, reordering and resizing.
+   *
+   * On the style objects below: `position`, `top`, `left`/`right`, `zIndex` and `flex` are
+   * the freeze mechanism itself and are always applied. Only the paint goes through
+   * `skin()`, which `unstyled` turns off — see lib/slots.js for why the split lives at each
+   * call site rather than in a central list.
+   */
+  const TableHead = ({
+    headerGroups,
+    headRef,
+    fontPx,
+    sortable,
+    searchable,
+    resizable,
+    reorderable,
+    pinnedLeft,
+    pinnedRight,
+    startColReorder,
+    startColResize,
+    onHeaderClickCapture,
+    resetColumnWidths,
+    classNames,
+    ui,
+    unstyled
+  }) => /*#__PURE__*/React.createElement(React.Fragment, null, headerGroups.map(headerGroup => {
+    const {
+      key: headerGroupKey,
+      ...headerGroupProps
+    } = headerGroup.getHeaderGroupProps();
+    return /*#__PURE__*/React.createElement("div", _extends({
+      key: headerGroupKey
+    }, headerGroupProps, {
+      ref: headRef,
+      className: cx('ft-head ct-head', classNames.head),
+      style: {
+        ...headerGroupProps.style,
+        flex: '0 0 auto',
+        position: 'sticky',
+        top: 0,
+        zIndex: 4,
+        ...skin(unstyled, {
+          background: v('header-bg'),
+          borderBottom: `1px solid ${v('border')}`
+        })
+      }
+    }), headerGroup.headers.map(column => {
+      const canSort = sortable && !column.disableSortBy;
+      const canSearch = searchable && column.canFilter && !column.disableFilters;
+      // The status strip is a fixed 4px bar — there is nothing in it to resize.
+      const canResize = resizable && !column.disableResizing && column.id !== '__strip';
+      // …and nothing to move: it belongs to the row, not to the caller's columns.
+      const canReorder = reorderable && !column.disableReordering && column.id !== '__strip';
+      const {
+        key: headerKey,
+        ...headerProps
+      } = column.getHeaderProps();
+      const sortDir = column.isSorted ? column.isSortedDesc ? 'desc' : 'asc' : null;
+      const isPinned = column.pinned || column.pinnedRight;
+      return /*#__PURE__*/React.createElement("div", _extends({
+        key: headerKey
+      }, headerProps, {
+        className: cx('ft-th ct-th', classNames.th),
+        "data-ct-col": column.id,
+        onPointerDown: canReorder ? startColReorder(column.id) : undefined,
+        onClickCapture: canReorder ? onHeaderClickCapture : undefined,
+        "data-ct-pin": isPinned ? '1' : undefined,
+        "data-ct-pin-last": column.pinnedLast ? '1' : undefined,
+        "data-ct-pin-right-first": column.pinnedRightFirst ? '1' : undefined,
+        style: {
+          ...headerProps.style,
+          boxSizing: 'border-box',
+          // Containing block for the resize grip. A pinned header overrides
+          // this with `sticky`, which is just as good an anchor.
+          position: 'relative',
+          ...skin(unstyled, {
+            padding: column.noPadding ? 0 : '7px 12px 9px'
+          }),
+          ...(isPinned ? {
+            position: 'sticky',
+            ...(column.pinned ? {
+              left: pinnedLeft[column.id] || 0
+            } : {
+              right: pinnedRight[column.id] || 0
+            }),
+            // above the scrolling header cells it overlaps
+            zIndex: 5,
+            // Not optional under `unstyled`: a frozen header cell with a
+            // transparent background lets the scrolling columns show
+            // through it. It is structural, not decoration.
+            background: v('header-bg')
+          } : {})
+        }
+      }), /*#__PURE__*/React.createElement("div", _extends({}, canSort ? column.getSortByToggleProps({
+        title: undefined
+      }) : {}, {
+        className: cx('ft-th-label ct-th-label', classNames.thLabel),
+        style: {
+          display: 'flex',
+          alignItems: 'center',
+          // sort icon sits at the opposite end of the column from the header text:
+          // left-aligned header -> icon pushed to the far right; right-aligned -> far left.
+          justifyContent: canSort && column.align !== 'center' ? 'space-between' : alignFlex(column.align),
+          gap: 4,
+          cursor: canSort ? 'pointer' : 'default',
+          userSelect: 'none',
+          whiteSpace: 'nowrap',
+          ...skin(unstyled, {
+            fontWeight: 700,
+            fontSize: fontPx,
+            color: v('header-text')
+          })
+        }
+      }), canSort && column.align === 'right' && ui.SortIcon && /*#__PURE__*/React.createElement(ui.SortIcon, {
+        direction: sortDir
+      }), /*#__PURE__*/React.createElement("span", {
+        style: {
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 4,
+          minWidth: 0
+        }
+      }, /*#__PURE__*/React.createElement("span", {
+        style: {
+          overflow: 'hidden',
+          textOverflow: 'ellipsis'
+        }
+      }, column.render('Header')), (column.pinnedLast && column.pinIndex != null || column.pinnedRightFirst) && ui.PinIcon && /*#__PURE__*/React.createElement(ui.PinIcon, {
+        title: column.pinnedLast ? 'Columns up to here are pinned' : 'Columns from here are pinned to the right'
+      })), canSort && column.align !== 'right' && ui.SortIcon && /*#__PURE__*/React.createElement(ui.SortIcon, {
+        direction: sortDir
+      })), canSearch && /*#__PURE__*/React.createElement("div", {
+        className: cx('ft-th-filter ct-th-filter', classNames.thFilter),
+        style: {
+          marginTop: 4
+        }
+      }, column.render('Filter')), canResize && /*#__PURE__*/React.createElement("div", {
+        className: cx('ft-resizer ct-resizer', classNames.resizer),
+        onPointerDown: startColResize(column.id),
+        onDoubleClick: () => resetColumnWidths(column.id),
+        title: "Drag to resize \xB7 double-click to reset"
+      }));
+    }));
+  }));
+
+  /**
+   * The built-in toolbar — the two menus that used to be "yours to render".
+   *
+   * Everything it drives already existed on the imperative ref, and a caller who wants
+   * their own design system's dropdowns still has that route; this is the version for the
+   * far more common case, where a list wants the standard freeze / show-hide / reorder
+   * menus and nobody wants to write them again per screen.
+   *
+   * It sits OUTSIDE `.ft-wrap`, inside `.ft-root`. That matters twice: the menus have their
+   * own `overflow-y`, and a scroll container inside the scrollport would become the sticky
+   * container for the cells beneath it and break the column freeze — and staying inside
+   * `.ft-root` is what puts the menus in the token scope, so they inherit the table's
+   * theme instead of needing one of their own.
+   *
+   * Every visual piece here — the buttons, the popover, each entry, the headings and the
+   * rules — comes in through `ui`, so a caller can hand the toolbar their own design
+   * system's components (`components` prop) and keep the behaviour.
+   *
+   * Menu state is local and deliberately dumb — one open menu at a time, closed by a click
+   * anywhere else, by Escape, or by making a choice. Every choice hands focus back to the
+   * table, so the arrow keys keep working without a click on the rows.
+   */
+
+  const usePopover = (open, onClose) => {
+    const ref = React.useRef(null);
+    React.useEffect(() => {
+      if (!open) return undefined; // nothing to dismiss — do not listen on the document
+      const onDown = e => {
+        if (ref.current && !ref.current.contains(e.target)) onClose();
+      };
+      const onKey = e => {
+        if (e.key === 'Escape') onClose();
+      };
+      document.addEventListener('pointerdown', onDown);
+      document.addEventListener('keydown', onKey);
+      return () => {
+        document.removeEventListener('pointerdown', onDown);
+        document.removeEventListener('keydown', onKey);
+      };
+    }, [open, onClose]);
+    return ref;
+  };
+
+  /** Show / hide, move up / down, and the three resets. */
+  const ColumnMenu = ({
+    list,
+    onToggle,
+    onMove,
+    onShowAll,
+    onResetWidths,
+    onResetOrder,
+    ui,
+    classNames
+  }) => /*#__PURE__*/React.createElement(ui.Menu, {
+    className: classNames.menu
+  }, /*#__PURE__*/React.createElement(ui.MenuHeading, null, "Columns"), list.map(c => /*#__PURE__*/React.createElement("div", {
+    key: c.id || c.position,
+    style: {
+      display: 'flex',
+      alignItems: 'center'
+    }
+  }, /*#__PURE__*/React.createElement(ui.MenuItem, {
+    role: "menuitemcheckbox",
+    "aria-checked": !c.hidden,
+    checked: !c.hidden,
+    icon: ui.CheckIcon,
+    className: classNames.menuItem,
+    disabled: !c.hideable,
+    onClick: () => onToggle(c.id)
+    // A column with no header text (or a node for one) still has to be listable, or
+    // the menu would silently be missing rows the table is showing.
+    ,
+    title: c.hideable ? undefined : 'This column cannot be hidden'
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      flex: 1,
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+      whiteSpace: 'nowrap'
+    }
+  }, c.header || c.id)), /*#__PURE__*/React.createElement("span", {
+    style: {
+      display: 'flex',
+      paddingRight: 4
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: "ft-menu-move",
+    disabled: !c.movable || c.position === 0,
+    onClick: () => onMove(c.id, c.position - 1),
+    title: "Move left",
+    "aria-label": `Move ${c.header || c.id} left`
+  }, "\u2191"), /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: "ft-menu-move",
+    disabled: !c.movable || c.position === list.length - 1,
+    onClick: () => onMove(c.id, c.position + 1),
+    title: "Move right",
+    "aria-label": `Move ${c.header || c.id} right`
+  }, "\u2193")))), /*#__PURE__*/React.createElement(ui.MenuSeparator, null), /*#__PURE__*/React.createElement(ui.MenuItem, {
+    role: "menuitem",
+    className: classNames.menuItem,
+    onClick: onShowAll
+  }, "Show all columns"), /*#__PURE__*/React.createElement(ui.MenuItem, {
+    role: "menuitem",
+    className: classNames.menuItem,
+    onClick: onResetWidths
+  }, "Reset widths"), /*#__PURE__*/React.createElement(ui.MenuItem, {
+    role: "menuitem",
+    className: classNames.menuItem,
+    onClick: onResetOrder
+  }, "Reset order"));
+
+  /**
+   * "Pin up to here" on the left, "pin from here" on the right. Entries past the viewport
+   * cap are disabled rather than hidden, so the menu shows WHY a column cannot be frozen
+   * (there would be no room left to read the scrolling ones) instead of quietly omitting it.
+   */
+  const PinMenu = ({
+    columns,
+    left,
+    maxLeft,
+    right,
+    maxRight,
+    onLeft,
+    onRight,
+    ui,
+    classNames
+  }) => /*#__PURE__*/React.createElement(ui.Menu, {
+    align: "right",
+    className: classNames.menu
+  }, /*#__PURE__*/React.createElement(ui.MenuHeading, null, "Freeze left"), /*#__PURE__*/React.createElement(ui.MenuItem, {
+    role: "menuitemradio",
+    "aria-checked": left === 0,
+    "aria-current": left === 0,
+    checked: left === 0,
+    icon: ui.CheckIcon,
+    className: classNames.menuItem,
+    onClick: () => onLeft(0)
+  }, /*#__PURE__*/React.createElement("span", null, "No freeze")), columns.map((c, i) => /*#__PURE__*/React.createElement(ui.MenuItem, {
+    key: 'l' + i,
+    role: "menuitemradio",
+    "aria-checked": left === i + 1,
+    "aria-current": left === i + 1,
+    checked: left === i + 1,
+    icon: ui.CheckIcon,
+    className: classNames.menuItem,
+    disabled: i + 1 > maxLeft,
+    onClick: () => onLeft(i + 1),
+    title: i + 1 > maxLeft ? 'Not enough room left for the scrolling columns' : undefined
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+      whiteSpace: 'nowrap'
+    }
+  }, "Up to ", c.label))), /*#__PURE__*/React.createElement(ui.MenuSeparator, null), /*#__PURE__*/React.createElement(ui.MenuHeading, null, "Freeze right"), /*#__PURE__*/React.createElement(ui.MenuItem, {
+    role: "menuitemradio",
+    "aria-checked": right === 0,
+    "aria-current": right === 0,
+    checked: right === 0,
+    icon: ui.CheckIcon,
+    className: classNames.menuItem,
+    onClick: () => onRight(0)
+  }, /*#__PURE__*/React.createElement("span", null, "No freeze")), columns.map((c, i) => {
+    const n = columns.length - i;
+    return /*#__PURE__*/React.createElement(ui.MenuItem, {
+      key: 'r' + i,
+      role: "menuitemradio",
+      "aria-checked": right === n,
+      "aria-current": right === n,
+      checked: right === n,
+      icon: ui.CheckIcon,
+      className: classNames.menuItem,
+      disabled: n > maxRight,
+      onClick: () => onRight(n),
+      title: n > maxRight ? 'Not enough room left for the scrolling columns' : undefined
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap'
+      }
+    }, "From ", c.label));
+  }));
+  const Toolbar = ({
+    toolbarRef,
+    fontPx,
+    config,
+    getColumnList,
+    pinColumns,
+    pin,
+    api,
+    refocus,
+    ui,
+    classNames,
+    unstyled
+  }) => {
+    const [open, setOpen] = React.useState(null);
+    const close = React.useCallback(() => setOpen(null), []);
+    const boxRef = usePopover(open !== null, close);
+
+    // An action that ends the job closes the menu and hands the keyboard back to the rows —
+    // a menu left open after a choice leaves the table unfocused, and the arrow keys dead.
+    // Show/hide and move are deliberately NOT wrapped: the point of those is to make
+    // several changes in one visit.
+    const run = f => (...args) => {
+      f(...args);
+      close();
+      refocus();
+    };
+    const showColumns = config.columns !== false;
+    const showPin = config.pin !== false && pinColumns.length > 0;
+    return /*#__PURE__*/React.createElement("div", {
+      ref: toolbarRef,
+      className: cx('ft-toolbar ct-toolbar', classNames.toolbar),
+      style: {
+        flex: '0 0 auto',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+        boxSizing: 'border-box',
+        ...skin(unstyled, {
+          padding: '6px 8px',
+          borderBottom: `1px solid ${v('border')}`,
+          background: v('toolbar-bg'),
+          fontSize: fontPx
+        })
+      }
+    }, config.left != null && /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+        minWidth: 0
+      }
+    }, config.left), /*#__PURE__*/React.createElement("div", {
+      style: {
+        flex: 1
+      }
+    }), config.right != null && /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8
+      }
+    }, config.right), /*#__PURE__*/React.createElement("div", {
+      ref: boxRef,
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8
+      }
+    }, showColumns && /*#__PURE__*/React.createElement("div", {
+      style: {
+        position: 'relative'
+      }
+    }, /*#__PURE__*/React.createElement(ui.Button, {
+      className: classNames.button,
+      "aria-haspopup": "menu",
+      "aria-expanded": open === 'columns',
+      onClick: () => setOpen(open === 'columns' ? null : 'columns')
+    }, ui.ColumnsIcon && /*#__PURE__*/React.createElement(ui.ColumnsIcon, null), "Columns"), open === 'columns' && /*#__PURE__*/React.createElement(ColumnMenu
+    // Derived only while the menu is open: the shell re-renders on every
+    // scroll frame (the windowing offset is state), and walking the column
+    // order each of those frames for a menu nobody is looking at is waste.
+    , {
+      list: getColumnList(),
+      onToggle: api.toggleColumn,
+      onMove: api.moveColumn,
+      onShowAll: run(api.showAllColumns),
+      onResetWidths: run(api.resetColumnWidths),
+      onResetOrder: run(api.resetColumnOrder),
+      ui: ui,
+      classNames: classNames
+    })), showPin && /*#__PURE__*/React.createElement("div", {
+      style: {
+        position: 'relative'
+      }
+    }, /*#__PURE__*/React.createElement(ui.Button, {
+      className: classNames.button,
+      "aria-haspopup": "menu",
+      "aria-expanded": open === 'pin',
+      onClick: () => setOpen(open === 'pin' ? null : 'pin')
+    }, ui.PinIcon && /*#__PURE__*/React.createElement(ui.PinIcon, {
+      color: v('icon'),
+      size: 11
+    }), "Freeze", pin.left + pin.right > 0 && /*#__PURE__*/React.createElement("span", {
+      style: {
+        color: v('accent'),
+        fontWeight: 700
+      }
+    }, pin.left > 0 ? ' ' + pin.left : '', pin.left > 0 && pin.right > 0 ? ' +' : '', pin.right > 0 ? ' ' + pin.right : '')), open === 'pin' && /*#__PURE__*/React.createElement(PinMenu, {
+      columns: pinColumns,
+      left: pin.left,
+      maxLeft: pin.maxLeft,
+      right: pin.right,
+      maxRight: pin.maxRight,
+      onLeft: run(api.setLeftPinCount),
+      onRight: run(api.setRightPinCount),
+      ui: ui,
+      classNames: classNames
+    }))));
+  };
+
+  /**
+   * The two header drags.
+   *
+   * A header press has to serve three gestures: a click sorts, a sideways drag reorders,
+   * and a drag on the right-edge grip resizes. The grip's own handler stops propagation so
+   * it never starts a reorder; the reorder arms itself only after DRAG_SLOP pixels, so a
+   * plain click falls straight through to the sort toggle, and once it HAS armed the click
+   * that pointer-up fires is swallowed in the capture phase (otherwise every reorder would
+   * flip the sort on its way out).
+   *
+   * NEITHER drag writes to state per frame. Both paint a line and commit exactly once, on
+   * pointer-up: the column defs are what `itemData` hangs off, so a live width or a live
+   * order would re-render every visible row sixty times a second — the same cost the
+   * memoized rows and the imperative selection highlight exist to avoid. (It is also what
+   * Excel and Sheets do.)
+   */
+  const useColumnDrag = ({
+    rootRef,
+    containerRef,
+    guideRef,
+    dropRef,
+    orderRef,
+    minColumnWidth,
+    setColumnWidth,
+    setColumnOrder
+  }) => {
+    const startColResize = React.useCallback(id => e => {
+      if (e.button !== 0) return;
+      e.preventDefault();
+      e.stopPropagation(); // never let the press reach the header's sort toggle
+      const handle = e.currentTarget;
+      const th = handle.parentElement;
+      const root = rootRef.current;
+      const guide = guideRef.current;
+      if (!th || !root) return;
+      const startX = e.clientX;
+      // Measured, not configured: `width` is only a request — the rendered size is
+      // `min(max(minWidth, width), maxWidth)`, so a column configured `width: 1,
+      // minWidth: 90` is 90px on screen. Starting the drag from the config would make
+      // the column jump on the first pixel of pointer movement.
+      const startW = th.offsetWidth;
+      const rootRect = root.getBoundingClientRect();
+      const thLeft = th.getBoundingClientRect().left - rootRect.left;
+      let width = startW;
+      const paint = clientX => {
+        width = Math.max(minColumnWidth, Math.round(startW + (clientX - startX)));
+        if (!guide) return;
+        guide.style.display = 'block';
+        // Clamped to the table box — the pointer can travel far past either edge, and a
+        // guide drawn outside the root would streak across the page around it.
+        guide.style.transform = `translateX(${Math.min(Math.max(0, thLeft + width), rootRect.width - 2)}px)`;
+      };
+      paint(e.clientX);
+      handle.classList.add('ft-resizing');
+      document.body.style.userSelect = 'none';
+      document.body.style.cursor = 'col-resize';
+      const onMove = ev => paint(ev.clientX);
+      const onUp = () => {
+        window.removeEventListener('pointermove', onMove);
+        window.removeEventListener('pointerup', onUp);
+        if (guide) guide.style.display = 'none';
+        handle.classList.remove('ft-resizing');
+        document.body.style.userSelect = '';
+        document.body.style.cursor = '';
+        if (width !== startW) setColumnWidth(id, width);
+      };
+      window.addEventListener('pointermove', onMove);
+      window.addEventListener('pointerup', onUp);
+    }, [rootRef, guideRef, minColumnWidth, setColumnWidth]);
+    const dragEndedRef = React.useRef(false);
+    const startColReorder = React.useCallback(id => e => {
+      // Mouse only: on a touch screen, dragging a header sideways is how the user pans a
+      // wide table, and stealing that gesture would leave the table unscrollable.
+      if (e.button !== 0 || e.pointerType && e.pointerType !== 'mouse') return;
+      const tag = e.target && e.target.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return; // the filter box
+      dragEndedRef.current = false; // a previous drag that ended off-target never fired its click
+      const th = e.currentTarget;
+      const root = rootRef.current;
+      const wrap = containerRef.current;
+      const line = dropRef.current;
+      if (!root || !wrap) return;
+      const startX = e.clientX;
+      const EDGE = 48; // auto-scroll band at either end of the scrollport
+      let pointerX = startX;
+      let dragging = false;
+      let beforeId = null; // the column the dragged one will land in front of; null = last
+      let raf = 0;
+      const frame = () => {
+        if (!dragging) {
+          raf = 0;
+          return;
+        }
+        const wrapRect = wrap.getBoundingClientRect();
+        // Auto-scroll while the pointer rests near an edge. On a table wide enough to
+        // want frozen columns, the place you are dragging TO is usually off screen, and
+        // without this the drag can only reach as far as the current viewport.
+        if (pointerX < wrapRect.left + EDGE) wrap.scrollLeft -= Math.ceil((wrapRect.left + EDGE - pointerX) / 4);else if (pointerX > wrapRect.right - EDGE) wrap.scrollLeft += Math.ceil((pointerX - (wrapRect.right - EDGE)) / 4);
+
+        // Live rects every frame rather than a snapshot taken at pointer-down: a frozen
+        // header sits nowhere near its layout position, and the auto-scroll above moves
+        // every unfrozen one under the pointer.
+        const rootRect = root.getBoundingClientRect();
+        const heads = root.querySelectorAll('.ft-th[data-ct-col]');
+        let edgeX = null;
+        let lastRight = null;
+        beforeId = null;
+        for (let i = 0; i < heads.length; i++) {
+          const cid = heads[i].getAttribute('data-ct-col');
+          if (cid === '__strip') continue; // the status strip is never a drop target
+          const r = heads[i].getBoundingClientRect();
+          lastRight = r.right;
+          if (beforeId == null && pointerX < r.left + r.width / 2) {
+            beforeId = cid;
+            edgeX = r.left;
+          }
+        }
+        if (beforeId == null) edgeX = lastRight; // past the midpoint of the last one = drop at the end
+        if (line && edgeX != null) {
+          line.style.display = 'block';
+          // Clamped to the table box, exactly like the resize guide: the pointer can
+          // travel far outside it and a line drawn there would streak across the page.
+          line.style.transform = `translateX(${Math.min(Math.max(0, edgeX - rootRect.left), rootRect.width - 3)}px)`;
+        }
+        raf = window.requestAnimationFrame(frame);
+      };
+      const onMove = ev => {
+        pointerX = ev.clientX;
+        if (!dragging) {
+          if (Math.abs(pointerX - startX) < DRAG_SLOP) return;
+          dragging = true;
+          th.classList.add('ft-th-dragging');
+          document.body.style.userSelect = 'none';
+          document.body.style.cursor = 'grabbing';
+        }
+        if (!raf) raf = window.requestAnimationFrame(frame);
+      };
+      const onUp = () => {
+        window.removeEventListener('pointermove', onMove);
+        window.removeEventListener('pointerup', onUp);
+        if (raf) window.cancelAnimationFrame(raf);
+        if (!dragging) return; // never armed — leave the click alone, it is a sort
+        dragging = false;
+        th.classList.remove('ft-th-dragging');
+        if (line) line.style.display = 'none';
+        document.body.style.userSelect = '';
+        document.body.style.cursor = '';
+        dragEndedRef.current = true;
+        const cur = orderRef.current.filter(x => x !== id);
+        const at = beforeId && beforeId !== id ? cur.indexOf(beforeId) : -1;
+        cur.splice(at < 0 ? cur.length : at, 0, id);
+        // Dropping a column back where it started is a no-op, not a layout change worth
+        // persisting or telling the caller about.
+        if (cur.some((x, i) => x !== orderRef.current[i])) setColumnOrder(cur);
+      };
+      window.addEventListener('pointermove', onMove);
+      window.addEventListener('pointerup', onUp);
+    }, [rootRef, containerRef, dropRef, orderRef, setColumnOrder]);
+
+    // Swallow the click a completed reorder drag leaves behind (it would reach the
+    // header's sort toggle). Capture phase, because the toggle's own onClick sits deeper.
+    const onHeaderClickCapture = React.useCallback(e => {
+      if (!dragEndedRef.current) return;
+      dragEndedRef.current = false;
+      e.stopPropagation();
+      e.preventDefault();
+    }, []);
+    return {
+      startColResize,
+      startColReorder,
+      onHeaderClickCapture
+    };
+  };
+
+  /**
+   * Column shorthands — the "you should not have to write this again" layer.
+   *
+   * Before this existed, every list repeated the same three or four lines per column: an
+   * ellipsis `Cell` with a `title`, a right-aligned amount column with a `toLocaleString`
+   * in it, a `Footer` doing `rows.reduce(...)`, a serial column doing
+   * `rows.indexOf(row) + 1`, and `width: 120, minWidth: 120` on every single one because a
+   * bare `width` under react-table's 90px floor was silently ignored.
+   *
+   * `normalizeColumns` folds all of that into two config keys — `type` and `footer` — and
+   * one rule: **anything written explicitly on the column always wins.** A `type` only
+   * fills in what the caller left out, so `{ type: 'currency', align: 'left' }` is a
+   * left-aligned currency column, not an argument.
+   */
+
+  // ---------------------------------------------------------------- value formatting
+
+  const pad2 = n => n < 10 ? '0' + n : String(n);
+
+  /**
+   * Anything a date column is likely to hold: a Date, an epoch number, an ISO string, or
+   * the 'YYYY-MM-DD HH:mm:ss' a SQL backend hands back (which Safari refuses to parse
+   * until the space becomes a 'T'). Returns null for anything else, and the caller then
+   * prints the raw value rather than a confident 'Invalid Date'.
+   */
+  const toDate = v => {
+    if (v == null || v === '' || v === 'NULL') return null;
+    if (v instanceof Date) return Number.isNaN(v.getTime()) ? null : v;
+    if (typeof v === 'number') {
+      const d = new Date(v);
+      return Number.isNaN(d.getTime()) ? null : d;
+    }
+    if (typeof v !== 'string') return null;
+    const s = /^\d{4}-\d{2}-\d{2}[ ]\d{2}:\d{2}/.test(v) ? v.replace(' ', 'T') : v;
+    const d = new Date(s);
+    return Number.isNaN(d.getTime()) ? null : d;
+  };
+  const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const TOKEN = /YYYY|YY|MMM|MM|DD|HH|hh|mm|ss|A/g;
+
+  /**
+   * Token formatter — deliberately tiny, because pulling in a date library for this would
+   * be the single largest thing in the bundle. Understands YYYY YY MMM MM DD HH mm ss, plus
+   * hh/A for 12-hour clocks.
+   */
+  const formatDate = (date, pattern) => {
+    const h24 = date.getHours();
+    const map = {
+      YYYY: String(date.getFullYear()),
+      YY: pad2(date.getFullYear() % 100),
+      MMM: MONTHS[date.getMonth()],
+      MM: pad2(date.getMonth() + 1),
+      DD: pad2(date.getDate()),
+      HH: pad2(h24),
+      hh: pad2(h24 % 12 === 0 ? 12 : h24 % 12),
+      mm: pad2(date.getMinutes()),
+      ss: pad2(date.getSeconds()),
+      A: h24 < 12 ? 'AM' : 'PM'
+    };
+    return pattern.replace(TOKEN, t => map[t]);
+  };
+
+  // Intl.NumberFormat construction is expensive enough to matter when it happens once per
+  // cell per render, and the argument set is tiny, so they are cached by their key.
+  const numberFormatters = {};
+  const numberFormatter = (locale, min, max) => {
+    const key = (locale || '') + '|' + min + '|' + max;
+    if (!numberFormatters[key]) {
+      numberFormatters[key] = new Intl.NumberFormat(locale || undefined, {
+        minimumFractionDigits: min,
+        maximumFractionDigits: max
+      });
+    }
+    return numberFormatters[key];
+  };
+  const formatNumber = (value, {
+    locale,
+    decimals
+  }) => {
+    const n = typeof value === 'number' ? value : parseFloat(value);
+    if (!Number.isFinite(n)) return null;
+    const min = decimals == null ? 0 : decimals;
+    const max = decimals == null ? 3 : decimals;
+    return numberFormatter(locale, min, max).format(n);
+  };
+
+  // ---------------------------------------------------------------- the types
+
+  const isBlank = v => v == null || v === '' || v === 'NULL';
+
+  // The untyped default cell blanks a zero on purpose: these lists are financial, and a
+  // column of zeros is noise that hides the rows actually carrying a figure. `type: 'text'`
+  // keeps that (it has to stay a drop-in for no type at all), while `number` and
+  // `currency` show it — a formatted 0.00 in an amount column is information, not noise.
+  // `blankZero` overrides either way.
+  const blanksZero = (c, v) => {
+    const dflt = c.type == null || c.type === 'text';
+    return (c.blankZero === undefined ? dflt : c.blankZero) && (v === 0 || v === '0');
+  };
+  const textCell = render => {
+    // Every typed cell is the same single-line ellipsis box with a `title`, so a value too
+    // wide for its column is still readable on hover. Only the string differs.
+    const Cell = ({
+      value,
+      row
+    }) => {
+      const out = render(value, row);
+      if (out == null || out === '') return /*#__PURE__*/React.createElement("div", {
+        style: ELLIPSIS,
+        title: ""
+      });
+      return /*#__PURE__*/React.createElement("div", {
+        style: ELLIPSIS,
+        title: String(out)
+      }, out);
+    };
+    return Cell;
+  };
+
+  /**
+   * One entry per `type`. `defaults` are merged UNDER the caller's config; `cell` builds
+   * the renderer from the column's own options (so `decimals` / `dateFormat` can be set
+   * per column as well as per table).
+   */
+  const TYPES = {
+    text: {
+      defaults: {},
+      cell: c => textCell(v => isBlank(v) || blanksZero(c, v) ? '' : v)
+    },
+    number: {
+      defaults: {
+        align: 'right'
+      },
+      cell: (c, opts) => textCell(v => {
+        if (isBlank(v) || blanksZero(c, v)) return '';
+        const s = formatNumber(v, {
+          locale: opts.locale,
+          decimals: c.decimals
+        });
+        return s == null ? v : s;
+      })
+    },
+    currency: {
+      defaults: {
+        align: 'right'
+      },
+      cell: (c, opts) => textCell(v => {
+        if (isBlank(v) || blanksZero(c, v)) return '';
+        const decimals = c.decimals == null ? 2 : c.decimals;
+        const s = formatNumber(v, {
+          locale: opts.locale,
+          decimals
+        });
+        if (s == null) return v;
+        return opts.currencySymbol ? opts.currencySymbol + ' ' + s : s;
+      })
+    },
+    // A date column is 110px because 'DD-MM-YYYY' does not fit in the 90px default, and a
+    // date-time one is 150px for the same reason — the two most common "why is my column
+    // clipped" reports this package ever got.
+    date: {
+      defaults: {
+        minWidth: 110
+      },
+      cell: (c, opts) => textCell(v => {
+        const d = toDate(v);
+        return d ? formatDate(d, c.dateFormat || opts.dateFormat) : isBlank(v) ? '' : v;
+      })
+    },
+    datetime: {
+      defaults: {
+        minWidth: 150
+      },
+      cell: (c, opts) => textCell(v => {
+        const d = toDate(v);
+        return d ? formatDate(d, c.dateFormat || opts.dateTimeFormat) : isBlank(v) ? '' : v;
+      })
+    },
+    boolean: {
+      defaults: {
+        align: 'center'
+      },
+      cell: c => textCell(v => {
+        const yes = v === true || v === 1 || v === '1' || v === 'Y' || v === 'true' || v === 'TRUE';
+        const labels = c.booleanLabels || ['✓', ''];
+        return yes ? labels[0] : labels[1];
+      })
+    },
+    // The display-order serial number every list starts with. It counts through `rows` —
+    // the FILTERED and SORTED set — so the numbering stays 1..N after any sort or search;
+    // `row.index` would shuffle. It sorts and filters by nothing, because there is no
+    // underlying value to sort or filter by.
+    serial: {
+      defaults: {
+        Header: '#',
+        id: '__serial',
+        width: 50,
+        align: 'right',
+        disableFilters: true,
+        disableSortBy: true
+      },
+      cell: () => {
+        const Cell = ({
+          row,
+          rows
+        }) => rows.indexOf(row) + 1;
+        return Cell;
+      }
+    }
+  };
+
+  // ---------------------------------------------------------------- footer shorthands
+
+  const REDUCERS = {
+    sum: nums => nums.reduce((s, n) => s + n, 0),
+    avg: nums => nums.length ? nums.reduce((s, n) => s + n, 0) / nums.length : 0,
+    min: nums => nums.length ? Math.min.apply(null, nums) : 0,
+    max: nums => nums.length ? Math.max.apply(null, nums) : 0
+  };
+
+  /**
+   * `footer: 'sum'` and friends. The total is computed over `info.rows`, which react-table
+   * gives as the FILTERED rows — so the footer follows the search boxes, which is the whole
+   * reason a `Footer` has to be a function rather than a precomputed number.
+   *
+   * A numeric total is formatted with the column's OWN formatter, so a currency column's
+   * total lands with the same decimals and grouping as the cells above it.
+   */
+  const buildFooter = (c, opts) => {
+    const kind = c.footer;
+    if (typeof kind === 'function' || /*#__PURE__*/React.isValidElement(kind)) return kind;
+    if (kind === 'count') {
+      const Footer = info => `Count : ${info.rows.length}`;
+      return Footer;
+    }
+    const reduce = REDUCERS[kind];
+    if (!reduce) return undefined;
+    const decimals = c.decimals == null ? c.type === 'currency' ? 2 : 0 : c.decimals;
+    const Footer = info => {
+      const id = c.id || (typeof c.accessor === 'string' ? c.accessor : undefined);
+      const nums = [];
+      info.rows.forEach(r => {
+        const raw = id ? r.values[id] : undefined;
+        const n = typeof raw === 'number' ? raw : parseFloat(raw);
+        if (Number.isFinite(n)) nums.push(n);
+      });
+      const total = reduce(nums);
+      const s = formatNumber(total, {
+        locale: opts.locale,
+        decimals
+      });
+      if (s == null) return '';
+      return opts.currencySymbol && c.type === 'currency' ? opts.currencySymbol + ' ' + s : s;
+    };
+    return Footer;
+  };
+
+  // ---------------------------------------------------------------- normalization
+
+  const FORMAT_DEFAULTS = {
+    dateFormat: 'DD-MM-YYYY',
+    dateTimeFormat: 'DD-MM-YYYY HH:mm'};
+
+  /**
+   * Turn one caller column into the column react-table gets. Order of precedence, highest
+   * first: what the caller wrote → what the `type` implies → react-table's own defaults.
+   *
+   * The one rule that applies to EVERY column, typed or not: **a `width` with no
+   * `minWidth` sets the minWidth too.** react-table renders `min(max(minWidth, width),
+   * maxWidth)` against a default minWidth of 90, so `{ width: 45 }` used to render 90px
+   * wide and the only fix was to repeat the number. Now one number means one width.
+   */
+  const normalizeColumn = (c, opts, index) => {
+    const type = TYPES[c.type] ? c.type : null;
+    const needsWidth = c.width != null && c.minWidth == null;
+    const needsCell = c.Cell == null && typeof c.format === 'function';
+    const needsFooter = c.Footer == null && c.footer != null;
+    // Untouched columns are returned AS THEY CAME, identity included, so a config that
+    // uses none of this does not break the memo chain downstream by being re-cloned.
+    if (!type && !needsWidth && !needsCell && !needsFooter) return c;
+    const spec = type ? TYPES[type] : null;
+    const out = spec ? {
+      ...spec.defaults,
+      ...c
+    } : {
+      ...c
+    };
+
+    // A width with no floor sets its own floor — see the doc comment above. `minWidth: 0`
+    // is a deliberate "let it shrink", so only an ABSENT minWidth is filled in. Read from
+    // the CALLER's config, not the merged column: a `type: 'date'` brings a 110px floor
+    // with it, and `{ type: 'date', width: 60 }` has to mean 60, not "110 because the type
+    // said so". One number always means one width.
+    if (c.width != null && c.minWidth == null) out.minWidth = c.width;
+    if (out.Cell == null) {
+      if (typeof c.format === 'function') out.Cell = textCell((v, row) => c.format(v, row && row.original));else if (spec) out.Cell = spec.cell(out, opts);
+    }
+    if (out.Footer == null && c.footer != null) {
+      const f = buildFooter(out, opts);
+      if (f !== undefined) out.Footer = f;
+    }
+
+    // A serial column with no id would collide with the next one; give each its own.
+    if (type === 'serial' && index > 0 && c.id == null) out.id = `__serial${index}`;
+    return out;
+  };
+
+  /**
+   * Map over the caller's columns, returning the SAME array when nothing needed changing so
+   * the memo chain downstream keeps its identity.
+   */
+  const normalizeColumns = (columns, opts) => {
+    let changed = false;
+    const out = columns.map((c, i) => {
+      const n = normalizeColumn(c, opts, i);
+      if (n !== c) changed = true;
+      return n;
+    });
+    return changed ? out : columns;
+  };
+
+  /**
+   * Column widths, visibility and order — three user choices built on one pattern: the
+   * column config carries the DEFAULT (`width` / `minWidth`, `hidden`, the array order),
+   * the user's choice lives in state here and is applied on top, and each one persists
+   * under `pinStorageKey`.
+   *
+   * `hideable: false` locks a column visible (a key column the list is unusable without);
+   * `disableResizing` / `disableReordering` drop its grip / its drag.
+   *
+   * Every setter also writes its value into a REF before calling setState, because they
+   * are called from pointer handlers and from the imperative ref, both of which can hold
+   * a closure from an older render — and because a caller that calls a setter and then a
+   * getter in the SAME handler (`toggleColumn(id)` then `getHiddenColumns()` to refresh
+   * its menu) would otherwise read the value from before its own call.
+   */
+  const useColumnLayout = ({
+    columns: rawColumns,
+    formatOptions,
+    defaultLayout,
+    hasActions,
+    actionIndex,
+    minColumnWidth,
+    storage,
+    onColumnResize,
+    onColumnVisibilityChange,
+    onColumnOrderChange
+  }) => {
+    const {
+      readJson,
+      persist
+    } = storage;
+
+    // The caller's config with the `type` / `footer` / `format` shorthands expanded (and a
+    // bare `width` given a matching `minWidth`). Everything below — including
+    // getColumnList() — works on the EXPANDED columns, so a `type: 'date'` column reports
+    // the 110px width it actually renders at rather than the 90px default it was never
+    // given. Columns that use none of the shorthands come back untouched, identity
+    // included, so this cannot break the memo chain on its own.
+    const columns = React.useMemo(() => normalizeColumns(rawColumns, formatOptions), [rawColumns, formatOptions]);
+
+    // Initial state for all three choices, highest priority first: what localStorage has
+    // for this `pinStorageKey`, then the caller's `defaultLayout` (a layout loaded from a
+    // server, say), then the column config's own defaults. A stored layout wins because it
+    // is the more recent expression of the same user's preference.
+    // ----- Widths -----
+    const [colWidths, setColWidths] = React.useState(() => readJson('ctW') || defaultLayout && defaultLayout.widths || {});
+
+    // ----- Visibility -----
+    const lockedIds = React.useMemo(() => new Set(columns.filter(c => c.hideable === false).map(colIdOf).filter(Boolean)), [columns]);
+    const defaultHidden = React.useMemo(() => columns.filter(c => c.hidden && c.hideable !== false).map(colIdOf).filter(Boolean), [columns]);
+    const [userHidden, setUserHidden] = React.useState(() => {
+      const stored = readJson('ctHide');
+      if (Array.isArray(stored)) return stored;
+      const seed = defaultLayout && defaultLayout.hidden;
+      return Array.isArray(seed) ? seed : null;
+    });
+    const hiddenIds = userHidden != null ? userHidden : defaultHidden;
+
+    // ----- Order -----
+    // The Action column takes part as `'__actions'` — it is a real column in the layout,
+    // so there is no reason it should be nailed to the right-hand end; `actionIndex` says
+    // where it starts out.
+    const configOrder = React.useMemo(() => buildConfigOrder({
+      columns,
+      hasActions,
+      actionIndex
+    }), [columns, hasActions, actionIndex]);
+    const [userOrder, setUserOrder] = React.useState(() => {
+      const stored = readJson('ctOrd');
+      if (Array.isArray(stored) && stored.length) return stored;
+      const seed = defaultLayout && defaultLayout.order;
+      return Array.isArray(seed) && seed.length ? seed : null;
+    });
+    // Always a complete, de-duplicated list of every configured column — a stored order
+    // from an older version of the column config is merged, not trusted wholesale.
+    const order = React.useMemo(() => reconcileOrder(configOrder, userOrder), [configOrder, userOrder]);
+
+    // The laid-out caller columns (hidden dropped, widths applied, in the user's order)
+    // plus where the Action column now sits among them.
+    const layout = React.useMemo(() => applyLayout({
+      columns,
+      hiddenIds,
+      colWidths,
+      order,
+      hasActions
+    }), [columns, hiddenIds, colWidths, order, hasActions]);
+
+    // Latest-value mirrors — see the note in the doc comment above.
+    const colWidthsRef = React.useRef(colWidths);
+    colWidthsRef.current = colWidths;
+    const hiddenRef = React.useRef(hiddenIds);
+    hiddenRef.current = hiddenIds;
+    const orderRef = React.useRef(order);
+    orderRef.current = order;
+    const configOrderRef = React.useRef(configOrder);
+    configOrderRef.current = configOrder;
+    const setColumnWidth = React.useCallback((id, px) => {
+      if (!id) return;
+      const w = Math.max(minColumnWidth, Math.round(parseFloat(px) || 0));
+      const next = {
+        ...colWidthsRef.current,
+        [id]: w
+      };
+      colWidthsRef.current = next;
+      setColWidths(next);
+      persist('ctW', next);
+      if (onColumnResize) onColumnResize(id, w, next);
+    }, [persist, minColumnWidth, onColumnResize]);
+
+    // Replace the whole width map at once — what setLayout() and a "reset widths" menu
+    // entry need. `null` falls back to the configured widths.
+    const setColumnWidths = React.useCallback(map => {
+      const next = {};
+      Object.keys(map || {}).forEach(id => {
+        const w = Math.max(minColumnWidth, Math.round(parseFloat(map[id]) || 0));
+        if (id && Number.isFinite(w)) next[id] = w;
+      });
+      colWidthsRef.current = next;
+      setColWidths(next);
+      persist('ctW', next);
+      if (onColumnResize) onColumnResize(null, null, next);
+    }, [persist, minColumnWidth, onColumnResize]);
+
+    // No id = clear every override and fall back to the configured widths.
+    const resetColumnWidths = React.useCallback(id => {
+      let next;
+      if (id == null) next = {};else {
+        next = {
+          ...colWidthsRef.current
+        };
+        delete next[id];
+      }
+      colWidthsRef.current = next;
+      setColWidths(next);
+      persist('ctW', next);
+      if (onColumnResize) onColumnResize(id == null ? null : id, null, next);
+    }, [persist, onColumnResize]);
+    const setHiddenColumns = React.useCallback(ids => {
+      const next = Array.from(new Set((ids || []).filter(id => id && !lockedIds.has(id))));
+      hiddenRef.current = next;
+      setUserHidden(next);
+      persist('ctHide', next);
+      if (onColumnVisibilityChange) onColumnVisibilityChange(next);
+    }, [persist, lockedIds, onColumnVisibilityChange]);
+    const toggleColumn = React.useCallback((id, visible) => {
+      if (!id) return;
+      const isHidden = hiddenRef.current.indexOf(id) >= 0;
+      const show = visible === undefined ? isHidden : !!visible;
+      setHiddenColumns(show ? hiddenRef.current.filter(x => x !== id) : hiddenRef.current.concat(id));
+    }, [setHiddenColumns]);
+
+    // Replace the whole order. `null` clears the user's choice and falls back to the
+    // caller's array order. Whatever comes in is reconciled first, so a caller can pass a
+    // partial list ("these three first") and the rest stays where the config put it.
+    const setColumnOrder = React.useCallback(ids => {
+      const next = ids == null ? null : reconcileOrder(configOrderRef.current, ids.slice());
+      orderRef.current = next || configOrderRef.current;
+      setUserOrder(next);
+      // An empty array reads back as "no stored order" — one entry instead of a
+      // remove/set split, and a reset then behaves the same on a reload as in place.
+      persist('ctOrd', next || []);
+      if (onColumnOrderChange) onColumnOrderChange(orderRef.current.slice());
+    }, [persist, onColumnOrderChange]);
+
+    // Move one column to a position in the order list — what a menu's ↑ / ↓ buttons want.
+    // `toIndex` is read AFTER the column has been lifted out, so `position - 1` /
+    // `position + 1` step it one place either way.
+    const moveColumn = React.useCallback((id, toIndex) => {
+      const cur = orderRef.current.slice();
+      const from = cur.indexOf(id);
+      if (from < 0) return;
+      cur.splice(from, 1);
+      const to = Math.max(0, Math.min(cur.length, parseInt(toIndex, 10) || 0));
+      if (to === from) return;
+      cur.splice(to, 0, id);
+      setColumnOrder(cur);
+    }, [setColumnOrder]);
+
+    /**
+     * One entry per column IN DISPLAY ORDER — everything a column menu needs, including
+     * the Action column, so the menu can move that one too. `index` is the column's place
+     * in the caller's `columns` array (null for the Action column); `position` is its
+     * place in the order, which is what moveColumn() takes.
+     */
+    const getColumnList = React.useCallback(({
+      resizable,
+      reorderable,
+      actionWidth
+    }) => {
+      const byId = new Map();
+      columns.forEach((c, i) => byId.set(colIdOf(c) || `__col${i}`, {
+        c,
+        i
+      }));
+      return orderRef.current.map((key, position) => {
+        if (key === '__actions') {
+          return {
+            id: '__actions',
+            index: null,
+            position,
+            header: 'Action',
+            hidden: false,
+            hideable: false,
+            resizable: resizable,
+            movable: reorderable,
+            width: colWidthsRef.current.__actions != null ? colWidthsRef.current.__actions : actionWidth
+          };
+        }
+        const entry = byId.get(key);
+        if (!entry) return null;
+        const {
+          c,
+          i
+        } = entry;
+        const id = colIdOf(c);
+        return {
+          id,
+          index: i,
+          position,
+          header: typeof c.Header === 'string' ? c.Header : undefined,
+          hidden: !!(id && c.hideable !== false && hiddenRef.current.indexOf(id) >= 0),
+          hideable: !!id && c.hideable !== false,
+          resizable: !!id && resizable && !c.disableResizing,
+          movable: !!id && reorderable && !c.disableReordering,
+          width: id && colWidthsRef.current[id] != null ? colWidthsRef.current[id] : colWidthOf(c)
+        };
+      }).filter(Boolean);
+    }, [columns]);
+    return {
+      cols: layout.cols,
+      actionPos: layout.actionPos,
+      colWidths,
+      hiddenIds,
+      order,
+      colWidthsRef,
+      hiddenRef,
+      orderRef,
+      setColumnWidth,
+      setColumnWidths,
+      resetColumnWidths,
+      setHiddenColumns,
+      toggleColumn,
+      setColumnOrder,
+      moveColumn,
+      getColumnList
+    };
+  };
+
+  /**
+   * The `pinStorageKey` side of the layout: every per-user choice rides on the same key,
+   * each in its own `localStorage` entry — the freeze boundaries (`ctPin:` / `ctPinR:`,
+   * plain numbers), the dragged column widths (`ctW:`, an id -> px map), the hidden
+   * columns (`ctHide:`, a list of ids) and the column order (`ctOrd:`, a list of ids).
+   * Without the key nothing is persisted and every choice is per-mount.
+   *
+   * Every read is wrapped: `localStorage` throws outright in a sandboxed iframe and in
+   * Safari's private mode, and a stored value can be left over from an older version of
+   * the column config. A bad read always falls back to the config default rather than
+   * taking the table down.
+   */
+  const useLayoutStorage = pinStorageKey => {
+    const readNumber = React.useCallback(key => {
+      if (!pinStorageKey) return null;
+      try {
+        const v = window.localStorage.getItem(`${key}:${pinStorageKey}`);
+        if (v != null && v !== '') {
+          const n = parseInt(v, 10);
+          if (!Number.isNaN(n) && n >= 0) return n;
+        }
+      } catch (e) {/* storage unavailable — fall back to config default */}
+      return null;
+    }, [pinStorageKey]);
+    const readJson = React.useCallback(key => {
+      if (!pinStorageKey) return null;
+      try {
+        const v = window.localStorage.getItem(`${key}:${pinStorageKey}`);
+        if (v) {
+          const parsed = JSON.parse(v);
+          if (parsed && typeof parsed === 'object') return parsed;
+        }
+      } catch (e) {/* unreadable or no longer JSON — fall back to the config default */}
+      return null;
+    }, [pinStorageKey]);
+    const persist = React.useCallback((key, value) => {
+      if (!pinStorageKey) return;
+      try {
+        window.localStorage.setItem(`${key}:${pinStorageKey}`, typeof value === 'object' ? JSON.stringify(value) : String(value));
+      } catch (e) {/* ignore */}
+    }, [pinStorageKey]);
+    return {
+      readNumber,
+      readJson,
+      persist
+    };
+  };
+
+  /**
+   * The scrollport's own width. The pin caps need it before the column defs are built:
+   * how many columns may freeze is a question about how much viewport is left over.
+   */
+  const useWrapWidth = containerRef => {
+    const [wrapW, setWrapW] = React.useState(0);
+    useIsoLayoutEffect(() => {
+      const el = containerRef.current;
+      if (!el) return undefined;
+      const update = () => setWrapW(el.clientWidth);
+      update();
+      let ro;
+      if (typeof ResizeObserver !== 'undefined') {
+        ro = new ResizeObserver(update);
+        ro.observe(el);
+      }
+      window.addEventListener('resize', update);
+      return () => {
+        if (ro) ro.disconnect();
+        window.removeEventListener('resize', update);
+      };
+    }, []);
+    return wrapW;
+  };
+
+  /**
+   * The band left for rows: the wrap's viewport minus the sticky header and footer, which
+   * overlay the top / bottom of it. Drives both the windowing maths and scrollToRow, so
+   * rows exactly fill the gap — no clipped last row. The header height is returned too:
+   * rows scroll UNDER it, so it is also how far the snapport's top edge has to be pushed
+   * down for a snapped row to land just below it.
+   */
+  const useBandHeights = ({
+    containerRef,
+    headRef,
+    footRef,
+    toolbarRef,
+    deps
+  }) => {
+    const [listH, setListH] = React.useState(0);
+    const [headH, setHeadH] = React.useState(0);
+    const [footH, setFootH] = React.useState(0);
+    // The toolbar is a flex sibling of the scrollport, so it never eats into listH — but
+    // the overlay scrollbars and the drag guides are positioned against the ROOT, and have
+    // to start below it.
+    const [toolH, setToolH] = React.useState(0);
+    useIsoLayoutEffect(() => {
+      const wrap = containerRef.current;
+      if (!wrap) return undefined;
+      const update = () => {
+        const hh = headRef.current ? headRef.current.offsetHeight : 0;
+        const fh = footRef.current ? footRef.current.offsetHeight : 0;
+        setHeadH(hh);
+        setFootH(fh);
+        setToolH(toolbarRef && toolbarRef.current ? toolbarRef.current.offsetHeight : 0);
+        setListH(Math.max(0, wrap.clientHeight - hh - fh));
+      };
+      update();
+      let ro;
+      if (typeof ResizeObserver !== 'undefined') {
+        ro = new ResizeObserver(update);
+        ro.observe(wrap);
+        if (headRef.current) ro.observe(headRef.current);
+        if (footRef.current) ro.observe(footRef.current);
+        if (toolbarRef && toolbarRef.current) ro.observe(toolbarRef.current);
+      }
+      window.addEventListener('resize', update);
+      return () => {
+        if (ro) ro.disconnect();
+        window.removeEventListener('resize', update);
+      };
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, deps);
+    return {
+      listH,
+      headH,
+      footH,
+      toolH
+    };
+  };
+
+  // Below this a thumb stops being a usable drag target.
+  const MIN_THUMB = 24;
+
+  /**
+   * The native vertical scrollbar runs the whole height of `.ft-wrap` — alongside the
+   * header and the footer, not just the rows — because `.ft-wrap` is the single scrollport
+   * for both axes. Giving the body its own vertical overflow would fix the bar but break
+   * the column freeze: an element that scrolls in y is a scroll container in x too, so it
+   * would become the sticky scrollport for the pinned cells and they would slide away
+   * (exactly the react-window problem this component was rewritten to escape). So the
+   * native bars are hidden (`.ft-nobar`) and redrawn as overlays, with the vertical track
+   * spanning only the row band.
+   *
+   * Thumbs are positioned imperatively from the same rAF-throttled scroll handler that
+   * drives the windowing — no React re-render per frame.
+   */
+  const useOverlayScrollbars = ({
+    containerRef,
+    listH,
+    syncBarsRef,
+    onWrapScroll
+  }) => {
+    const vTrackRef = React.useRef(null);
+    const vThumbRef = React.useRef(null);
+    const hTrackRef = React.useRef(null);
+    const hThumbRef = React.useRef(null);
+    const syncBars = React.useCallback(() => {
+      const el = containerRef.current;
+      if (!el) return;
+      const maxY = Math.max(0, el.scrollHeight - el.clientHeight);
+      const maxX = Math.max(0, el.scrollWidth - el.clientWidth);
+      const vTrack = vTrackRef.current;
+      const vThumb = vThumbRef.current;
+      if (vTrack && vThumb) {
+        const bandH = listH;
+        if (maxY <= 0 || bandH <= MIN_THUMB) {
+          vTrack.style.display = 'none';
+        } else {
+          vTrack.style.display = 'block';
+          const th = Math.max(MIN_THUMB, Math.round(bandH * (el.clientHeight / el.scrollHeight)));
+          vThumb.style.height = th + 'px';
+          vThumb.style.transform = 'translateY(' + Math.round(el.scrollTop / maxY * (bandH - th)) + 'px)';
+        }
+      }
+      const hTrack = hTrackRef.current;
+      const hThumb = hThumbRef.current;
+      if (hTrack && hThumb) {
+        if (maxX <= 0) {
+          hTrack.style.display = 'none';
+        } else {
+          hTrack.style.display = 'block';
+          const bandW = hTrack.clientWidth;
+          const tw = Math.max(MIN_THUMB, Math.round(bandW * (el.clientWidth / el.scrollWidth)));
+          hThumb.style.width = tw + 'px';
+          hThumb.style.transform = 'translateX(' + Math.round(el.scrollLeft / maxX * (bandW - tw)) + 'px)';
+        }
+      }
+    }, [containerRef, listH]);
+
+    // Re-measure whenever the geometry could have changed (mount, resize, row count,
+    // footer toggle, a new pin boundary) — hence no dependency array.
+    useIsoLayoutEffect(() => {
+      syncBarsRef.current = syncBars;
+      syncBars();
+      onWrapScroll(); // sets the pin shadows for the initial (unscrolled) position too
+    });
+
+    // Dragging a thumb. Snapping is switched off for the duration: `proximity` snapping
+    // re-settles the scroll on every programmatic write, which makes a drag feel sticky.
+    const startThumbDrag = React.useCallback(axis => e => {
+      const el = containerRef.current;
+      const thumb = axis === 'y' ? vThumbRef.current : hThumbRef.current;
+      if (!el || !thumb || e.button !== 0) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const vertical = axis === 'y';
+      const startPos = vertical ? e.clientY : e.clientX;
+      const startScroll = vertical ? el.scrollTop : el.scrollLeft;
+      const trackLen = vertical ? listH : hTrackRef.current.clientWidth;
+      const thumbLen = vertical ? thumb.offsetHeight : thumb.offsetWidth;
+      const maxScroll = vertical ? el.scrollHeight - el.clientHeight : el.scrollWidth - el.clientWidth;
+      const ratio = maxScroll / Math.max(1, trackLen - thumbLen);
+      const prevSnap = el.style.scrollSnapType;
+      el.style.scrollSnapType = 'none';
+      thumb.classList.add('ft-thumb-drag');
+      document.body.style.userSelect = 'none';
+      const onMove = ev => {
+        const delta = (vertical ? ev.clientY : ev.clientX) - startPos;
+        const next = startScroll + delta * ratio;
+        if (vertical) el.scrollTop = next;else el.scrollLeft = next;
+      };
+      const onUp = () => {
+        window.removeEventListener('pointermove', onMove);
+        window.removeEventListener('pointerup', onUp);
+        el.style.scrollSnapType = prevSnap;
+        thumb.classList.remove('ft-thumb-drag');
+        document.body.style.userSelect = '';
+      };
+      window.addEventListener('pointermove', onMove);
+      window.addEventListener('pointerup', onUp);
+    }, [containerRef, listH]);
+
+    // Clicking the bare track jumps so the thumb centres on the click.
+    const onTrackDown = React.useCallback(axis => e => {
+      if (e.target !== e.currentTarget) return; // the thumb handles its own presses
+      const el = containerRef.current;
+      const thumb = axis === 'y' ? vThumbRef.current : hThumbRef.current;
+      if (!el || !thumb) return;
+      const rect = e.currentTarget.getBoundingClientRect();
+      if (axis === 'y') {
+        const pos = e.clientY - rect.top - thumb.offsetHeight / 2;
+        el.scrollTop = pos / Math.max(1, listH - thumb.offsetHeight) * (el.scrollHeight - el.clientHeight);
+      } else {
+        const pos = e.clientX - rect.left - thumb.offsetWidth / 2;
+        el.scrollLeft = pos / Math.max(1, e.currentTarget.clientWidth - thumb.offsetWidth) * (el.scrollWidth - el.clientWidth);
+      }
+    }, [containerRef, listH]);
+    return {
+      vTrackRef,
+      vThumbRef,
+      hTrackRef,
+      hThumbRef,
+      startThumbDrag,
+      onTrackDown
+    };
+  };
+
+  /**
+   * The freeze boundaries. The `pinned` flags in the column config are only the DEFAULT;
+   * the whole choice is TWO NUMBERS — how many leading columns are frozen against the left
+   * edge and how many trailing ones against the right. Freezing only makes sense as a
+   * run at an edge: a frozen middle column would have its neighbours scroll away
+   * underneath it, so each side is fully described by a single count.
+   *
+   * The caller changes them at runtime through the imperative ref, and both persist under
+   * `pinStorageKey`. Everything here is computed from the LAID-OUT columns (`cols`), never
+   * from the `columns` prop, so a hidden column does not count towards a boundary and a
+   * dragged one freezes according to where it now is.
+   */
+  const usePinning = ({
+    cols,
+    wrapW,
+    hasActions,
+    actionPos,
+    actionColWidth,
+    pinActions,
+    rowStripColor,
+    stripWidth,
+    storage,
+    defaultLayout
+  }) => {
+    const {
+      readNumber,
+      persist
+    } = storage;
+    const seed = defaultLayout && defaultLayout.pins || {};
+    const defaultPinCount = React.useMemo(() => countLeadingPinned(cols), [cols]);
+    const defaultRightPinCount = React.useMemo(() => countTrailingPinned(cols), [cols]);
+    // Stored choice, else the caller's `defaultLayout`, else the column config's flags.
+    const [userPinCount, setUserPinCount] = React.useState(() => {
+      const stored = readNumber('ctPin');
+      return stored != null ? stored : seed.left != null ? seed.left : null;
+    });
+    const [userRightPinCount, setUserRightPinCount] = React.useState(() => {
+      const stored = readNumber('ctPinR');
+      return stored != null ? stored : seed.right != null ? seed.right : null;
+    });
+    const pinCount = userPinCount != null ? userPinCount : defaultPinCount;
+    const rightPinCount = userRightPinCount != null ? userRightPinCount : defaultRightPinCount;
+
+    // The right block is budgeted first, then whatever viewport is left funds the left one.
+    const maxRightPinCount = React.useMemo(() => computeMaxRightPinCount({
+      cols,
+      wrapW,
+      hasActions,
+      actionPos,
+      actionColWidth
+    }), [cols, wrapW, hasActions, actionPos, actionColWidth]);
+    const effectiveRightPinCount = Math.min(rightPinCount, maxRightPinCount);
+
+    // Where the Action column freezes now that it can be dragged anywhere. It joins
+    // whichever block it is INSIDE — a frozen run has to stay contiguous, so an Action
+    // column parked in the middle of the scrolling columns cannot freeze at all, and
+    // `pinActions` only means anything while it still sits at one end.
+    //   left run  = the first n caller columns, so it is inside iff actionPos < n
+    //   right run = the last  m caller columns, so it is inside iff actionPos >= len - m
+    const actionsPinnedRight = hasActions && (effectiveRightPinCount > 0 && actionPos >= cols.length - effectiveRightPinCount || pinActions && actionPos === cols.length);
+    const rightBlockWidth = React.useMemo(() => rightBlockWidthOf({
+      cols,
+      effectiveRightPinCount,
+      actionsPinnedRight,
+      actionColWidth
+    }), [cols, effectiveRightPinCount, actionsPinnedRight, actionColWidth]);
+    const maxPinCount = React.useMemo(() => computeMaxLeftPinCount({
+      cols,
+      wrapW,
+      hasActions,
+      actionPos,
+      actionColWidth,
+      stripWidth: rowStripColor ? stripWidth : 0,
+      rightBlockWidth,
+      effectiveRightPinCount
+    }), [cols, wrapW, hasActions, actionPos, actionColWidth, rowStripColor, stripWidth, rightBlockWidth, effectiveRightPinCount]);
+    const effectivePinCount = Math.min(pinCount, maxPinCount);
+
+    // Mirror of actionsPinnedRight for the left edge — the Action column dragged in front
+    // of the frozen leading run (or, with `pinActions`, right to the front of the table)
+    // freezes there instead. Right wins if both somehow claim it; the caps keep the two
+    // runs from overlapping, so that only happens with a single-column table.
+    const actionsPinnedLeft = hasActions && !actionsPinnedRight && (effectivePinCount > 0 && actionPos < effectivePinCount || pinActions && actionPos === 0);
+    const setPinCount = React.useCallback(n => {
+      setUserPinCount(n);
+      persist('ctPin', n);
+    }, [persist]);
+    const setRightPinCount = React.useCallback(n => {
+      setUserRightPinCount(n);
+      persist('ctPinR', n);
+    }, [persist]);
+    return {
+      // The UNCAPPED counts, for saving a layout: a boundary the current viewport cannot
+      // honour is still what the user asked for, and must come back on a wider screen
+      // rather than being permanently trimmed by whatever window it was saved from.
+      pinCount,
+      rightPinCount,
+      effectivePinCount,
+      maxPinCount,
+      effectiveRightPinCount,
+      maxRightPinCount,
+      actionsPinnedLeft,
+      actionsPinnedRight,
+      setPinCount,
+      setRightPinCount
+    };
+  };
+
+  /**
+   * Keyboard row navigation (↑/↓/Home/End/Enter), the selection highlight, and the two
+   * "restore where I was" behaviours that go with them.
+   *
+   * The highlight is repainted IMPERATIVELY, by walking the `[data-ct-index]` nodes,
+   * because the rows are memoized and must not re-render on a selection change: a
+   * state-driven highlight re-rendered every visible row (each with icon-heavy action
+   * cells) on every keypress, which is what made arrow navigation visibly laggy on wide
+   * lists. `selectedIndexRef` is what a freshly mounted row reads for its first paint.
+   */
+  const useRowNavigation = ({
+    containerRef,
+    rows,
+    prepareRow,
+    rowHeight,
+    listH,
+    rowNavigation,
+    onRowSelect,
+    onRowEnter,
+    selectedBg,
+    initialSelectedId,
+    rowIdKey,
+    initialScrollLeft
+  }) => {
+    const [selectedIndex, setSelectedIndex] = React.useState(0);
+    const selectedIndexRef = React.useRef(0);
+    const scrollPendingRef = React.useRef(null);
+
+    // Restore selection to a specific row (by id) once — e.g. coming back from an edit
+    // screen, keep the previously-selected row highlighted instead of jumping to row 0.
+    const initialAppliedRef = React.useRef(false);
+    React.useEffect(() => {
+      if (initialAppliedRef.current) return;
+      if (initialSelectedId == null) {
+        initialAppliedRef.current = true;
+        return;
+      }
+      if (rows.length === 0) return; // wait for data to load
+      const idx = rows.findIndex(r => r.original && r.original[rowIdKey] === initialSelectedId);
+      initialAppliedRef.current = true;
+      if (idx >= 0) {
+        setSelectedIndex(idx);
+        scrollPendingRef.current = {
+          index: idx,
+          align: 'center'
+        };
+      }
+    }, [rows, initialSelectedId, rowIdKey]);
+
+    // Scroll a row into view inside .ft-wrap. Row i occupies [i*rowHeight, (i+1)*rowHeight]
+    // in body coordinates, and the sticky header/footer eat listH's worth of viewport, so
+    // the visible band is exactly [scrollTop, scrollTop + listH].
+    const scrollToRow = React.useCallback((index, align_) => {
+      const el = containerRef.current;
+      if (!el || listH <= 0) return;
+      const rowTop = index * rowHeight;
+      const rowBottom = rowTop + rowHeight;
+      let top = el.scrollTop;
+      if (align_ === 'center') {
+        top = rowTop - Math.max(0, (listH - rowHeight) / 2);
+      } else if (rowTop < top) {
+        top = rowTop;
+      } else if (rowBottom > top + listH) {
+        top = rowBottom - listH;
+      }
+      el.scrollTop = Math.max(0, top);
+    }, [containerRef, listH, rowHeight]);
+
+    // Flush a pending scroll (initial restore / arrow move) once the body is measured.
+    // Scrolling must happen here, NOT inside a setState updater — updaters run during the
+    // render phase.
+    React.useEffect(() => {
+      const pending = scrollPendingRef.current;
+      if (pending != null && listH > 0) {
+        scrollToRow(pending.index, pending.align);
+        scrollPendingRef.current = null;
+      }
+    });
+
+    // Restore the horizontal scroll once, after the rows are on screen — otherwise a
+    // wide table always snaps back to column 1 on re-entry and the user has to scroll
+    // across every column again. No dep array: retry each render until it lands.
+    const hScrollAppliedRef = React.useRef(false);
+    React.useEffect(() => {
+      if (hScrollAppliedRef.current) return;
+      if (!initialScrollLeft) {
+        hScrollAppliedRef.current = true;
+        return;
+      }
+      if (rows.length === 0 || listH === 0 || !containerRef.current) return; // wait for data
+      containerRef.current.scrollLeft = initialScrollLeft;
+      hScrollAppliedRef.current = true;
+    });
+
+    // Keep the selection valid when the row set changes (e.g. after filtering).
+    React.useEffect(() => {
+      setSelectedIndex(i => Math.min(Math.max(0, i), Math.max(0, rows.length - 1)));
+    }, [rows.length]);
+
+    // Focus the table on first render so arrow keys work immediately.
+    React.useEffect(() => {
+      if (rowNavigation && containerRef.current) {
+        containerRef.current.focus({
+          preventScroll: true
+        });
+      }
+    }, [containerRef, rowNavigation]);
+
+    // Notify the caller whenever the selected row changes.
+    React.useEffect(() => {
+      if (onRowSelect && rows[selectedIndex]) {
+        prepareRow(rows[selectedIndex]);
+        onRowSelect(rows[selectedIndex].original, selectedIndex);
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectedIndex, rows]);
+    const moveSelection = React.useCallback(delta => {
+      setSelectedIndex(i => {
+        const next = Math.min(Math.max(0, i + delta), Math.max(0, rows.length - 1));
+        // Ref write only — the scroll itself runs in the flush effect above (scrolling
+        // from inside a state updater would run during the render phase).
+        if (next !== i) scrollPendingRef.current = {
+          index: next,
+          align: 'smart'
+        };
+        return next;
+      });
+    }, [rows.length]);
+    const onKeyDown = React.useCallback(e => {
+      if (!rowNavigation) return;
+      const tag = e.target && e.target.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return; // don't hijack search typing
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        moveSelection(1);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        moveSelection(-1);
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        setSelectedIndex(0);
+        scrollToRow(0, 'smart');
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        const last = Math.max(0, rows.length - 1);
+        setSelectedIndex(last);
+        scrollToRow(last, 'smart');
+      } else if (e.key === 'Enter') {
+        if (onRowEnter && rows[selectedIndex]) {
+          e.preventDefault();
+          prepareRow(rows[selectedIndex]);
+          onRowEnter(rows[selectedIndex].original, selectedIndex);
+        }
+      }
+    }, [rowNavigation, moveSelection, rows, selectedIndex, onRowEnter, prepareRow, scrollToRow]);
+
+    // Selection highlight, applied imperatively so only the affected DOM nodes change on
+    // ↑/↓ (see the note at the top of this file).
+    React.useEffect(() => {
+      selectedIndexRef.current = selectedIndex;
+      const el = containerRef.current;
+      if (!el || !rowNavigation) return;
+      el.querySelectorAll('.ft-row').forEach(r => {
+        const idx = parseInt(r.getAttribute('data-ct-index'), 10);
+        const hasCustomBg = r.getAttribute('data-ct-custom') === '1';
+        // The attribute carries whatever VirtualRow painted the row with, which since 1.1
+        // is a `var(--ft-row-bg, #ffffff)` reference rather than a colour — writing it
+        // back verbatim is what keeps this imperative repaint themeable. The literal is
+        // only the last resort for a row that somehow carries no attribute at all.
+        const baseBg = r.getAttribute('data-ct-bg') || v('row-bg');
+        r.style.backgroundColor = hasCustomBg ? baseBg : idx === selectedIndex ? selectedBg : baseBg;
+      });
+    }, [containerRef, selectedIndex, selectedBg, rowNavigation, rows]);
+
+    // Move the selection (and the focus) to a row — e.g. a list that re-fetches on a
+    // Search click wants the first row selected + focused once the results land, but the
+    // table is already mounted so the mount-time focus effect won't fire again.
+    const selectRow = React.useCallback(index => {
+      const i = Math.max(0, parseInt(index, 10) || 0);
+      setSelectedIndex(i);
+      scrollPendingRef.current = {
+        index: i,
+        align: 'smart'
+      };
+      if (containerRef.current) containerRef.current.focus({
+        preventScroll: true
+      });
+    }, [containerRef]);
+    return {
+      selectedIndex,
+      setSelectedIndex,
+      selectedIndexRef,
+      onKeyDown,
+      selectRow
+    };
+  };
+
+  /**
+   * Assembles the column list react-table actually receives:
+   *
+   *   [ optional __strip ] + the laid-out caller columns + [ optional __actions ]
+   *
+   * and annotates every one of them with the freeze flags the header, body and footer
+   * cells render from (`pinned`, `pinnedRight`, `pinnedLast`, `pinnedRightFirst`) plus
+   * `pinIndex`, the column's position among the caller's VISIBLE columns — the number a
+   * pin menu talks in ("pin up to here").
+   *
+   * Also returns the sticky `left` / `right` offset maps, which are just the cumulative
+   * widths of the frozen columns before / beyond each frozen column.
+   */
+  const useTableColumns = ({
+    cols,
+    colWidths,
+    Actions,
+    fn,
+    actionWidth,
+    actionPos,
+    rowStripColor,
+    rowStripTitle,
+    stripWidth,
+    effectivePinCount,
+    effectiveRightPinCount,
+    actionsPinnedLeft,
+    actionsPinnedRight
+  }) => {
+    const allColumns = React.useMemo(() => {
+      const firstRight = cols.length - effectiveRightPinCount;
+      const base = cols.map((c, i) => ({
+        ...c,
+        pinIndex: i,
+        pinned: i < effectivePinCount,
+        pinnedRight: effectiveRightPinCount > 0 && i >= firstRight,
+        pinnedLast: false,
+        pinnedRightFirst: false
+      }));
+      // Status strip as a real (fixed-width) first column, so it stays aligned with the
+      // header and scrolls horizontally together with the rest of the row.
+      if (rowStripColor) {
+        base.unshift({
+          id: '__strip',
+          Header: '',
+          width: stripWidth,
+          minWidth: stripWidth,
+          maxWidth: stripWidth,
+          disableFilters: true,
+          disableSortBy: true,
+          noPadding: true,
+          Cell: ({
+            row
+          }) => {
+            const color = rowStripColor(row.original);
+            if (!color) return null;
+            // Optional hover tooltip naming the status (e.g. "Cancelled"). The title sits
+            // on a full-cell wrapper — the 4px bar alone is too small a hover target.
+            const title = rowStripTitle ? rowStripTitle(row.original) : undefined;
+            return /*#__PURE__*/React.createElement("div", {
+              title: title || undefined,
+              style: {
+                width: '100%',
+                height: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }
+            }, /*#__PURE__*/React.createElement("div", {
+              style: {
+                width: 4,
+                height: 'calc(100% - 8px)',
+                backgroundColor: color,
+                borderRadius: 1
+              }
+            }));
+          }
+        });
+      }
+      if (Actions) {
+        // The Action column is resizable like any other; a dragged width replaces the
+        // `actionWidth` prop for this list (and, with a pinStorageKey, for the next visit).
+        // It is spliced in at the position the column ORDER gives it — normally the end,
+        // but it is a real column and can be dragged anywhere the others can.
+        const actionW = colWidths.__actions;
+        const actionCol = {
+          id: '__actions',
+          Header: 'Action',
+          align: 'center',
+          width: actionW || 0.6,
+          minWidth: actionW || actionWidth,
+          disableFilters: true,
+          disableSortBy: true,
+          pinIndex: null,
+          pinned: actionsPinnedLeft,
+          pinnedRight: actionsPinnedRight,
+          pinnedLast: false,
+          pinnedRightFirst: false,
+          Cell: ({
+            row
+          }) => /*#__PURE__*/React.createElement(Actions, {
+            object: row.original,
+            fn: fn
+          })
+        };
+        // A dragged width pins all three (see the width note in applyLayout), but WITHOUT
+        // one there must be no `maxWidth` KEY at all — react-table merges the column over
+        // its defaults with Object.assign, which copies an explicit `undefined` straight
+        // over the default `Number.MAX_SAFE_INTEGER`. The width then resolves as
+        // `min(max(minWidth, width), undefined)` = NaN, which propagates into
+        // `totalColumnsWidth` and lands as `min-width: NaN` on the table element.
+        if (actionW) actionCol.maxWidth = actionW;
+        base.splice(rowStripColor ? actionPos + 1 : actionPos, 0, actionCol);
+      }
+      // The status strip auto-freezes with the leading run — it sits left of everything,
+      // and would otherwise be stranded outside the block. (The Action column used to get
+      // the same treatment on the right; now that it can be moved, it freezes according to
+      // which run it actually lies in — see actionsPinnedLeft / actionsPinnedRight.)
+      let lastPinned = null;
+      let firstPinnedRight = null;
+      base.forEach(c => {
+        if (c.id === '__strip') c.pinned = effectivePinCount > 0;
+        if (c.pinned) lastPinned = c;
+        if (c.pinnedRight && !firstPinnedRight) firstPinnedRight = c;
+      });
+      if (lastPinned) lastPinned.pinnedLast = true;
+      if (firstPinnedRight) firstPinnedRight.pinnedRightFirst = true;
+      return base;
+    }, [cols, colWidths, Actions, fn, actionWidth, actionPos, rowStripColor, rowStripTitle, stripWidth, effectivePinCount, effectiveRightPinCount, actionsPinnedLeft, actionsPinnedRight]);
+    const hasPinned = React.useMemo(() => allColumns.some(c => c.pinned), [allColumns]);
+    const hasPinnedRight = React.useMemo(() => allColumns.some(c => c.pinnedRight), [allColumns]);
+    const offsets = React.useMemo(() => stickyOffsets(allColumns), [allColumns]);
+    return {
+      allColumns,
+      hasPinned,
+      hasPinnedRight,
+      pinnedLeft: offsets.left,
+      pinnedRight: offsets.right
+    };
+  };
+
+  /**
+   * The imperative `ref` API — the whole of what a caller's toolbar talks to.
+   *
+   * Two rules run through all of it:
+   *
+   *  - **getters read the mirrors, not this render's state.** A caller that calls a setter
+   *    and then a getter in the SAME handler (`toggleColumn(id)` then `getHiddenColumns()`
+   *    to refresh its menu) would otherwise read the value from before its own call —
+   *    React has not re-rendered at that point.
+   *  - **pin getters report the EFFECTIVE (viewport-capped) boundary**, and `getMax…`
+   *    reports the cap itself, so a menu can disable the entries beyond it.
+   */
+  const useTableHandle = (ref, {
+    containerRef,
+    pinning,
+    layout,
+    resizable,
+    reorderable,
+    actionWidth,
+    selectRow
+  }) => {
+    const {
+      pinCount,
+      rightPinCount,
+      effectivePinCount,
+      maxPinCount,
+      effectiveRightPinCount,
+      maxRightPinCount,
+      setPinCount,
+      setRightPinCount
+    } = pinning;
+    const {
+      colWidthsRef,
+      hiddenRef,
+      orderRef,
+      setColumnWidth,
+      setColumnWidths,
+      resetColumnWidths,
+      setHiddenColumns,
+      toggleColumn,
+      setColumnOrder,
+      moveColumn,
+      getColumnList
+    } = layout;
+    React.useImperativeHandle(ref, () => ({
+      // Let the parent re-focus the table (e.g. after a modal closes, return focus to the
+      // rows) and read the current horizontal scroll, so it can be handed back as
+      // `initialScrollLeft` when the list is re-entered.
+      focus: () => containerRef.current && containerRef.current.focus({
+        preventScroll: true
+      }),
+      getScrollLeft: () => containerRef.current ? containerRef.current.scrollLeft : 0,
+      // ----- Freeze boundaries -----
+      // 0 = nothing frozen on that edge; N = the FIRST N caller columns on the left, the
+      // LAST N on the right. Both are persisted via pinStorageKey.
+      getLeftPinCount: () => effectivePinCount,
+      getMaxLeftPinCount: () => maxPinCount,
+      setLeftPinCount: n => setPinCount(Math.max(0, parseInt(n, 10) || 0)),
+      getRightPinCount: () => effectiveRightPinCount,
+      getMaxRightPinCount: () => maxRightPinCount,
+      setRightPinCount: n => setRightPinCount(Math.max(0, parseInt(n, 10) || 0)),
+      // Pre-0.6 names for the left edge, kept working so existing callers do not break.
+      // They were renamed precisely because nothing in the name said which edge they meant.
+      getPinCount: () => effectivePinCount,
+      getMaxPinCount: () => maxPinCount,
+      setPinCount: n => setPinCount(Math.max(0, parseInt(n, 10) || 0)),
+      // ----- Column widths -----
+      // Widths are normally set by dragging a header's right edge; these are for a toolbar
+      // ("Reset column widths") or for restoring a layout the caller stored itself.
+      // getColumnWidths() reports only the columns the USER has resized — a column nobody
+      // has touched is absent from the map and renders at its configured width.
+      getColumnWidths: () => ({
+        ...colWidthsRef.current
+      }),
+      setColumnWidth: (id, px) => setColumnWidth(id, px),
+      resetColumnWidths: id => resetColumnWidths(id),
+      // ----- Column visibility -----
+      getHiddenColumns: () => hiddenRef.current.slice(),
+      setHiddenColumns: ids => setHiddenColumns(ids),
+      toggleColumn: (id, visible) => toggleColumn(id, visible),
+      showAllColumns: () => setHiddenColumns([]),
+      // ----- Column order -----
+      // A flat list of ids in DISPLAY order, hidden columns included (it is a layout, not a
+      // view) and with `'__actions'` in it whenever an Actions renderer is given. A list
+      // passed to setColumnOrder does not have to be complete: ids it leaves out are
+      // slotted back in beside their CONFIGURED neighbours (the same merge a stored order
+      // gets when the column config has grown since). `null` drops the user's order
+      // entirely and goes back to the caller's array order.
+      getColumnOrder: () => orderRef.current.slice(),
+      setColumnOrder: ids => setColumnOrder(ids),
+      moveColumn: (id, toIndex) => moveColumn(id, toIndex),
+      resetColumnOrder: () => setColumnOrder(null),
+      // Everything a column menu needs, in display order, the Action column included.
+      getColumnList: () => getColumnList({
+        resizable,
+        reorderable,
+        actionWidth
+      }),
+      // ----- The whole layout, as one value -----
+      // Four separate choices (freeze boundaries, widths, hidden set, order) that a user
+      // makes together and expects to get back together. `pinStorageKey` already persists
+      // them per browser; this is the same state as a plain object, so it can be stored
+      // per USER instead — saved views, a layout that follows someone between machines, or
+      // an "apply this preset" button. Pins are reported UNCAPPED, so a boundary saved on a
+      // wide screen is not trimmed by whatever window it happened to be read from.
+      getLayout: () => ({
+        pins: {
+          left: pinCount,
+          right: rightPinCount
+        },
+        widths: {
+          ...colWidthsRef.current
+        },
+        hidden: hiddenRef.current.slice(),
+        order: orderRef.current.slice()
+      }),
+      // Every key is optional: pass only `{ hidden: [...] }` and the rest is left alone.
+      // `null` (or `{}` with `reset: true`) puts everything back to the column config.
+      setLayout: next => {
+        if (next == null) {
+          setPinCount(null);
+          setRightPinCount(null);
+          setColumnWidths({});
+          setHiddenColumns([]);
+          setColumnOrder(null);
+          return;
+        }
+        if (next.pins) {
+          if (next.pins.left !== undefined) setPinCount(next.pins.left == null ? null : Math.max(0, parseInt(next.pins.left, 10) || 0));
+          if (next.pins.right !== undefined) setRightPinCount(next.pins.right == null ? null : Math.max(0, parseInt(next.pins.right, 10) || 0));
+        }
+        if (next.widths !== undefined) setColumnWidths(next.widths || {});
+        if (next.hidden !== undefined) setHiddenColumns(next.hidden || []);
+        if (next.order !== undefined) setColumnOrder(next.order && next.order.length ? next.order : null);
+      },
+      resetLayout: () => {
+        setPinCount(null);
+        setRightPinCount(null);
+        setColumnWidths({});
+        setHiddenColumns([]);
+        setColumnOrder(null);
+      },
+      selectRow
+    }));
+  };
+
+  const useStabilityWarning = (name, value) => {
+    React.useRef({
+      last: null,
+      strikes: 0,
+      warned: false
+    });
+    return;
+  };
+
+  /**
+   * Everything that happens when `.ft-wrap` scrolls — which is deliberately almost
+   * nothing.
+   *
+   * Pinned columns are frozen with plain CSS `position: sticky`, so the browser keeps them
+   * in place on the compositor: NOTHING runs in JS per scroll frame to hold them there.
+   * That is only possible because `.ft-wrap` is the ONE scrollport for both axes (hence
+   * the hand-rolled row windowing instead of react-window, whose outer div would otherwise
+   * become the sticky scrollport for the body cells and break the freeze). The only things
+   * left for JS are the two separator shadows (each flipped once, when the scroll crosses
+   * an edge), the overlay scrollbar thumbs and the vertical offset that drives the
+   * windowing — the last two behind a rAF gate.
+   *
+   * `onFrame` is taken as a REF so the listener never has to be re-attached when the
+   * scrollbar sync closure changes.
+   */
+  const useTableScroll = ({
+    containerRef,
+    hasPinned,
+    hasPinnedRight,
+    rowSnap,
+    onFrameRef
+  }) => {
+    const pinScrolledRef = React.useRef(false);
+    const pinScrolledEndRef = React.useRef(false);
+    // Snapping is suspended WHILE scrolling and restored a moment after it stops. Left
+    // permanently on, `proximity` re-settles the scroll on every wheel notch, which reads
+    // as the list stuttering / catching mid-scroll rather than gliding.
+    const snapTimerRef = React.useRef(null);
+    const scrollTickRef = React.useRef(false);
+    const [scrollTop, setScrollTop] = React.useState(0);
+    const onWrapScroll = React.useCallback(() => {
+      const el = containerRef.current;
+      if (!el) return;
+      const scrolled = hasPinned && el.scrollLeft > 0;
+      if (scrolled !== pinScrolledRef.current) {
+        pinScrolledRef.current = scrolled;
+        if (scrolled) el.setAttribute('data-ct-scrolled', '1');else el.removeAttribute('data-ct-scrolled');
+      }
+      // The right block only casts its shadow while columns are still hidden beneath it,
+      // i.e. until the scroll reaches the end.
+      const atEnd = el.scrollLeft >= el.scrollWidth - el.clientWidth - 1;
+      const shadeRight = hasPinnedRight && !atEnd;
+      if (shadeRight !== pinScrolledEndRef.current) {
+        pinScrolledEndRef.current = shadeRight;
+        if (shadeRight) el.setAttribute('data-ct-scrolled-end', '1');else el.removeAttribute('data-ct-scrolled-end');
+      }
+      if (rowSnap) {
+        if (el.style.scrollSnapType !== 'none') el.style.scrollSnapType = 'none';
+        if (snapTimerRef.current) clearTimeout(snapTimerRef.current);
+        snapTimerRef.current = setTimeout(() => {
+          const node = containerRef.current;
+          if (node) node.style.scrollSnapType = 'y proximity';
+        }, 160);
+      }
+      if (scrollTickRef.current) return;
+      scrollTickRef.current = true;
+      window.requestAnimationFrame(() => {
+        scrollTickRef.current = false;
+        const node = containerRef.current;
+        if (!node) return;
+        onFrameRef.current();
+        setScrollTop(node.scrollTop);
+      });
+    }, [containerRef, hasPinned, hasPinnedRight, rowSnap, onFrameRef]);
+    React.useEffect(() => () => {
+      if (snapTimerRef.current) clearTimeout(snapTimerRef.current);
+    }, []);
+
+    // Passive listener: React's onScroll attaches a non-passive handler on a scroll-linked
+    // path, which can hold up the compositor.
+    React.useEffect(() => {
+      const el = containerRef.current;
+      if (!el) return undefined;
+      el.addEventListener('scroll', onWrapScroll, {
+        passive: true
+      });
+      return () => el.removeEventListener('scroll', onWrapScroll);
+    }, [containerRef, onWrapScroll]);
+    return {
+      scrollTop,
+      onWrapScroll
+    };
+  };
+
+  /**
+   * Small prop helpers, kept out of the component so they can be read (and tested) on
+   * their own.
+   */
+
+  /**
+   * The `height` prop, as a CSS value.
+   *
+   * It used to be `parseFloat(height)`, which quietly turned `height="100%"` into a 100px
+   * table and `height="60vh"` into a 60px one — the number parsed, the unit was thrown
+   * away, and nothing complained. A bare number (or a numeric string) is still pixels;
+   * anything carrying a unit is passed straight through, and `'fill'` is the readable
+   * spelling of "as tall as whatever contains me".
+   *
+   * A percentage only resolves against a parent with a definite height — the usual reason
+   * `height="100%"` collapses to nothing is that the parent has none.
+   */
+  const resolveHeight = height => {
+    if (height == null) return undefined;
+    if (typeof height === 'number') return height;
+    const s = String(height).trim();
+    if (s === 'fill' || s === 'full') return '100%';
+    if (/^-?\d*\.?\d+$/.test(s)) return parseFloat(s); // '500' -> 500px, as before
+    return s; // '100%', '60vh', 'calc(100vh - 120px)'
+  };
+
+  // react-table's per-column fallbacks. Module-level, so the identity is stable and the
+  // table instance is not rebuilt on every render. `Filter` stays a single fixed function
+  // even though the filter box is a replaceable slot — it reads the current one off the
+  // instance instead (see DefaultColumnFilter), because react-table stamps `defaultColumn`
+  // onto each column object by mutation and a swapped-in function would never be seen.
+  const DEFAULT_COLUMN = {
+    Cell: DefaultCell,
+    Filter: DefaultColumnFilter,
+    Footer: () => null,
+    minWidth: 90,
+    width: 1
+  };
+
+  /**
+   * FreezeTable — a virtualized react-table list with frozen columns.
+   *
+   * Layout is flexbox + inline styles only, and the few UI atoms it needs (sort arrows,
+   * pin marker, filter box, spinner, empty-state glyph) are inline SVG, so the package
+   * pulls in no UI library and needs no CSS import.
+   *
+   * ## The one invariant everything else follows from
+   *
+   * `.ft-wrap` is the SINGLE scrollport for both axes. Frozen columns are plain CSS
+   * `position: sticky` resolved against it, so nothing runs in JS per scroll frame. That
+   * is why the rows are windowed by hand (a virtualization library's own `overflow` div
+   * would become the sticky scrollport for the body cells and the freeze would break),
+   * and why the native scrollbars are hidden and redrawn as overlays (an element that
+   * scrolls in y is a scroll container in x too). Anything that introduces a nested scroll
+   * container inside `.ft-wrap` silently breaks column freezing — check that first when
+   * the pinned block "slides away".
+   *
+   * ## How the pieces fit
+   *
+   *   useColumnLayout   the user's widths / hidden set / order, persisted  -> `cols`
+   *   usePinning        how many columns freeze at each edge, and the caps
+   *   useTableColumns   `cols` + the synthetic __strip / __actions columns -> react-table
+   *   useTableScroll    the one passive scroll listener: shadows + windowing
+   *   useRowNavigation  selection, ↑/↓, and the imperative highlight
+   *   useColumnDrag     the resize and reorder drags (both commit on pointer-up only)
+   *
+   * Everything downstream of `useColumnLayout` reads `cols`, NEVER the `columns` prop:
+   * a hidden column does not exist as far as freezing and the sticky offsets are
+   * concerned, and a moved column freezes according to where it now is.
+   *
+   * ## How it fits someone else's UI (1.1)
+   *
+   * Four independent layers, each off by default, each solving a problem the one below it
+   * cannot reach:
+   *
+   *   theme / tokens   CSS custom properties. The ONLY mechanism that reaches all three
+   *                    places colour lives here — inline styles, the injected stylesheet's
+   *                    pseudo-class rules, and the row background a JS handler writes.
+   *                    See lib/theme.js.
+   *   classNames       a class per slot, for a utility-CSS app that would rather not write
+   *                    a stylesheet at all.
+   *   components       the slot itself, for a design-system app: their button, their
+   *                    popover, their input, our behaviour. See DEFAULT_COMPONENTS.
+   *   unstyled         no paint and no injected sheet, keeping only the styles that ARE
+   *                    the freeze and the virtualization. See `skin()` in lib/slots.js.
+   *
+   * The full prop and column-config reference lives in README.md — this file documents
+   * the mechanics, the README documents the API.
+   */
+  const FreezeTable = /*#__PURE__*/React.forwardRef(function FreezeTable({
+    columns,
+    data,
+    Actions,
+    fn,
+    height = 500,
+    rowHeight = 44,
+    userList,
+    context,
+    locale,
+    dateFormat = FORMAT_DEFAULTS.dateFormat,
+    dateTimeFormat = FORMAT_DEFAULTS.dateTimeFormat,
+    currencySymbol,
+    status,
+    sortable = true,
+    searchable = true,
+    loading = false,
+    dataFetched = true,
+    emptyText = 'No records found',
+    loadingText = 'Fetching records…',
+    actionWidth = 110,
+    footerLeft = null,
+    showFooter,
+    rowNavigation = true,
+    rowSnap = false,
+    pinActions = false,
+    onRowSelect,
+    onRowEnter,
+    selectedBg,
+    rowIdKey = 'id',
+    initialSelectedId = null,
+    rowStripColor,
+    rowStripTitle,
+    rowStyle,
+    stripWidth = 14,
+    initialScrollLeft = 0,
+    fontSize = 12,
+    pinStorageKey,
+    resizable = true,
+    reorderable = true,
+    actionIndex = 'last',
+    minColumnWidth = COL_MIN_WIDTH,
+    onColumnResize,
+    onColumnVisibilityChange,
+    onColumnOrderChange,
+    defaultLayout,
+    onLayoutChange,
+    toolbar = false,
+    className,
+    style,
+    theme,
+    tokens,
+    classNames,
+    components,
+    unstyled = false,
+    styleNonce,
+    styleTarget
+  }, ref) {
+    // Development-only: says so when `columns` / `data` are rebuilt unchanged every render.
+    useStabilityWarning();
+    useStabilityWarning();
+    const fontPx = `${parseFloat(fontSize)}px`;
+    const hasActions = !!Actions;
+
+    // `status` is the one-prop replacement for the `loading` + `dataFetched` pair, which
+    // had to be wired together correctly to avoid flashing "No records found" over a list
+    // that was still loading. The old pair still works; `status` simply wins when given.
+    const isLoading = status === undefined ? loading : status === 'loading';
+    const isFetched = status === undefined ? dataFetched : status !== 'idle';
+
+    // Formatting options for the column `type` shorthands, in one memoized object so a
+    // caller passing none of them does not rebuild every typed cell renderer per render.
+    const formatOptions = React.useMemo(() => ({
+      locale,
+      dateFormat,
+      dateTimeFormat,
+      currencySymbol
+    }), [locale, dateFormat, dateTimeFormat, currencySymbol]);
+
+    // The outer scroller. Measured early: the pin caps need the wrap's width before the
+    // column defs are built.
+    const rootRef = React.useRef(null);
+    const containerRef = React.useRef(null);
+    const wrapW = useWrapWidth(containerRef);
+
+    // ----- Appearance: tokens, class slots, component slots -----
+    //
+    // Three layers, deliberately independent, and none of them on by default:
+    //
+    //   theme / tokens   re-colour the built-in look through CSS custom properties
+    //   classNames       hand each slot a class, for a utility-CSS app
+    //   components       replace a slot outright, for a design-system app
+    //
+    // See lib/theme.js for why the colours have to be custom properties rather than props,
+    // and lib/slots.js for the engine/skin split `unstyled` depends on.
+
+    // One <style> tag carrying the token ladder plus the handful of things inline styles
+    // cannot express (keyframes, :focus, ::placeholder, the pinned-column shadow selector).
+    //
+    // `unstyled` skips it entirely — the point of that mode is that the consumer owns every
+    // visual, and an injected sheet they did not ask for would be one more thing to
+    // override. The target defaults to the root NODE rather than `document`, so a table
+    // rendered inside a shadow root gets its sheet in that root — a `document.head`
+    // stylesheet does not cross the shadow boundary, and the table would come out with
+    // only its inline fallbacks.
+    useIsoLayoutEffect(() => {
+      if (unstyled) return;
+      injectStyles({
+        nonce: styleNonce,
+        target: styleTarget || rootRef.current
+      });
+    }, [unstyled, styleNonce, styleTarget]);
+
+    // Inline custom properties outrank the injected base block and are inherited by
+    // everything inside the root, menus included — this is the no-CSS-file route.
+    const tokenStyle = React.useMemo(() => resolveTokens(tokens), [tokens]);
+    const slotClasses = resolveClassNames(classNames);
+    const ui = React.useMemo(() => resolveComponents(components, DEFAULT_COMPONENTS), [components]);
+
+    // The selection highlight resolves through `--ft-row-selected` unless the caller named
+    // a colour, so it follows the theme (a light blue row is invisible on a dark table)
+    // while an explicit `selectedBg` still wins, as it always did.
+    const selectedRowBg = selectedBg !== undefined ? selectedBg : v('row-selected');
+
+    // ----- The user's layout: widths, hidden columns, order -----
+    const storage = useLayoutStorage(pinStorageKey);
+    const layout = useColumnLayout({
+      columns,
+      formatOptions,
+      defaultLayout,
+      hasActions,
+      actionIndex,
+      minColumnWidth,
+      storage,
+      onColumnResize,
+      onColumnVisibilityChange,
+      onColumnOrderChange
+    });
+    const {
+      cols,
+      actionPos,
+      colWidths
+    } = layout;
+    // The Action column's rendered width: a dragged width replaces the `actionWidth` prop,
+    // and both the pin caps and the column def built in useTableColumns have to agree.
+    const actionColWidth = colWidths.__actions || actionWidth;
+
+    // ----- Freeze boundaries -----
+    const pinning = usePinning({
+      cols,
+      wrapW,
+      hasActions,
+      actionPos,
+      actionColWidth,
+      pinActions,
+      rowStripColor,
+      stripWidth,
+      storage,
+      defaultLayout
+    });
+
+    // One callback for all four layout choices, so a caller saving a layout per user does
+    // not have to stitch together onColumnResize + onColumnVisibilityChange +
+    // onColumnOrderChange and then discover the pin boundaries have no callback at all.
+    // Effect, not a call inside each setter: the setters live in two different hooks, and
+    // this way one gesture that changes two things still reports one settled layout.
+    const layoutRef = React.useRef(null);
+    React.useEffect(() => {
+      if (!onLayoutChange) return;
+      const next = {
+        pins: {
+          left: pinning.pinCount,
+          right: pinning.rightPinCount
+        },
+        widths: layout.colWidths,
+        hidden: layout.hiddenIds,
+        order: layout.order
+      };
+      const key = JSON.stringify(next);
+      if (layoutRef.current === key) return;
+      const first = layoutRef.current === null;
+      layoutRef.current = key;
+      if (!first) onLayoutChange(next); // the initial layout is not a change
+    }, [onLayoutChange, pinning.pinCount, pinning.rightPinCount, layout.colWidths, layout.hiddenIds, layout.order]);
+
+    // ----- The column list react-table actually gets -----
+    const {
+      allColumns,
+      hasPinned,
+      hasPinnedRight,
+      pinnedLeft,
+      pinnedRight
+    } = useTableColumns({
+      cols,
+      colWidths,
+      Actions,
+      fn,
+      actionWidth,
+      actionPos,
+      rowStripColor,
+      rowStripTitle,
+      stripWidth,
+      effectivePinCount: pinning.effectivePinCount,
+      effectiveRightPinCount: pinning.effectiveRightPinCount,
+      actionsPinnedLeft: pinning.actionsPinnedLeft,
+      actionsPinnedRight: pinning.actionsPinnedRight
+    });
+    const {
+      getTableProps,
+      getTableBodyProps,
+      headerGroups,
+      footerGroups,
+      rows,
+      prepareRow,
+      totalColumnsWidth
+    } = reactTableExports.useTable({
+      columns: allColumns,
+      data,
+      defaultColumn: DEFAULT_COLUMN,
+      // Forwarded onto the table instance, which is what a `Cell` receives spread: this
+      // is how a cell reaches the caller's own callbacks and lookups without the column
+      // config having to be rebuilt as a factory closure.
+      userList,
+      context,
+      // The resolved slot map, forwarded the same way — this is how the default `Filter`
+      // (and any caller `Cell` that wants them) reaches the current components.
+      ui,
+      // `data` is often recreated each render (e.g. Object.values(byId)); without these
+      // react-table resets sort/filter on every data change, so clicking a header appears
+      // to do nothing (sort is set then immediately reset).
+      autoResetSortBy: false,
+      autoResetFilters: false,
+      autoResetGlobalFilter: false
+    }, reactTableExports.useFilters, reactTableExports.useSortBy, reactTableExports.useFlexLayout);
+    const hasColumnFooter = React.useMemo(() => cols.some(c => c.Footer), [cols]);
+    const renderFooter = showFooter !== undefined ? showFooter : footerLeft != null || hasColumnFooter;
+
+    // ----- Geometry -----
+    const bodyWrapRef = React.useRef(null);
+    const headRef = React.useRef(null);
+    const footRef = React.useRef(null);
+    const toolbarRef = React.useRef(null);
+    // `toolbar` is either a boolean or a config object; normalize once so the rest reads
+    // one shape. It sits OUTSIDE the scrollport — see the note in Toolbar.js.
+    const showToolbar = !!toolbar;
+    const toolbarConfig = toolbar && typeof toolbar === 'object' ? toolbar : {};
+    const {
+      listH,
+      headH,
+      toolH
+    } = useBandHeights({
+      containerRef,
+      headRef,
+      footRef,
+      toolbarRef,
+      deps: [renderFooter, height, rows.length, showToolbar]
+    });
+
+    // ----- Scrolling, windowing and the overlay bars -----
+    // The scroll handler drives the bars through a ref, so the (passive) listener never has
+    // to be re-attached when the sync closure changes.
+    const syncBarsRef = React.useRef(() => {});
+    const {
+      scrollTop,
+      onWrapScroll
+    } = useTableScroll({
+      containerRef,
+      hasPinned,
+      hasPinnedRight,
+      rowSnap,
+      onFrameRef: syncBarsRef
+    });
+    const bars = useOverlayScrollbars({
+      containerRef,
+      listH,
+      syncBarsRef,
+      onWrapScroll
+    });
+
+    // ----- Selection and keyboard navigation -----
+    const {
+      setSelectedIndex,
+      selectedIndexRef,
+      onKeyDown,
+      selectRow
+    } = useRowNavigation({
+      containerRef,
+      rows,
+      prepareRow,
+      rowHeight,
+      listH,
+      rowNavigation,
+      onRowSelect,
+      onRowEnter,
+      selectedBg: selectedRowBg,
+      initialSelectedId,
+      rowIdKey,
+      initialScrollLeft
+    });
+
+    // ----- Header drags -----
+    const guideRef = React.useRef(null);
+    const dropRef = React.useRef(null);
+    const {
+      startColResize,
+      startColReorder,
+      onHeaderClickCapture
+    } = useColumnDrag({
+      rootRef,
+      containerRef,
+      guideRef,
+      dropRef,
+      orderRef: layout.orderRef,
+      minColumnWidth,
+      setColumnWidth: layout.setColumnWidth,
+      setColumnOrder: layout.setColumnOrder
+    });
+    useTableHandle(ref, {
+      containerRef,
+      pinning,
+      layout,
+      resizable,
+      reorderable,
+      actionWidth,
+      selectRow
+    });
+
+    // ----- What the built-in toolbar needs -----
+    // The freeze menu counts in VISIBLE CALLER columns — the same units as the pin
+    // boundaries themselves — so it is built from `cols`, not from the raw config.
+    const pinColumns = React.useMemo(() => showToolbar ? cols.map((c, i) => ({
+      label: typeof c.Header === 'string' && c.Header ? c.Header : colIdOf(c) || `Column ${i + 1}`
+    })) : [], [cols, showToolbar]);
+    const toolbarColumnList = React.useCallback(() => layout.getColumnList({
+      resizable,
+      reorderable,
+      actionWidth
+    }), [layout, resizable, reorderable, actionWidth]);
+    const refocus = React.useCallback(() => {
+      if (containerRef.current) containerRef.current.focus({
+        preventScroll: true
+      });
+    }, []);
+    const toolbarApi = React.useMemo(() => ({
+      toggleColumn: layout.toggleColumn,
+      moveColumn: layout.moveColumn,
+      showAllColumns: () => layout.setHiddenColumns([]),
+      resetColumnWidths: () => layout.resetColumnWidths(),
+      resetColumnOrder: () => layout.setColumnOrder(null),
+      setLeftPinCount: pinning.setPinCount,
+      setRightPinCount: pinning.setRightPinCount
+    }), [layout.toggleColumn, layout.moveColumn, layout.setHiddenColumns, layout.resetColumnWidths, layout.setColumnOrder, pinning.setPinCount, pinning.setRightPinCount]);
+
+    // Everything the memoized rows need. Deliberately does NOT include selectedIndex —
+    // rows read it from selectedIndexRef so arrow navigation never re-renders them.
+    const itemData = React.useMemo(() => ({
+      rows,
+      prepareRow,
+      rowStyle,
+      selectedBg: selectedRowBg,
+      rowNavigation,
+      fontPx,
+      selectedIndexRef,
+      rowHeight,
+      pinnedLeft,
+      pinnedRight,
+      rowSnap,
+      onSelect: i => setSelectedIndex(i),
+      classNames: slotClasses,
+      unstyled,
+      // Not read by VirtualRow — included so a pin-boundary change breaks the memo and
+      // every visible row re-renders with the new pinned flags (otherwise rows could
+      // keep stale pin attributes / sticky offsets).
+      allColumns
+    }), [rows, prepareRow, rowStyle, selectedRowBg, rowNavigation, fontPx, allColumns, rowHeight, pinnedLeft, pinnedRight, rowSnap, selectedIndexRef, setSelectedIndex, slotClasses, unstyled]);
+
+    // Which rows are actually rendered. The frozen columns are sticky, so this can lag a
+    // frame behind the scroll without ever pulling them out of place.
+    const firstIdx = Math.max(0, Math.floor(scrollTop / rowHeight) - OVERSCAN);
+    const lastIdx = Math.min(rows.length - 1, Math.ceil((scrollTop + (listH || 0)) / rowHeight) + OVERSCAN);
+    const tableProps = getTableProps();
+    return /*#__PURE__*/React.createElement("div", {
+      ref: rootRef,
+      className: cx('ft-root ct-root', slotClasses.root, className)
+      // 'auto' follows the OS; 'light' / 'dark' pin it. Absent means "inherit whatever
+      // the tokens on this element or an ancestor say", which is the class-toggle case
+      // (a Tailwind `dark:` app sets the variables itself and must not be overridden by
+      // a media query it did not ask for).
+      ,
+      "data-ft-theme": theme || undefined,
+      style: {
+        position: 'relative',
+        width: '100%',
+        height: resolveHeight(height),
+        // `fontFamily`, NOT the `font` shorthand: the shorthand requires a size, so
+        // `font: Inter, sans-serif` is invalid CSS and the browser drops the whole
+        // declaration. The default `inherit` happens to be legal in both, which is
+        // exactly what makes the mistake survive testing until someone sets the token.
+        ...skin(unstyled, {
+          fontFamily: v('font'),
+          color: v('text'),
+          background: v('bg')
+        }),
+        // Only with a toolbar: the root becomes a column so the scrollport takes whatever
+        // height is left over. Without one the scrollport is simply the whole root, and
+        // the markup stays exactly as it always was.
+        ...(showToolbar ? {
+          display: 'flex',
+          flexDirection: 'column'
+        } : null),
+        // Caller last: `tokens` overrides the injected base block, and `style` overrides
+        // everything, including a token the caller also set through `tokens`.
+        ...tokenStyle,
+        ...style
+      }
+    }, showToolbar && /*#__PURE__*/React.createElement(Toolbar, {
+      toolbarRef: toolbarRef,
+      fontPx: fontPx,
+      config: toolbarConfig,
+      getColumnList: toolbarColumnList,
+      pinColumns: pinColumns,
+      pin: {
+        left: pinning.effectivePinCount,
+        maxLeft: pinning.maxPinCount,
+        right: pinning.effectiveRightPinCount,
+        maxRight: pinning.maxRightPinCount
+      },
+      api: toolbarApi,
+      refocus: refocus,
+      ui: ui,
+      classNames: slotClasses,
+      unstyled: unstyled
+    }), /*#__PURE__*/React.createElement("div", {
+      className: cx('ft-wrap ct-wrap ft-nobar', slotClasses.wrap),
+      ref: containerRef,
+      tabIndex: rowNavigation ? 0 : undefined,
+      onKeyDown: onKeyDown,
+      style: {
+        width: '100%',
+        ...(showToolbar ? {
+          flex: '1 1 auto',
+          minHeight: 0
+        } : {
+          height: '100%'
+        }),
+        overflow: 'auto',
+        outline: 'none',
+        // Vertical scrolling settles on a row boundary (spreadsheet behaviour) instead of
+        // leaving a half-row sliced by the sticky header. `scroll-padding-top` moves the
+        // snapport's top edge below the header, which is what the rows scroll under —
+        // without it a snapped row would align to the hidden top of the scrollport.
+        // `proximity`, not `mandatory`: rows are windowed, so snap targets come and go,
+        // and mandatory snapping fights programmatic scrolls and the end of the list.
+        // Horizontal scrolling is untouched (the axis is `y`).
+        ...(rowSnap ? {
+          scrollSnapType: 'y proximity',
+          scrollPaddingTop: headH
+        } : {})
+      }
+    }, /*#__PURE__*/React.createElement("div", _extends({}, tableProps, {
+      className: cx(tableProps.className, slotClasses.table),
+      style: {
+        ...tableProps.style,
+        minWidth: totalColumnsWidth,
+        minHeight: '100%',
+        display: 'flex',
+        flexDirection: 'column'
+      }
+    }), /*#__PURE__*/React.createElement(TableHead, {
+      headerGroups: headerGroups,
+      headRef: headRef,
+      fontPx: fontPx,
+      sortable: sortable,
+      searchable: searchable,
+      resizable: resizable,
+      reorderable: reorderable,
+      pinnedLeft: pinnedLeft,
+      pinnedRight: pinnedRight,
+      startColReorder: startColReorder,
+      startColResize: startColResize,
+      onHeaderClickCapture: onHeaderClickCapture,
+      resetColumnWidths: layout.resetColumnWidths,
+      classNames: slotClasses,
+      ui: ui,
+      unstyled: unstyled
+    }), /*#__PURE__*/React.createElement(TableBody, {
+      bodyProps: getTableBodyProps(),
+      bodyWrapRef: bodyWrapRef,
+      rows: rows,
+      rowHeight: rowHeight,
+      listH: listH,
+      firstIdx: firstIdx,
+      lastIdx: lastIdx,
+      itemData: itemData,
+      loading: isLoading,
+      loadingText: loadingText,
+      dataFetched: isFetched,
+      emptyText: emptyText,
+      classNames: slotClasses,
+      ui: ui,
+      unstyled: unstyled
+    }), renderFooter && /*#__PURE__*/React.createElement(TableFoot, {
+      footerGroups: footerGroups,
+      footRef: footRef,
+      fontPx: fontPx,
+      footerLeft: footerLeft,
+      pinnedLeft: pinnedLeft,
+      pinnedRight: pinnedRight,
+      classNames: slotClasses,
+      unstyled: unstyled
+    }))), /*#__PURE__*/React.createElement(OverlayBars, {
+      headH: headH,
+      listH: listH,
+      topOffset: toolH,
+      vTrackRef: bars.vTrackRef,
+      vThumbRef: bars.vThumbRef,
+      hTrackRef: bars.hTrackRef,
+      hThumbRef: bars.hThumbRef,
+      startThumbDrag: bars.startThumbDrag,
+      onTrackDown: bars.onTrackDown,
+      guideRef: guideRef,
+      dropRef: dropRef,
+      classNames: slotClasses
+    }));
+  });
+
+  const FIRST = ['Ramesh', 'Sunita', 'Imran', 'Priya', 'Arjun', 'Fatima', 'Rakesh', 'Neha', 'Vikram', 'Anjali'];
+  const LAST = ['Kumar', 'Devi', 'Ali', 'Sharma', 'Singh', 'Khan', 'Verma', 'Gupta', 'Reddy', 'Nair'];
+  const CITY = ['Patna', 'Ranchi', 'Kolkata', 'Delhi', 'Mumbai', 'Jaipur', 'Pune', 'Chennai', 'Indore', 'Surat'];
+  const STATUS = ['Active', 'Pending', 'Cancelled', 'Posted'];
+
+  // Deterministic pseudo-random so the demo looks the same on every reload.
+  let seed = 42;
+  const rnd = () => (seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648;
+  const pick = a => a[Math.floor(rnd() * a.length)];
+  const ROWS = Array.from({
+    length: 2000
+  }, (_, i) => {
+    const qty = 1 + Math.floor(rnd() * 9);
+    const rate = Math.round(rnd() * 90000) + 10000;
+    return {
+      id: `row-${i + 1}`,
+      name: `${pick(FIRST)} ${pick(LAST)}`,
+      city: pick(CITY),
+      status: pick(STATUS),
+      invoice: `INV/25-26/${String(1000 + i)}`,
+      date: `2026-08-${String(1 + Math.floor(rnd() * 28)).padStart(2, '0')} 10:${String(Math.floor(rnd() * 60)).padStart(2, '0')}:00`,
+      model: pick(['Nexon EV', 'Creta', 'Swift', 'Scorpio N', 'Punch', 'Baleno']),
+      fuel: pick(['Petrol', 'Diesel', 'Electric', 'CNG']),
+      vin: `MAT${Math.floor(rnd() * 1e9).toString().padStart(9, '0')}`,
+      engine: `ENG${Math.floor(rnd() * 1e7)}`,
+      colour: pick(['White', 'Black', 'Silver', 'Red', 'Blue']),
+      delivered: rnd() > 0.4,
+      qty,
+      rate,
+      amount: qty * rate,
+      gst: Math.round(qty * rate * 0.28),
+      executive: `${pick(FIRST)} ${pick(LAST)}`,
+      branch: pick(['North', 'South', 'East', 'West']),
+      remarks: 'Delivered against advance receipt, balance adjusted'
+    };
+  });
+
+  // One line per column. `type` brings the alignment, the width floor, the ellipsis cell
+  // and the `title` with it; `footer: 'sum'` brings the reduce AND formats the total the
+  // same way as the cells above it. Only what is genuinely specific to this list is here.
+  const COLUMNS = [{
+    type: 'serial',
+    pinned: true
+  }, {
+    Header: 'Invoice No',
+    accessor: 'invoice',
+    width: 150,
+    pinned: true,
+    footer: 'count'
+  }, {
+    Header: 'Customer Name',
+    accessor: 'name',
+    width: 180,
+    pinned: true
+  }, {
+    Header: 'Date',
+    accessor: 'date',
+    type: 'datetime'
+  }, {
+    Header: 'Status',
+    accessor: 'status',
+    width: 110
+  }, {
+    Header: 'City',
+    accessor: 'city',
+    width: 120
+  }, {
+    Header: 'Branch',
+    accessor: 'branch',
+    width: 100
+  }, {
+    Header: 'Model',
+    accessor: 'model',
+    width: 140
+  }, {
+    Header: 'Fuel',
+    accessor: 'fuel',
+    width: 100
+  }, {
+    Header: 'Colour',
+    accessor: 'colour',
+    width: 100
+  }, {
+    Header: 'Delivered',
+    accessor: 'delivered',
+    type: 'boolean',
+    width: 90
+  }, {
+    Header: 'VIN',
+    accessor: 'vin',
+    width: 160
+  }, {
+    Header: 'Engine No',
+    accessor: 'engine',
+    width: 140
+  }, {
+    Header: 'Qty',
+    accessor: 'qty',
+    type: 'number',
+    width: 70,
+    footer: 'sum'
+  }, {
+    Header: 'Rate',
+    accessor: 'rate',
+    type: 'currency',
+    width: 120
+  }, {
+    Header: 'Amount',
+    accessor: 'amount',
+    type: 'currency',
+    width: 140,
+    footer: 'sum'
+  }, {
+    Header: 'GST',
+    accessor: 'gst',
+    type: 'currency',
+    width: 130,
+    footer: 'sum'
+  }, {
+    Header: 'Sales Executive',
+    accessor: 'executive',
+    width: 170
+  }, {
+    Header: 'Remarks',
+    accessor: 'remarks',
+    width: 260,
+    pinned: 'right'
+  }];
+  const STRIP = {
+    Cancelled: '#e03e3e',
+    Pending: '#e8912d',
+    Posted: '#2aa76a'
+  };
+
+  // Page chrome lives in demo.css now — see the note at the top of that file.
+  const btn = {
+    font: 'inherit',
+    fontSize: 11,
+    padding: '3px 10px',
+    cursor: 'pointer',
+    border: '1px solid #c9d2dd',
+    borderRadius: 4,
+    background: '#fff',
+    color: '#1b2733'
+  };
+
+  /**
+   * One entry per theming layer, so the demo shows what each is actually for.
+   *
+   * `props` is spread straight onto <FreezeTable>. Everything visual that these presets
+   * reach lives in demo.css — the point is that a consumer re-themes this component from
+   * their own stylesheet, without forking it and without a prop per colour.
+   */
+  const PRESETS = {
+    Default: {
+      note: 'Nothing set. This is what `npm i freeze-table` gives you.',
+      props: {}
+    },
+    Dark: {
+      note: 'theme="dark" — the built-in palette. One prop.',
+      props: {
+        theme: 'dark'
+      },
+      darkPage: true
+    },
+    Auto: {
+      note: 'theme="auto" — follows prefers-color-scheme. Flip your OS appearance to see it.',
+      props: {
+        theme: 'auto'
+      }
+    },
+    Brand: {
+      note: 'A class on the root, and demo.css sets eight CORE tokens. Header, rows, menus, buttons, filter boxes and the frozen-column shadow all follow — that is the token ladder.',
+      props: {
+        classNames: {
+          root: 'demo-brand'
+        }
+      }
+    },
+    ERP: {
+      note: 'Same tokens, opposite century: radius 0, hairline separators, a mono font, amber accent. Tokens carry SHAPE and ELEVATION, not just colour.',
+      props: {
+        classNames: {
+          root: 'demo-erp'
+        },
+        rowHeight: 28,
+        fontSize: 11
+      }
+    },
+    'Custom CSS': {
+      note: 'The `classNames` prop, styled from demo.css: gradient toolbar, uppercase headers, an inset bar on row hover. Note the row BACKGROUND still comes from a token — a class cannot beat an inline style.',
+      props: {
+        classNames: {
+          root: 'demo-css-root',
+          toolbar: 'demo-css-toolbar',
+          th: 'demo-css-th',
+          row: 'demo-css-row',
+          cell: 'demo-css-cell',
+          foot: 'demo-css-foot'
+        }
+      }
+    },
+    Slots: {
+      note: 'The `components` prop: our own filter input, toolbar button, spinner and empty state. This is the layer for "make it look like MY design system" — no CSS involved.',
+      props: {
+        components: {
+          FilterInput: ({
+            value,
+            onChange,
+            onClick,
+            placeholder
+          }) => /*#__PURE__*/React.createElement("input", {
+            value: value,
+            onChange: onChange,
+            onClick: onClick,
+            placeholder: placeholder,
+            style: {
+              width: '100%',
+              boxSizing: 'border-box',
+              font: 'inherit',
+              fontSize: 10,
+              padding: '3px 6px',
+              border: 0,
+              borderBottom: '2px solid #0ea5e9',
+              background: '#f0f9ff',
+              outline: 'none',
+              borderRadius: '3px 3px 0 0'
+            }
+          }),
+          Button: ({
+            children,
+            ...rest
+          }) => /*#__PURE__*/React.createElement("button", _extends({
+            type: "button"
+          }, rest, {
+            style: {
+              font: 'inherit',
+              fontSize: 11,
+              fontWeight: 600,
+              padding: '4px 12px',
+              border: 0,
+              borderRadius: 999,
+              cursor: 'pointer',
+              background: '#0f172a',
+              color: '#f8fafc',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6
+            }
+          }), children),
+          Empty: ({
+            text
+          }) => /*#__PURE__*/React.createElement("div", {
+            style: {
+              font: '600 14px system-ui, sans-serif',
+              color: '#0ea5e9'
+            }
+          }, "\u25E6 ", text, " \u25E6"),
+          Spinner: ({
+            text
+          }) => /*#__PURE__*/React.createElement("div", {
+            style: {
+              font: '600 13px system-ui, sans-serif',
+              color: '#0ea5e9'
+            }
+          }, text),
+          // A slot set to null renders nothing at all.
+          SortIcon: null
+        }
+      }
+    },
+    Unstyled: {
+      note: 'unstyled — the table paints nothing; every visual is demo.css. The freeze and the virtualization are untouched (scroll sideways). Note that .demo-bare-row MUST set a background, or the scrolling columns show through the frozen block.',
+      props: {
+        unstyled: true,
+        classNames: {
+          head: 'demo-bare-head',
+          th: 'demo-bare-th',
+          row: 'demo-bare-row',
+          cell: 'demo-bare-cell',
+          foot: 'demo-bare-foot',
+          footCell: 'demo-bare-foot-cell',
+          empty: 'demo-bare-empty'
+        }
+      }
+    }
+  };
+  const PRESET_NAMES = Object.keys(PRESETS);
+
+  // The Action column's renderer. `context` is forwarded onto the table instance, so a
+  // cell can reach the caller's callbacks without the column config being rebuilt as a
+  // factory closure on every render.
+  const Actions = ({
+    object,
+    fn
+  }) => /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    style: btn,
+    onClick: () => fn(object)
+  }, "Open");
+  function Demo() {
+    const tableRef = reactExports.useRef(null);
+    const [selected, setSelected] = reactExports.useState(null);
+    const [status, setStatus] = reactExports.useState('ready');
+    const [empty, setEmpty] = reactExports.useState(false);
+    const [saved, setSaved] = reactExports.useState(null);
+    const [preset, setPreset] = reactExports.useState('Default');
+    const active = PRESETS[preset];
+    const columns = reactExports.useMemo(() => COLUMNS, []);
+    const data = reactExports.useMemo(() => empty ? [] : ROWS, [empty]);
+    return /*#__PURE__*/React.createElement("div", {
+      className: "demo-page",
+      "data-dark": active.darkPage ? '1' : undefined
+    }, /*#__PURE__*/React.createElement("h1", {
+      style: {
+        margin: '0 0 4px',
+        fontSize: 20
+      }
+    }, "freeze-table"), /*#__PURE__*/React.createElement("p", {
+      className: "demo-muted",
+      style: {
+        margin: '0 0 14px'
+      }
+    }, "2,000 rows \xB7 19 columns \xB7 ", /*#__PURE__*/React.createElement("strong", null, "Columns"), " aur ", /*#__PURE__*/React.createElement("strong", null, "Freeze"), " menu table ka apna hai (koi menu code likhna nahi pada) \xB7 header ko side mein drag karo to column move hota hai \xB7 right edge drag karke resize (double-click = reset) \xB7 arrow keys / Home / End / Enter chalte hain."), /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: 'flex',
+        gap: 6,
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        marginBottom: 4
+      }
+    }, /*#__PURE__*/React.createElement("strong", {
+      style: {
+        fontSize: 11,
+        marginRight: 4
+      }
+    }, "Theme:"), PRESET_NAMES.map(name => /*#__PURE__*/React.createElement("button", {
+      key: name,
+      type: "button",
+      className: "demo-btn",
+      "aria-pressed": preset === name,
+      onClick: () => setPreset(name)
+    }, name))), /*#__PURE__*/React.createElement("p", {
+      className: "demo-note"
+    }, active.note), /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: 'flex',
+        gap: 8,
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        margin: '12px 0 10px'
+      }
+    }, /*#__PURE__*/React.createElement("button", {
+      type: "button",
+      className: "demo-btn",
+      "aria-pressed": status === 'loading',
+      onClick: () => setStatus(s => s === 'loading' ? 'ready' : 'loading')
+    }, "Loading state"), /*#__PURE__*/React.createElement("button", {
+      type: "button",
+      className: "demo-btn",
+      "aria-pressed": empty,
+      onClick: () => setEmpty(v => !v)
+    }, "Empty state"), /*#__PURE__*/React.createElement("span", {
+      style: {
+        width: 16
+      }
+    }), /*#__PURE__*/React.createElement("button", {
+      type: "button",
+      className: "demo-btn",
+      onClick: () => setSaved(tableRef.current.getLayout())
+    }, "Save view"), /*#__PURE__*/React.createElement("button", {
+      type: "button",
+      className: "demo-btn",
+      disabled: !saved,
+      onClick: () => tableRef.current.setLayout(saved)
+    }, "Restore view"), /*#__PURE__*/React.createElement("button", {
+      type: "button",
+      className: "demo-btn",
+      onClick: () => tableRef.current.resetLayout()
+    }, "Reset layout"), /*#__PURE__*/React.createElement("span", {
+      className: "demo-muted",
+      style: {
+        marginLeft: 'auto'
+      }
+    }, "Selected: ", /*#__PURE__*/React.createElement("strong", null, selected ? `${selected.invoice} — ${selected.name}` : '—'))), /*#__PURE__*/React.createElement("div", {
+      className: "demo-frame"
+    }, /*#__PURE__*/React.createElement(FreezeTable
+    // Remounts on a preset change so `unstyled` and the slot swaps are unambiguous
+    // to look at. In an app the props are simply reactive — no key needed.
+    , _extends({
+      key: preset,
+      ref: tableRef,
+      columns: columns,
+      data: data,
+      height: 560,
+      rowHeight: 38,
+      fontSize: 12,
+      status: empty ? 'ready' : status,
+      toolbar: {
+        left: /*#__PURE__*/React.createElement("strong", null, "Vehicle invoices")
+      },
+      locale: "en-IN",
+      currencySymbol: "\u20B9",
+      pinStorageKey: "freeze-table-demo",
+      Actions: Actions,
+      fn: row => setSelected(row),
+      rowStripColor: r => STRIP[r.status] || null,
+      rowStripTitle: r => r.status,
+      rowStyle: r => r.status === 'Cancelled' ? {
+        color: '#a11'
+      } : undefined,
+      onRowSelect: row => setSelected(row),
+      onRowEnter: row => setSelected(row)
+    }, active.props))));
+  }
+  createRoot(document.getElementById('root')).render(/*#__PURE__*/React.createElement(Demo, null));
 
 })();

@@ -19,6 +19,103 @@ export type FreezeTableColumnType =
 /** Built-in footer shorthands — see `FreezeTableColumn.footer`. */
 export type FreezeTableFooterKind = 'sum' | 'avg' | 'min' | 'max' | 'count';
 
+/** Built-in themes for the `theme` prop — see {@link FreezeTableProps.theme}. */
+export type FreezeTableTheme = 'light' | 'dark' | 'auto';
+
+/**
+ * A design token, with or without its `--ft-` prefix. The full list is in README §12;
+ * `tokenNames()` returns it at runtime, and the ten in {@link CORE_TOKENS} are the ones
+ * everything else derives from.
+ */
+export type FreezeTableToken = string;
+
+/** The `tokens` prop: token name -> CSS value. */
+export type FreezeTableTokens = Record<FreezeTableToken, string | number>;
+
+/**
+ * Per-slot class names, merged AFTER the component's own `ft-*` class so that in a
+ * flat-specificity setup (Tailwind and friends) yours wins.
+ */
+export interface FreezeTableClassNames {
+  /** The outer box. Joined with the `className` prop, which still comes last. */
+  root?: string;
+  /** The toolbar strip (`toolbar` only). */
+  toolbar?: string;
+  /** Each toolbar button. */
+  button?: string;
+  /** An open toolbar popover. */
+  menu?: string;
+  /** One entry in a menu. */
+  menuItem?: string;
+  /** The scrollport. */
+  wrap?: string;
+  /** The flex box holding header, body and footer. */
+  table?: string;
+  /** The header row. */
+  head?: string;
+  /** Each header cell. */
+  th?: string;
+  /** The label + sort-arrow row inside a header cell. */
+  thLabel?: string;
+  /** The wrapper around a column's filter box. */
+  thFilter?: string;
+  /** The drag-to-resize grip. */
+  resizer?: string;
+  /** The row band. */
+  body?: string;
+  /** Each row. */
+  row?: string;
+  /** Each body cell. */
+  cell?: string;
+  /** The footer row. */
+  foot?: string;
+  /** Each footer cell. */
+  footCell?: string;
+  /** The empty state. */
+  empty?: string;
+  /** The loading state. */
+  loading?: string;
+  /** Both overlay scrollbar tracks. */
+  track?: string;
+  /** Both overlay scrollbar thumbs. */
+  thumb?: string;
+}
+
+/**
+ * Replaceable UI pieces. Each key defaults to the built-in; `null` renders nothing at
+ * all (that is how the sort arrows or the pin marker are dropped without supplying a
+ * replacement), and `undefined` falls back to the default.
+ *
+ * Memoize this object — like `columns`, a fresh literal each render costs work
+ * downstream.
+ */
+export interface FreezeTableComponents {
+  /** The per-column search box. Props: `{ value, onChange, onClick, placeholder }` — `onClick` must reach the input, it is what stops the click toggling the sort. */
+  FilterInput?: React.ComponentType<any> | null;
+  /** A toolbar button. Props: `{ children, className, onClick, ...aria }` — spread the rest onto a real `<button>`, `aria-expanded` carries the open state. */
+  Button?: React.ComponentType<any> | null;
+  /** A toolbar popover. Props: `{ children, align, className }`. Must not portal to `document.body` — it lives inside `.ft-root` so it inherits the tokens. */
+  Menu?: React.ComponentType<any> | null;
+  /** One menu entry. Props: `{ children, checked, icon, className, ...rest }` — forward `role` / `aria-checked` / `disabled` / `onClick` / `title`. */
+  MenuItem?: React.ComponentType<any> | null;
+  /** A group label in a menu. Props: `{ children }`. */
+  MenuHeading?: React.ComponentType<any> | null;
+  /** A rule between menu groups. No props. */
+  MenuSeparator?: React.ComponentType<any> | null;
+  /** The loading state. Props: `{ text }`. */
+  Spinner?: React.ComponentType<any> | null;
+  /** The empty state. Props: `{ text }`. */
+  Empty?: React.ComponentType<any> | null;
+  /** The header sort arrow. Props: `{ direction: 'asc' | 'desc' | null }`. */
+  SortIcon?: React.ComponentType<any> | null;
+  /** The freeze-boundary marker. Props: `{ title, color, size }`. */
+  PinIcon?: React.ComponentType<any> | null;
+  /** The tick on a checked menu entry. Props: `{ checked }`. */
+  CheckIcon?: React.ComponentType<any> | null;
+  /** The toolbar's column-menu glyph. No required props. */
+  ColumnsIcon?: React.ComponentType<any> | null;
+}
+
 /** What the table is currently doing. Replaces the `loading` + `dataFetched` pair. */
 export type FreezeTableStatus = 'idle' | 'loading' | 'ready';
 
@@ -203,7 +300,8 @@ export interface FreezeTableProps<D extends object = any> {
   onRowSelect?: (rowData: D, index: number) => void;
   /** Fires on Enter — "open this row". */
   onRowEnter?: (rowData: D, index: number) => void;
-  /** Selected-row highlight colour. Default '#d3e5f8'. */
+  /** Selected-row highlight colour. Defaults to the `--ft-row-selected` token, so it
+   *  follows the theme; an explicit value still wins. */
   selectedBg?: string;
   /** Field used by `initialSelectedId`. Default 'id'. */
   rowIdKey?: string;
@@ -267,9 +365,51 @@ export interface FreezeTableProps<D extends object = any> {
     /** Your own content, right-aligned — just before the built-in menus. */
     right?: React.ReactNode;
   };
-  /** Extra class on the root element. */
+  /**
+   * Which built-in palette to use: `'light'`, `'dark'`, or `'auto'` (follow the OS via
+   * `prefers-color-scheme`). Omit it in an app with its own class-based dark toggle —
+   * then the table simply reads whatever `--ft-*` variables are in scope, and no media
+   * query overrides the choice your app already made.
+   */
+  theme?: FreezeTableTheme;
+  /**
+   * Design tokens as inline custom properties on the root — the no-CSS-file route to
+   * re-theming. Keys may be written with or without the `--ft-` prefix. They outrank the
+   * injected base block and are inherited by everything inside, the toolbar menus
+   * included. See README §12 for the full token list.
+   */
+  tokens?: FreezeTableTokens;
+  /** Per-slot class names, for a utility-CSS app. Merged after the built-in `ft-*` class. */
+  classNames?: FreezeTableClassNames;
+  /** Per-slot component replacement, for a design-system app. Memoize it. */
+  components?: FreezeTableComponents;
+  /**
+   * Render with no paint of our own: no injected stylesheet, and no background, border,
+   * text colour, padding or font weight on any element. The freeze and the virtualization
+   * are untouched — `position: sticky`, the frozen offsets and the absolute row placement
+   * are the engine, not decoration.
+   *
+   * One thing you must then supply yourself: **a background on `.ft-row`, `.ft-head` and
+   * `.ft-foot`.** Frozen cells inherit their row's background, so with a transparent one
+   * the scrolling columns show through the frozen block. Default false.
+   */
+  unstyled?: boolean;
+  /**
+   * `nonce` for the injected `<style>` tag, for a Content-Security-Policy whose
+   * `style-src` has no `'unsafe-inline'`. Without it the browser drops the sheet and the
+   * table falls back to its inline values — readable, but with no hover states, no
+   * scrollbar thumbs and no theming. `import 'freeze-table/styles.css'` is the other way.
+   */
+  styleNonce?: string;
+  /**
+   * Where to inject the stylesheet. Defaults to the table's own root node, which resolves
+   * to `document` normally and to the enclosing ShadowRoot inside a web component — a
+   * `document.head` sheet does not cross a shadow boundary.
+   */
+  styleTarget?: Node | null;
+  /** Extra class on the root element. Applied after `classNames.root`. */
   className?: string;
-  /** Extra inline styles merged onto the root element. */
+  /** Extra inline styles merged onto the root element. Wins over `tokens`. */
   style?: React.CSSProperties;
 }
 
@@ -371,6 +511,24 @@ export interface FreezeTableHandle {
   /** Select + scroll to + focus a row. */
   selectRow(index: number): void;
 }
+
+/** The stylesheet the component injects, for an app placing it itself (SSR head, CSP). */
+export declare function styleText(): string;
+
+/** The ten tokens everything else derives from. */
+export declare const CORE_TOKENS: string[];
+/** The fully-resolved light palette — also the inline fallback table. */
+export declare const LIGHT: Record<string, string>;
+/** The built-in dark palette, as a partial override of {@link LIGHT}. */
+export declare const DARK: Record<string, string>;
+/** Every token name, in declaration order. */
+export declare function tokenNames(): string[];
+/** `'row-bg'` -> `'--ft-row-bg'`. A name already carrying the prefix is returned as-is. */
+export declare function tokenProp(name: string): string;
+/** Every `classNames` slot name. */
+export declare const CLASS_SLOTS: Array<keyof FreezeTableClassNames>;
+/** Every `components` slot name. */
+export declare const COMPONENT_SLOTS: Array<keyof FreezeTableComponents>;
 
 export declare const FreezeTable: React.ForwardRefExoticComponent<
   FreezeTableProps<any> & React.RefAttributes<FreezeTableHandle>

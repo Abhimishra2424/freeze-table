@@ -1,4 +1,5 @@
 import React from 'react';
+import { v } from '../lib/theme';
 
 /**
  * Keyboard row navigation (↑/↓/Home/End/Enter), the selection highlight, and the two
@@ -168,7 +169,11 @@ export const useRowNavigation = ({
     el.querySelectorAll('.ft-row').forEach((r) => {
       const idx = parseInt(r.getAttribute('data-ct-index'), 10);
       const hasCustomBg = r.getAttribute('data-ct-custom') === '1';
-      const baseBg = r.getAttribute('data-ct-bg') || '#ffffff';
+      // The attribute carries whatever VirtualRow painted the row with, which since 1.1
+      // is a `var(--ft-row-bg, #ffffff)` reference rather than a colour — writing it
+      // back verbatim is what keeps this imperative repaint themeable. The literal is
+      // only the last resort for a row that somehow carries no attribute at all.
+      const baseBg = r.getAttribute('data-ct-bg') || v('row-bg');
       r.style.backgroundColor = hasCustomBg ? baseBg : idx === selectedIndex ? selectedBg : baseBg;
     });
   }, [containerRef, selectedIndex, selectedBg, rowNavigation, rows]);

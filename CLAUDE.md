@@ -43,8 +43,17 @@ npm run release   # loads .env, then npm publish (which runs prepublishOnly → 
   element role). It also stubs `requestAnimationFrame` to run inline, which is why the
   windowing assertions are deterministic — and why a test must not exercise the reorder
   drag, whose rAF loop would spin. The drags remain demo-only.
+- **A token change rewrites all 30 golden snapshots.** That is expected — every element
+  paints through `var()` now. Read the diff for the GEOMETRY (`left:`, `right:`,
+  `min-width:`, `top:`): those must be byte-identical, and any change to one is a real
+  regression hiding in the churn.
 - `npm run test:unit` covers `src/lib/`: the freeze offsets, the pin caps,
-  `reconcileOrder`, the formatters and `normalizeColumn`. It bundles through rollup
+  `reconcileOrder`, the formatters, `normalizeColumn`, and the token/slot registries — the
+  theme tests assert the three token maps agree, which is the check that catches a token
+  added to one map and forgotten in another.
+- Assertions that format a number must pass an explicit locale or compare against
+  `toLocaleString`. A hard-coded `'1,252,500.00'` passes in en-US and fails on an en-IN
+  machine, where the same number groups as `12,52,500.00`. It bundles through rollup
   because `src/` is ESM inside a CommonJS package. Pure logic worth testing belongs in
   `src/lib/`, not in a hook.
 - `dist/` is gitignored but is what `main`/`module` point at; `prepublishOnly` rebuilds it.
@@ -102,10 +111,20 @@ column freezing. Treat that as the first thing to check when the pinned block "s
 - `src/components/` — `TableHead`, `TableBody` (+ the memoized `VirtualRow`), `TableFoot`,
   `OverlayBars`, `Toolbar` (the built-in Columns / Freeze menus), and `defaults.js` (the
   default cell and filter renderers).
+- `src/lib/theme.js` — the design tokens: `LIGHT` (every token, fully resolved — it is
+  also the inline `var()` fallback table, so no entry may itself be a `var()`), `LADDER`
+  (which tokens derive from which core one), `DARK` (a PARTIAL override — never re-state
+  a derived token there or the ladder stops reaching it), `v()` and `themeCss()`.
+- `src/lib/stylesheet.js` — the injected `<style>` text, built from the token maps. Pure
+  data with no React import, so `rollup.config.mjs` can emit it as `dist/freeze-table.css`
+  too. Only put things here that an inline style cannot express: keyframes, `:hover` /
+  `:focus` / `::placeholder`, `[aria-checked]`, the frozen-column shadow selectors.
+- `src/lib/slots.js` — `cx` (class merge; returns `undefined`, never `''`),
+  `resolveClassNames`, `resolveComponents`, and `skin()`, the `unstyled` gate.
 - `src/internal-ui.js` — inline-SVG replacements for the Semantic UI pieces the component
-  originally used (sort/pin/inbox/search icons, filter input, spinner), plus `injectStyles`
-  (one idempotent `<style>` tag carrying only what inline styles cannot express: keyframes,
-  `:focus`, `::placeholder`, the frozen-column shadow selectors) and `useIsoLayoutEffect`.
+  originally used (sort/pin/inbox/search icons, filter input, spinner) plus the menu atoms,
+  `injectStyles` and `useIsoLayoutEffect`. Everything it exports is also the DEFAULT for a
+  `components` slot (`DEFAULT_COMPONENTS`), so each one's props are a public contract.
 - `src/index.js` — re-exports, including the `CommonTable` alias.
 - `index.d.ts` — **hand-written and not generated**. Every prop/ref change must be mirrored
   here or consumers silently lose typing.
@@ -222,8 +241,39 @@ changes. `rollup.demo.mjs` is a separate IIFE build that inlines React too.
 - Every element carries both the current `ft-*` class and its legacy `ct-*` twin
   (`className="ft-row ct-row"`), and data attributes stay `data-ct-*`, for projects
   migrating off a local `CommonTable`. Don't drop the twins.
-- Styling is inline; there is no stylesheet for consumers to import. New visuals go inline
-  unless they need a selector/pseudo-class/keyframe, which goes in `STYLESHEET`.
+- **The default token blocks live in `:where()`.** Do not "simplify" that away. The base
+  block and a consumer's `.my-table` are both one class deep, and this sheet is injected
+  at MOUNT — after every stylesheet the page loaded — so on a source-order tie the
+  library wins and the consumer's theme is silently ignored, with nothing in the markup
+  to explain it. `:where()` makes the defaults 0-0-0 so any consumer selector outranks
+  them. `injectStyles` also inserts the element as `head.firstChild` for the same reason.
+  Pinned by `scripts/dom.cjs` → "theme: consumer CSS outranks the defaults", which
+  asserts it against the worst case (our sheet appended last).
+- **A token that carries a font goes on `font-family`, never the `font` shorthand.** The
+  shorthand needs a size, so `font: Inter, sans-serif` is invalid and the browser drops
+  the declaration — and the default `inherit` is legal in both, so the bug survives every
+  test that does not actually set the token. Same trap for any future shorthand token.
+- **Every colour is a token, never a literal.** A new visual goes inline as
+  `v('some-token')`, with the token added to `LIGHT` (+ `LADDER` if it derives from a core
+  one, + `DARK` if the light value would be unreadable on a dark surface). A raw hex in a
+  component file is a bug: an inline style beats a stylesheet, so a literal there is
+  unreachable by any consumer. Things needing a selector/pseudo-class/keyframe go in
+  `STYLESHEET` (lib/stylesheet.js), also as `v()`.
+- **Engine vs skin.** Every style object mixes the two and only one is removable. Engine =
+  `position: sticky` and its left/right offsets, the absolute row placement, the flex
+  layout, `overflow`, `zIndex`, the measured widths, and the opaque background on a FROZEN
+  cell (a transparent one shows the scrolling columns through it). Skin = everything else,
+  and it goes through `skin(unstyled, {...})` at the call site. Keeping the split at each
+  call site, not in a central list, is what stops the next visual landing on the wrong side.
+- **New user-facing element → a `classNames` slot; new visual atom → a `components` slot.**
+  Add the name to `CLASS_SLOTS` / `COMPONENT_SLOTS`, thread it, document the prop contract
+  in the component's JSDoc and README §12, and mirror it in `index.d.ts`.
+- **react-table mutates column objects.** `decorateColumn` does
+  `Object.assign(column, {...defaultColumn, ...column})`, so whatever is stamped on a
+  column the first time survives for the life of that object — a swapped-in `defaultColumn`
+  member is never seen again. That is why `DEFAULT_COLUMN` is static and the replaceable
+  `FilterInput` is read off the table instance (`ui`, forwarded like `userList`/`context`)
+  rather than closed over. Same trap for anything else made replaceable later.
 - README.md is the full user manual (15 sections) and is the package's main documentation —
   update the relevant section with any behaviour or prop change, and `index.d.ts` with it.
 - **Additive, with the old spelling kept working.** 1.0 added `status`, `toolbar`,

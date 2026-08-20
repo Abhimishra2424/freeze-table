@@ -1,4 +1,5 @@
 import React from 'react';
+import { cx } from '../lib/slots';
 
 /**
  * The four absolutely-positioned overlays that live beside the scrollport, all of them
@@ -23,23 +24,24 @@ export const OverlayBars = ({
   onTrackDown,
   guideRef,
   dropRef,
+  classNames,
 }) => (
   <React.Fragment>
     <div
-      className="ft-track ft-track-v"
+      className={cx('ft-track ft-track-v', classNames.track)}
       ref={vTrackRef}
       onPointerDown={onTrackDown('y')}
       style={{ right: 0, top: topOffset + headH, height: listH, display: 'none' }}
     >
-      <div className="ft-thumb" ref={vThumbRef} onPointerDown={startThumbDrag('y')} />
+      <div className={cx('ft-thumb', classNames.thumb)} ref={vThumbRef} onPointerDown={startThumbDrag('y')} />
     </div>
     <div
-      className="ft-track ft-track-h"
+      className={cx('ft-track ft-track-h', classNames.track)}
       ref={hTrackRef}
       onPointerDown={onTrackDown('x')}
       style={{ left: 0, right: 11, bottom: 0, display: 'none' }}
     >
-      <div className="ft-thumb" ref={hThumbRef} onPointerDown={startThumbDrag('x')} />
+      <div className={cx('ft-thumb', classNames.thumb)} ref={hThumbRef} onPointerDown={startThumbDrag('x')} />
     </div>
 
     {/* Follows the pointer during a column resize; hidden the rest of the time. Both

@@ -1,5 +1,6 @@
 import React from 'react';
-import { CheckIcon, ColumnsIcon, PinIcon } from '../internal-ui';
+import { cx, skin } from '../lib/slots';
+import { v } from '../lib/theme';
 
 /**
  * The built-in toolbar — the two menus that used to be "yours to render".
@@ -9,9 +10,15 @@ import { CheckIcon, ColumnsIcon, PinIcon } from '../internal-ui';
  * far more common case, where a list wants the standard freeze / show-hide / reorder
  * menus and nobody wants to write them again per screen.
  *
- * It sits OUTSIDE `.ft-wrap`, inside `.ft-root`. That matters: the menus have their own
- * `overflow-y`, and a scroll container inside the scrollport would become the sticky
- * container for the cells beneath it and break the column freeze.
+ * It sits OUTSIDE `.ft-wrap`, inside `.ft-root`. That matters twice: the menus have their
+ * own `overflow-y`, and a scroll container inside the scrollport would become the sticky
+ * container for the cells beneath it and break the column freeze — and staying inside
+ * `.ft-root` is what puts the menus in the token scope, so they inherit the table's
+ * theme instead of needing one of their own.
+ *
+ * Every visual piece here — the buttons, the popover, each entry, the headings and the
+ * rules — comes in through `ui`, so a caller can hand the toolbar their own design
+ * system's components (`components` prop) and keep the behaviour.
  *
  * Menu state is local and deliberately dumb — one open menu at a time, closed by a click
  * anywhere else, by Escape, or by making a choice. Every choice hands focus back to the
@@ -38,34 +45,28 @@ const usePopover = (open, onClose) => {
   return ref;
 };
 
-const Menu = ({ children, align = 'left' }) => (
-  <div className="ft-menu" style={align === 'right' ? { right: 0 } : { left: 0 }} role="menu">
-    {children}
-  </div>
-);
-
 /** Show / hide, move up / down, and the three resets. */
-const ColumnMenu = ({ list, onToggle, onMove, onShowAll, onResetWidths, onResetOrder }) => (
-  <Menu>
-    <div className="ft-menu-head">Columns</div>
+const ColumnMenu = ({ list, onToggle, onMove, onShowAll, onResetWidths, onResetOrder, ui, classNames }) => (
+  <ui.Menu className={classNames.menu}>
+    <ui.MenuHeading>Columns</ui.MenuHeading>
     {list.map((c) => (
       <div key={c.id || c.position} style={{ display: 'flex', alignItems: 'center' }}>
-        <button
-          type="button"
+        <ui.MenuItem
           role="menuitemcheckbox"
           aria-checked={!c.hidden}
-          className="ft-menu-item"
+          checked={!c.hidden}
+          icon={ui.CheckIcon}
+          className={classNames.menuItem}
           disabled={!c.hideable}
           onClick={() => onToggle(c.id)}
           // A column with no header text (or a node for one) still has to be listable, or
           // the menu would silently be missing rows the table is showing.
           title={c.hideable ? undefined : 'This column cannot be hidden'}
         >
-          <CheckIcon checked={!c.hidden} />
           <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {c.header || c.id}
           </span>
-        </button>
+        </ui.MenuItem>
         <span style={{ display: 'flex', paddingRight: 4 }}>
           <button type="button" className="ft-menu-move" disabled={!c.movable || c.position === 0} onClick={() => onMove(c.id, c.position - 1)} title="Move left" aria-label={`Move ${c.header || c.id} left`}>
             ↑
@@ -76,17 +77,17 @@ const ColumnMenu = ({ list, onToggle, onMove, onShowAll, onResetWidths, onResetO
         </span>
       </div>
     ))}
-    <div className="ft-menu-sep" />
-    <button type="button" role="menuitem" className="ft-menu-item" onClick={onShowAll}>
+    <ui.MenuSeparator />
+    <ui.MenuItem role="menuitem" className={classNames.menuItem} onClick={onShowAll}>
       Show all columns
-    </button>
-    <button type="button" role="menuitem" className="ft-menu-item" onClick={onResetWidths}>
+    </ui.MenuItem>
+    <ui.MenuItem role="menuitem" className={classNames.menuItem} onClick={onResetWidths}>
       Reset widths
-    </button>
-    <button type="button" role="menuitem" className="ft-menu-item" onClick={onResetOrder}>
+    </ui.MenuItem>
+    <ui.MenuItem role="menuitem" className={classNames.menuItem} onClick={onResetOrder}>
       Reset order
-    </button>
-  </Menu>
+    </ui.MenuItem>
+  </ui.Menu>
 );
 
 /**
@@ -94,58 +95,56 @@ const ColumnMenu = ({ list, onToggle, onMove, onShowAll, onResetWidths, onResetO
  * cap are disabled rather than hidden, so the menu shows WHY a column cannot be frozen
  * (there would be no room left to read the scrolling ones) instead of quietly omitting it.
  */
-const PinMenu = ({ columns, left, maxLeft, right, maxRight, onLeft, onRight }) => (
-  <Menu align="right">
-    <div className="ft-menu-head">Freeze left</div>
-    <button type="button" role="menuitemradio" aria-checked={left === 0} aria-current={left === 0} className="ft-menu-item" onClick={() => onLeft(0)}>
-      <CheckIcon checked={left === 0} />
+const PinMenu = ({ columns, left, maxLeft, right, maxRight, onLeft, onRight, ui, classNames }) => (
+  <ui.Menu align="right" className={classNames.menu}>
+    <ui.MenuHeading>Freeze left</ui.MenuHeading>
+    <ui.MenuItem role="menuitemradio" aria-checked={left === 0} aria-current={left === 0} checked={left === 0} icon={ui.CheckIcon} className={classNames.menuItem} onClick={() => onLeft(0)}>
       <span>No freeze</span>
-    </button>
+    </ui.MenuItem>
     {columns.map((c, i) => (
-      <button
+      <ui.MenuItem
         key={'l' + i}
-        type="button"
         role="menuitemradio"
         aria-checked={left === i + 1}
         aria-current={left === i + 1}
-        className="ft-menu-item"
+        checked={left === i + 1}
+        icon={ui.CheckIcon}
+        className={classNames.menuItem}
         disabled={i + 1 > maxLeft}
         onClick={() => onLeft(i + 1)}
         title={i + 1 > maxLeft ? 'Not enough room left for the scrolling columns' : undefined}
       >
-        <CheckIcon checked={left === i + 1} />
         <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Up to {c.label}</span>
-      </button>
+      </ui.MenuItem>
     ))}
-    <div className="ft-menu-sep" />
-    <div className="ft-menu-head">Freeze right</div>
-    <button type="button" role="menuitemradio" aria-checked={right === 0} aria-current={right === 0} className="ft-menu-item" onClick={() => onRight(0)}>
-      <CheckIcon checked={right === 0} />
+    <ui.MenuSeparator />
+    <ui.MenuHeading>Freeze right</ui.MenuHeading>
+    <ui.MenuItem role="menuitemradio" aria-checked={right === 0} aria-current={right === 0} checked={right === 0} icon={ui.CheckIcon} className={classNames.menuItem} onClick={() => onRight(0)}>
       <span>No freeze</span>
-    </button>
+    </ui.MenuItem>
     {columns.map((c, i) => {
       const n = columns.length - i;
       return (
-        <button
+        <ui.MenuItem
           key={'r' + i}
-          type="button"
           role="menuitemradio"
           aria-checked={right === n}
           aria-current={right === n}
-          className="ft-menu-item"
+          checked={right === n}
+          icon={ui.CheckIcon}
+          className={classNames.menuItem}
           disabled={n > maxRight}
           onClick={() => onRight(n)}
           title={n > maxRight ? 'Not enough room left for the scrolling columns' : undefined}
         >
-          <CheckIcon checked={right === n} />
           <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>From {c.label}</span>
-        </button>
+        </ui.MenuItem>
       );
     })}
-  </Menu>
+  </ui.Menu>
 );
 
-export const Toolbar = ({ toolbarRef, fontPx, config, getColumnList, pinColumns, pin, api, refocus }) => {
+export const Toolbar = ({ toolbarRef, fontPx, config, getColumnList, pinColumns, pin, api, refocus, ui, classNames, unstyled }) => {
   const [open, setOpen] = React.useState(null);
   const close = React.useCallback(() => setOpen(null), []);
   const boxRef = usePopover(open !== null, close);
@@ -166,17 +165,19 @@ export const Toolbar = ({ toolbarRef, fontPx, config, getColumnList, pinColumns,
   return (
     <div
       ref={toolbarRef}
-      className="ft-toolbar ct-toolbar"
+      className={cx('ft-toolbar ct-toolbar', classNames.toolbar)}
       style={{
         flex: '0 0 auto',
         display: 'flex',
         alignItems: 'center',
         gap: 8,
-        padding: '6px 8px',
-        borderBottom: '1px solid #e3e8ee',
-        background: '#fbfcfd',
-        fontSize: fontPx,
         boxSizing: 'border-box',
+        ...skin(unstyled, {
+          padding: '6px 8px',
+          borderBottom: `1px solid ${v('border')}`,
+          background: v('toolbar-bg'),
+          fontSize: fontPx,
+        }),
       }}
     >
       {config.left != null && <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>{config.left}</div>}
@@ -185,16 +186,15 @@ export const Toolbar = ({ toolbarRef, fontPx, config, getColumnList, pinColumns,
       <div ref={boxRef} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         {showColumns && (
           <div style={{ position: 'relative' }}>
-            <button
-              type="button"
-              className="ft-btn"
+            <ui.Button
+              className={classNames.button}
               aria-haspopup="menu"
               aria-expanded={open === 'columns'}
               onClick={() => setOpen(open === 'columns' ? null : 'columns')}
             >
-              <ColumnsIcon />
+              {ui.ColumnsIcon && <ui.ColumnsIcon />}
               Columns
-            </button>
+            </ui.Button>
             {open === 'columns' && (
               <ColumnMenu
                 // Derived only while the menu is open: the shell re-renders on every
@@ -206,29 +206,30 @@ export const Toolbar = ({ toolbarRef, fontPx, config, getColumnList, pinColumns,
                 onShowAll={run(api.showAllColumns)}
                 onResetWidths={run(api.resetColumnWidths)}
                 onResetOrder={run(api.resetColumnOrder)}
+                ui={ui}
+                classNames={classNames}
               />
             )}
           </div>
         )}
         {showPin && (
           <div style={{ position: 'relative' }}>
-            <button
-              type="button"
-              className="ft-btn"
+            <ui.Button
+              className={classNames.button}
               aria-haspopup="menu"
               aria-expanded={open === 'pin'}
               onClick={() => setOpen(open === 'pin' ? null : 'pin')}
             >
-              <PinIcon color="#5a6b82" size={11} />
+              {ui.PinIcon && <ui.PinIcon color={v('icon')} size={11} />}
               Freeze
               {pin.left + pin.right > 0 && (
-                <span style={{ color: '#0070C2', fontWeight: 700 }}>
+                <span style={{ color: v('accent'), fontWeight: 700 }}>
                   {pin.left > 0 ? ' ' + pin.left : ''}
                   {pin.left > 0 && pin.right > 0 ? ' +' : ''}
                   {pin.right > 0 ? ' ' + pin.right : ''}
                 </span>
               )}
-            </button>
+            </ui.Button>
             {open === 'pin' && (
               <PinMenu
                 columns={pinColumns}
@@ -238,6 +239,8 @@ export const Toolbar = ({ toolbarRef, fontPx, config, getColumnList, pinColumns,
                 maxRight={pin.maxRight}
                 onLeft={run(api.setLeftPinCount)}
                 onRight={run(api.setRightPinCount)}
+                ui={ui}
+                classNames={classNames}
               />
             )}
           </div>

@@ -168,7 +168,14 @@ group('typed cells in the DOM');
 const cellsOf = (i) => $$(`.ft-row[data-ct-index="${i}"] .ft-td`).map((td) => td.textContent.trim());
 eq(cellsOf(0), ['1', 'Row 0', 'Ranchi', '10.00'], 'the serial, text and currency cells render');
 eq(cellsOf(2)[0], '3', 'the serial column counts through the displayed rows');
-eq(textOf($$('.ft-tf')[3]), '1,252,500.00', "footer: 'sum' totals the column");
+// Grouped through Intl with an explicit locale. Without one the expectation is whatever
+// the machine running the tests happens to be set to — this assertion read '1,252,500.00'
+// and failed on any en-IN box, where the same number groups as '12,52,500.00'.
+eq(
+  textOf($$('.ft-tf')[3]),
+  (1252500).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+  "footer: 'sum' totals the column"
+);
 
 // ---------------------------------------------------------------- freezing
 group('frozen columns');
@@ -180,13 +187,18 @@ eq(pinnedTds[0].style.position, 'sticky', 'freezing is CSS sticky, not a JS tran
 
 // ---------------------------------------------------------------- keyboard
 group('keyboard navigation');
+// The highlight is a CSS custom property REFERENCE, not a colour, since 1.1 — that is
+// what lets `--ft-row-selected` re-theme a background written by JS (see VirtualRow).
+// jsdom stores an unresolvable var() verbatim, which is exactly what we assert on.
+const SELECTED = 'var(--ft-row-selected, #d3e5f8)';
+const ROW_BG = 'var(--ft-row-bg, #ffffff)';
 const bgOf = (i) => $(`.ft-row[data-ct-index="${i}"]`).style.backgroundColor;
-eq(bgOf(0), 'rgb(211, 229, 248)', 'row 0 starts selected');
+eq(bgOf(0), SELECTED, 'row 0 starts selected');
 press('ArrowDown');
-eq(bgOf(1), 'rgb(211, 229, 248)', 'ArrowDown moves the highlight');
-eq(bgOf(0), 'rgb(255, 255, 255)', 'the previous row is un-highlighted');
+eq(bgOf(1), SELECTED, 'ArrowDown moves the highlight');
+eq(bgOf(0), ROW_BG, 'the previous row is un-highlighted');
 press('ArrowUp');
-eq(bgOf(0), 'rgb(211, 229, 248)', 'ArrowUp moves it back');
+eq(bgOf(0), SELECTED, 'ArrowUp moves it back');
 let entered = null;
 act(() => {
   root.render(
@@ -280,6 +292,116 @@ act(() => {
   root.render(React.createElement(FreezeTable, { columns, data: [], status: 'idle', height: WRAP_H }));
 });
 assert(!container.textContent.includes('No records found'), 'status="idle" shows neither — nothing has been fetched yet');
+
+// ---------------------------------------------------------------- theming (1.1)
+group('theme, tokens and the class/component slots');
+act(() => {
+  root.render(React.createElement(FreezeTable, { columns, data, height: WRAP_H, theme: 'dark' }));
+});
+eq($('.ft-root').getAttribute('data-ft-theme'), 'dark', 'theme="dark" stamps the root');
+assert(
+  !!document.getElementById('freeze-table-styles-2'),
+  'the stylesheet is injected, and its id carries the schema version so two package versions cannot collide'
+);
+const sheetEl = document.getElementById('freeze-table-styles-2');
+const sheet = sheetEl.textContent;
+assert(sheet.includes('.ft-root[data-ft-theme="dark"]'), 'the sheet carries a dark block');
+eq(sheetEl, document.head.firstChild, 'the sheet is inserted FIRST, so it loses source-order ties to the page CSS');
+
+// The cascade check that matters. The base block and a consumer's `.my-class` are both
+// one class deep, and this sheet arrives at MOUNT — after every stylesheet the page
+// loaded — so without `:where()` the library's defaults win every tie and a consumer's
+// theme is silently ignored. Asserted here against the worst case (sheet appended LAST),
+// because the `:where()` is what has to carry it, not the insertion point.
+group('theme: consumer CSS outranks the defaults');
+const probe = document.createElement('div');
+probe.innerHTML = '<div class="ft-root themed"></div><div class="ft-root"></div>';
+const pageCss = document.createElement('style');
+pageCss.textContent = '.themed{--ft-accent:#7c3aed}';
+document.head.appendChild(pageCss);
+const lateCopy = document.createElement('style');
+lateCopy.textContent = sheet;
+document.head.appendChild(lateCopy);
+document.body.appendChild(probe);
+const accentOf = (el) => window.getComputedStyle(el).getPropertyValue('--ft-accent');
+eq(accentOf(probe.children[0]), '#7c3aed', 'a consumer class beats the defaults even when our sheet loads after theirs');
+eq(accentOf(probe.children[1]), '#0070C2', 'and a table they did not theme still gets the default');
+probe.remove();
+pageCss.remove();
+lateCopy.remove();
+assert(sheet.includes('--ft-row-bg:var(--ft-bg, #ffffff)'), 'derived tokens chain to their core token rather than repeating a literal');
+assert(!/--ft-row-bg:#/.test(sheet.split('data-ft-theme="dark"')[1] || ''), 'the dark block does not re-state a derived token, so the ladder survives');
+
+act(() => {
+  root.render(
+    React.createElement(FreezeTable, {
+      columns,
+      data,
+      height: WRAP_H,
+      tokens: { accent: '#7c3aed', 'row-hover': '#faf5ff', '--ft-border': '#eee' },
+    })
+  );
+});
+eq($('.ft-root').style.getPropertyValue('--ft-accent'), '#7c3aed', 'the `tokens` prop lands as an inline custom property');
+eq($('.ft-root').style.getPropertyValue('--ft-row-hover'), '#faf5ff', 'and reaches a token only a JS handler ever writes');
+eq($('.ft-root').style.getPropertyValue('--ft-border'), '#eee', 'a key already carrying the --ft- prefix is accepted as-is');
+
+// `--ft-font` has to land on `font-family`. Through the `font` shorthand a bare family
+// list is invalid CSS and the browser drops it, so the token would work for exactly one
+// value (`inherit`) and silently do nothing for every real font stack.
+act(() => {
+  root.render(React.createElement(FreezeTable, { columns, data, height: WRAP_H, tokens: { font: 'ui-monospace, Menlo, monospace' } }));
+});
+eq($('.ft-root').style.fontFamily, 'var(--ft-font, inherit)', 'the font token is applied as font-family, not the font shorthand');
+
+act(() => {
+  root.render(
+    React.createElement(FreezeTable, {
+      columns,
+      data,
+      height: WRAP_H,
+      className: 'mine',
+      classNames: { root: 'r', head: 'h', th: 't', row: 'w', cell: 'c' },
+    })
+  );
+});
+assert($('.ft-root').className.includes('ft-root') && $('.ft-root').className.includes('r'), 'a slot class joins the built-in one rather than replacing it');
+assert($('.ft-root').className.indexOf('r') < $('.ft-root').className.indexOf('mine'), 'the `className` prop still comes last');
+assert(!!$('.ft-head.h') && !!$('.ft-th.t') && !!$('.ft-row.w') && !!$('.ft-td.c'), 'every slot reaches its element');
+
+let filterProps = null;
+act(() => {
+  root.render(
+    React.createElement(FreezeTable, {
+      columns,
+      data,
+      height: WRAP_H,
+      components: {
+        FilterInput: (props) => {
+          filterProps = props;
+          return React.createElement('input', { className: 'my-filter', readOnly: true, value: props.value });
+        },
+        SortIcon: null,
+      },
+    })
+  );
+});
+assert(!!$('.my-filter'), 'a replaced FilterInput renders in place of the built-in');
+assert(!$('.ft-filter-input'), 'and the built-in is gone');
+assert(filterProps && typeof filterProps.onChange === 'function' && typeof filterProps.placeholder === 'string', 'the slot receives its documented contract');
+assert(!$('.ft-th-label svg polygon'), 'a slot set to null renders nothing (sort arrows dropped)');
+
+act(() => {
+  root.render(React.createElement(FreezeTable, { columns, data, height: WRAP_H, unstyled: true }));
+});
+const uHead = $('.ft-head');
+const uRow = $('.ft-row[data-ct-index="0"]');
+const uPinned = $$('.ft-row[data-ct-index="0"] .ft-td[data-ct-pin="1"]');
+eq(uHead.style.background, '', 'unstyled drops the header paint');
+eq(uRow.style.backgroundColor, '', 'and the row paint');
+eq(uHead.style.position, 'sticky', 'but keeps the sticky header — that is the engine, not the skin');
+eq([uPinned[0].style.left, uPinned[1].style.left], ['0px', '45px'], 'and the freeze offsets are untouched');
+eq(uRow.style.top, '0px', 'and the virtualized row placement');
 
 act(() => root.unmount());
 

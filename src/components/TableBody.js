@@ -1,5 +1,6 @@
 import React from 'react';
-import { InboxIcon, Spinner } from '../internal-ui';
+import { cx, skin } from '../lib/slots';
+import { v } from '../lib/theme';
 import VirtualRow from './VirtualRow';
 
 /**
@@ -26,20 +27,26 @@ export const TableBody = ({
   loadingText,
   dataFetched,
   emptyText,
+  classNames,
+  ui,
+  unstyled,
 }) => (
   <div
     {...bodyProps}
     ref={bodyWrapRef}
+    className={cx(bodyProps.className, classNames.body)}
     style={{ flex: '1 0 auto', position: 'relative', height: rows.length ? rows.length * rowHeight : undefined }}
   >
     {loading ? (
-      <div style={{ padding: '90px 0', textAlign: 'center' }}>
-        <Spinner text={loadingText} />
+      <div className={cx('ft-loading ct-loading', classNames.loading)} style={{ padding: '90px 0', textAlign: 'center' }}>
+        {ui.Spinner && <ui.Spinner text={loadingText} />}
       </div>
     ) : rows.length === 0 && dataFetched ? (
-      <div style={{ padding: '80px 0', textAlign: 'center', color: '#8a94a6' }}>
-        <InboxIcon />
-        <div style={{ marginTop: 8, fontSize: '13px' }}>{emptyText}</div>
+      <div
+        className={cx('ft-empty ct-empty', classNames.empty)}
+        style={{ padding: '80px 0', textAlign: 'center', ...skin(unstyled, { color: v('text-muted') }) }}
+      >
+        {ui.Empty && <ui.Empty text={emptyText} />}
       </div>
     ) : listH > 0 ? (
       Array.from({ length: Math.max(0, lastIdx - firstIdx + 1) }, (_, k) => {

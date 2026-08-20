@@ -24,6 +24,8 @@ import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { formatDate, formatNumber, normalizeColumn, toDate } from '../src/lib/columnTypes';
 import { resolveHeight } from '../src/lib/props';
+import { CLASS_SLOTS, COMPONENT_SLOTS, cx, resolveClassNames, resolveComponents, skin } from '../src/lib/slots';
+import { CORE_TOKENS, DARK, LADDER, LIGHT, resolveTokens, themeCss, tokenNames, tokenProp, v } from '../src/lib/theme';
 
 let failed = 0;
 let passed = 0;
@@ -304,6 +306,86 @@ eq(footerText({ accessor: 'qty', footer: 'count' }, [1, 2, 3]), 'Count : 3', 'co
 // The footer follows the FILTERED rows, and a non-numeric value must not turn the whole
 // total into NaN.
 eq(footerText({ accessor: 'qty', type: 'number', footer: 'sum' }, [3, null, 'x', 9]), '12', 'sum: blanks and junk are skipped, not counted as NaN');
+
+// ---------------------------------------------------------------- theme tokens
+group('theme: the token registry');
+// The three maps have to agree or a token silently stops existing in one theme.
+assert(
+  CORE_TOKENS.every((n) => LIGHT[n] !== undefined),
+  'every core token has a light value'
+);
+assert(
+  Object.keys(LADDER).every((n) => LIGHT[n] !== undefined && LIGHT[LADDER[n]] !== undefined),
+  'every derived token and its parent exist in LIGHT'
+);
+assert(
+  Object.keys(DARK).every((n) => LIGHT[n] !== undefined),
+  'the dark palette overrides only tokens that exist'
+);
+// The one rule that keeps the ladder usable: a derived token must NOT be re-stated in
+// the dark palette, or overriding its core token in dark mode would stop reaching it.
+eq(
+  Object.keys(DARK).filter((n) => LADDER[n]),
+  [],
+  'the dark palette re-states no derived token, so the ladder survives a theme switch'
+);
+assert(
+  Object.values(LIGHT).every((val) => !String(val).includes('var(')),
+  'LIGHT is fully resolved — it is also the inline fallback table, so no entry may be a var()'
+);
+
+group('theme: v() and tokenProp()');
+eq(tokenProp('row-bg'), '--ft-row-bg', 'a bare name gains the prefix');
+eq(tokenProp('--ft-row-bg'), '--ft-row-bg', 'an already-prefixed name is left alone');
+eq(v('row-bg'), 'var(--ft-row-bg, #ffffff)', 'v() carries the literal fallback for a sheet that never loaded');
+eq(v('row-bg', '#eee'), 'var(--ft-row-bg, #eee)', 'an explicit fallback wins');
+
+group('theme: themeCss()');
+const base = themeCss(LIGHT, { base: true });
+assert(base.includes('--ft-bg:#ffffff;'), 'the base block emits the core literals');
+assert(base.includes('--ft-row-bg:var(--ft-bg, #ffffff);'), 'and points a derived token at its parent');
+assert(
+  tokenNames().every((n) => base.includes(tokenProp(n) + ':')),
+  'the base block declares every token — a missing one would fall back to nothing'
+);
+const dark = themeCss(DARK);
+assert(dark.includes('--ft-bg:#0f172a;'), 'the dark block emits its own overrides');
+assert(!dark.includes('--ft-row-bg:'), 'and emits nothing for a token the ladder already carries');
+
+group('theme: resolveTokens()');
+eq(resolveTokens(null), null, 'no tokens is no style object at all');
+eq(resolveTokens({}), null, 'and neither is an empty one');
+eq(resolveTokens({ accent: '#f00' }), { '--ft-accent': '#f00' }, 'a bare name is prefixed');
+eq(resolveTokens({ '--ft-accent': '#f00' }), { '--ft-accent': '#f00' }, 'a prefixed name is passed through');
+eq(resolveTokens({ radius: 0 }), { '--ft-radius': '0' }, 'a number is stringified, and 0 is kept');
+eq(resolveTokens({ a: undefined, b: null, c: false }), null, 'empty values are dropped, not written as "undefined"');
+eq(resolveTokens({ 'my-own': 'x' }), { '--ft-my-own': 'x' }, 'an unknown name is passed through, not dropped');
+
+// ---------------------------------------------------------------- slots
+group('slots: cx()');
+eq(cx('ft-row ct-row'), 'ft-row ct-row', 'the built-in class alone');
+eq(cx('ft-row', 'mine'), 'ft-row mine', 'the caller class comes last, so flat-specificity CSS wins');
+eq(cx('ft-row', undefined, null, ''), 'ft-row', 'falsy parts are dropped');
+eq(cx(undefined, null), undefined, 'nothing at all is undefined, not "" — React renders class="" for an empty string');
+
+group('slots: resolveClassNames()');
+eq(resolveClassNames(undefined).root, undefined, 'a missing map is safe to index');
+assert(resolveClassNames(undefined) === resolveClassNames(null), 'and is one shared object, so it adds no allocation per render');
+eq(resolveClassNames({ root: 'r' }).root, 'r', 'a given map is used as-is');
+assert(CLASS_SLOTS.length > 0 && CLASS_SLOTS.includes('row') && CLASS_SLOTS.includes('menuItem'), 'the slot list is populated');
+
+group('slots: resolveComponents()');
+const DEFAULTS = { A: 1, B: 2 };
+assert(resolveComponents(undefined, DEFAULTS) === DEFAULTS, 'no override returns the defaults object ITSELF — the identity feeds a memo');
+assert(resolveComponents({}, DEFAULTS) === DEFAULTS, 'and so does an empty override');
+assert(resolveComponents({ A: undefined }, DEFAULTS) === DEFAULTS, 'an explicit undefined means "unset", so it falls back too');
+eq(resolveComponents({ A: 9 }, DEFAULTS), { A: 9, B: 2 }, 'an override replaces one slot and leaves the rest');
+eq(resolveComponents({ A: null }, DEFAULTS), { A: null, B: 2 }, 'null is kept — it is how a caller renders nothing in a slot');
+assert(COMPONENT_SLOTS.includes('FilterInput') && COMPONENT_SLOTS.includes('MenuItem'), 'the component slot list is populated');
+
+group('slots: skin()');
+eq(skin(false, { background: 'red' }), { background: 'red' }, 'styled keeps the paint');
+eq(skin(true, { background: 'red' }), null, 'unstyled drops it');
 
 console.log('');
 if (failed) {

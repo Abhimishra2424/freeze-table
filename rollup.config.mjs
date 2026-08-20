@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+import { createRequire } from 'node:module';
 import path from 'node:path';
 import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
@@ -23,6 +25,26 @@ const banner = `/*!
  * MIT License, Copyright (c) 2016 Tanner Linsley
  */`;
 
+// The stylesheet is also emitted as a real file. Injecting a <style> tag is still the
+// default and needs no import, but an app whose Content-Security-Policy has a `style-src`
+// without 'unsafe-inline' has no way to accept an injected sheet — for those,
+// `import 'freeze-table/styles.css'` is the supported route.
+//
+// It is read back out of the BUILT CommonJS bundle rather than imported from `src/`:
+// src/ is ESM inside a CommonJS package, so Node cannot import those files directly (the
+// same reason rollup.test.mjs exists). Going through the bundle also means the file and
+// the string the component injects are provably the same text — they cannot drift.
+const emitStylesheet = {
+  name: 'emit-stylesheet',
+  writeBundle(options) {
+    if (options.format !== 'cjs') return;
+    const built = path.resolve(options.file);
+    // eslint-disable-next-line no-undef
+    const { styleText } = createRequire(import.meta.url)(built);
+    fs.writeFileSync(path.join(path.dirname(built), 'freeze-table.css'), styleText().trimStart());
+  },
+};
+
 export default {
   input: 'src/index.js',
   external: [/^react($|\/)/],
@@ -31,6 +53,7 @@ export default {
     { file: 'dist/freeze-table.esm.js', format: 'es', sourcemap: true, banner },
   ],
   plugins: [
+    emitStylesheet,
     useReactTableProdBuild,
     nodeResolve({ extensions: ['.js', '.jsx'] }),
     commonjs({ include: /node_modules/ }),

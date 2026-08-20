@@ -1,117 +1,71 @@
 import React from 'react';
+import { LIGHT, v } from './lib/theme';
+import { cx } from './lib/slots';
+import { STYLESHEET, STYLE_ID, styleText } from './lib/stylesheet';
 
 /**
  * Zero-dependency stand-ins for the three Semantic UI React pieces the table
  * originally used: `Icon` (sort arrows, pin, empty-state inbox, search),
- * `Input` (per-column filter box) and `Loader` (loading state).
+ * `Input` (per-column filter box) and `Loader` (loading state) — plus the menu atoms
+ * the toolbar is built from.
  *
  * Everything is inline SVG + inline styles, so the package needs no CSS import
  * and no UI library. The one stylesheet the component injects (see `injectStyles`)
- * only carries what inline styles cannot express: keyframes, `:focus`,
+ * carries the token ladder plus what inline styles cannot express: keyframes, `:focus`,
  * `::placeholder` and the pinned-column shadow selector.
+ *
+ * Every component here is also the DEFAULT for a `components` slot — see
+ * `DEFAULT_COMPONENTS` at the bottom. Each one's props are its public contract from 1.1
+ * onwards, because a caller replacing it receives exactly them.
  */
 
-// Separator shadow on the last pinned column while horizontally scrolled.
-export const PIN_SHADOW = '6px 0 6px -4px rgba(0,0,0,0.18)';
-// Mirror of PIN_SHADOW for a right-frozen block: cast leftwards, over the scrolling
-// columns sliding underneath it.
-export const PIN_SHADOW_RIGHT = '-6px 0 6px -4px rgba(0,0,0,0.18)';
+// Kept as exports because they were public before the tokens existed. They now resolve
+// through `--ft-shadow-pin` / `--ft-shadow-pin-right`, so a consumer who themed by
+// importing these constants still gets a working (if un-themeable) value.
+export const PIN_SHADOW = LIGHT['shadow-pin'];
+export const PIN_SHADOW_RIGHT = LIGHT['shadow-pin-right'];
 
-const STYLE_ID = 'freeze-table-styles';
+// Which roots have been injected into. A Set rather than a boolean because `styleTarget`
+// lets a caller inject into a shadow root, and each shadow root needs its own copy — a
+// document.head stylesheet does not cross the boundary.
+const injectedInto = new Set();
 
-const STYLESHEET = `
-.ft-wrap[data-ct-scrolled="1"] [data-ct-pin-last="1"]{box-shadow:${PIN_SHADOW};}
-.ft-wrap[data-ct-scrolled-end="1"] [data-ct-pin-right-first="1"]{box-shadow:${PIN_SHADOW_RIGHT};}
-.ft-filter-input{width:100%;box-sizing:border-box;border:1px solid rgba(34,36,38,.15);border-radius:4px;
-  padding:4px 6px 4px 24px;line-height:1.2;outline:0;color:rgba(0,0,0,.87);background:#fff;
-  font-family:inherit;-webkit-appearance:none;appearance:none;}
-.ft-filter-input:focus{border-color:#85b7d9;background:#fff;}
-.ft-filter-input::placeholder{color:rgba(0,0,0,.35);}
-.ft-filter-input::-ms-clear{display:none;}
-.ft-spinner{display:inline-block;box-sizing:border-box;border-radius:50%;
-  border:2px solid rgba(0,0,0,.10);border-top-color:#0070C2;animation:ft-spin .6s linear infinite;}
-@keyframes ft-spin{to{transform:rotate(360deg);}}
-@media (prefers-reduced-motion: reduce){.ft-spinner{animation-duration:2s;}}
-
-/* Native scrollbars are hidden and redrawn as overlays, so the vertical bar can sit
-   beside the ROWS only instead of running the full height of the table (header and
-   footer included). Per-axis hiding is not expressible in Firefox — scrollbar-width
-   takes no axis — so both bars are drawn, which also keeps them looking the same
-   across browsers. Wheel, trackpad and keyboard scrolling stay fully native. */
-.ft-wrap.ft-nobar{scrollbar-width:none;-ms-overflow-style:none;}
-.ft-wrap.ft-nobar::-webkit-scrollbar{width:0;height:0;}
-.ft-track{position:absolute;background:transparent;z-index:6;}
-.ft-track-v{width:11px;}
-.ft-track-h{height:11px;}
-.ft-thumb{position:absolute;background:#c3ccd6;border-radius:6px;transition:background .15s;}
-.ft-track-v .ft-thumb{left:2px;right:2px;top:0;}
-.ft-track-h .ft-thumb{top:2px;bottom:2px;left:0;}
-.ft-track:hover .ft-thumb{background:#a7b3c1;}
-.ft-thumb:active,.ft-thumb.ft-thumb-drag{background:#8c9bab;}
-
-/* Column resize grip: a hit area straddling the header's right edge that only paints a
-   line on hover / while dragging — drawn permanently, twenty columns would read as
-   twenty vertical rules and bury the header text. */
-.ft-resizer{position:absolute;top:0;right:0;width:9px;height:100%;cursor:col-resize;
-  touch-action:none;user-select:none;z-index:6;}
-.ft-resizer::after{content:"";position:absolute;top:5px;bottom:5px;right:4px;width:2px;
-  border-radius:1px;background:transparent;}
-.ft-resizer:hover::after,.ft-resizer.ft-resizing::after{background:#0070C2;}
-/* The line that follows the pointer during a resize. The drag never writes width state
-   per frame (see startColResize) — this guide is the only thing that moves. */
-.ft-resize-guide{position:absolute;top:0;bottom:0;left:0;width:2px;background:#0070C2;
-  opacity:.7;pointer-events:none;z-index:7;}
-
-/* Toolbar: a plain button strip above the table, and the popovers its two menus open in.
-   Both live OUTSIDE .ft-wrap — a menu with its own overflow inside the scrollport would
-   become the sticky container for the cells beneath it and break the column freeze. */
-.ft-btn{display:inline-flex;align-items:center;gap:5px;border:1px solid #d7dde5;border-radius:4px;
-  background:#fff;color:#243447;padding:4px 9px;cursor:pointer;font:inherit;line-height:1.4;
-  white-space:nowrap;}
-.ft-btn:hover{background:#f2f6fa;border-color:#c2ccd8;}
-.ft-btn:focus-visible{outline:2px solid #0070C2;outline-offset:1px;}
-.ft-btn[aria-expanded="true"]{background:#e9f2fb;border-color:#9dc4e8;}
-.ft-btn[disabled]{opacity:.45;cursor:default;}
-.ft-menu{position:absolute;top:100%;margin-top:4px;z-index:9;min-width:210px;max-height:320px;
-  overflow-y:auto;background:#fff;border:1px solid #dde3ea;border-radius:6px;
-  box-shadow:0 6px 20px rgba(20,32,48,.16);padding:4px;}
-.ft-menu-head{padding:6px 8px 4px;font-weight:700;color:#66738a;text-transform:uppercase;
-  letter-spacing:.4px;}
-.ft-menu-item{display:flex;align-items:center;gap:8px;width:100%;box-sizing:border-box;
-  border:0;background:none;font:inherit;color:#243447;text-align:left;padding:5px 8px;
-  border-radius:4px;cursor:pointer;}
-.ft-menu-item:hover:not([disabled]){background:#f0f5fa;}
-.ft-menu-item[disabled]{opacity:.4;cursor:default;}
-.ft-menu-item[aria-checked="true"],.ft-menu-item[aria-current="true"]{background:#e9f2fb;color:#0a4d84;}
-.ft-menu-sep{height:1px;background:#eceff3;margin:4px 0;}
-.ft-menu-move{border:0;background:none;padding:0 3px;cursor:pointer;color:#8794a8;font:inherit;
-  line-height:1;border-radius:3px;}
-.ft-menu-move:hover:not([disabled]){background:#dfe7f0;color:#243447;}
-.ft-menu-move[disabled]{opacity:.25;cursor:default;}
-
-/* Column reorder. Same deal as the resize guide: the drop line is the ONLY thing that
-   moves while the pointer is down (see startColReorder), and the header being carried
-   dims so the line reads as "this column lands here" rather than as a second cursor. */
-.ft-th-dragging{opacity:.4;}
-.ft-drop-line{position:absolute;top:0;bottom:0;left:0;width:3px;background:#0070C2;
-  border-radius:2px;pointer-events:none;z-index:7;}
-`;
-
-let injected = false;
-
-/** Idempotent — safe to call from every mount and under React StrictMode. */
-export const injectStyles = () => {
-  if (injected || typeof document === 'undefined') return;
-  if (document.getElementById(STYLE_ID)) {
-    injected = true;
+/**
+ * Idempotent — safe to call from every mount and under React StrictMode.
+ *
+ * `nonce` is forwarded onto the `<style>` element for apps whose Content-Security-Policy
+ * has a `style-src` without `'unsafe-inline'`; without it the browser drops the sheet and
+ * the table renders with only its inline `var()` fallbacks (readable, but no hover
+ * states, no scrollbar thumbs and no theming).
+ *
+ * `target` may be a ShadowRoot or any node with a `getRootNode`, for a table mounted
+ * inside a web component — `document.head` is invisible from in there.
+ */
+export const injectStyles = ({ nonce, target } = {}) => {
+  if (typeof document === 'undefined') return;
+  const root = target && typeof target.getRootNode === 'function' ? target.getRootNode() : document;
+  // A shadow root takes the <style> directly; a document takes it in <head>.
+  const host = root && root !== document && root.appendChild ? root : document.head;
+  if (!host || injectedInto.has(host)) return;
+  if (host.querySelector && host.querySelector(`#${STYLE_ID}`)) {
+    injectedInto.add(host);
     return;
   }
   const el = document.createElement('style');
   el.id = STYLE_ID;
+  if (nonce) el.setAttribute('nonce', nonce);
   el.textContent = STYLESHEET;
-  document.head.appendChild(el);
-  injected = true;
+  // FIRST, not appended. The sheet lands when the component mounts, which is after every
+  // stylesheet the page loaded — so appending would put the library's rules last and let
+  // them win every specificity tie against the consumer's own CSS. The token blocks are
+  // additionally `:where()`-wrapped (see lib/stylesheet.js), which handles the tie for
+  // the variables no matter where this ends up; putting the element first extends the
+  // same courtesy to the rest of the rules.
+  host.insertBefore(el, host.firstChild);
+  injectedInto.add(host);
 };
+
+export { styleText };
 
 /** `useLayoutEffect` that degrades to `useEffect` on the server (no SSR warning). */
 export const useIsoLayoutEffect = typeof window !== 'undefined' ? React.useLayoutEffect : React.useEffect;
@@ -128,7 +82,7 @@ const svgBase = (size) => ({
  * Sort indicator. `direction`: 'asc' | 'desc' | null (null = sortable but unsorted,
  * shown as the two-arrow "sortable" glyph, matching Semantic's `sort` icon).
  */
-export const SortIcon = ({ direction, color = '#000000', size = 9 }) => (
+export const SortIcon = ({ direction, color = v('sort-icon'), size = 9 }) => (
   <svg viewBox="0 0 10 14" aria-hidden="true" focusable="false" style={{ ...svgBase(size), fill: color }}>
     {direction !== 'desc' && <polygon points="5,1 9.2,5.8 0.8,5.8" opacity={direction === 'asc' ? 1 : 0.85} />}
     {direction !== 'asc' && <polygon points="5,13 9.2,8.2 0.8,8.2" opacity={direction === 'desc' ? 1 : 0.85} />}
@@ -136,7 +90,7 @@ export const SortIcon = ({ direction, color = '#000000', size = 9 }) => (
 );
 
 /** Pin / thumbtack — marks the freeze-boundary column. */
-export const PinIcon = ({ color = '#0070C2', size = 10, title }) => (
+export const PinIcon = ({ color = v('accent'), size = 10, title }) => (
   <svg viewBox="0 0 16 16" focusable="false" style={{ ...svgBase(size), fill: color }} role={title ? 'img' : undefined} aria-hidden={title ? undefined : 'true'}>
     {title ? <title>{title}</title> : null}
     <path d="M9.6 1a1 1 0 0 0-.7 1.7l.3.3-3.4 2.5-2-.4a1 1 0 0 0-.9 1.7l3 3-3.4 4 4.6-3 3 3a1 1 0 0 0 1.7-.9l-.4-2 2.5-3.4.3.3A1 1 0 0 0 15.6 7L9.6 1z" />
@@ -144,14 +98,14 @@ export const PinIcon = ({ color = '#0070C2', size = 10, title }) => (
 );
 
 /** Soft empty-state glyph (Semantic's `inbox`). */
-export const InboxIcon = ({ color = '#c2cbd6', size = 34 }) => (
+export const InboxIcon = ({ color = v('icon-muted'), size = 34 }) => (
   <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" style={{ ...svgBase(size), fill: 'none', stroke: color, strokeWidth: 1.6, strokeLinecap: 'round', strokeLinejoin: 'round' }}>
     <path d="M3 13h4l1.5 3h7L17 13h4" />
     <path d="M5.2 4.5h13.6L21 13v5.5a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 18.5V13z" />
   </svg>
 );
 
-const SearchIcon = ({ color = 'rgba(0,0,0,.45)', size = 11 }) => (
+const SearchIcon = ({ color = v('search-icon'), size = 11 }) => (
   <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false" style={{ ...svgBase(size), fill: 'none', stroke: color, strokeWidth: 2, strokeLinecap: 'round' }}>
     <circle cx="6.8" cy="6.8" r="4.6" />
     <path d="M10.4 10.4 14 14" />
@@ -161,6 +115,10 @@ const SearchIcon = ({ color = 'rgba(0,0,0,.45)', size = 11 }) => (
 /**
  * The per-column filter box — a plain `<input>` dressed to match the compact
  * Semantic "mini icon input" the table was designed around.
+ *
+ * Slot contract (`components.FilterInput`): `{ value, onChange, onClick, placeholder,
+ * fontSize }`. `onClick` must be attached to the input itself — it stops the click from
+ * reaching the header and toggling the sort.
  */
 export const FilterInput = ({ value, onChange, onClick, placeholder, fontSize = 11 }) => (
   <div style={{ position: 'relative', width: '100%', display: 'flex', alignItems: 'center' }}>
@@ -180,7 +138,7 @@ export const FilterInput = ({ value, onChange, onClick, placeholder, fontSize = 
 );
 
 /** Stacked-columns glyph for the toolbar's column menu. */
-export const ColumnsIcon = ({ color = '#5a6b82', size = 12 }) => (
+export const ColumnsIcon = ({ color = v('icon'), size = 12 }) => (
   <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false" style={{ ...svgBase(size), fill: color }}>
     <rect x="1" y="2" width="3.4" height="12" rx="1" />
     <rect x="6.3" y="2" width="3.4" height="12" rx="1" opacity=".65" />
@@ -189,16 +147,105 @@ export const ColumnsIcon = ({ color = '#5a6b82', size = 12 }) => (
 );
 
 /** Tick for a checked menu entry. Rendered in a fixed-width box so labels stay aligned. */
-export const CheckIcon = ({ color = '#0070C2', size = 11, checked }) => (
+export const CheckIcon = ({ color = v('accent'), size = 11, checked }) => (
   <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false" style={{ ...svgBase(size), fill: 'none', stroke: checked ? color : 'transparent', strokeWidth: 2.2, strokeLinecap: 'round', strokeLinejoin: 'round' }}>
     <path d="M2.5 8.5 6.2 12 13.5 4" />
   </svg>
 );
 
-/** Centred loading spinner + caption. */
-export const Spinner = ({ text, size = 32, color = '#0070C2' }) => (
+/**
+ * Centred loading spinner + caption.
+ *
+ * Slot contract (`components.Spinner`): `{ text }`. The `size` / `color` props are the
+ * built-in's own and a replacement may ignore them.
+ */
+export const Spinner = ({ text, size = 32, color = v('accent') }) => (
   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
     <span className="ft-spinner" style={{ width: size, height: size, borderTopColor: color }} />
     {text ? <span style={{ color, fontSize: '13px' }}>{text}</span> : null}
   </div>
 );
+
+/**
+ * The "nothing to show" state.
+ *
+ * Slot contract (`components.Empty`): `{ text }` — whatever `emptyText` was set to.
+ */
+export const Empty = ({ text }) => (
+  <React.Fragment>
+    <InboxIcon />
+    <div style={{ marginTop: 8, fontSize: '13px' }}>{text}</div>
+  </React.Fragment>
+);
+
+/**
+ * A toolbar button.
+ *
+ * Slot contract (`components.Button`): `{ children, onClick, className, ...aria }`. A
+ * replacement MUST spread the rest onto its own `<button>` — `aria-expanded` is what the
+ * built-in styling keys the open state off, and what a screen reader announces.
+ */
+export const Button = ({ children, className, ...rest }) => (
+  <button type="button" className={cx('ft-btn', className)} {...rest}>
+    {children}
+  </button>
+);
+
+/**
+ * A toolbar popover.
+ *
+ * Slot contract (`components.Menu`): `{ children, align, className }`. It is positioned
+ * against a `position: relative` parent inside `.ft-root`, and it must NOT portal to
+ * `document.body`: the menus deliberately live inside the root (but outside `.ft-wrap`)
+ * so the table's own tokens are inherited and the freeze is unaffected.
+ */
+export const Menu = ({ children, align = 'left', className }) => (
+  <div className={cx('ft-menu', className)} style={align === 'right' ? { right: 0 } : { left: 0 }} role="menu">
+    {children}
+  </div>
+);
+
+/**
+ * One entry in a menu.
+ *
+ * Slot contract (`components.MenuItem`): `{ children, checked, icon: Icon, className,
+ * ...rest }`. `checked` is `undefined` for a plain action entry, a boolean for a
+ * checkbox/radio one; the rest (`role`, `aria-checked`, `disabled`, `onClick`, `title`)
+ * is spread onto the button and a replacement must forward it.
+ *
+ * `icon` is the resolved `components.CheckIcon`, threaded through rather than imported
+ * so that overriding CheckIcon alone still reaches the menus — otherwise the two slots
+ * would silently not compose, and someone replacing the tick would have to replace the
+ * whole MenuItem to see it.
+ */
+export const MenuItem = ({ children, checked, icon: Icon = CheckIcon, className, ...rest }) => (
+  <button type="button" className={cx('ft-menu-item', className)} {...rest}>
+    {checked !== undefined && Icon && <Icon checked={checked} />}
+    {children}
+  </button>
+);
+
+/** A group label inside a menu. Slot contract: `{ children }`. */
+export const MenuHeading = ({ children }) => <div className="ft-menu-head">{children}</div>;
+
+/** A rule between menu groups. Slot contract: no props. */
+export const MenuSeparator = () => <div className="ft-menu-sep" />;
+
+/**
+ * The built-in for every `components` slot, in one object so `resolveComponents` has
+ * something to merge over and the identity stays stable when nothing is overridden.
+ */
+export const DEFAULT_COMPONENTS = {
+  FilterInput,
+  Button,
+  Menu,
+  MenuItem,
+  MenuHeading,
+  MenuSeparator,
+  Spinner,
+  Empty,
+  SortIcon,
+  PinIcon,
+  CheckIcon,
+  ColumnsIcon,
+};

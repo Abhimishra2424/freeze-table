@@ -1,6 +1,6 @@
 import React from 'react';
 import { useFilters, useFlexLayout, useSortBy, useTable } from 'react-table';
-import { injectStyles, useIsoLayoutEffect } from './internal-ui';
+import { DEFAULT_COMPONENTS, injectStyles, useIsoLayoutEffect } from './internal-ui';
 import { DefaultCell, DefaultColumnFilter } from './components/defaults';
 import OverlayBars from './components/OverlayBars';
 import TableBody from './components/TableBody';
@@ -21,11 +21,16 @@ import { useTableScroll } from './hooks/useTableScroll';
 import { COL_MIN_WIDTH, ELLIPSIS, OVERSCAN, colIdOf } from './lib/columns';
 import { FORMAT_DEFAULTS } from './lib/columnTypes';
 import { resolveHeight } from './lib/props';
+import { cx, resolveClassNames, resolveComponents, skin } from './lib/slots';
+import { resolveTokens, v } from './lib/theme';
 
 export { ELLIPSIS };
 
 // react-table's per-column fallbacks. Module-level, so the identity is stable and the
-// table instance is not rebuilt on every render.
+// table instance is not rebuilt on every render. `Filter` stays a single fixed function
+// even though the filter box is a replaceable slot — it reads the current one off the
+// instance instead (see DefaultColumnFilter), because react-table stamps `defaultColumn`
+// onto each column object by mutation and a swapped-in function would never be seen.
 const DEFAULT_COLUMN = {
   Cell: DefaultCell,
   Filter: DefaultColumnFilter,
@@ -65,6 +70,22 @@ const DEFAULT_COLUMN = {
  * a hidden column does not exist as far as freezing and the sticky offsets are
  * concerned, and a moved column freezes according to where it now is.
  *
+ * ## How it fits someone else's UI (1.1)
+ *
+ * Four independent layers, each off by default, each solving a problem the one below it
+ * cannot reach:
+ *
+ *   theme / tokens   CSS custom properties. The ONLY mechanism that reaches all three
+ *                    places colour lives here — inline styles, the injected stylesheet's
+ *                    pseudo-class rules, and the row background a JS handler writes.
+ *                    See lib/theme.js.
+ *   classNames       a class per slot, for a utility-CSS app that would rather not write
+ *                    a stylesheet at all.
+ *   components       the slot itself, for a design-system app: their button, their
+ *                    popover, their input, our behaviour. See DEFAULT_COMPONENTS.
+ *   unstyled         no paint and no injected sheet, keeping only the styles that ARE
+ *                    the freeze and the virtualization. See `skin()` in lib/slots.js.
+ *
  * The full prop and column-config reference lives in README.md — this file documents
  * the mechanics, the README documents the API.
  */
@@ -97,7 +118,7 @@ export const FreezeTable = React.forwardRef(function FreezeTable(
     pinActions = false,
     onRowSelect,
     onRowEnter,
-    selectedBg = '#d3e5f8',
+    selectedBg,
     rowIdKey = 'id',
     initialSelectedId = null,
     rowStripColor,
@@ -119,15 +140,16 @@ export const FreezeTable = React.forwardRef(function FreezeTable(
     toolbar = false,
     className,
     style,
+    theme,
+    tokens,
+    classNames,
+    components,
+    unstyled = false,
+    styleNonce,
+    styleTarget,
   },
   ref
 ) {
-  // One <style> tag for the handful of things inline styles cannot express
-  // (keyframes, :focus, ::placeholder, the pinned-column shadow selector).
-  useIsoLayoutEffect(() => {
-    injectStyles();
-  }, []);
-
   // Development-only: says so when `columns` / `data` are rebuilt unchanged every render.
   useStabilityWarning('columns', columns);
   useStabilityWarning('data', data);
@@ -153,6 +175,42 @@ export const FreezeTable = React.forwardRef(function FreezeTable(
   const rootRef = React.useRef(null);
   const containerRef = React.useRef(null);
   const wrapW = useWrapWidth(containerRef);
+
+  // ----- Appearance: tokens, class slots, component slots -----
+  //
+  // Three layers, deliberately independent, and none of them on by default:
+  //
+  //   theme / tokens   re-colour the built-in look through CSS custom properties
+  //   classNames       hand each slot a class, for a utility-CSS app
+  //   components       replace a slot outright, for a design-system app
+  //
+  // See lib/theme.js for why the colours have to be custom properties rather than props,
+  // and lib/slots.js for the engine/skin split `unstyled` depends on.
+
+  // One <style> tag carrying the token ladder plus the handful of things inline styles
+  // cannot express (keyframes, :focus, ::placeholder, the pinned-column shadow selector).
+  //
+  // `unstyled` skips it entirely — the point of that mode is that the consumer owns every
+  // visual, and an injected sheet they did not ask for would be one more thing to
+  // override. The target defaults to the root NODE rather than `document`, so a table
+  // rendered inside a shadow root gets its sheet in that root — a `document.head`
+  // stylesheet does not cross the shadow boundary, and the table would come out with
+  // only its inline fallbacks.
+  useIsoLayoutEffect(() => {
+    if (unstyled) return;
+    injectStyles({ nonce: styleNonce, target: styleTarget || rootRef.current });
+  }, [unstyled, styleNonce, styleTarget]);
+
+  // Inline custom properties outrank the injected base block and are inherited by
+  // everything inside the root, menus included — this is the no-CSS-file route.
+  const tokenStyle = React.useMemo(() => resolveTokens(tokens), [tokens]);
+  const slotClasses = resolveClassNames(classNames);
+  const ui = React.useMemo(() => resolveComponents(components, DEFAULT_COMPONENTS), [components]);
+
+  // The selection highlight resolves through `--ft-row-selected` unless the caller named
+  // a colour, so it follows the theme (a light blue row is invisible on a dark table)
+  // while an explicit `selectedBg` still wins, as it always did.
+  const selectedRowBg = selectedBg !== undefined ? selectedBg : v('row-selected');
 
   // ----- The user's layout: widths, hidden columns, order -----
   const storage = useLayoutStorage(pinStorageKey);
@@ -235,6 +293,9 @@ export const FreezeTable = React.forwardRef(function FreezeTable(
       // config having to be rebuilt as a factory closure.
       userList,
       context,
+      // The resolved slot map, forwarded the same way — this is how the default `Filter`
+      // (and any caller `Cell` that wants them) reaches the current components.
+      ui,
       // `data` is often recreated each render (e.g. Object.values(byId)); without these
       // react-table resets sort/filter on every data change, so clicking a header appears
       // to do nothing (sort is set then immediately reset).
@@ -290,7 +351,7 @@ export const FreezeTable = React.forwardRef(function FreezeTable(
     rowNavigation,
     onRowSelect,
     onRowEnter,
-    selectedBg,
+    selectedBg: selectedRowBg,
     initialSelectedId,
     rowIdKey,
     initialScrollLeft,
@@ -359,7 +420,7 @@ export const FreezeTable = React.forwardRef(function FreezeTable(
       rows,
       prepareRow,
       rowStyle,
-      selectedBg,
+      selectedBg: selectedRowBg,
       rowNavigation,
       fontPx,
       selectedIndexRef,
@@ -368,12 +429,14 @@ export const FreezeTable = React.forwardRef(function FreezeTable(
       pinnedRight,
       rowSnap,
       onSelect: (i) => setSelectedIndex(i),
+      classNames: slotClasses,
+      unstyled,
       // Not read by VirtualRow — included so a pin-boundary change breaks the memo and
       // every visible row re-renders with the new pinned flags (otherwise rows could
       // keep stale pin attributes / sticky offsets).
       allColumns,
     }),
-    [rows, prepareRow, rowStyle, selectedBg, rowNavigation, fontPx, allColumns, rowHeight, pinnedLeft, pinnedRight, rowSnap, selectedIndexRef, setSelectedIndex]
+    [rows, prepareRow, rowStyle, selectedRowBg, rowNavigation, fontPx, allColumns, rowHeight, pinnedLeft, pinnedRight, rowSnap, selectedIndexRef, setSelectedIndex, slotClasses, unstyled]
   );
 
   // Which rows are actually rendered. The frozen columns are sticky, so this can lag a
@@ -385,15 +448,28 @@ export const FreezeTable = React.forwardRef(function FreezeTable(
   return (
     <div
       ref={rootRef}
-      className={`ft-root ct-root${className ? ` ${className}` : ''}`}
+      className={cx('ft-root ct-root', slotClasses.root, className)}
+      // 'auto' follows the OS; 'light' / 'dark' pin it. Absent means "inherit whatever
+      // the tokens on this element or an ancestor say", which is the class-toggle case
+      // (a Tailwind `dark:` app sets the variables itself and must not be overridden by
+      // a media query it did not ask for).
+      data-ft-theme={theme || undefined}
       style={{
         position: 'relative',
         width: '100%',
         height: resolveHeight(height),
+        // `fontFamily`, NOT the `font` shorthand: the shorthand requires a size, so
+        // `font: Inter, sans-serif` is invalid CSS and the browser drops the whole
+        // declaration. The default `inherit` happens to be legal in both, which is
+        // exactly what makes the mistake survive testing until someone sets the token.
+        ...skin(unstyled, { fontFamily: v('font'), color: v('text'), background: v('bg') }),
         // Only with a toolbar: the root becomes a column so the scrollport takes whatever
         // height is left over. Without one the scrollport is simply the whole root, and
         // the markup stays exactly as it always was.
         ...(showToolbar ? { display: 'flex', flexDirection: 'column' } : null),
+        // Caller last: `tokens` overrides the injected base block, and `style` overrides
+        // everything, including a token the caller also set through `tokens`.
+        ...tokenStyle,
         ...style,
       }}
     >
@@ -412,10 +488,13 @@ export const FreezeTable = React.forwardRef(function FreezeTable(
           }}
           api={toolbarApi}
           refocus={refocus}
+          ui={ui}
+          classNames={slotClasses}
+          unstyled={unstyled}
         />
       )}
       <div
-        className="ft-wrap ct-wrap ft-nobar"
+        className={cx('ft-wrap ct-wrap ft-nobar', slotClasses.wrap)}
         ref={containerRef}
         tabIndex={rowNavigation ? 0 : undefined}
         onKeyDown={onKeyDown}
@@ -436,6 +515,7 @@ export const FreezeTable = React.forwardRef(function FreezeTable(
       >
         <div
           {...tableProps}
+          className={cx(tableProps.className, slotClasses.table)}
           style={{ ...tableProps.style, minWidth: totalColumnsWidth, minHeight: '100%', display: 'flex', flexDirection: 'column' }}
         >
           <TableHead
@@ -452,6 +532,9 @@ export const FreezeTable = React.forwardRef(function FreezeTable(
             startColResize={startColResize}
             onHeaderClickCapture={onHeaderClickCapture}
             resetColumnWidths={layout.resetColumnWidths}
+            classNames={slotClasses}
+            ui={ui}
+            unstyled={unstyled}
           />
 
           <TableBody
@@ -467,6 +550,9 @@ export const FreezeTable = React.forwardRef(function FreezeTable(
             loadingText={loadingText}
             dataFetched={isFetched}
             emptyText={emptyText}
+            classNames={slotClasses}
+            ui={ui}
+            unstyled={unstyled}
           />
 
           {renderFooter && (
@@ -477,6 +563,8 @@ export const FreezeTable = React.forwardRef(function FreezeTable(
               footerLeft={footerLeft}
               pinnedLeft={pinnedLeft}
               pinnedRight={pinnedRight}
+              classNames={slotClasses}
+              unstyled={unstyled}
             />
           )}
         </div>
@@ -494,6 +582,7 @@ export const FreezeTable = React.forwardRef(function FreezeTable(
         onTrackDown={bars.onTrackDown}
         guideRef={guideRef}
         dropRef={dropRef}
+        classNames={slotClasses}
       />
     </div>
   );

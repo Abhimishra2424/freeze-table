@@ -1,0 +1,179 @@
+/* ---------------------------------------------------------------------------
+   freeze-table demo stylesheet.
+
+   This file is the point of the "Custom CSS", "Brand", "ERP" and "Unstyled"
+   presets in the demo: every one of them is driven from HERE, not from JSX, to
+   show that the table can be re-themed entirely from a consumer's stylesheet.
+
+   Edit any value and reload example/index.html — no rebuild needed for this
+   file (only demo.jsx needs `npm run demo`).
+   --------------------------------------------------------------------------- */
+
+html, body { margin: 0; padding: 0; }
+
+/* ===========================================================================
+   PRESET 1 — "Brand": re-theme by setting the CORE tokens only.
+   Six variables. Everything else (header, rows, menus, buttons, filter boxes,
+   the frozen-column shadow) derives from them through the token ladder.
+   =========================================================================== */
+.demo-brand {
+  --ft-bg: #ffffff;
+  --ft-surface: #f5f3ff;
+  --ft-text: #2e1065;
+  --ft-text-muted: #a78bfa;
+  --ft-border: #ddd6fe;
+  --ft-accent: #7c3aed;
+  --ft-accent-soft: #ede9fe;
+  --ft-accent-text: #5b21b6;
+
+  /* The three that never derive — a tint is not a surface, so the ladder
+     deliberately leaves these to you. */
+  --ft-row-hover: #faf5ff;
+  --ft-row-selected: #ede9fe;
+  --ft-row-border: #f3f0ff;
+
+  --ft-radius: 8px;
+  --ft-radius-menu: 10px;
+  --ft-shadow-menu: 0 10px 30px rgba(76, 29, 149, 0.18);
+}
+
+/* ===========================================================================
+   PRESET 2 — "ERP": dense, square, hairline. Same table, different century.
+   Shows that the tokens carry SHAPE and ELEVATION, not just colour.
+   =========================================================================== */
+.demo-erp {
+  --ft-bg: #ffffff;
+  --ft-surface: #eef1f4;
+  --ft-text: #14212e;
+  --ft-border: #b9c4cf;
+  --ft-row-border: #dde3e9;
+  --ft-row-hover: #fffbe6;
+  --ft-row-selected: #ffe9a8;
+  --ft-accent: #b45309;
+  --ft-accent-soft: #fef3c7;
+  --ft-accent-text: #78350f;
+  --ft-header-bg: #dfe6ec;
+
+  --ft-radius: 0px;
+  --ft-radius-menu: 0px;
+  --ft-shadow-menu: 0 2px 8px rgba(0, 0, 0, 0.25);
+  --ft-shadow-pin: 4px 0 0 -3px #b9c4cf;
+  --ft-shadow-pin-right: -4px 0 0 -3px #b9c4cf;
+  --ft-font: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+
+/* ===========================================================================
+   PRESET 3 — "Custom CSS": the `classNames` prop, styled from a stylesheet.
+
+   Note what classes CAN and CANNOT do. They cannot repaint a row background —
+   that is an inline style, so it needs `--ft-row-bg`. They can do everything
+   the component does not set at all: rounding, shadow, letter-spacing,
+   underlines, an outline on hover.
+   =========================================================================== */
+.demo-css-root {
+  border-radius: 14px;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+  overflow: hidden;
+  /* Rows ARE painted inline, so this is the token, not a class. */
+  --ft-row-selected: #dbeafe;
+  --ft-row-hover: #f1f5f9;
+  --ft-accent: #0ea5e9;
+}
+.demo-css-toolbar {
+  background: linear-gradient(90deg, #0f172a, #1e3a5f) !important;
+  color: #e2e8f0;
+}
+.demo-css-toolbar .ft-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: #e2e8f0;
+}
+.demo-css-toolbar .ft-btn:hover { background: rgba(255, 255, 255, 0.18); }
+.demo-css-th .ft-th-label {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 10px !important;
+}
+.demo-css-row { transition: box-shadow 0.12s; }
+.demo-css-row:hover { box-shadow: inset 3px 0 0 #0ea5e9; }
+.demo-css-cell:first-child { font-variant-numeric: tabular-nums; }
+.demo-css-foot { border-top-width: 2px !important; }
+
+/* ===========================================================================
+   PRESET 4 — "Unstyled": the table paints NOTHING. Every visual below is ours.
+
+   The one rule `unstyled` cannot do for you: the header, rows and footer MUST
+   get a background. Frozen cells inherit their row's background, so with a
+   transparent one the scrolling columns show straight through the frozen
+   block. That is the first thing to check if a freeze "looks broken" here.
+   =========================================================================== */
+.demo-bare-head,
+.demo-bare-row,
+.demo-bare-foot {
+  background: #fffdf7;                 /* <- required, see above */
+}
+.demo-bare-head {
+  border-bottom: 2px solid #292524;
+  font: 600 11px/1 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #292524;
+}
+.demo-bare-th { padding: 8px 10px; }
+.demo-bare-row {
+  border-bottom: 1px dashed #d6d3d1;
+  font: 12px/1 ui-sans-serif, system-ui, sans-serif;
+  color: #44403c;
+}
+.demo-bare-row:hover { background: #fef3c7; }
+.demo-bare-cell { padding: 0 10px; }
+.demo-bare-foot {
+  border-top: 2px solid #292524;
+  font: 700 12px/1 ui-sans-serif, system-ui, sans-serif;
+}
+.demo-bare-foot-cell { padding: 8px 10px; }
+.demo-bare-empty { padding: 60px 0; color: #a8a29e; font: 13px ui-sans-serif, system-ui, sans-serif; }
+
+/* ===========================================================================
+   Page chrome. Dark here follows the table's own dark preset so the demo page
+   does not stay white around a dark table.
+   =========================================================================== */
+.demo-page {
+  font: 13px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: #1b2733;
+  background: #f7f9fb;
+  min-height: 100vh;
+  padding: 20px;
+  box-sizing: border-box;
+}
+.demo-page[data-dark='1'] { background: #020817; color: #e2e8f0; }
+.demo-page[data-dark='1'] .demo-frame { background: #0f172a; border-color: #334155; }
+.demo-page[data-dark='1'] .demo-muted { color: #94a3b8; }
+.demo-page[data-dark='1'] .demo-btn { background: #1e293b; border-color: #334155; color: #e2e8f0; }
+
+.demo-frame {
+  background: #fff;
+  border: 1px solid #e3e8ee;
+  border-radius: 6px;
+  overflow: hidden;
+}
+.demo-muted { color: #5a6a7a; }
+.demo-btn {
+  font: inherit;
+  font-size: 11px;
+  padding: 3px 10px;
+  cursor: pointer;
+  border: 1px solid #c9d2dd;
+  border-radius: 4px;
+  background: #fff;
+  color: #1b2733;
+}
+.demo-btn[aria-pressed='true'] { background: #0070c2; border-color: #0070c2; color: #fff; }
+.demo-note {
+  font-size: 11px;
+  margin: 8px 0 0;
+  padding: 8px 10px;
+  border-left: 3px solid #0070c2;
+  background: rgba(0, 112, 194, 0.06);
+  border-radius: 0 4px 4px 0;
+}

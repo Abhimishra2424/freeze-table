@@ -1,5 +1,7 @@
 import React from 'react';
 import { alignFlex } from '../lib/columns';
+import { cx, skin } from '../lib/slots';
+import { v } from '../lib/theme';
 
 /**
  * The sticky totals footer. A column's `Footer` function receives the table instance, so
@@ -9,7 +11,7 @@ import { alignFlex } from '../lib/columns';
  * and is `pointerEvents: none` so it never swallows a click meant for the footer cell
  * underneath it.
  */
-export const TableFoot = ({ footerGroups, footRef, fontPx, footerLeft, pinnedLeft, pinnedRight }) => (
+export const TableFoot = ({ footerGroups, footRef, fontPx, footerLeft, pinnedLeft, pinnedRight, classNames, unstyled }) => (
   <React.Fragment>
     {footerGroups.map((group) => {
       const { key: footerGroupKey, ...footerGroupProps } = group.getFooterGroupProps();
@@ -18,25 +20,28 @@ export const TableFoot = ({ footerGroups, footRef, fontPx, footerLeft, pinnedLef
           key={footerGroupKey}
           {...footerGroupProps}
           ref={footRef}
-          className="ft-foot ct-foot"
+          className={cx('ft-foot ct-foot', classNames.foot)}
           style={{
             ...footerGroupProps.style,
             flex: '0 0 auto',
             position: 'sticky',
             bottom: 0,
             zIndex: 4,
-            background: '#f4f5f7',
-            borderTop: '1px solid #e3e8ee',
+            ...skin(unstyled, {
+              background: v('foot-bg'),
+              borderTop: `1px solid ${v('border')}`,
+            }),
           }}
         >
           {group.headers.map((column) => {
             const { key: footerKey, ...footerProps } = column.getFooterProps();
+            const isPinned = column.pinned || column.pinnedRight;
             return (
               <div
                 key={footerKey}
                 {...footerProps}
-                className="ft-tf ct-tf"
-                data-ct-pin={column.pinned || column.pinnedRight ? '1' : undefined}
+                className={cx('ft-tf ct-tf', classNames.footCell)}
+                data-ct-pin={isPinned ? '1' : undefined}
                 data-ct-pin-last={column.pinnedLast ? '1' : undefined}
                 data-ct-pin-right-first={column.pinnedRightFirst ? '1' : undefined}
                 style={{
@@ -44,21 +49,25 @@ export const TableFoot = ({ footerGroups, footRef, fontPx, footerLeft, pinnedLef
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: alignFlex(column.align),
-                  padding: column.noPadding ? 0 : '8px 12px',
-                  fontSize: fontPx,
-                  fontWeight: 700,
-                  color: '#000000',
                   whiteSpace: 'nowrap',
                   overflow: 'hidden',
                   textAlign: column.align || 'left',
-                  ...(column.pinned || column.pinnedRight
+                  ...skin(unstyled, {
+                    padding: column.noPadding ? 0 : '8px 12px',
+                    fontSize: fontPx,
+                    fontWeight: 700,
+                    color: v('foot-text'),
+                  }),
+                  ...(isPinned
                     ? {
                         position: 'sticky',
                         ...(column.pinned
                           ? { left: pinnedLeft[column.id] || 0 }
                           : { right: pinnedRight[column.id] || 0 }),
                         zIndex: 5,
-                        background: '#f4f5f7',
+                        // Structural: an opaque frozen footer cell, for the same reason
+                        // the frozen header and body cells need one.
+                        background: v('foot-bg'),
                       }
                     : {}),
                 }}
@@ -76,11 +85,13 @@ export const TableFoot = ({ footerGroups, footRef, fontPx, footerLeft, pinnedLef
                 height: '100%',
                 display: 'flex',
                 alignItems: 'center',
-                fontSize: fontPx,
-                fontWeight: 700,
-                color: '#000000',
                 whiteSpace: 'nowrap',
                 pointerEvents: 'none',
+                ...skin(unstyled, {
+                  fontSize: fontPx,
+                  fontWeight: 700,
+                  color: v('foot-text'),
+                }),
               }}
             >
               {footerLeft}

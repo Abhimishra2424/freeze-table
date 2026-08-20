@@ -7,9 +7,14 @@ and a totals row pinned to the bottom.
 ![freeze-table — 2,000 rows, 18 columns, three columns frozen left and one plus the Action column frozen right](https://raw.githubusercontent.com/Abhimishra2424/freeze-table/main/public/FreezeTable.png)
 
 Built on [`react-table`](https://github.com/TanStack/table/tree/v7) **v7**, which is bundled
-in. No peer install, no UI library, no CSS file to import, no theme to configure — every visual is an inline style and the
-handful of glyphs it needs (sort arrows, pin marker, spinner, empty-state icon) are inline
-SVG.
+in. No peer install, no UI library, no CSS file to import and nothing to configure to get
+started — the handful of glyphs it needs (sort arrows, pin marker, spinner, empty-state
+icon) are inline SVG.
+
+And when it does have to match your app, it goes the whole way: **CSS-variable tokens**
+(with a built-in dark theme), **per-slot class names**, **replaceable components** — hand
+it your own button, popover and input — or **fully unstyled**, keeping the freeze and the
+virtualization and nothing else. See [§12](#12-theming-tokens-classes-slots-unstyled).
 
 ```bash
 npm i freeze-table
@@ -78,10 +83,11 @@ a 300-line component shell over one hook per concern.
 9. [Column resizing, hiding and reordering](#9-column-resizing-hiding-and-reordering)
 10. [Per-row status colouring](#10-per-row-status-colouring)
 11. [Restoring position on re-entry](#11-restoring-position-on-re-entry)
-12. [Styling hooks](#12-styling-hooks)
+12. [Theming: tokens, classes, slots, unstyled](#12-theming-tokens-classes-slots-unstyled)
 13. [Gotchas](#13-gotchas)
 14. [Demo, build, compatibility](#14-demo-build-compatibility)
-15. [What changed in 1.0](#15-what-changed-in-10)
+15. [What changed in 1.1](#15-what-changed-in-11)
+16. [What changed in 1.0](#16-what-changed-in-10)
 
 ---
 
@@ -388,7 +394,7 @@ express, `format: (v) => myOwnFormatter(v)` keeps the ellipsis cell and drops th
 | `rowSnap`           | `false`               | Settle vertical scrolling on a row boundary once it stops (§6)       |
 | `onRowSelect`       | —                     | `(rowData, index)` on every selection change                         |
 | `onRowEnter`        | —                     | `(rowData, index)` on Enter — "open this row"                        |
-| `selectedBg`        | `'#d3e5f8'`           | Selected-row highlight colour                                        |
+| `selectedBg`        | `--ft-row-selected`   | Selected-row highlight colour                                        |
 | `rowIdKey`          | `'id'`                | Field `initialSelectedId` matches against                            |
 | `initialSelectedId` | `null`                | Re-select + scroll to this row once, after the rows load             |
 | `initialScrollLeft` | `0`                   | Restore horizontal scroll once, after the rows load                  |
@@ -405,8 +411,15 @@ express, `format: (v) => myOwnFormatter(v)` keeps the ellipsis cell and drops th
 | `onColumnOrderChange` | —                   | `(order)` whenever the column order changes (§9)                     |
 | `defaultLayout`     | —                     | Starting layout for a table with nothing stored yet (§5)             |
 | `onLayoutChange`    | —                     | `(layout)` whenever **any** part of the layout changes (§5)          |
-| `className`         | —                     | Extra class on the root element                                      |
-| `style`             | —                     | Extra inline styles merged onto the root element                     |
+| `theme`             | —                     | `'light' \| 'dark' \| 'auto'` — the built-in palettes (§12)          |
+| `tokens`            | —                     | Design tokens as inline custom properties, e.g. `{ accent: '#7c3aed' }` (§12) |
+| `classNames`        | —                     | A class per slot, merged after the built-in one (§12)                |
+| `components`        | —                     | Replace a slot outright — your button, popover, input (§12)          |
+| `unstyled`          | `false`               | No paint and no injected stylesheet; the freeze still works (§12)    |
+| `styleNonce`        | —                     | `nonce` for the injected `<style>`, for a strict CSP (§12)           |
+| `styleTarget`       | root node             | Where to inject the stylesheet — set it for a shadow root (§12)      |
+| `className`         | —                     | Extra class on the root element (applied after `classNames.root`)    |
+| `style`             | —                     | Extra inline styles merged onto the root element (wins over `tokens`) |
 
 ---
 
@@ -933,18 +946,259 @@ render until the rows and the measured body height exist, then latch via a ref.
 
 ---
 
-## 12. Styling hooks
+## 12. Theming: tokens, classes, slots, unstyled
 
-There is **no stylesheet to import**. Every visual is an inline style; the one injected
-`<style>` tag carries only what inline styles cannot express (keyframes, `:focus`,
-`::placeholder`, the frozen-column shadow selector).
+The table is designed to sit inside someone else's UI. Four layers, each **off by
+default**, each reaching something the one before it cannot:
 
-The class names exist as stable hooks for the component's own imperative repaint and for
-your tests:
+| Layer | Prop | Use it when |
+|-------|------|-------------|
+| **1. Tokens** | `theme`, `tokens` | You want the built-in table, in your colours |
+| **2. Classes** | `classNames` | You write utility CSS and would rather pass classes than author a stylesheet |
+| **3. Slots** | `components` | You have a design system and want *its* button, popover and input |
+| **4. Unstyled** | `unstyled` | You want the freeze and the virtualization, and nothing else |
+
+They compose. Most apps need only the first.
+
+### 12.1 Why tokens and not props
+
+Colour in this component lives in three places, and only a CSS custom property reaches
+all three:
+
+- **inline styles** on the header, rows, cells and footer — an inline declaration beats
+  any stylesheet rule, so `.ft-row { background: … }` from your CSS would never apply;
+- **the injected stylesheet's pseudo-class rules** — `.ft-btn:hover`,
+  `.ft-btn:focus-visible`, `.ft-menu-item[aria-checked="true"]`, `.ft-thumb:active`,
+  `.ft-resizer:hover::after`. Two thirds of the colours are here, and no prop can express
+  a `:hover`;
+- **a JS handler**, for the row hover — the row background is written directly onto
+  `element.style`, which not even `!important` in your CSS can beat cleanly.
+
+An inline style may *hold* a `var()`, and it resolves against the element's own cascade.
+So one variable set on `.ft-root` reaches a value that JavaScript wrote.
+
+### 12.2 The token list
+
+56 tokens. The ten marked **★** are the core: everything else derives from them, so
+setting those six or seven re-themes the whole table, and setting one specific token
+re-themes exactly one thing.
+
+| Token | Light default | Dark |
+|-------|---------------|------|
+| `--ft-bg` **★** | `#ffffff` | `#0f172a` |
+| `--ft-surface` **★** | `#f4f5f7` | `#1e293b` |
+| `--ft-text` **★** | `#000000` | `#e2e8f0` |
+| `--ft-text-muted` **★** | `#8a94a6` | `#94a3b8` |
+| `--ft-border` **★** | `#e3e8ee` | `#334155` |
+| `--ft-accent` **★** | `#0070C2` | `#38bdf8` |
+| `--ft-accent-soft` **★** | `#e9f2fb` | `#1e3a5f` |
+| `--ft-accent-text` **★** | `#0a4d84` | `#7dd3fc` |
+| `--ft-radius` **★** | `4px` | (unchanged) |
+| `--ft-font` **★** | `inherit` | (unchanged) |
+| `--ft-header-bg` | `var(--ft-bg)` | — |
+| `--ft-header-text` | `var(--ft-text)` | — |
+| `--ft-row-bg` | `var(--ft-bg)` | — |
+| `--ft-row-hover` | `#eef4fb` | `#1e293b` |
+| `--ft-row-selected` | `#d3e5f8` | `#1e3a5f` |
+| `--ft-row-border` | `#edf0f3` | `#1e293b` |
+| `--ft-foot-bg` | `var(--ft-surface)` | — |
+| `--ft-foot-text` | `var(--ft-text)` | — |
+| `--ft-toolbar-bg` | `#fbfcfd` | `#111c30` |
+| `--ft-menu-bg` | `var(--ft-bg)` | — |
+| `--ft-menu-border` | `#dde3ea` | `#334155` |
+| `--ft-menu-text` | `#243447` | `#e2e8f0` |
+| `--ft-menu-head-text` | `#66738a` | `#94a3b8` |
+| `--ft-menu-item-hover` | `#f0f5fa` | `#1e293b` |
+| `--ft-menu-item-active-bg` | `var(--ft-accent-soft)` | — |
+| `--ft-menu-item-active-text` | `var(--ft-accent-text)` | — |
+| `--ft-menu-sep` | `#eceff3` | `#334155` |
+| `--ft-menu-move-text` | `#8794a8` | `#94a3b8` |
+| `--ft-menu-move-hover` | `#dfe7f0` | `#334155` |
+| `--ft-radius-menu` | `6px` | (unchanged) |
+| `--ft-btn-bg` | `var(--ft-bg)` | — |
+| `--ft-btn-text` | `var(--ft-menu-text)` | — |
+| `--ft-btn-border` | `#d7dde5` | `#334155` |
+| `--ft-btn-hover-bg` | `#f2f6fa` | `#1e293b` |
+| `--ft-btn-hover-border` | `#c2ccd8` | `#475569` |
+| `--ft-btn-active-bg` | `var(--ft-accent-soft)` | — |
+| `--ft-btn-active-border` | `#9dc4e8` | `#38bdf8` |
+| `--ft-input-bg` | `var(--ft-bg)` | — |
+| `--ft-input-text` | `rgba(0,0,0,.87)` | `#e2e8f0` |
+| `--ft-input-border` | `rgba(34,36,38,.15)` | `#334155` |
+| `--ft-input-focus-border` | `#85b7d9` | `#38bdf8` |
+| `--ft-input-placeholder` | `rgba(0,0,0,.35)` | `#64748b` |
+| `--ft-icon` | `#5a6b82` | `#94a3b8` |
+| `--ft-icon-muted` | `#c2cbd6` | `#475569` |
+| `--ft-sort-icon` | `var(--ft-text)` | — |
+| `--ft-search-icon` | `rgba(0,0,0,.45)` | `#94a3b8` |
+| `--ft-spinner-track` | `rgba(0,0,0,.10)` | `rgba(255,255,255,.12)` |
+| `--ft-scrollbar` | `#c3ccd6` | `#475569` |
+| `--ft-scrollbar-hover` | `#a7b3c1` | `#64748b` |
+| `--ft-scrollbar-active` | `#8c9bab` | `#94a3b8` |
+| `--ft-resize-line` | `var(--ft-accent)` | — |
+| `--ft-drop-line` | `var(--ft-accent)` | — |
+| `--ft-focus-ring` | `var(--ft-accent)` | — |
+| `--ft-shadow-menu` | `0 6px 20px rgba(20,32,48,.16)` | `0 6px 20px rgba(0,0,0,.5)` |
+| `--ft-shadow-pin` | `6px 0 6px -4px rgba(0,0,0,0.18)` | `6px 0 6px -4px rgba(0,0,0,0.5)` |
+| `--ft-shadow-pin-right` | `-6px 0 6px -4px rgba(0,0,0,0.18)` | `-6px 0 6px -4px rgba(0,0,0,0.5)` |
+
+`(unchanged)` means the dark palette keeps the light value; `—` means the token derives
+from a core one and follows it automatically.
+
+At runtime: `tokenNames()`, `CORE_TOKENS`, `LIGHT` and `DARK` are exported, so you can
+build a theme from your own design tokens rather than transcribing this table.
+
+### 12.3 Three ways to set them
+
+**`theme` — the built-in palettes.**
+
+```jsx
+<FreezeTable theme="dark" columns={columns} data={rows} />
+<FreezeTable theme="auto" columns={columns} data={rows} />   {/* follows prefers-color-scheme */}
+```
+
+**Omit `theme` if your app has its own dark toggle.** A Tailwind `dark:` app already
+decides; a media query the table added on its own would fight it. Just set the variables:
+
+```css
+.ft-root                { --ft-accent: #7c3aed; }
+.dark .ft-root          { --ft-bg: #0f172a; --ft-surface: #1e293b; --ft-text: #e2e8f0;
+                          --ft-border: #334155; --ft-row-hover: #1e293b;
+                          --ft-row-selected: #1e3a5f; --ft-row-border: #1e293b; }
+```
+
+**`tokens` — no CSS file at all.** Inline custom properties on the root, inherited by
+everything inside (the toolbar menus included). Keys work with or without the prefix:
+
+```jsx
+<FreezeTable
+  tokens={{ accent: '#7c3aed', 'row-hover': '#faf5ff', radius: '8px', font: 'Inter, sans-serif' }}
+  columns={columns}
+  data={rows}
+/>
+```
+
+**Your own stylesheet.** Same variables, scoped however you like — per table with
+`classNames.root`, per section, or globally on `.ft-root`.
+
+Precedence, lowest to highest: injected defaults → your CSS → `tokens` → the `style` prop.
+
+**Your CSS always wins, whatever order the sheets load in.** The default token blocks are
+wrapped in `:where()`, which contributes zero specificity — so a plain `.my-table` beats
+them, and you never have to reach for `!important` or care that the component injects its
+sheet at mount time (i.e. after your stylesheet). That also means `theme="dark"` composes
+rather than fights: set the prop for the palette, override `--ft-accent` in your own CSS,
+and you get both.
+
+The rules that are *not* defaults — `.ft-btn:hover`, `.ft-menu-item`, `.ft-thumb` — keep
+their normal specificity. Those are component internals; overriding one is expected to
+take a selector that outranks it.
+
+One shape note: `--ft-font` is applied as `font-family`, so give it a family stack
+(`Inter, sans-serif`), not a `font` shorthand value.
+
+### 12.4 `classNames` — a class per slot
+
+Merged **after** the component's own class, so in a flat-specificity setup (Tailwind and
+friends, where source order decides) yours wins.
+
+```jsx
+<FreezeTable
+  classNames={{
+    root: 'rounded-lg border shadow-sm',
+    toolbar: 'bg-slate-50',
+    th: 'uppercase tracking-wide',
+    row: 'hover:bg-violet-50',
+  }}
+/>
+```
+
+Every slot: `root`, `toolbar`, `button`, `menu`, `menuItem`, `wrap`, `table`, `head`,
+`th`, `thLabel`, `thFilter`, `resizer`, `body`, `row`, `cell`, `foot`, `footCell`,
+`empty`, `loading`, `track`, `thumb`. (`CLASS_SLOTS` at runtime.)
+
+One caveat: a class cannot beat an inline style. `classNames.row` will not change the row
+background — that is what `--ft-row-bg` is for. Use classes for what the component does
+not set at all (rounding, shadow, letter-spacing, hover *outlines*), and tokens for what
+it does.
+
+### 12.5 `components` — replace the piece
+
+Recolouring will not make the table look like *your* design system. These will:
+
+| Slot | Props it receives |
+|------|-------------------|
+| `FilterInput` | `{ value, onChange, onClick, placeholder }` — `onClick` must land on the input; it stops the click toggling the sort |
+| `Button` | `{ children, className, onClick, ...aria }` — spread the rest onto a real `<button>`; `aria-expanded` carries the open state |
+| `Menu` | `{ children, align, className }` |
+| `MenuItem` | `{ children, checked, icon, className, ...rest }` — forward `role`, `aria-checked`, `disabled`, `onClick`, `title` |
+| `MenuHeading` | `{ children }` |
+| `MenuSeparator` | — |
+| `Spinner` | `{ text }` |
+| `Empty` | `{ text }` |
+| `SortIcon` | `{ direction: 'asc' \| 'desc' \| null }` |
+| `PinIcon` | `{ title, color, size }` |
+| `CheckIcon` | `{ checked }` |
+| `ColumnsIcon` | — |
+
+```jsx
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+
+const components = useMemo(() => ({
+  Button: ({ children, ...rest }) => <Button variant="outline" size="sm" {...rest}>{children}</Button>,
+  FilterInput: ({ value, onChange, onClick, placeholder }) => (
+    <Input className="h-7 text-xs" value={value} onChange={onChange} onClick={onClick} placeholder={placeholder} />
+  ),
+}), [])
+
+<FreezeTable components={components} columns={columns} data={rows} />
+```
+
+- **Memoize it**, like `columns` — a fresh object literal each render costs work downstream.
+- `null` renders nothing: `components={{ SortIcon: null }}` drops the sort arrows without
+  supplying a replacement. `undefined` falls back to the built-in.
+- **`Menu` must not portal to `document.body`.** It deliberately lives inside `.ft-root`
+  (but outside `.ft-wrap`) so it inherits the table's tokens — and a scroll container
+  inside the scrollport would break the column freeze (§2).
+
+### 12.6 `unstyled`
+
+No injected stylesheet, and no background, border, text colour, padding or font weight on
+any element. What stays is what *is* the table: `position: sticky` and the frozen
+`left`/`right` offsets, the absolute row placement at `index * rowHeight`, the flex
+layout, `overflow`, `z-index` and the measured widths.
+
+```jsx
+<FreezeTable unstyled classNames={{ head: 'my-head', row: 'my-row', cell: 'my-cell' }} />
+```
+
+**You must give `.ft-row`, `.ft-head` and `.ft-foot` a background.** Frozen cells inherit
+their row's background; with a transparent one the scrolling columns show straight
+through the frozen block. That is the single thing `unstyled` cannot do for you.
+
+### 12.7 CSP, shadow DOM, and two copies on one page
+
+By default the component injects one `<style>` tag. Three situations need more:
+
+- **A strict `style-src` with no `'unsafe-inline'`** — pass `styleNonce={nonce}`, or skip
+  the injection entirely and `import 'freeze-table/styles.css'` (the same text, emitted by
+  the build from the same source, so the two cannot drift). Without either, the table
+  still renders: every inline `var()` carries its literal as a fallback. You lose the
+  hover states, the scrollbar thumbs and theming — not the table.
+- **Inside a shadow root** — the sheet goes to the table's own root node by default, so
+  this already works. `styleTarget` is there for a node you resolve yourself.
+- **Two versions of the package on one page** (a micro-frontend, an older transitive
+  copy) — the `<style>` id carries a schema version, so each injects its own rather than
+  the first one silently styling both.
+
+### 12.8 Class and attribute hooks
+
+Stable hooks for your CSS, for the component's own imperative repaint, and for your tests:
 
 | Class / attribute      | On                             | Used for                                |
 |------------------------|--------------------------------|-----------------------------------------|
-| `.ft-root`             | root element                   | positioning context for the overlay bars |
+| `.ft-root`             | root element                   | token scope, positioning context for the overlay bars |
 | `.ft-wrap`             | scroller                       | scroll owner, focus target              |
 | `.ft-track-v` / `-h`   | overlay scrollbar tracks       | restyle the bars                        |
 | `.ft-thumb`            | scrollbar thumb                | restyle the bars                        |
@@ -961,9 +1215,11 @@ your tests:
 | `.ft-th-dragging`      | `.ft-th` being dragged         | the dimmed header during a reorder       |
 | `.ft-row` / `.ft-td`   | row / body cell                | selection repaint                       |
 | `.ft-foot` / `.ft-tf`  | footer row / cell              | —                                       |
+| `.ft-empty` / `.ft-loading` | the two body states       | —                                       |
+| `data-ft-theme`        | `.ft-root`                     | `'light'` / `'dark'` / `'auto'` when `theme` is set |
 | `data-ct-col`          | `.ft-th`                       | the column's id (reorder drop targets)  |
 | `data-ct-index`        | `.ft-row`                      | row index (selection repaint)           |
-| `data-ct-bg`           | `.ft-row`                      | the row's base background               |
+| `data-ct-bg`           | `.ft-row`                      | the row's base background                |
 | `data-ct-custom`       | `.ft-row`                      | `'1'` when `rowStyle` returned a bg      |
 | `data-ct-pin`          | header / body / footer cell    | `'1'` on frozen cells                   |
 | `data-ct-pin-last`     | same                           | `'1'` on the boundary column            |
@@ -971,12 +1227,8 @@ your tests:
 Every element also carries the legacy `ct-*` twin of its class (`ft-row ct-row`), so a
 project migrating off a local copy keeps any existing selectors working.
 
-Key values, if you want to re-theme by forking:
-
-- header: white, `borderBottom: 1px solid #e3e8ee`, bold labels
-- row: white, `borderBottom: 1px solid #edf0f3`; hover `#eef4fb`; selected `#d3e5f8`
-- footer: `#f4f5f7`, `borderTop: 1px solid #e3e8ee`, bold
-- cell padding `0 12px`, header `7px 12px 9px`, footer `8px 12px`
+Layout values, if you are matching something to them: cell padding `0 12px`, header
+`7px 12px 9px`, footer `8px 12px`.
 
 ---
 
@@ -1044,7 +1296,47 @@ Server-side rendering is safe: layout effects degrade to `useEffect` on the serv
 the style tag is only injected in the browser. The body renders empty until the client
 measures it, which is the correct behaviour for a virtualized list.
 
-## 15. What changed in 1.0
+## 15. What changed in 1.1
+
+Everything here is **additive**. No prop was removed or renamed, and a 1.0 table upgrades
+with no code change.
+
+**Theming (§12).** The table can now be made to fit someone else's UI, in four layers:
+
+- **`theme` / `tokens`** — 56 CSS custom properties, ten of them core with the rest
+  derived, so six variables re-theme the whole table. `theme="dark"` and `theme="auto"`
+  ship built in. This is the layer that reaches the two places a prop never could: the
+  injected stylesheet's `:hover` / `:focus-visible` / `[aria-checked]` rules, and the row
+  background written by a JS handler.
+- **`classNames`** — a class per slot (21 of them), merged after the built-in one.
+- **`components`** — replace the filter input, the toolbar buttons, the menus, the
+  spinner, the empty state or any icon with your own design system's.
+- **`unstyled`** — no paint and no stylesheet, keeping only the styles that *are* the
+  freeze and the virtualization.
+
+**Deployment fixes that came with it:**
+
+- `styleNonce` for a strict Content-Security-Policy, and `freeze-table/styles.css` as the
+  no-injection route.
+- The stylesheet now goes to the table's own root node, so a table inside a **shadow
+  root** is styled instead of silently unstyled.
+- The `<style>` id carries a schema version, so **two versions of the package on one page**
+  no longer means the first one styles both.
+
+**Two visible changes to look at on upgrade**, both consequences of the above:
+
+- The root element now sets `color` and `background` from `--ft-text` / `--ft-bg`. Body
+  cells used to inherit the page's text colour, which on a dark page meant light text on
+  the table's hard-coded white rows. They now default to black on white, together.
+- `selectedBg` defaults to the `--ft-row-selected` token instead of the literal
+  `#d3e5f8`, so the selection follows the theme. Passing the prop still wins.
+
+New exports: `styleText()`, `CORE_TOKENS`, `LIGHT`, `DARK`, `tokenNames()`, `tokenProp()`,
+`CLASS_SLOTS`, `COMPONENT_SLOTS`.
+
+---
+
+## 16. What changed in 1.0
 
 1.0 is **additive**. Every prop, column key and ref method from 0.x still works and still
 means what it did; the release is about how much you have to write to get the same table.
