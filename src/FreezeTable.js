@@ -1,232 +1,72 @@
 import React from 'react';
 import { useFilters, useFlexLayout, useSortBy, useTable } from 'react-table';
-import { FilterInput, InboxIcon, PinIcon, SortIcon, Spinner, injectStyles, useIsoLayoutEffect } from './internal-ui';
+import { injectStyles, useIsoLayoutEffect } from './internal-ui';
+import { DefaultCell, DefaultColumnFilter } from './components/defaults';
+import OverlayBars from './components/OverlayBars';
+import TableBody from './components/TableBody';
+import TableFoot from './components/TableFoot';
+import TableHead from './components/TableHead';
+import Toolbar from './components/Toolbar';
+import { useColumnDrag } from './hooks/useColumnDrag';
+import { useColumnLayout } from './hooks/useColumnLayout';
+import { useLayoutStorage } from './hooks/useLayoutStorage';
+import { useBandHeights, useWrapWidth } from './hooks/useMeasurements';
+import { useOverlayScrollbars } from './hooks/useOverlayScrollbars';
+import { usePinning } from './hooks/usePinning';
+import { useRowNavigation } from './hooks/useRowNavigation';
+import { useTableColumns } from './hooks/useTableColumns';
+import { useTableHandle } from './hooks/useTableHandle';
+import { useStabilityWarning } from './hooks/useStabilityWarning';
+import { useTableScroll } from './hooks/useTableScroll';
+import { COL_MIN_WIDTH, ELLIPSIS, OVERSCAN, colIdOf } from './lib/columns';
+import { FORMAT_DEFAULTS } from './lib/columnTypes';
+import { resolveHeight } from './lib/props';
 
-// Shared single-line ellipsis style for cells (kept here so callers can reuse it).
-export const ELLIPSIS = {
-  width: '100%',
-  whiteSpace: 'nowrap',
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
+export { ELLIPSIS };
+
+// react-table's per-column fallbacks. Module-level, so the identity is stable and the
+// table instance is not rebuilt on every render.
+const DEFAULT_COLUMN = {
+  Cell: DefaultCell,
+  Filter: DefaultColumnFilter,
+  Footer: () => null,
+  minWidth: 90,
+  width: 1,
 };
-
-const alignFlex = (a) => (a === 'right' ? 'flex-end' : a === 'center' ? 'center' : 'flex-start');
-
-// react-table's effective column width: min(max(minWidth, width), maxWidth). Used both for
-// the pin cap and for the sticky `left` offset of each pinned column.
-const colWidthOf = (c) =>
-  Math.min(
-    Math.max(c.minWidth != null ? c.minWidth : 90, c.width != null ? c.width : 1),
-    c.maxWidth != null ? c.maxWidth : Infinity
-  );
-
-// The id react-table will key a column by: an explicit `id`, else a string accessor.
-// A column with neither (an accessor FUNCTION and no id) cannot be addressed by the
-// width / visibility APIs — react-table rejects such a column outright, so this is not
-// a restriction this component adds.
-const colIdOf = (c) => c.id || (typeof c.accessor === 'string' ? c.accessor : undefined);
-
-// Smallest width a drag can leave a column at. Below roughly this the header label and
-// the filter box have nowhere to go and the column stops being a usable hit target.
-const COL_MIN_WIDTH = 48;
-
-// How far the pointer must travel across a header before the press stops being a
-// click (sort) and becomes a reorder drag. Small enough that a deliberate drag arms
-// immediately, large enough that the shake in an ordinary click never does.
-const DRAG_SLOP = 4;
-
-// Merge a user / stored column order with the CONFIG order. Ids the config no longer
-// carries are dropped, and ids the order does not mention — a column added to the
-// caller's array since the layout was saved — are put back where the CONFIG puts them,
-// next to the neighbour they were configured after. Appending them at the end instead
-// would make every newly added column look as though the user had dragged it there.
-const reconcileOrder = (configIds, wanted) => {
-  if (!wanted || !wanted.length) return configIds.slice();
-  const known = new Set(configIds);
-  const placed = new Set();
-  const out = [];
-  wanted.forEach((id) => {
-    if (known.has(id) && !placed.has(id)) {
-      placed.add(id);
-      out.push(id);
-    }
-  });
-  configIds.forEach((id, i) => {
-    if (placed.has(id)) return;
-    placed.add(id);
-    // Land it just after the nearest preceding config neighbour that is already
-    // placed; if none of them is, the column is configured first, so it goes first.
-    let at = 0;
-    for (let k = i - 1; k >= 0; k--) {
-      const p = out.indexOf(configIds[k]);
-      if (p >= 0) {
-        at = p + 1;
-        break;
-      }
-    }
-    out.splice(at, 0, id);
-  });
-  return out;
-};
-
-// How many rows to render above / below the viewport.
-const OVERSCAN = 6;
-
-// Minimum viewport width that must stay available for the SCROLLING (unpinned)
-// columns — the pin cap keeps the frozen block at least this much narrower than the
-// table. See the maxPinCount comment for why exceeding it breaks the scroller.
-const PIN_MIN_SCROLLABLE = 250;
-
-// Memoized windowed row. Selection changes do NOT re-render rows: the row reads the
-// selected index from a ref for its initial paint, and the selection-highlight effect in
-// FreezeTable updates row backgrounds imperatively (via data-ct-* attributes). Without
-// this, every ↑/↓ press re-rendered all visible rows (each with icon-heavy action
-// cells), which made arrow navigation visibly laggy on wide lists.
-const VirtualRow = React.memo(function VirtualRow({ data, index }) {
-  const { rows, prepareRow, rowStyle, selectedBg, rowNavigation, fontPx, selectedIndexRef, onSelect, rowHeight, pinnedLeft, pinnedRight, rowSnap } = data;
-  const style = { position: 'absolute', top: index * rowHeight, left: 0, width: '100%', height: rowHeight };
-  const row = rows[index];
-  prepareRow(row);
-  const { key: rowKey, ...rowProps } = row.getRowProps({ style });
-  const custom = (rowStyle && rowStyle(row.original)) || {};
-  const customBg = custom.backgroundColor || '';
-  const isSelected = rowNavigation && index === selectedIndexRef.current;
-  // A status tint wins over the selection/hover highlight: it carries business
-  // meaning (cancelled, failed to post) that must not be masked by a blue row.
-  const baseBg = customBg || (isSelected ? selectedBg : '#ffffff');
-  return (
-    <div
-      key={rowKey}
-      {...rowProps}
-      className="ft-row ct-row"
-      data-ct-index={index}
-      data-ct-bg={customBg || '#ffffff'}
-      data-ct-custom={customBg ? '1' : ''}
-      onMouseEnter={(e) => {
-        if (index !== selectedIndexRef.current && !customBg) e.currentTarget.style.backgroundColor = '#eef4fb';
-      }}
-      onMouseLeave={(e) => {
-        const sel = rowNavigation && index === selectedIndexRef.current;
-        e.currentTarget.style.backgroundColor = customBg || (sel ? selectedBg : '#ffffff');
-      }}
-      onClick={() => onSelect(index)}
-      style={{
-        ...rowProps.style,
-        color: custom.color,
-        backgroundColor: baseBg,
-        borderBottom: '1px solid #edf0f3',
-        cursor: 'default',
-        // Snap target — see the scrollSnapType/scrollPaddingTop pair on .ft-wrap.
-        scrollSnapAlign: rowSnap ? 'start' : undefined,
-      }}
-    >
-      {row.cells.map((cell) => {
-        const { key: cellKey, ...cellProps } = cell.getCellProps();
-        const pinned = cell.column.pinned;
-        const pinnedR = cell.column.pinnedRight;
-        // Frozen by the browser, not by JS: sticky offsets are resolved against .ft-wrap,
-        // the single scrollport for both axes.
-        return (
-          <div
-            key={cellKey}
-            {...cellProps}
-            className="ft-td ct-td"
-            data-ct-pin={pinned || pinnedR ? '1' : undefined}
-            data-ct-pin-last={pinned && cell.column.pinnedLast ? '1' : undefined}
-            data-ct-pin-right-first={pinnedR && cell.column.pinnedRightFirst ? '1' : undefined}
-            style={{
-              ...cellProps.style,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: alignFlex(cell.column.align),
-              padding: cell.column.noPadding ? 0 : '0 12px',
-              fontSize: fontPx,
-              overflow: 'hidden',
-              textAlign: cell.column.align || 'left',
-              // `background: inherit` tracks the row's imperative bg changes
-              // (selection / hover / status tint) with zero extra bookkeeping.
-              ...(pinned || pinnedR
-                ? {
-                    position: 'sticky',
-                    ...(pinned
-                      ? { left: pinnedLeft[cell.column.id] || 0 }
-                      : { right: pinnedRight[cell.column.id] || 0 }),
-                    zIndex: 2,
-                    background: 'inherit',
-                  }
-                : {}),
-            }}
-          >
-            {cell.render('Cell')}
-          </div>
-        );
-      })}
-    </div>
-  );
-});
 
 /**
- * FreezeTable — a single, self-contained virtualized react-table list component.
+ * FreezeTable — a virtualized react-table list with frozen columns.
  *
  * Layout is flexbox + inline styles only, and the few UI atoms it needs (sort arrows,
  * pin marker, filter box, spinner, empty-state glyph) are inline SVG, so the package
  * pulls in no UI library and needs no CSS import.
  *
- * Features:
- *   - per-column search boxes (react-table useFilters)
- *   - clickable column headers with sort arrows (useSortBy, three-state)
- *   - sticky header + sticky totals footer, hand-rolled row windowing for large lists
- *   - frozen (pinned) leading columns via native `position: sticky`
- *   - keyboard row navigation (↑/↓/Home/End/Enter) and hover/selection highlighting
- *   - drag-to-resize and drag-to-reorder headers, and hideable columns
- *   - an optional Action column, appended on the right but movable like any other
+ * ## The one invariant everything else follows from
  *
- * Column config (simple, no CSS classes needed):
- *   {
- *     Header,                 // string | node
- *     accessor,               // field key (or accessor fn, which needs an `id`)
- *     Cell?,                  // react-table Cell renderer, default shows the raw value
- *     width?,                 // px (default 1 — i.e. effectively minWidth)
- *     minWidth?,              // px (default 90)
- *     align?,                 // 'left' | 'center' | 'right' (default 'left')
- *     disableFilters?,        // hide this column's search box
- *     disableSortBy?,         // disable sorting for this column
- *     Footer?,                // string | node | fn(tableInstance) — per-column totals
- *     noPadding?,             // drop the default cell padding (used by the status strip)
- *     hidden?,                // DEFAULT visibility — true = start hidden. The user's
- *                             // choice lives in state (ref: toggleColumn / setHiddenColumns)
- *                             // and persists under `ctHide:<pinStorageKey>`.
- *     hideable?,              // false = this column can never be hidden (a key column)
- *     disableResizing?,       // false-y by default: every column but the status strip
- *                             // carries a drag grip on its right edge unless `resizable`
- *                             // is off. A dragged width persists under `ctW:<pinStorageKey>`.
- *     disableReordering?,     // false-y by default: any column (the Action column
- *                             // included) can be dragged sideways to a new position
- *                             // unless `reorderable` is off. The chosen order persists
- *                             // under `ctOrd:<pinStorageKey>`.
- *     pinned?,                // DEFAULT freeze state for this column. Only a LEADING
- *                             // run counts (col 1..N all pinned); the status strip
- *                             // auto-pins with them. The user changes the boundary at
- *                             // runtime through the imperative setPinCount(n); pass
- *                             // `pinStorageKey` to persist that choice in localStorage
- *                             // (`ctPin:<key>`).
- *   }
+ * `.ft-wrap` is the SINGLE scrollport for both axes. Frozen columns are plain CSS
+ * `position: sticky` resolved against it, so nothing runs in JS per scroll frame. That
+ * is why the rows are windowed by hand (a virtualization library's own `overflow` div
+ * would become the sticky scrollport for the body cells and the freeze would break),
+ * and why the native scrollbars are hidden and redrawn as overlays (an element that
+ * scrolls in y is a scroll container in x too). Anything that introduces a nested scroll
+ * container inside `.ft-wrap` silently breaks column freezing — check that first when
+ * the pinned block "slides away".
  *
- * Cells can resolve extra data via `cell.userList` (the `userList` prop is forwarded
- * onto the table instance).
+ * ## How the pieces fit
  *
- * Per-row status colouring (both optional, and independent of each other):
- *   - `rowStripColor(rowData) => color | null` prepends a narrow left-edge column
- *     showing a coloured bar per row. Falsy => no bar. `rowStripTitle(rowData) => string`
- *     (optional) adds a hover tooltip on the strip cell naming the status.
- *   - `rowStyle(rowData) => ({ backgroundColor?, color? })` tints the whole row.
- *     A returned backgroundColor wins over the selection and hover highlights, so a
- *     status colour is never masked; rows without a tint highlight as usual.
+ *   useColumnLayout   the user's widths / hidden set / order, persisted  -> `cols`
+ *   usePinning        how many columns freeze at each edge, and the caps
+ *   useTableColumns   `cols` + the synthetic __strip / __actions columns -> react-table
+ *   useTableScroll    the one passive scroll listener: shadows + windowing
+ *   useRowNavigation  selection, ↑/↓, and the imperative highlight
+ *   useColumnDrag     the resize and reorder drags (both commit on pointer-up only)
  *
- * Restoring position on re-entry (e.g. list -> edit -> back): pass `initialSelectedId`
- * for the vertical scroll + row highlight, and `initialScrollLeft` for the horizontal
- * one. Both apply once, after the rows load. Read the current horizontal offset to
- * stash with the imperative `getScrollLeft()` before navigating away.
+ * Everything downstream of `useColumnLayout` reads `cols`, NEVER the `columns` prop:
+ * a hidden column does not exist as far as freezing and the sticky offsets are
+ * concerned, and a moved column freezes according to where it now is.
+ *
+ * The full prop and column-config reference lives in README.md — this file documents
+ * the mechanics, the README documents the API.
  */
 export const FreezeTable = React.forwardRef(function FreezeTable(
   {
@@ -237,6 +77,12 @@ export const FreezeTable = React.forwardRef(function FreezeTable(
     height = 500,
     rowHeight = 44,
     userList,
+    context,
+    locale,
+    dateFormat = FORMAT_DEFAULTS.dateFormat,
+    dateTimeFormat = FORMAT_DEFAULTS.dateTimeFormat,
+    currencySymbol,
+    status,
     sortable = true,
     searchable = true,
     loading = false,
@@ -268,6 +114,9 @@ export const FreezeTable = React.forwardRef(function FreezeTable(
     onColumnResize,
     onColumnVisibilityChange,
     onColumnOrderChange,
+    defaultLayout,
+    onLayoutChange,
+    toolbar = false,
     className,
     style,
   },
@@ -279,533 +128,113 @@ export const FreezeTable = React.forwardRef(function FreezeTable(
     injectStyles();
   }, []);
 
+  // Development-only: says so when `columns` / `data` are rebuilt unchanged every render.
+  useStabilityWarning('columns', columns);
+  useStabilityWarning('data', data);
+
   const fontPx = `${parseFloat(fontSize)}px`;
-  const DefaultCell = React.useCallback(({ value }) => {
-    const show = value !== undefined && value !== null && value !== 'NULL' && value !== 0 && value !== '0';
-    return (
-      <div style={ELLIPSIS} title={show ? String(value) : ''}>
-        {show ? value : ''}
-      </div>
-    );
-  }, []);
-
-  const DefaultColumnFilter = React.useCallback(({ column: { filterValue, setFilter, preFilteredRows } }) => {
-    return (
-      <FilterInput
-        value={filterValue || ''}
-        onClick={(e) => e.stopPropagation()}
-        onChange={(e) => setFilter(e.target.value || undefined)}
-        placeholder={`Search ${preFilteredRows.length}...`}
-      />
-    );
-  }, []);
-
-  const defaultColumn = React.useMemo(
-    () => ({ Cell: DefaultCell, Filter: DefaultColumnFilter, Footer: () => null, minWidth: 90, width: 1 }),
-    [DefaultCell, DefaultColumnFilter]
-  );
-
-  // The outer scroller ref — declared early because the pin-cap logic below needs
-  // the wrap's measured width before the column defs are built.
-  const containerRef = React.useRef(null);
-  const [wrapW, setWrapW] = React.useState(0);
-  useIsoLayoutEffect(() => {
-    const el = containerRef.current;
-    if (!el) return undefined;
-    const update = () => setWrapW(el.clientWidth);
-    update();
-    let ro;
-    if (typeof ResizeObserver !== 'undefined') {
-      ro = new ResizeObserver(update);
-      ro.observe(el);
-    }
-    window.addEventListener('resize', update);
-    return () => {
-      if (ro) ro.disconnect();
-      window.removeEventListener('resize', update);
-    };
-  }, []);
-
-  // ----- Persisted layout state -----
-  // Three separate user choices ride on the same `pinStorageKey`, each in its own
-  // localStorage entry: the freeze boundaries (`ctPin:` / `ctPinR:`, plain numbers), the
-  // dragged column widths (`ctW:`, an id -> px map) and the hidden columns (`ctHide:`, a
-  // list of ids). Without the key nothing is persisted and every choice is per-mount.
-  const readStored = (key) => {
-    if (!pinStorageKey) return null;
-    try {
-      const v = window.localStorage.getItem(`${key}:${pinStorageKey}`);
-      if (v != null && v !== '') {
-        const n = parseInt(v, 10);
-        if (!Number.isNaN(n) && n >= 0) return n;
-      }
-    } catch (e) { /* storage unavailable — fall back to config default */ }
-    return null;
-  };
-  const readStoredJson = (key) => {
-    if (!pinStorageKey) return null;
-    try {
-      const v = window.localStorage.getItem(`${key}:${pinStorageKey}`);
-      if (v) {
-        const parsed = JSON.parse(v);
-        if (parsed && typeof parsed === 'object') return parsed;
-      }
-    } catch (e) { /* unreadable or no longer JSON — fall back to the config default */ }
-    return null;
-  };
-  const persist = React.useCallback(
-    (key, value) => {
-      if (!pinStorageKey) return;
-      try {
-        window.localStorage.setItem(
-          `${key}:${pinStorageKey}`,
-          typeof value === 'object' ? JSON.stringify(value) : String(value)
-        );
-      } catch (e) { /* ignore */ }
-    },
-    [pinStorageKey]
-  );
-
-  // ----- Column widths and column visibility -----
-  // Both follow the same shape as the pin boundary: the column config carries the
-  // DEFAULT (`width` / `minWidth`, `hidden`), the user's choice lives in state here and
-  // is applied on top. `hideable: false` locks a column visible (a key column the list
-  // is unusable without); `disableResizing` drops its drag grip.
-  const [colWidths, setColWidths] = React.useState(() => readStoredJson('ctW') || {});
-  const lockedIds = React.useMemo(
-    () => new Set(columns.filter((c) => c.hideable === false).map(colIdOf).filter(Boolean)),
-    [columns]
-  );
-  const defaultHidden = React.useMemo(
-    () => columns.filter((c) => c.hidden && c.hideable !== false).map(colIdOf).filter(Boolean),
-    [columns]
-  );
-  const [userHidden, setUserHidden] = React.useState(() => {
-    const stored = readStoredJson('ctHide');
-    return Array.isArray(stored) ? stored : null;
-  });
-  const hiddenIds = userHidden != null ? userHidden : defaultHidden;
-
-  // ----- Column order -----
-  // Third choice on the same pattern: the caller's `columns` ARRAY is the default order,
-  // the user's order lives here as a list of ids and is applied on top. The Action
-  // column takes part as `'__actions'` — it is a real column in the layout, so there is
-  // no reason it should be nailed to the right-hand end; `actionIndex` says where it
-  // starts out. A column with no id (an accessor function and no `id`) cannot be
-  // addressed by the user's order, so it rides along under a positional key and simply
-  // cannot be dragged.
   const hasActions = !!Actions;
-  const configOrder = React.useMemo(() => {
-    const ids = columns.map((c, i) => colIdOf(c) || `__col${i}`);
-    if (hasActions) {
-      const at =
-        actionIndex === 'first'
-          ? 0
-          : actionIndex === 'last' || actionIndex == null
-          ? ids.length
-          : Math.max(0, Math.min(ids.length, parseInt(actionIndex, 10) || 0));
-      ids.splice(at, 0, '__actions');
-    }
-    return ids;
-  }, [columns, hasActions, actionIndex]);
-  const [userOrder, setUserOrder] = React.useState(() => {
-    const stored = readStoredJson('ctOrd');
-    return Array.isArray(stored) && stored.length ? stored : null;
-  });
-  // Always a complete, de-duplicated list of every configured column — a stored order
-  // from an older version of the column config is merged, not trusted wholesale.
-  const order = React.useMemo(() => reconcileOrder(configOrder, userOrder), [configOrder, userOrder]);
 
-  // The caller's columns as they are actually laid out: hidden ones dropped, resized ones
-  // carrying their new width, all of them in the user's order. EVERYTHING downstream —
-  // the pin defaults, the pin caps, `pinIndex`, the sticky offsets — is computed from
-  // this list rather than from the `columns` prop, so a hidden column simply does not
-  // exist as far as freezing and the cumulative left/right offsets are concerned, and a
-  // moved column freezes according to where it now IS.
-  //
-  // A resize writes the same number into ALL THREE of width / minWidth / maxWidth,
-  // because react-table renders a column at `min(max(minWidth, width), maxWidth)`:
-  // writing only `width` would leave a column with `minWidth: 200` stuck at 200 however
-  // far left it was dragged, and a column with a `maxWidth` could not be widened past it.
-  // Setting all three collapses that expression to exactly the dragged number — the
-  // config's floor and ceiling are the DEFAULT, and an explicit drag outranks them.
-  //
-  // `actionPos` comes out of the same pass: it is the Action column's insertion index
-  // among the VISIBLE caller columns, which is what the pin maths below needs (the
-  // frozen runs are counted in caller columns, and the Action column is inside a run or
-  // outside it depending on where it now sits).
-  const layout = React.useMemo(() => {
-    const hide = new Set(hiddenIds);
-    const byKey = new Map();
-    columns.forEach((c, i) => {
-      const id = colIdOf(c);
-      if (id && c.hideable !== false && hide.has(id)) return;
-      const w = id ? colWidths[id] : undefined;
-      byKey.set(id || `__col${i}`, w ? { ...c, width: w, minWidth: w, maxWidth: w } : c);
-    });
-    // Hiding literally every column would leave react-table with nothing to render — and
-    // no header row to un-hide anything from. Falling back to the full list keeps the
-    // table recoverable instead of blank.
-    if (!byKey.size) return { cols: columns, actionPos: hasActions ? columns.length : -1 };
-    const out = [];
-    let actionPos = -1;
-    order.forEach((id) => {
-      if (id === '__actions') {
-        actionPos = out.length;
-        return;
-      }
-      if (byKey.has(id)) {
-        out.push(byKey.get(id));
-        byKey.delete(id);
-      }
-    });
-    byKey.forEach((c) => out.push(c)); // anything the order somehow missed keeps its place
-    return { cols: out, actionPos: hasActions ? (actionPos < 0 ? out.length : actionPos) : -1 };
-  }, [columns, hiddenIds, colWidths, order, hasActions]);
-  const cols = layout.cols;
-  const actionPos = layout.actionPos;
+  // `status` is the one-prop replacement for the `loading` + `dataFetched` pair, which
+  // had to be wired together correctly to avoid flashing "No records found" over a list
+  // that was still loading. The old pair still works; `status` simply wins when given.
+  const isLoading = status === undefined ? loading : status === 'loading';
+  const isFetched = status === undefined ? dataFetched : status !== 'idle';
+
+  // Formatting options for the column `type` shorthands, in one memoized object so a
+  // caller passing none of them does not rebuild every typed cell renderer per render.
+  const formatOptions = React.useMemo(
+    () => ({ locale, dateFormat, dateTimeFormat, currencySymbol }),
+    [locale, dateFormat, dateTimeFormat, currencySymbol]
+  );
+
+  // The outer scroller. Measured early: the pin caps need the wrap's width before the
+  // column defs are built.
+  const rootRef = React.useRef(null);
+  const containerRef = React.useRef(null);
+  const wrapW = useWrapWidth(containerRef);
+
+  // ----- The user's layout: widths, hidden columns, order -----
+  const storage = useLayoutStorage(pinStorageKey);
+  const layout = useColumnLayout({
+    columns,
+    formatOptions,
+    defaultLayout,
+    hasActions,
+    actionIndex,
+    minColumnWidth,
+    storage,
+    onColumnResize,
+    onColumnVisibilityChange,
+    onColumnOrderChange,
+  });
+  const { cols, actionPos, colWidths } = layout;
   // The Action column's rendered width: a dragged width replaces the `actionWidth` prop,
-  // and both the pin caps and the frozen-block widths have to agree with the column def
-  // built in `allColumns` below.
+  // and both the pin caps and the column def built in useTableColumns have to agree.
   const actionColWidth = colWidths.__actions || actionWidth;
 
-  // Latest-value mirrors: the setters below are called from pointer handlers and from the
-  // imperative ref, both of which can hold a closure from an older render.
-  const colWidthsRef = React.useRef(colWidths);
-  colWidthsRef.current = colWidths;
-  const hiddenRef = React.useRef(hiddenIds);
-  hiddenRef.current = hiddenIds;
-  const orderRef = React.useRef(order);
-  orderRef.current = order;
-  const configOrderRef = React.useRef(configOrder);
-  configOrderRef.current = configOrder;
+  // ----- Freeze boundaries -----
+  const pinning = usePinning({
+    cols,
+    wrapW,
+    hasActions,
+    actionPos,
+    actionColWidth,
+    pinActions,
+    rowStripColor,
+    stripWidth,
+    storage,
+    defaultLayout,
+  });
 
-  const setColumnWidth = React.useCallback(
-    (id, px) => {
-      if (!id) return;
-      const w = Math.max(minColumnWidth, Math.round(parseFloat(px) || 0));
-      const next = { ...colWidthsRef.current, [id]: w };
-      colWidthsRef.current = next;
-      setColWidths(next);
-      persist('ctW', next);
-      if (onColumnResize) onColumnResize(id, w, next);
-    },
-    [persist, minColumnWidth, onColumnResize]
-  );
+  // One callback for all four layout choices, so a caller saving a layout per user does
+  // not have to stitch together onColumnResize + onColumnVisibilityChange +
+  // onColumnOrderChange and then discover the pin boundaries have no callback at all.
+  // Effect, not a call inside each setter: the setters live in two different hooks, and
+  // this way one gesture that changes two things still reports one settled layout.
+  const layoutRef = React.useRef(null);
+  React.useEffect(() => {
+    if (!onLayoutChange) return;
+    const next = {
+      pins: { left: pinning.pinCount, right: pinning.rightPinCount },
+      widths: layout.colWidths,
+      hidden: layout.hiddenIds,
+      order: layout.order,
+    };
+    const key = JSON.stringify(next);
+    if (layoutRef.current === key) return;
+    const first = layoutRef.current === null;
+    layoutRef.current = key;
+    if (!first) onLayoutChange(next); // the initial layout is not a change
+  }, [onLayoutChange, pinning.pinCount, pinning.rightPinCount, layout.colWidths, layout.hiddenIds, layout.order]);
 
-  // No id = clear every override and fall back to the configured widths.
-  const resetColumnWidths = React.useCallback(
-    (id) => {
-      let next;
-      if (id == null) next = {};
-      else {
-        next = { ...colWidthsRef.current };
-        delete next[id];
-      }
-      colWidthsRef.current = next;
-      setColWidths(next);
-      persist('ctW', next);
-      if (onColumnResize) onColumnResize(id == null ? null : id, null, next);
-    },
-    [persist, onColumnResize]
-  );
-
-  const setHiddenColumns = React.useCallback(
-    (ids) => {
-      const next = Array.from(new Set((ids || []).filter((id) => id && !lockedIds.has(id))));
-      hiddenRef.current = next;
-      setUserHidden(next);
-      persist('ctHide', next);
-      if (onColumnVisibilityChange) onColumnVisibilityChange(next);
-    },
-    [persist, lockedIds, onColumnVisibilityChange]
-  );
-
-  const toggleColumn = React.useCallback(
-    (id, visible) => {
-      if (!id) return;
-      const isHidden = hiddenRef.current.indexOf(id) >= 0;
-      const show = visible === undefined ? isHidden : !!visible;
-      setHiddenColumns(show ? hiddenRef.current.filter((x) => x !== id) : hiddenRef.current.concat(id));
-    },
-    [setHiddenColumns]
-  );
-
-  // Replace the whole order. `null` clears the user's choice and falls back to the
-  // caller's array order. Whatever comes in is reconciled first, so a caller can pass a
-  // partial list ("these three first") and the rest stays where the config put it.
-  const setColumnOrder = React.useCallback(
-    (ids) => {
-      const next = ids == null ? null : reconcileOrder(configOrderRef.current, ids.slice());
-      orderRef.current = next || configOrderRef.current;
-      setUserOrder(next);
-      // An empty array reads back as "no stored order" — one entry instead of a
-      // remove/set split, and a reset then behaves the same on a reload as in place.
-      persist('ctOrd', next || []);
-      if (onColumnOrderChange) onColumnOrderChange(orderRef.current.slice());
-    },
-    [persist, onColumnOrderChange]
-  );
-
-  // Move one column to a position in the order list — what a menu's ↑ / ↓ buttons want.
-  // `toIndex` is read AFTER the column has been lifted out, so `position - 1` /
-  // `position + 1` step it one place either way.
-  const moveColumn = React.useCallback(
-    (id, toIndex) => {
-      const cur = orderRef.current.slice();
-      const from = cur.indexOf(id);
-      if (from < 0) return;
-      cur.splice(from, 1);
-      const to = Math.max(0, Math.min(cur.length, parseInt(toIndex, 10) || 0));
-      if (to === from) return;
-      cur.splice(to, 0, id);
-      setColumnOrder(cur);
-    },
-    [setColumnOrder]
-  );
-
-  // ----- Which columns are pinned -----
-  // The `pinned: true` flags in the column config are only the DEFAULT. The whole
-  // choice is a single number: how many leading columns are frozen (freezing only
-  // makes sense as a leading run — a frozen middle column would have its left
-  // neighbours scroll away underneath it). The caller changes it at runtime through
-  // the imperative setPinCount(n). Persisted per list via `pinStorageKey`.
-  // `pinned: true` / `pinned: 'left'` freeze from the left, `pinned: 'right'` from the
-  // right. Only the LEADING run counts on the left and only the TRAILING run on the
-  // right — a frozen column in the middle would have its neighbours scroll out from
-  // under it, so each side is fully described by a single count.
-  const defaultPinCount = React.useMemo(() => {
-    let n = 0;
-    for (const c of cols) {
-      if (c.pinned && c.pinned !== 'right') n++;
-      else break;
-    }
-    return n;
-  }, [cols]);
-  const defaultRightPinCount = React.useMemo(() => {
-    let n = 0;
-    for (let i = cols.length - 1; i >= 0; i--) {
-      if (cols[i].pinned === 'right') n++;
-      else break;
-    }
-    return n;
-  }, [cols]);
-  const [userPinCount, setUserPinCount] = React.useState(() => readStored('ctPin'));
-  const [userRightPinCount, setUserRightPinCount] = React.useState(() => readStored('ctPinR'));
-  const pinCount = userPinCount != null ? userPinCount : defaultPinCount;
-  const rightPinCount = userRightPinCount != null ? userRightPinCount : defaultRightPinCount;
-
-  // HARD CAP: the pinned block must never be as wide as the viewport. Beyond that
-  // there is no room left to actually read the scrolling columns, and the frozen
-  // block starts fighting the scroller instead of helping. Capping also matches the
-  // UX reality of "freeze panes" in any spreadsheet.
-  // The right block is measured first (it is usually one or two columns, and the Action
-  // column rides along with it), then whatever viewport is left funds the left block.
-  // A run of the last n caller columns also carries the Action column whenever the
-  // Action column sits inside that run — i.e. from `cols.length - n` onwards. Only then
-  // does its width come out of the right-hand budget.
-  const maxRightPinCount = React.useMemo(() => {
-    if (!wrapW) return cols.length;
-    const budget = wrapW - PIN_MIN_SCROLLABLE;
-    let used = hasActions && actionPos === cols.length ? actionColWidth : 0;
-    let n = 0;
-    for (let i = cols.length - 1; i >= 0; i--) {
-      used += colWidthOf(cols[i]);
-      if (hasActions && actionPos === i) used += actionColWidth;
-      if (used > budget) break;
-      n++;
-    }
-    return n;
-  }, [cols, wrapW, hasActions, actionPos, actionColWidth]);
-  const effectiveRightPinCount = Math.min(rightPinCount, maxRightPinCount);
-
-  // Where the Action column freezes now that it can be dragged anywhere. It joins
-  // whichever block it is INSIDE — a frozen run has to stay contiguous, so an Action
-  // column parked in the middle of the scrolling columns cannot freeze at all, and
-  // `pinActions` only means anything while it still sits at one end.
-  //   left run  = the first n caller columns, so it is inside iff actionPos < n
-  //   right run = the last  m caller columns, so it is inside iff actionPos >= len - m
-  const actionsPinnedRight =
-    hasActions &&
-    ((effectiveRightPinCount > 0 && actionPos >= cols.length - effectiveRightPinCount) ||
-      (pinActions && actionPos === cols.length));
-
-  const rightBlockWidth = React.useMemo(() => {
-    let w = actionsPinnedRight ? actionColWidth : 0;
-    for (let i = cols.length - effectiveRightPinCount; i < cols.length; i++) w += colWidthOf(cols[i]);
-    return w;
-  }, [cols, effectiveRightPinCount, actionsPinnedRight, actionColWidth]);
-
-  const maxPinCount = React.useMemo(() => {
-    if (!wrapW) return cols.length; // not measured yet — cap kicks in right after mount
-    const colW = colWidthOf;
-    const budget = wrapW - PIN_MIN_SCROLLABLE - rightBlockWidth;
-    let used = rowStripColor ? stripWidth : 0;
-    let n = 0;
-    for (let i = 0; i < cols.length; i++) {
-      if (hasActions && actionPos === i) used += actionColWidth; // swept into this prefix
-      used += colW(cols[i]);
-      if (used > budget) break;
-      n++;
-    }
-    return Math.min(n, cols.length - effectiveRightPinCount);
-  }, [cols, wrapW, rowStripColor, stripWidth, rightBlockWidth, effectiveRightPinCount, hasActions, actionPos, actionColWidth]);
-  const effectivePinCount = Math.min(pinCount, maxPinCount);
-
-  // Mirror of actionsPinnedRight for the left edge — the Action column dragged in front
-  // of the frozen leading run (or, with `pinActions`, right to the front of the table)
-  // freezes there instead. Right wins if both somehow claim it; the caps keep the two
-  // runs from overlapping, so that only happens with a single-column table.
-  const actionsPinnedLeft =
-    hasActions &&
-    !actionsPinnedRight &&
-    ((effectivePinCount > 0 && actionPos < effectivePinCount) || (pinActions && actionPos === 0));
-
-  const setPinCount = React.useCallback(
-    (n) => {
-      setUserPinCount(n);
-      persist('ctPin', n);
-    },
-    [persist]
-  );
-  const setRightPinCount = React.useCallback(
-    (n) => {
-      setUserRightPinCount(n);
-      persist('ctPinR', n);
-    },
-    [persist]
-  );
-
-  // Append the Action column (as a real column) when an Actions renderer is given.
-  const allColumns = React.useMemo(() => {
-    // pinIndex = the column's position among the caller's VISIBLE columns — the pin UI
-    // uses it to set the freeze boundary ("pin up to here" = pinCount pinIndex+1).
-    // Hidden columns are already gone from `cols`, so both the index and the freeze
-    // counts speak in terms of what is actually on screen.
-    const firstRight = cols.length - effectiveRightPinCount;
-    const base = cols.map((c, i) => ({
-      ...c,
-      pinIndex: i,
-      pinned: i < effectivePinCount,
-      pinnedRight: effectiveRightPinCount > 0 && i >= firstRight,
-      pinnedLast: false,
-      pinnedRightFirst: false,
-    }));
-    // Status strip as a real (fixed-width) first column, so it stays aligned with the
-    // header and scrolls horizontally together with the rest of the row.
-    if (rowStripColor) {
-      base.unshift({
-        id: '__strip',
-        Header: '',
-        width: stripWidth,
-        minWidth: stripWidth,
-        maxWidth: stripWidth,
-        disableFilters: true,
-        disableSortBy: true,
-        noPadding: true,
-        Cell: ({ row }) => {
-          const color = rowStripColor(row.original);
-          if (!color) return null;
-          // Optional hover tooltip naming the status (e.g. "Cancelled"). The title sits
-          // on a full-cell wrapper — the 4px bar alone is too small a hover target.
-          const title = rowStripTitle ? rowStripTitle(row.original) : undefined;
-          return (
-            <div
-              title={title || undefined}
-              style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-            >
-              {/* Near-full height with a small gap top/bottom, so consecutive bars read as
-                  separate rows instead of one continuous line. */}
-              <div style={{ width: 4, height: 'calc(100% - 8px)', backgroundColor: color, borderRadius: 1 }} />
-            </div>
-          );
-        },
-      });
-    }
-    if (Actions) {
-      // The Action column is resizable like any other; a dragged width replaces the
-      // `actionWidth` prop for this list (and, with a pinStorageKey, for the next visit).
-      // It is spliced in at the position the column ORDER gives it — normally the end,
-      // but it is a real column and can be dragged anywhere the others can.
-      const actionW = colWidths.__actions;
-      const actionCol = {
-        id: '__actions',
-        Header: 'Action',
-        align: 'center',
-        width: actionW || 0.6,
-        minWidth: actionW || actionWidth,
-        disableFilters: true,
-        disableSortBy: true,
-        pinIndex: null,
-        pinned: actionsPinnedLeft,
-        pinnedRight: actionsPinnedRight,
-        pinnedLast: false,
-        pinnedRightFirst: false,
-        Cell: ({ row }) => <Actions object={row.original} fn={fn} />,
-      };
-      // A dragged width pins all three (see the width note above), but WITHOUT one there
-      // must be no `maxWidth` KEY at all — react-table merges the column over its
-      // defaults with Object.assign, which copies an explicit `undefined` straight over
-      // the default `Number.MAX_SAFE_INTEGER`. The width then resolves as
-      // `min(max(minWidth, width), undefined)` = NaN, which propagates into
-      // `totalColumnsWidth` and lands as `min-width: NaN` on the table element.
-      if (actionW) actionCol.maxWidth = actionW;
-      base.splice(rowStripColor ? actionPos + 1 : actionPos, 0, actionCol);
-    }
-    // The status strip auto-freezes with the leading run — it sits left of everything,
-    // and would otherwise be stranded outside the block. (The Action column used to get
-    // the same treatment on the right; now that it can be moved, it freezes according to
-    // which run it actually lies in — see actionsPinnedLeft / actionsPinnedRight.)
-    let lastPinned = null;
-    let firstPinnedRight = null;
-    base.forEach((c) => {
-      if (c.id === '__strip') c.pinned = effectivePinCount > 0;
-      if (c.pinned) lastPinned = c;
-      if (c.pinnedRight && !firstPinnedRight) firstPinnedRight = c;
-    });
-    if (lastPinned) lastPinned.pinnedLast = true;
-    if (firstPinnedRight) firstPinnedRight.pinnedRightFirst = true;
-    return base;
-  }, [cols, colWidths, Actions, fn, actionWidth, actionPos, rowStripColor, rowStripTitle, stripWidth, effectivePinCount, effectiveRightPinCount, actionsPinnedLeft, actionsPinnedRight]);
-
-  const hasPinned = React.useMemo(() => allColumns.some((c) => c.pinned), [allColumns]);
-  const hasPinnedRight = React.useMemo(() => allColumns.some((c) => c.pinnedRight), [allColumns]);
-
-  // Sticky `left` for each pinned column = total width of the pinned columns before it.
-  // Keyed by the id react-table will use (explicit id, else the string accessor).
-  const pinnedLeft = React.useMemo(() => {
-    const map = {};
-    let acc = 0;
-    allColumns.forEach((c) => {
-      if (!c.pinned) return;
-      const id = colIdOf(c);
-      if (id) map[id] = acc;
-      acc += colWidthOf(c);
-    });
-    return map;
-  }, [allColumns]);
-
-  // Mirror for the right block: each frozen column's `right` offset is the total width
-  // of the frozen columns that sit to its right, so walk the list backwards.
-  const pinnedRight = React.useMemo(() => {
-    const map = {};
-    let acc = 0;
-    for (let i = allColumns.length - 1; i >= 0; i--) {
-      const c = allColumns[i];
-      if (!c.pinnedRight) continue;
-      const id = colIdOf(c);
-      if (id) map[id] = acc;
-      acc += colWidthOf(c);
-    }
-    return map;
-  }, [allColumns]);
+  // ----- The column list react-table actually gets -----
+  const { allColumns, hasPinned, hasPinnedRight, pinnedLeft, pinnedRight } = useTableColumns({
+    cols,
+    colWidths,
+    Actions,
+    fn,
+    actionWidth,
+    actionPos,
+    rowStripColor,
+    rowStripTitle,
+    stripWidth,
+    effectivePinCount: pinning.effectivePinCount,
+    effectiveRightPinCount: pinning.effectiveRightPinCount,
+    actionsPinnedLeft: pinning.actionsPinnedLeft,
+    actionsPinnedRight: pinning.actionsPinnedRight,
+  });
 
   const { getTableProps, getTableBodyProps, headerGroups, footerGroups, rows, prepareRow, totalColumnsWidth } = useTable(
     {
       columns: allColumns,
       data,
-      defaultColumn,
+      defaultColumn: DEFAULT_COLUMN,
+      // Forwarded onto the table instance, which is what a `Cell` receives spread: this
+      // is how a cell reaches the caller's own callbacks and lookups without the column
+      // config having to be rebuilt as a factory closure.
       userList,
+      context,
       // `data` is often recreated each render (e.g. Object.values(byId)); without these
       // react-table resets sort/filter on every data change, so clicking a header appears
       // to do nothing (sort is set then immediately reset).
@@ -818,331 +247,109 @@ export const FreezeTable = React.forwardRef(function FreezeTable(
     useFlexLayout
   );
 
-  const align = alignFlex;
-
   const hasColumnFooter = React.useMemo(() => cols.some((c) => c.Footer), [cols]);
   const renderFooter = showFooter !== undefined ? showFooter : footerLeft != null || hasColumnFooter;
 
-  // ----- Keyboard row navigation (Up/Down to move the selected row) -----
-  // Height of the band left for rows (wrap viewport minus the sticky header / footer).
-  // Measured in the layout effect further down; declared here because scrollToRow and the
-  // windowing maths both read it.
-  const [listH, setListH] = React.useState(0);
-  // Height of the sticky header. Rows scroll UNDER it, so it is also the distance the
-  // snapport's top edge has to be pushed down for a snapped row to land just below it.
-  const [headH, setHeadH] = React.useState(0);
-  const [footH, setFootH] = React.useState(0);
-  const [selectedIndex, setSelectedIndex] = React.useState(0);
-  // Mirror of selectedIndex for the memoized rows (they must not re-render on selection
-  // change — see VirtualRow). Kept in sync by the selection-highlight effect below.
-  const selectedIndexRef = React.useRef(0);
-  const scrollPendingRef = React.useRef(null);
+  // ----- Geometry -----
+  const bodyWrapRef = React.useRef(null);
+  const headRef = React.useRef(null);
+  const footRef = React.useRef(null);
+  const toolbarRef = React.useRef(null);
+  // `toolbar` is either a boolean or a config object; normalize once so the rest reads
+  // one shape. It sits OUTSIDE the scrollport — see the note in Toolbar.js.
+  const showToolbar = !!toolbar;
+  const toolbarConfig = toolbar && typeof toolbar === 'object' ? toolbar : {};
+  const { listH, headH, toolH } = useBandHeights({
+    containerRef,
+    headRef,
+    footRef,
+    toolbarRef,
+    deps: [renderFooter, height, rows.length, showToolbar],
+  });
 
-  // Let the parent re-focus the table (e.g. after a modal closes, return focus to the row)
-  // and read the current horizontal scroll, so it can be handed back as
-  // `initialScrollLeft` when the list is re-entered.
-  React.useImperativeHandle(ref, () => ({
-    focus: () => containerRef.current && containerRef.current.focus({ preventScroll: true }),
-    getScrollLeft: () => (containerRef.current ? containerRef.current.scrollLeft : 0),
-    // Column freezing is driven from the caller's toolbar (e.g. a "Pin columns" menu):
-    // read the current boundary for an edge, or set a new one. 0 = nothing frozen on
-    // that edge; N = the FIRST N caller columns on the left, the LAST N on the right
-    // (the Action column, if any, freezes with the right-hand block). Both boundaries
-    // are persisted via pinStorageKey.
-    //
-    // The getters report the EFFECTIVE (viewport-capped) boundary; getMax… is the cap
-    // itself, so a menu can disable the entries beyond it.
-    getLeftPinCount: () => effectivePinCount,
-    getMaxLeftPinCount: () => maxPinCount,
-    setLeftPinCount: (n) => setPinCount(Math.max(0, parseInt(n, 10) || 0)),
-    getRightPinCount: () => effectiveRightPinCount,
-    getMaxRightPinCount: () => maxRightPinCount,
-    setRightPinCount: (n) => setRightPinCount(Math.max(0, parseInt(n, 10) || 0)),
-    // Pre-0.6 names for the left edge, kept working so existing callers do not break.
-    // They were renamed precisely because nothing in the name said which edge they meant.
-    getPinCount: () => effectivePinCount,
-    getMaxPinCount: () => maxPinCount,
-    setPinCount: (n) => setPinCount(Math.max(0, parseInt(n, 10) || 0)),
-    // ----- Column widths -----
-    // Widths are normally set by dragging a header's right edge; these are for a toolbar
-    // ("Reset column widths") or for restoring a layout the caller stored itself.
-    // getColumnWidths() reports only the columns the USER has resized — a column the
-    // caller has not touched is absent from the map and renders at its configured width.
-    // Read through the mirrors, not through this render's state: a caller that calls a
-    // setter and then a getter in the SAME handler (`toggleColumn(id)` then
-    // `getHiddenColumns()` to refresh its menu) would otherwise read the value from
-    // before its own call — React has not re-rendered yet at that point.
-    getColumnWidths: () => ({ ...colWidthsRef.current }),
-    setColumnWidth: (id, px) => setColumnWidth(id, px),
-    resetColumnWidths: (id) => resetColumnWidths(id),
-    // ----- Column visibility -----
-    // The column MENU is the caller's to render, exactly like the pin menu; getColumnList()
-    // hands it everything it needs (id, header text, current state) so it does not have to
-    // re-derive any of this from its own column config.
-    getHiddenColumns: () => hiddenRef.current.slice(),
-    setHiddenColumns: (ids) => setHiddenColumns(ids),
-    toggleColumn: (id, visible) => toggleColumn(id, visible),
-    showAllColumns: () => setHiddenColumns([]),
-    // ----- Column order -----
-    // The order is a flat list of ids in DISPLAY order, hidden columns included (it is a
-    // layout, not a view) and with `'__actions'` in it whenever an Actions renderer is
-    // given. A list passed to setColumnOrder does not have to be complete: ids it leaves
-    // out are slotted back in beside their CONFIGURED neighbours (the same merge a
-    // stored order gets when the column config has grown since), so pass the full list
-    // from getColumnOrder() if you want to place every column yourself. `null` drops the
-    // user's order entirely and goes back to the caller's array order.
-    getColumnOrder: () => orderRef.current.slice(),
-    setColumnOrder: (ids) => setColumnOrder(ids),
-    moveColumn: (id, toIndex) => moveColumn(id, toIndex),
-    resetColumnOrder: () => setColumnOrder(null),
-    // One entry per column IN DISPLAY ORDER — everything a column menu needs, including
-    // the Action column, so the menu can move that one too. `index` is still the
-    // column's place in the caller's `columns` array (null for the Action column);
-    // `position` is its place in getColumnOrder(), which is what moveColumn() takes.
-    getColumnList: () => {
-      const byId = new Map();
-      columns.forEach((c, i) => byId.set(colIdOf(c) || `__col${i}`, { c, i }));
-      return orderRef.current.map((key, position) => {
-        if (key === '__actions') {
-          return {
-            id: '__actions',
-            index: null,
-            position,
-            header: 'Action',
-            hidden: false,
-            hideable: false,
-            resizable: resizable,
-            movable: reorderable,
-            width: colWidthsRef.current.__actions != null ? colWidthsRef.current.__actions : actionWidth,
-          };
-        }
-        const entry = byId.get(key);
-        if (!entry) return null;
-        const { c, i } = entry;
-        const id = colIdOf(c);
-        return {
-          id,
-          index: i,
-          position,
-          header: typeof c.Header === 'string' ? c.Header : undefined,
-          hidden: !!(id && c.hideable !== false && hiddenRef.current.indexOf(id) >= 0),
-          hideable: !!id && c.hideable !== false,
-          resizable: !!id && resizable && !c.disableResizing,
-          movable: !!id && reorderable && !c.disableReordering,
-          width: id && colWidthsRef.current[id] != null ? colWidthsRef.current[id] : colWidthOf(c),
-        };
-      }).filter(Boolean);
-    },
-    // Move the selection (and the focus) to a row — e.g. a list that re-fetches on a
-    // Search click wants the first row selected + focused once the results land, but
-    // the table is already mounted so the mount-time focus effect won't fire again.
-    selectRow: (index) => {
-      const i = Math.max(0, parseInt(index, 10) || 0);
-      setSelectedIndex(i);
-      scrollPendingRef.current = { index: i, align: 'smart' };
-      if (containerRef.current) containerRef.current.focus({ preventScroll: true });
-    },
-  }));
-
-  // ----- Horizontal scroll bookkeeping -----
-  // Pinned columns are frozen with plain CSS `position: sticky`, so the browser keeps
-  // them in place on the compositor — NOTHING runs in JS per scroll frame. That is only
-  // possible because `.ft-wrap` is the ONE scrollport for both axes (hence the hand-rolled
-  // row windowing below instead of react-window, whose outer div would otherwise become
-  // the sticky scrollport for the body cells and break the freeze). The only things left
-  // for JS here are the separator shadow (flipped once when the scroll crosses 0) and the
-  // vertical offset that drives the windowing.
-  const pinScrolledRef = React.useRef(false);
-  // Snapping is suspended WHILE scrolling and restored a moment after it stops. Left
-  // permanently on, `proximity` re-settles the scroll on every wheel notch, which reads
-  // as the list stuttering / catching mid-scroll rather than gliding.
-  const snapTimerRef = React.useRef(null);
-  const pinScrolledEndRef = React.useRef(false);
-  const [scrollTop, setScrollTop] = React.useState(0);
-  const scrollTickRef = React.useRef(false);
-  const onWrapScroll = React.useCallback(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    const scrolled = hasPinned && el.scrollLeft > 0;
-    if (scrolled !== pinScrolledRef.current) {
-      pinScrolledRef.current = scrolled;
-      if (scrolled) el.setAttribute('data-ct-scrolled', '1');
-      else el.removeAttribute('data-ct-scrolled');
-    }
-    // The right block only casts its shadow while columns are still hidden beneath it,
-    // i.e. until the scroll reaches the end.
-    const atEnd = el.scrollLeft >= el.scrollWidth - el.clientWidth - 1;
-    const shadeRight = hasPinnedRight && !atEnd;
-    if (shadeRight !== pinScrolledEndRef.current) {
-      pinScrolledEndRef.current = shadeRight;
-      if (shadeRight) el.setAttribute('data-ct-scrolled-end', '1');
-      else el.removeAttribute('data-ct-scrolled-end');
-    }
-    if (rowSnap) {
-      if (el.style.scrollSnapType !== 'none') el.style.scrollSnapType = 'none';
-      if (snapTimerRef.current) clearTimeout(snapTimerRef.current);
-      snapTimerRef.current = setTimeout(() => {
-        const node = containerRef.current;
-        if (node) node.style.scrollSnapType = 'y proximity';
-      }, 160);
-    }
-    if (scrollTickRef.current) return;
-    scrollTickRef.current = true;
-    window.requestAnimationFrame(() => {
-      scrollTickRef.current = false;
-      const node = containerRef.current;
-      if (!node) return;
-      syncBarsRef.current();
-      setScrollTop(node.scrollTop);
-    });
-  }, [hasPinned, hasPinnedRight, rowSnap]);
-
-  React.useEffect(() => () => {
-    if (snapTimerRef.current) clearTimeout(snapTimerRef.current);
-  }, []);
-
-  // syncBars is defined after this handler (it needs listH); reach it through a ref so
-  // the scroll listener does not have to be re-attached whenever it changes.
+  // ----- Scrolling, windowing and the overlay bars -----
+  // The scroll handler drives the bars through a ref, so the (passive) listener never has
+  // to be re-attached when the sync closure changes.
   const syncBarsRef = React.useRef(() => {});
+  const { scrollTop, onWrapScroll } = useTableScroll({
+    containerRef,
+    hasPinned,
+    hasPinnedRight,
+    rowSnap,
+    onFrameRef: syncBarsRef,
+  });
+  const bars = useOverlayScrollbars({ containerRef, listH, syncBarsRef, onWrapScroll });
 
-  // Passive listener: React's onScroll attaches a non-passive handler on a scroll-linked
-  // path, which can hold up the compositor.
-  React.useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return undefined;
-    el.addEventListener('scroll', onWrapScroll, { passive: true });
-    return () => el.removeEventListener('scroll', onWrapScroll);
-  }, [onWrapScroll]);
-
-  // Restore selection to a specific row (by id) once — e.g. coming back from an edit
-  // screen, keep the previously-selected row highlighted instead of jumping to row 0.
-  const initialAppliedRef = React.useRef(false);
-  React.useEffect(() => {
-    if (initialAppliedRef.current) return;
-    if (initialSelectedId == null) {
-      initialAppliedRef.current = true;
-      return;
-    }
-    if (rows.length === 0) return; // wait for data to load
-    const idx = rows.findIndex((r) => r.original && r.original[rowIdKey] === initialSelectedId);
-    initialAppliedRef.current = true;
-    if (idx >= 0) {
-      setSelectedIndex(idx);
-      scrollPendingRef.current = { index: idx, align: 'center' };
-    }
-  }, [rows, initialSelectedId, rowIdKey]);
-
-  // Scroll a row into view inside .ft-wrap. Row i occupies [i*rowHeight, (i+1)*rowHeight]
-  // in body coordinates, and the sticky header/footer eat listH's worth of viewport, so
-  // the visible band is exactly [scrollTop, scrollTop + listH].
-  const scrollToRow = React.useCallback(
-    (index, align_) => {
-      const el = containerRef.current;
-      if (!el || listH <= 0) return;
-      const rowTop = index * rowHeight;
-      const rowBottom = rowTop + rowHeight;
-      let top = el.scrollTop;
-      if (align_ === 'center') {
-        top = rowTop - Math.max(0, (listH - rowHeight) / 2);
-      } else if (rowTop < top) {
-        top = rowTop;
-      } else if (rowBottom > top + listH) {
-        top = rowBottom - listH;
-      }
-      el.scrollTop = Math.max(0, top);
-    },
-    [listH, rowHeight]
-  );
-
-  // Flush a pending scroll (initial restore / arrow move) once the body is measured.
-  // Scrolling must happen here, NOT inside a setState updater — updaters run during the
-  // render phase.
-  React.useEffect(() => {
-    const pending = scrollPendingRef.current;
-    if (pending != null && listH > 0) {
-      scrollToRow(pending.index, pending.align);
-      scrollPendingRef.current = null;
-    }
+  // ----- Selection and keyboard navigation -----
+  const { selectedIndex, setSelectedIndex, selectedIndexRef, onKeyDown, selectRow } = useRowNavigation({
+    containerRef,
+    rows,
+    prepareRow,
+    rowHeight,
+    listH,
+    rowNavigation,
+    onRowSelect,
+    onRowEnter,
+    selectedBg,
+    initialSelectedId,
+    rowIdKey,
+    initialScrollLeft,
   });
 
-  // Restore the horizontal scroll once, after the rows are on screen — otherwise a
-  // wide table always snaps back to column 1 on re-entry and the user has to scroll
-  // across every column again. No dep array: retry each render until it lands.
-  const hScrollAppliedRef = React.useRef(false);
-  React.useEffect(() => {
-    if (hScrollAppliedRef.current) return;
-    if (!initialScrollLeft) {
-      hScrollAppliedRef.current = true;
-      return;
-    }
-    if (rows.length === 0 || listH === 0 || !containerRef.current) return; // wait for data
-    containerRef.current.scrollLeft = initialScrollLeft;
-    hScrollAppliedRef.current = true;
+  // ----- Header drags -----
+  const guideRef = React.useRef(null);
+  const dropRef = React.useRef(null);
+  const { startColResize, startColReorder, onHeaderClickCapture } = useColumnDrag({
+    rootRef,
+    containerRef,
+    guideRef,
+    dropRef,
+    orderRef: layout.orderRef,
+    minColumnWidth,
+    setColumnWidth: layout.setColumnWidth,
+    setColumnOrder: layout.setColumnOrder,
   });
 
-  // Keep the selection valid when the row set changes (e.g. after filtering).
-  React.useEffect(() => {
-    setSelectedIndex((i) => Math.min(Math.max(0, i), Math.max(0, rows.length - 1)));
-  }, [rows.length]);
+  useTableHandle(ref, {
+    containerRef,
+    pinning,
+    layout,
+    resizable,
+    reorderable,
+    actionWidth,
+    selectRow,
+  });
 
-  // Focus the table on first render so arrow keys work immediately.
-  React.useEffect(() => {
-    if (rowNavigation && containerRef.current) {
-      containerRef.current.focus({ preventScroll: true });
-    }
-  }, [rowNavigation]);
-
-  // Notify the caller whenever the selected row changes.
-  React.useEffect(() => {
-    if (onRowSelect && rows[selectedIndex]) {
-      prepareRow(rows[selectedIndex]);
-      onRowSelect(rows[selectedIndex].original, selectedIndex);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedIndex, rows]);
-
-  const moveSelection = React.useCallback(
-    (delta) => {
-      setSelectedIndex((i) => {
-        const next = Math.min(Math.max(0, i + delta), Math.max(0, rows.length - 1));
-        // Ref write only — the scroll itself runs in the flush effect above (scrolling
-        // from inside a state updater would run during the render phase).
-        if (next !== i) scrollPendingRef.current = { index: next, align: 'smart' };
-        return next;
-      });
-    },
-    [rows.length]
+  // ----- What the built-in toolbar needs -----
+  // The freeze menu counts in VISIBLE CALLER columns — the same units as the pin
+  // boundaries themselves — so it is built from `cols`, not from the raw config.
+  const pinColumns = React.useMemo(
+    () =>
+      showToolbar
+        ? cols.map((c, i) => ({
+            label: typeof c.Header === 'string' && c.Header ? c.Header : colIdOf(c) || `Column ${i + 1}`,
+          }))
+        : [],
+    [cols, showToolbar]
   );
-
-  const onKeyDown = React.useCallback(
-    (e) => {
-      if (!rowNavigation) return;
-      const tag = e.target && e.target.tagName;
-      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return; // don't hijack search typing
-      if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        moveSelection(1);
-      } else if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        moveSelection(-1);
-      } else if (e.key === 'Home') {
-        e.preventDefault();
-        setSelectedIndex(0);
-        scrollToRow(0, 'smart');
-      } else if (e.key === 'End') {
-        e.preventDefault();
-        const last = Math.max(0, rows.length - 1);
-        setSelectedIndex(last);
-        scrollToRow(last, 'smart');
-      } else if (e.key === 'Enter') {
-        if (onRowEnter && rows[selectedIndex]) {
-          e.preventDefault();
-          prepareRow(rows[selectedIndex]);
-          onRowEnter(rows[selectedIndex].original, selectedIndex);
-        }
-      }
-    },
-    [rowNavigation, moveSelection, rows, selectedIndex, onRowEnter, prepareRow, scrollToRow]
+  const toolbarColumnList = React.useCallback(
+    () => layout.getColumnList({ resizable, reorderable, actionWidth }),
+    [layout, resizable, reorderable, actionWidth]
+  );
+  const refocus = React.useCallback(() => {
+    if (containerRef.current) containerRef.current.focus({ preventScroll: true });
+  }, []);
+  const toolbarApi = React.useMemo(
+    () => ({
+      toggleColumn: layout.toggleColumn,
+      moveColumn: layout.moveColumn,
+      showAllColumns: () => layout.setHiddenColumns([]),
+      resetColumnWidths: () => layout.resetColumnWidths(),
+      resetColumnOrder: () => layout.setColumnOrder(null),
+      setLeftPinCount: pinning.setPinCount,
+      setRightPinCount: pinning.setRightPinCount,
+    }),
+    [layout.toggleColumn, layout.moveColumn, layout.setHiddenColumns, layout.resetColumnWidths, layout.setColumnOrder, pinning.setPinCount, pinning.setRightPinCount]
   );
 
   // Everything the memoized rows need. Deliberately does NOT include selectedIndex —
@@ -1166,346 +373,8 @@ export const FreezeTable = React.forwardRef(function FreezeTable(
       // keep stale pin attributes / sticky offsets).
       allColumns,
     }),
-    [rows, prepareRow, rowStyle, selectedBg, rowNavigation, fontPx, allColumns, rowHeight, pinnedLeft, pinnedRight, rowSnap]
+    [rows, prepareRow, rowStyle, selectedBg, rowNavigation, fontPx, allColumns, rowHeight, pinnedLeft, pinnedRight, rowSnap, selectedIndexRef, setSelectedIndex]
   );
-
-  // Selection highlight, applied imperatively so only the affected DOM nodes change on
-  // ↑/↓ (a state-driven highlight re-rendered every visible row per keypress).
-  React.useEffect(() => {
-    selectedIndexRef.current = selectedIndex;
-    const el = containerRef.current;
-    if (!el || !rowNavigation) return;
-    el.querySelectorAll('.ft-row').forEach((r) => {
-      const idx = parseInt(r.getAttribute('data-ct-index'), 10);
-      const hasCustomBg = r.getAttribute('data-ct-custom') === '1';
-      const baseBg = r.getAttribute('data-ct-bg') || '#ffffff';
-      r.style.backgroundColor = hasCustomBg ? baseBg : idx === selectedIndex ? selectedBg : baseBg;
-    });
-  }, [selectedIndex, selectedBg, rowNavigation, rows]);
-
-  // Measure the band left for rows: the wrap's viewport minus the sticky header and
-  // footer, which overlay the top / bottom of it. Drives both the windowing maths and
-  // scrollToRow, so rows exactly fill the gap — no clipped last row.
-  const bodyWrapRef = React.useRef(null);
-  const headRef = React.useRef(null);
-  const footRef = React.useRef(null);
-  useIsoLayoutEffect(() => {
-    const wrap = containerRef.current;
-    if (!wrap) return undefined;
-    const update = () => {
-      const hh = headRef.current ? headRef.current.offsetHeight : 0;
-      const fh = footRef.current ? footRef.current.offsetHeight : 0;
-      setHeadH(hh);
-      setFootH(fh);
-      setListH(Math.max(0, wrap.clientHeight - hh - fh));
-    };
-    update();
-    let ro;
-    if (typeof ResizeObserver !== 'undefined') {
-      ro = new ResizeObserver(update);
-      ro.observe(wrap);
-      if (headRef.current) ro.observe(headRef.current);
-      if (footRef.current) ro.observe(footRef.current);
-    }
-    window.addEventListener('resize', update);
-    return () => {
-      if (ro) ro.disconnect();
-      window.removeEventListener('resize', update);
-    };
-  }, [renderFooter, height, rows.length]);
-
-  // ----- Overlay scrollbars -----
-  // The native vertical scrollbar runs the whole height of .ft-wrap — alongside the
-  // header and the footer, not just the rows — because .ft-wrap is the single
-  // scrollport for both axes. Giving the body its own vertical overflow would fix the
-  // bar but break the column freeze: an element that scrolls in y is a scroll container
-  // in x too, so it would become the sticky scrollport for the pinned cells and they
-  // would slide away (this is exactly the react-window problem this component was
-  // rewritten to escape). So the native bars are hidden and redrawn as overlays, with
-  // the vertical track spanning only the row band.
-  //
-  // Thumbs are positioned imperatively from the same rAF-throttled scroll handler that
-  // drives the windowing — no React re-render per frame.
-  const rootRef = React.useRef(null);
-  const guideRef = React.useRef(null);
-  const dropRef = React.useRef(null);
-  const vTrackRef = React.useRef(null);
-  const vThumbRef = React.useRef(null);
-  const hTrackRef = React.useRef(null);
-  const hThumbRef = React.useRef(null);
-  const MIN_THUMB = 24;
-
-  const syncBars = React.useCallback(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    const maxY = Math.max(0, el.scrollHeight - el.clientHeight);
-    const maxX = Math.max(0, el.scrollWidth - el.clientWidth);
-
-    const vTrack = vTrackRef.current;
-    const vThumb = vThumbRef.current;
-    if (vTrack && vThumb) {
-      const bandH = listH;
-      if (maxY <= 0 || bandH <= MIN_THUMB) {
-        vTrack.style.display = 'none';
-      } else {
-        vTrack.style.display = 'block';
-        const th = Math.max(MIN_THUMB, Math.round(bandH * (el.clientHeight / el.scrollHeight)));
-        vThumb.style.height = th + 'px';
-        vThumb.style.transform = 'translateY(' + Math.round((el.scrollTop / maxY) * (bandH - th)) + 'px)';
-      }
-    }
-
-    const hTrack = hTrackRef.current;
-    const hThumb = hThumbRef.current;
-    if (hTrack && hThumb) {
-      if (maxX <= 0) {
-        hTrack.style.display = 'none';
-      } else {
-        hTrack.style.display = 'block';
-        const bandW = hTrack.clientWidth;
-        const tw = Math.max(MIN_THUMB, Math.round(bandW * (el.clientWidth / el.scrollWidth)));
-        hThumb.style.width = tw + 'px';
-        hThumb.style.transform = 'translateX(' + Math.round((el.scrollLeft / maxX) * (bandW - tw)) + 'px)';
-      }
-    }
-  }, [listH]);
-
-  // Re-measure whenever the geometry could have changed (mount, resize, row count,
-  // footer toggle, a new pin boundary).
-  useIsoLayoutEffect(() => {
-    syncBarsRef.current = syncBars;
-    syncBars();
-    onWrapScroll(); // sets the pin shadows for the initial (unscrolled) position too
-  });
-
-  // Dragging a thumb. Snapping is switched off for the duration: `proximity` snapping
-  // re-settles the scroll on every programmatic write, which makes a drag feel sticky.
-  const startThumbDrag = React.useCallback(
-    (axis) => (e) => {
-      const el = containerRef.current;
-      const thumb = axis === 'y' ? vThumbRef.current : hThumbRef.current;
-      if (!el || !thumb || e.button !== 0) return;
-      e.preventDefault();
-      e.stopPropagation();
-      const vertical = axis === 'y';
-      const startPos = vertical ? e.clientY : e.clientX;
-      const startScroll = vertical ? el.scrollTop : el.scrollLeft;
-      const trackLen = vertical ? listH : hTrackRef.current.clientWidth;
-      const thumbLen = vertical ? thumb.offsetHeight : thumb.offsetWidth;
-      const maxScroll = vertical ? el.scrollHeight - el.clientHeight : el.scrollWidth - el.clientWidth;
-      const ratio = maxScroll / Math.max(1, trackLen - thumbLen);
-      const prevSnap = el.style.scrollSnapType;
-      el.style.scrollSnapType = 'none';
-      thumb.classList.add('ft-thumb-drag');
-      document.body.style.userSelect = 'none';
-      const onMove = (ev) => {
-        const delta = (vertical ? ev.clientY : ev.clientX) - startPos;
-        const next = startScroll + delta * ratio;
-        if (vertical) el.scrollTop = next;
-        else el.scrollLeft = next;
-      };
-      const onUp = () => {
-        window.removeEventListener('pointermove', onMove);
-        window.removeEventListener('pointerup', onUp);
-        el.style.scrollSnapType = prevSnap;
-        thumb.classList.remove('ft-thumb-drag');
-        document.body.style.userSelect = '';
-      };
-      window.addEventListener('pointermove', onMove);
-      window.addEventListener('pointerup', onUp);
-    },
-    [listH]
-  );
-
-  // Clicking the bare track jumps so the thumb centres on the click.
-  const onTrackDown = React.useCallback(
-    (axis) => (e) => {
-      if (e.target !== e.currentTarget) return; // the thumb handles its own presses
-      const el = containerRef.current;
-      const thumb = axis === 'y' ? vThumbRef.current : hThumbRef.current;
-      if (!el || !thumb) return;
-      const rect = e.currentTarget.getBoundingClientRect();
-      if (axis === 'y') {
-        const pos = e.clientY - rect.top - thumb.offsetHeight / 2;
-        el.scrollTop = (pos / Math.max(1, listH - thumb.offsetHeight)) * (el.scrollHeight - el.clientHeight);
-      } else {
-        const pos = e.clientX - rect.left - thumb.offsetWidth / 2;
-        el.scrollLeft =
-          (pos / Math.max(1, e.currentTarget.clientWidth - thumb.offsetWidth)) * (el.scrollWidth - el.clientWidth);
-      }
-    },
-    [listH]
-  );
-
-  // ----- Column resize -----
-  // The drag paints a vertical GUIDE and commits the new width exactly once, on
-  // pointer-up. It deliberately does NOT write width state per pointermove: the column
-  // defs are what `itemData` hangs off, so a live resize would re-render every visible
-  // row sixty times a second — the same cost the memoized rows and the imperative
-  // selection highlight exist to avoid. (It is also what Excel and Sheets do.)
-  const startColResize = React.useCallback(
-    (id) => (e) => {
-      if (e.button !== 0) return;
-      e.preventDefault();
-      e.stopPropagation(); // never let the press reach the header's sort toggle
-      const handle = e.currentTarget;
-      const th = handle.parentElement;
-      const root = rootRef.current;
-      const guide = guideRef.current;
-      if (!th || !root) return;
-      const startX = e.clientX;
-      // Measured, not configured: `width` is only a request — the rendered size is
-      // `min(max(minWidth, width), maxWidth)`, so a column configured `width: 1,
-      // minWidth: 90` is 90px on screen. Starting the drag from the config would make
-      // the column jump on the first pixel of pointer movement.
-      const startW = th.offsetWidth;
-      const rootRect = root.getBoundingClientRect();
-      const thLeft = th.getBoundingClientRect().left - rootRect.left;
-      let width = startW;
-      const paint = (clientX) => {
-        width = Math.max(minColumnWidth, Math.round(startW + (clientX - startX)));
-        if (!guide) return;
-        guide.style.display = 'block';
-        // Clamped to the table box — the pointer can travel far past either edge, and a
-        // guide drawn outside the root would streak across the page around it.
-        guide.style.transform = `translateX(${Math.min(Math.max(0, thLeft + width), rootRect.width - 2)}px)`;
-      };
-      paint(e.clientX);
-      handle.classList.add('ft-resizing');
-      document.body.style.userSelect = 'none';
-      document.body.style.cursor = 'col-resize';
-      const onMove = (ev) => paint(ev.clientX);
-      const onUp = () => {
-        window.removeEventListener('pointermove', onMove);
-        window.removeEventListener('pointerup', onUp);
-        if (guide) guide.style.display = 'none';
-        handle.classList.remove('ft-resizing');
-        document.body.style.userSelect = '';
-        document.body.style.cursor = '';
-        if (width !== startW) setColumnWidth(id, width);
-      };
-      window.addEventListener('pointermove', onMove);
-      window.addEventListener('pointerup', onUp);
-    },
-    [minColumnWidth, setColumnWidth]
-  );
-
-  // ----- Column reorder -----
-  // Dragging a header sideways moves that column. Like the resize drag, NOTHING is
-  // written to state per frame — the pointer only moves a drop-indicator line and the
-  // new order is committed once, on pointer-up. (The column defs are what `itemData`
-  // hangs off, so a live reorder would re-render every visible row on every frame.)
-  //
-  // The press has to serve two gestures: a click sorts, a drag reorders. The drag arms
-  // itself only after DRAG_SLOP pixels, so a plain click falls straight through to the
-  // sort toggle; once it HAS armed, the click that the pointer-up fires is swallowed in
-  // the capture phase, otherwise every reorder would flip the sort on its way out.
-  const dragEndedRef = React.useRef(false);
-  const startColReorder = React.useCallback(
-    (id) => (e) => {
-      // Mouse only: on a touch screen, dragging a header sideways is how the user pans a
-      // wide table, and stealing that gesture would leave the table unscrollable.
-      if (e.button !== 0 || (e.pointerType && e.pointerType !== 'mouse')) return;
-      const tag = e.target && e.target.tagName;
-      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return; // the filter box
-      dragEndedRef.current = false; // a previous drag that ended off-target never fired its click
-      const th = e.currentTarget;
-      const root = rootRef.current;
-      const wrap = containerRef.current;
-      const line = dropRef.current;
-      if (!root || !wrap) return;
-      const startX = e.clientX;
-      const EDGE = 48; // auto-scroll band at either end of the scrollport
-      let pointerX = startX;
-      let dragging = false;
-      let beforeId = null; // the column the dragged one will land in front of; null = last
-      let raf = 0;
-
-      const frame = () => {
-        if (!dragging) {
-          raf = 0;
-          return;
-        }
-        const wrapRect = wrap.getBoundingClientRect();
-        // Auto-scroll while the pointer rests near an edge. On a table wide enough to
-        // want frozen columns, the place you are dragging TO is usually off screen, and
-        // without this the drag can only reach as far as the current viewport.
-        if (pointerX < wrapRect.left + EDGE) wrap.scrollLeft -= Math.ceil((wrapRect.left + EDGE - pointerX) / 4);
-        else if (pointerX > wrapRect.right - EDGE) wrap.scrollLeft += Math.ceil((pointerX - (wrapRect.right - EDGE)) / 4);
-
-        // Live rects every frame rather than a snapshot taken at pointer-down: a frozen
-        // header sits nowhere near its layout position, and the auto-scroll above moves
-        // every unfrozen one under the pointer.
-        const rootRect = root.getBoundingClientRect();
-        const heads = root.querySelectorAll('.ft-th[data-ct-col]');
-        let edgeX = null;
-        let lastRight = null;
-        beforeId = null;
-        for (let i = 0; i < heads.length; i++) {
-          const cid = heads[i].getAttribute('data-ct-col');
-          if (cid === '__strip') continue; // the status strip is never a drop target
-          const r = heads[i].getBoundingClientRect();
-          lastRight = r.right;
-          if (beforeId == null && pointerX < r.left + r.width / 2) {
-            beforeId = cid;
-            edgeX = r.left;
-          }
-        }
-        if (beforeId == null) edgeX = lastRight; // past the midpoint of the last one = drop at the end
-        if (line && edgeX != null) {
-          line.style.display = 'block';
-          // Clamped to the table box, exactly like the resize guide: the pointer can
-          // travel far outside it and a line drawn there would streak across the page.
-          line.style.transform = `translateX(${Math.min(Math.max(0, edgeX - rootRect.left), rootRect.width - 3)}px)`;
-        }
-        raf = window.requestAnimationFrame(frame);
-      };
-
-      const onMove = (ev) => {
-        pointerX = ev.clientX;
-        if (!dragging) {
-          if (Math.abs(pointerX - startX) < DRAG_SLOP) return;
-          dragging = true;
-          th.classList.add('ft-th-dragging');
-          document.body.style.userSelect = 'none';
-          document.body.style.cursor = 'grabbing';
-        }
-        if (!raf) raf = window.requestAnimationFrame(frame);
-      };
-
-      const onUp = () => {
-        window.removeEventListener('pointermove', onMove);
-        window.removeEventListener('pointerup', onUp);
-        if (raf) window.cancelAnimationFrame(raf);
-        if (!dragging) return; // never armed — leave the click alone, it is a sort
-        dragging = false;
-        th.classList.remove('ft-th-dragging');
-        if (line) line.style.display = 'none';
-        document.body.style.userSelect = '';
-        document.body.style.cursor = '';
-        dragEndedRef.current = true;
-        const cur = orderRef.current.filter((x) => x !== id);
-        const at = beforeId && beforeId !== id ? cur.indexOf(beforeId) : -1;
-        cur.splice(at < 0 ? cur.length : at, 0, id);
-        // Dropping a column back where it started is a no-op, not a layout change worth
-        // persisting or telling the caller about.
-        if (cur.some((x, i) => x !== orderRef.current[i])) setColumnOrder(cur);
-      };
-
-      window.addEventListener('pointermove', onMove);
-      window.addEventListener('pointerup', onUp);
-    },
-    [setColumnOrder]
-  );
-
-  // Swallow the click a completed reorder drag leaves behind (it would reach the
-  // header's sort toggle). Capture phase, because the toggle's own onClick sits deeper.
-  const onHeaderClickCapture = React.useCallback((e) => {
-    if (!dragEndedRef.current) return;
-    dragEndedRef.current = false;
-    e.stopPropagation();
-    e.preventDefault();
-  }, []);
 
   // Which rows are actually rendered. The frozen columns are sticky, so this can lag a
   // frame behind the scroll without ever pulling them out of place.
@@ -1517,278 +386,115 @@ export const FreezeTable = React.forwardRef(function FreezeTable(
     <div
       ref={rootRef}
       className={`ft-root ct-root${className ? ` ${className}` : ''}`}
-      style={{ position: 'relative', width: '100%', height: parseFloat(height), ...style }}
-    >
-    <div
-      className="ft-wrap ct-wrap ft-nobar"
-      ref={containerRef}
-      tabIndex={rowNavigation ? 0 : undefined}
-      onKeyDown={onKeyDown}
       style={{
+        position: 'relative',
         width: '100%',
-        height: '100%',
-        overflow: 'auto',
-        outline: 'none',
-        // Vertical scrolling settles on a row boundary (spreadsheet behaviour) instead of
-        // leaving a half-row sliced by the sticky header. `scroll-padding-top` moves the
-        // snapport's top edge below the header, which is what the rows scroll under —
-        // without it a snapped row would align to the hidden top of the scrollport.
-        // `proximity`, not `mandatory`: rows are windowed, so snap targets come and go,
-        // and mandatory snapping fights programmatic scrolls and the end of the list.
-        // Horizontal scrolling is untouched (the axis is `y`).
-        ...(rowSnap ? { scrollSnapType: 'y proximity', scrollPaddingTop: headH } : {}),
+        height: resolveHeight(height),
+        // Only with a toolbar: the root becomes a column so the scrollport takes whatever
+        // height is left over. Without one the scrollport is simply the whole root, and
+        // the markup stays exactly as it always was.
+        ...(showToolbar ? { display: 'flex', flexDirection: 'column' } : null),
+        ...style,
       }}
     >
+      {showToolbar && (
+        <Toolbar
+          toolbarRef={toolbarRef}
+          fontPx={fontPx}
+          config={toolbarConfig}
+          getColumnList={toolbarColumnList}
+          pinColumns={pinColumns}
+          pin={{
+            left: pinning.effectivePinCount,
+            maxLeft: pinning.maxPinCount,
+            right: pinning.effectiveRightPinCount,
+            maxRight: pinning.maxRightPinCount,
+          }}
+          api={toolbarApi}
+          refocus={refocus}
+        />
+      )}
       <div
-        {...tableProps}
-        style={{ ...tableProps.style, minWidth: totalColumnsWidth, minHeight: '100%', display: 'flex', flexDirection: 'column' }}
+        className="ft-wrap ct-wrap ft-nobar"
+        ref={containerRef}
+        tabIndex={rowNavigation ? 0 : undefined}
+        onKeyDown={onKeyDown}
+        style={{
+          width: '100%',
+          ...(showToolbar ? { flex: '1 1 auto', minHeight: 0 } : { height: '100%' }),
+          overflow: 'auto',
+          outline: 'none',
+          // Vertical scrolling settles on a row boundary (spreadsheet behaviour) instead of
+          // leaving a half-row sliced by the sticky header. `scroll-padding-top` moves the
+          // snapport's top edge below the header, which is what the rows scroll under —
+          // without it a snapped row would align to the hidden top of the scrollport.
+          // `proximity`, not `mandatory`: rows are windowed, so snap targets come and go,
+          // and mandatory snapping fights programmatic scrolls and the end of the list.
+          // Horizontal scrolling is untouched (the axis is `y`).
+          ...(rowSnap ? { scrollSnapType: 'y proximity', scrollPaddingTop: headH } : {}),
+        }}
       >
-        {/* Header */}
-        {headerGroups.map((headerGroup) => {
-          const { key: headerGroupKey, ...headerGroupProps } = headerGroup.getHeaderGroupProps();
-          return (
-          <div
-            key={headerGroupKey}
-            {...headerGroupProps}
-            ref={headRef}
-            className="ft-head ct-head"
-            style={{
-              ...headerGroupProps.style,
-              flex: '0 0 auto',
-              background: '#ffffff',
-              borderBottom: '1px solid #e3e8ee',
-              position: 'sticky',
-              top: 0,
-              zIndex: 4,
-            }}
-          >
-            {headerGroup.headers.map((column) => {
-              const canSort = sortable && !column.disableSortBy;
-              const canSearch = searchable && column.canFilter && !column.disableFilters;
-              // The status strip is a fixed 4px bar — there is nothing in it to resize.
-              const canResize = resizable && !column.disableResizing && column.id !== '__strip';
-              // …and nothing to move: it belongs to the row, not to the caller's columns.
-              const canReorder = reorderable && !column.disableReordering && column.id !== '__strip';
-              const { key: headerKey, ...headerProps } = column.getHeaderProps();
-              const sortDir = column.isSorted ? (column.isSortedDesc ? 'desc' : 'asc') : null;
-              return (
-                <div
-                  key={headerKey}
-                  {...headerProps}
-                  className="ft-th ct-th"
-                  data-ct-col={column.id}
-                  onPointerDown={canReorder ? startColReorder(column.id) : undefined}
-                  onClickCapture={canReorder ? onHeaderClickCapture : undefined}
-                  data-ct-pin={column.pinned || column.pinnedRight ? '1' : undefined}
-                  data-ct-pin-last={column.pinnedLast ? '1' : undefined}
-                  data-ct-pin-right-first={column.pinnedRightFirst ? '1' : undefined}
-                  style={{
-                    ...headerProps.style,
-                    padding: column.noPadding ? 0 : '7px 12px 9px',
-                    boxSizing: 'border-box',
-                    // Containing block for the resize grip. A pinned header overrides
-                    // this with `sticky`, which is just as good an anchor.
-                    position: 'relative',
-                    ...(column.pinned || column.pinnedRight
-                      ? {
-                          position: 'sticky',
-                          ...(column.pinned
-                            ? { left: pinnedLeft[column.id] || 0 }
-                            : { right: pinnedRight[column.id] || 0 }),
-                          // above the scrolling header cells it overlaps
-                          zIndex: 5,
-                          background: '#ffffff',
-                        }
-                      : {}),
-                  }}
-                >
-                  <div
-                    {...(canSort ? column.getSortByToggleProps({ title: undefined }) : {})}
-                    className="ft-th-label ct-th-label"
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      // sort icon sits at the opposite end of the column from the header text:
-                      // left-aligned header -> icon pushed to the far right; right-aligned -> far left.
-                      justifyContent:
-                        canSort && column.align !== 'center' ? 'space-between' : align(column.align),
-                      gap: 4,
-                      cursor: canSort ? 'pointer' : 'default',
-                      userSelect: 'none',
-                      fontWeight: 700,
-                      fontSize: fontPx,
-                      color: '#000000',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    {canSort && column.align === 'right' && <SortIcon direction={sortDir} />}
-                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, minWidth: 0 }}>
-                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{column.render('Header')}</span>
-                      {/* Small blue pin on the freeze-boundary column only — the
-                          indicator of how far the table is frozen. Changing the
-                          boundary is done from the caller's toolbar (via the
-                          imperative setPinCount), not from the header. */}
-                      {((column.pinnedLast && column.pinIndex != null) || column.pinnedRightFirst) && (
-                        <PinIcon
-                          title={
-                            column.pinnedLast
-                              ? 'Columns up to here are pinned'
-                              : 'Columns from here are pinned to the right'
-                          }
-                        />
-                      )}
-                    </span>
-                    {canSort && column.align !== 'right' && <SortIcon direction={sortDir} />}
-                  </div>
-                  {canSearch && <div className="ft-th-filter ct-th-filter" style={{ marginTop: 4 }}>{column.render('Filter')}</div>}
-                  {canResize && (
-                    <div
-                      className="ft-resizer ct-resizer"
-                      onPointerDown={startColResize(column.id)}
-                      onDoubleClick={() => resetColumnWidths(column.id)}
-                      title="Drag to resize · double-click to reset"
-                    />
-                  )}
-                </div>
-              );
-            })}
-          </div>
-          );
-        })}
-
-        {/* Body — fills the space between header and footer */}
         <div
-          {...getTableBodyProps()}
-          ref={bodyWrapRef}
-          style={{ flex: '1 0 auto', position: 'relative', height: rows.length ? rows.length * rowHeight : undefined }}
+          {...tableProps}
+          style={{ ...tableProps.style, minWidth: totalColumnsWidth, minHeight: '100%', display: 'flex', flexDirection: 'column' }}
         >
-          {loading ? (
-            <div style={{ padding: '90px 0', textAlign: 'center' }}>
-              <Spinner text={loadingText} />
-            </div>
-          ) : rows.length === 0 && dataFetched ? (
-            <div style={{ padding: '80px 0', textAlign: 'center', color: '#8a94a6' }}>
-              <InboxIcon />
-              <div style={{ marginTop: 8, fontSize: '13px' }}>{emptyText}</div>
-            </div>
-          ) : listH > 0 ? (
-            // Only the visible slice is mounted; each row is absolutely positioned at
-            // index * rowHeight inside a container of the full content height, so the
-            // wrap's native scrollbar covers the whole list.
-            Array.from({ length: Math.max(0, lastIdx - firstIdx + 1) }, (_, k) => {
-              const index = firstIdx + k;
-              return <VirtualRow key={rows[index].id != null ? rows[index].id : index} data={itemData} index={index} />;
-            })
-          ) : null}
+          <TableHead
+            headerGroups={headerGroups}
+            headRef={headRef}
+            fontPx={fontPx}
+            sortable={sortable}
+            searchable={searchable}
+            resizable={resizable}
+            reorderable={reorderable}
+            pinnedLeft={pinnedLeft}
+            pinnedRight={pinnedRight}
+            startColReorder={startColReorder}
+            startColResize={startColResize}
+            onHeaderClickCapture={onHeaderClickCapture}
+            resetColumnWidths={layout.resetColumnWidths}
+          />
+
+          <TableBody
+            bodyProps={getTableBodyProps()}
+            bodyWrapRef={bodyWrapRef}
+            rows={rows}
+            rowHeight={rowHeight}
+            listH={listH}
+            firstIdx={firstIdx}
+            lastIdx={lastIdx}
+            itemData={itemData}
+            loading={isLoading}
+            loadingText={loadingText}
+            dataFetched={isFetched}
+            emptyText={emptyText}
+          />
+
+          {renderFooter && (
+            <TableFoot
+              footerGroups={footerGroups}
+              footRef={footRef}
+              fontPx={fontPx}
+              footerLeft={footerLeft}
+              pinnedLeft={pinnedLeft}
+              pinnedRight={pinnedRight}
+            />
+          )}
         </div>
-
-        {/* Footer */}
-        {renderFooter &&
-          footerGroups.map((group) => {
-            const { key: footerGroupKey, ...footerGroupProps } = group.getFooterGroupProps();
-            return (
-              <div
-                key={footerGroupKey}
-                {...footerGroupProps}
-                ref={footRef}
-                className="ft-foot ct-foot"
-                style={{
-                  ...footerGroupProps.style,
-                  flex: '0 0 auto',
-                  position: 'sticky',
-                  bottom: 0,
-                  zIndex: 4,
-                  background: '#f4f5f7',
-                  borderTop: '1px solid #e3e8ee',
-                }}
-              >
-                {group.headers.map((column) => {
-                  const { key: footerKey, ...footerProps } = column.getFooterProps();
-                  return (
-                    <div
-                      key={footerKey}
-                      {...footerProps}
-                      className="ft-tf ct-tf"
-                      data-ct-pin={column.pinned || column.pinnedRight ? '1' : undefined}
-                      data-ct-pin-last={column.pinnedLast ? '1' : undefined}
-                      data-ct-pin-right-first={column.pinnedRightFirst ? '1' : undefined}
-                      style={{
-                        ...footerProps.style,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: align(column.align),
-                        padding: column.noPadding ? 0 : '8px 12px',
-                        fontSize: fontPx,
-                        fontWeight: 700,
-                        color: '#000000',
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textAlign: column.align || 'left',
-                        ...(column.pinned || column.pinnedRight
-                          ? {
-                              position: 'sticky',
-                              ...(column.pinned
-                                ? { left: pinnedLeft[column.id] || 0 }
-                                : { right: pinnedRight[column.id] || 0 }),
-                              zIndex: 5,
-                              background: '#f4f5f7',
-                            }
-                          : {}),
-                      }}
-                    >
-                      {column.render('Footer')}
-                    </div>
-                  );
-                })}
-                {footerLeft != null && (
-                  <div
-                    style={{
-                      position: 'absolute',
-                      left: 12,
-                      top: 0,
-                      height: '100%',
-                      display: 'flex',
-                      alignItems: 'center',
-                      fontSize: fontPx,
-                      fontWeight: 700,
-                      color: '#000000',
-                      whiteSpace: 'nowrap',
-                      pointerEvents: 'none',
-                    }}
-                  >
-                    {footerLeft}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-      </div>
-    </div>
-
-      {/* Overlay scrollbars. The vertical track is inset by the header and footer
-          heights, so it runs beside the ROWS only. */}
-      <div
-        className="ft-track ft-track-v"
-        ref={vTrackRef}
-        onPointerDown={onTrackDown('y')}
-        style={{ right: 0, top: headH, height: listH, display: 'none' }}
-      >
-        <div className="ft-thumb" ref={vThumbRef} onPointerDown={startThumbDrag('y')} />
-      </div>
-      <div
-        className="ft-track ft-track-h"
-        ref={hTrackRef}
-        onPointerDown={onTrackDown('x')}
-        style={{ left: 0, right: 11, bottom: 0, display: 'none' }}
-      >
-        <div className="ft-thumb" ref={hThumbRef} onPointerDown={startThumbDrag('x')} />
       </div>
 
-      {/* Follows the pointer during a column resize; hidden the rest of the time. */}
-      <div className="ft-resize-guide" ref={guideRef} style={{ display: 'none' }} />
-
-      {/* Where a dragged column will land; hidden the rest of the time. */}
-      <div className="ft-drop-line" ref={dropRef} style={{ display: 'none' }} />
+      <OverlayBars
+        headH={headH}
+        listH={listH}
+        topOffset={toolH}
+        vTrackRef={bars.vTrackRef}
+        vThumbRef={bars.vThumbRef}
+        hTrackRef={bars.hTrackRef}
+        hThumbRef={bars.hThumbRef}
+        startThumbDrag={bars.startThumbDrag}
+        onTrackDown={bars.onTrackDown}
+        guideRef={guideRef}
+        dropRef={dropRef}
+      />
     </div>
   );
 });

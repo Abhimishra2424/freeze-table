@@ -6,3 +6,6 @@ dist/
 # secrets
 .env
 .npmrc
+
+# test build artefact
+scripts/.unit.build.cjs

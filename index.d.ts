@@ -6,6 +6,38 @@ export declare const ELLIPSIS: React.CSSProperties;
 
 export type FreezeTableAlign = 'left' | 'center' | 'right';
 
+/** Built-in cell shorthands — see `FreezeTableColumn.type`. */
+export type FreezeTableColumnType =
+  | 'text'
+  | 'number'
+  | 'currency'
+  | 'date'
+  | 'datetime'
+  | 'boolean'
+  | 'serial';
+
+/** Built-in footer shorthands — see `FreezeTableColumn.footer`. */
+export type FreezeTableFooterKind = 'sum' | 'avg' | 'min' | 'max' | 'count';
+
+/** What the table is currently doing. Replaces the `loading` + `dataFetched` pair. */
+export type FreezeTableStatus = 'idle' | 'loading' | 'ready';
+
+/**
+ * The user's whole layout as one value — both freeze boundaries, the dragged widths, the
+ * hidden set and the column order. Read it with `getLayout()`, hand it back with
+ * `setLayout()`, seed a fresh table with `defaultLayout`.
+ */
+export interface FreezeTableLayout {
+  /** Frozen column counts. `null` = fall back to the column config's `pinned` flags. */
+  pins?: { left?: number | null; right?: number | null };
+  /** Dragged widths, as an id -> px map. Only columns the user has resized. */
+  widths?: Record<string, number>;
+  /** Ids of the hidden columns. */
+  hidden?: string[];
+  /** Display order: a complete list of ids, hidden ones included, `'__actions'` among them. */
+  order?: string[];
+}
+
 /**
  * Column config. Extends react-table v7's column with the layout/pinning extras
  * FreezeTable adds. `width` / `minWidth` are **pixels**, not flex weights.
@@ -17,17 +49,47 @@ export interface FreezeTableColumn<D extends object = any> {
   accessor?: keyof D | string | ((row: D, index: number) => any);
   /** Required when `accessor` is a function or absent. */
   id?: string;
-  /** Cell renderer. Receives the table instance spread (so `userList` is readable). */
+  /** Cell renderer. Receives the table instance spread (so `userList` / `context` are readable). */
   Cell?: (props: any) => React.ReactNode;
+  /**
+   * Ready-made cell for the common column kinds — alignment, a sensible width floor, an
+   * ellipsis cell with a `title`, and the formatting. Anything you set explicitly wins
+   * over what the type would have filled in.
+   *
+   * - `number` / `currency`: right-aligned, locale grouping (`decimals`, default 2 for
+   *   currency), and a `0` shows rather than blanking.
+   * - `date` / `datetime`: parsed from a Date, epoch, ISO or `'YYYY-MM-DD HH:mm:ss'`
+   *   string and formatted with `dateFormat` / `dateTimeFormat`; min width 110 / 150.
+   * - `boolean`: centred tick / blank (see `booleanLabels`).
+   * - `serial`: the 1..N display-order column — no accessor needed.
+   */
+  type?: FreezeTableColumnType;
+  /** One-off formatter, when a whole `Cell` would be overkill. */
+  format?: (value: any, row: D) => React.ReactNode;
+  /** Decimal places for `number` / `currency` cells and their footer total. */
+  decimals?: number;
+  /** Per-column override of the table's `dateFormat` / `dateTimeFormat`. */
+  dateFormat?: string;
+  /** `[whenTrue, whenFalse]` for a `boolean` column. Default is a tick and a blank. */
+  booleanLabels?: [React.ReactNode, React.ReactNode];
+  /** Render `0` as blank. Default true for text (and untyped) columns, false for numeric ones. */
+  blankZero?: boolean;
+  /**
+   * Footer shorthand, computed over the FILTERED rows and formatted like the cells above
+   * it. A function or node works too — same as `Footer`, which wins if both are given.
+   */
+  footer?: FreezeTableFooterKind | React.ReactNode | ((info: any) => React.ReactNode);
   /** Footer content — a function receives the table instance, so `info.rows` are the FILTERED rows. */
   Footer?: React.ReactNode | ((info: any) => React.ReactNode);
   /** Custom filter UI (e.g. a dropdown for an enum column). */
   Filter?: (props: any) => React.ReactNode;
   /** Custom react-table filter fn, or the name of a built-in one. */
   filter?: string | ((rows: Row<D>[], columnIds: string[], filterValue: any) => Row<D>[]);
-  /** Column width in px (default 1 — i.e. effectively `minWidth`). */
+  /** Column width in px. On its own it also becomes the column's `minWidth`, so one
+   *  number is one width — `{ width: 45 }` renders 45px, not react-table's 90px floor. */
   width?: number;
-  /** Minimum width in px (default 90). A `width` below this is silently ignored. */
+  /** Minimum width in px. Defaults to `width` when that is given, else 90. Set both to
+   *  let a column render wider than its floor. */
   minWidth?: number;
   /** Maximum width in px. */
   maxWidth?: number;
@@ -72,7 +134,12 @@ export interface FreezeTableProps<D extends object = any> {
   Actions?: React.ComponentType<FreezeTableActionsProps<D>>;
   /** Passed straight through to `Actions` as its `fn` prop. */
   fn?: any;
-  /** TOTAL table height in px (header + body + footer). Default 500. */
+  /**
+   * TOTAL table height (toolbar + header + body + footer). A number is pixels; a string
+   * with a unit is used as-is (`'100%'`, `'60vh'`, `'calc(100vh - 120px)'`), and
+   * `'fill'` means `'100%'`. Default 500. A percentage only resolves against a parent
+   * with a definite height.
+   */
   height?: number | string;
   /** Row height in px. Default 44 (dense list: 35). */
   rowHeight?: number;
@@ -80,6 +147,26 @@ export interface FreezeTableProps<D extends object = any> {
   fontSize?: number;
   /** Forwarded onto the table instance → readable inside every `Cell`. */
   userList?: any;
+  /**
+   * Also forwarded onto the table instance, and the intended way for a `Cell` to reach
+   * the caller's callbacks: `Cell: ({ value, context }) => ...`. Without it, a column
+   * config carrying a callback has to be rebuilt as a factory.
+   */
+  context?: any;
+  /** BCP-47 locale for `number` / `currency` columns (e.g. `'en-IN'`). Default: the browser's. */
+  locale?: string;
+  /** Prefix for `currency` cells and totals, e.g. a currency symbol. */
+  currencySymbol?: string;
+  /** Pattern for `date` columns. Tokens: YYYY YY MMM MM DD HH hh mm ss A. Default `'DD-MM-YYYY'`. */
+  dateFormat?: string;
+  /** Pattern for `datetime` columns. Default `'DD-MM-YYYY HH:mm'`. */
+  dateTimeFormat?: string;
+  /**
+   * One prop instead of the `loading` + `dataFetched` pair: `'loading'` shows the
+   * spinner, `'ready'` shows the rows (or the empty state), `'idle'` shows neither —
+   * nothing has been asked for yet. Wins over the old pair when both are given.
+   */
+  status?: FreezeTableStatus;
   /** Master switch for sorting. Default true. */
   sortable?: boolean;
   /** Master switch for the per-column search boxes. Default true. */
@@ -152,6 +239,34 @@ export interface FreezeTableProps<D extends object = any> {
   /** Fires whenever the column order changes, with the full order (hidden columns
    *  included, and `'__actions'` when there is an Action column). */
   onColumnOrderChange?: (order: string[]) => void;
+  /**
+   * Starting layout for a table with nothing stored yet — e.g. one loaded from a server.
+   * A layout in `localStorage` under `pinStorageKey` wins over it; the column config is
+   * the fallback for anything it leaves out.
+   */
+  defaultLayout?: FreezeTableLayout;
+  /**
+   * Fires whenever ANY part of the layout changes — the one callback to persist a view
+   * per user, instead of stitching together the three `onColumn*` callbacks (and finding
+   * the freeze boundaries have none).
+   */
+  onLayoutChange?: (layout: FreezeTableLayout) => void;
+  /**
+   * Render the built-in toolbar: a **Columns** menu (show / hide, move, reset) and a
+   * **Freeze** menu (both edges, with the entries past the viewport cap disabled). `true`
+   * for both; an object to drop one or add your own content beside them. Default false —
+   * the imperative ref is still there for a toolbar of your own.
+   */
+  toolbar?: boolean | {
+    /** Show the Columns menu. Default true. */
+    columns?: boolean;
+    /** Show the Freeze menu. Default true. */
+    pin?: boolean;
+    /** Your own content, left-aligned (a title, filters, a Refresh button…). */
+    left?: React.ReactNode;
+    /** Your own content, right-aligned — just before the built-in menus. */
+    right?: React.ReactNode;
+  };
   /** Extra class on the root element. */
   className?: string;
   /** Extra inline styles merged onto the root element. */
@@ -207,6 +322,8 @@ export interface FreezeTableHandle {
   getColumnWidths(): Record<string, number>;
   /** Set one column's width in px (clamped to `minColumnWidth`). */
   setColumnWidth(id: string, px: number): void;
+  /** Replace the whole width map at once. */
+  setColumnWidths(widths: Record<string, number>): void;
   /** Clear one column's width override, or every one when called with no argument. */
   resetColumnWidths(id?: string): void;
   /** Ids of the currently hidden columns. */
@@ -234,6 +351,16 @@ export interface FreezeTableHandle {
   /** Everything a column menu needs, in the current DISPLAY order, with the Action
    *  column included so the menu can move that one too. */
   getColumnList(): FreezeTableColumnInfo[];
+
+  /** The whole layout as one value — freeze boundaries, widths, hidden set, order.
+   *  Freeze counts are reported UNCAPPED, so a boundary saved on a wide screen is not
+   *  trimmed by the window it happened to be read from. */
+  getLayout(): Required<FreezeTableLayout>;
+  /** Apply a layout. Every key is optional — pass `{ hidden: [...] }` and the rest is
+   *  left alone. `null` restores the column config. */
+  setLayout(layout: FreezeTableLayout | null): void;
+  /** Drop every user layout choice and go back to the column config. */
+  resetLayout(): void;
 
   /** @deprecated Pre-0.6 name for {@link getLeftPinCount}. */
   getPinCount(): number;

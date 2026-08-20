@@ -6,25 +6,47 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 `freeze-table` — a published npm package (no app, no framework). A single React
 component: a virtualized list table with frozen columns, built on react-table v7 with
-zero UI-library dependencies. The whole implementation is three files under `src/`.
+zero UI-library dependencies. `src/` is a small module tree behind one exported
+component — see "File layout".
 
 ## Commands
 
 ```bash
 npm run build     # rimraf dist + rollup -c → dist/freeze-table.{esm,cjs}.js
+npm test          # build + smoke + golden + unit + dom — run this before calling anything done
 npm run smoke     # node scripts/smoke.js — server-renders dist/*.cjs.js and asserts markup
+npm run golden    # byte-compares 30 SSR snapshots against scripts/__golden__/
+npm run test:unit # bundles scripts/unit.js and runs the src/lib checks (no React)
+npm run test:dom  # scripts/dom.cjs — mounts the bundle in jsdom and drives it
 npm run demo      # bundles example/demo.jsx → example/demo.bundle.js
 npm run release   # loads .env, then npm publish (which runs prepublishOnly → build)
 ```
 
-- **`npm run smoke` tests the BUILT bundle, not `src/`.** Always `npm run build` first,
-  or you are asserting against a stale `dist/`. This is the only test suite — there is no
-  jest/vitest, no jsdom, no linter. Verifying a change means: build, smoke, then
-  `npm run demo` and open `example/index.html` from the filesystem (it bundles React in,
-  so no server is needed).
+- **`npm run smoke` and `npm run golden` test the BUILT bundle, not `src/`.** Always
+  `npm run build` first (or just `npm test`, which does), or you are asserting against a
+  stale `dist/`. There is no test framework and no linter — the four suites are plain node
+  scripts, and jsdom is the only test dependency. Verifying a change means: `npm test`,
+  then `npm run demo` and open `example/index.html` from the filesystem (it bundles React
+  in, so no server is needed).
 - Smoke assertions are string matches against the SSR output (`html.includes('left:59px')`).
   A layout change that shifts an offset breaks them legitimately — recompute the expected
   value from the column widths rather than loosening the assertion.
+- **Golden snapshots are the refactor net.** `scripts/golden.js` renders 30 configurations
+  and compares the whole markup byte-for-byte. A change that is meant to move code around
+  without changing output must leave every file untouched; a deliberate behaviour change
+  means `npm run golden:update` and *reading the diff* before committing it.
+- Rows never appear in the smoke or golden output: they render only once the row band has
+  been measured, and there is nothing to measure on the server. That half — windowing,
+  typed cells, keyboard navigation, the toolbar menus, the layout round-trip — is covered
+  by `npm run test:dom`, which mounts the built bundle in jsdom over a **fake layout
+  engine** (jsdom reports every offsetHeight as 0, so `scripts/dom.cjs` stubs sizes per
+  element role). It also stubs `requestAnimationFrame` to run inline, which is why the
+  windowing assertions are deterministic — and why a test must not exercise the reorder
+  drag, whose rAF loop would spin. The drags remain demo-only.
+- `npm run test:unit` covers `src/lib/`: the freeze offsets, the pin caps,
+  `reconcileOrder`, the formatters and `normalizeColumn`. It bundles through rollup
+  because `src/` is ESM inside a CommonJS package. Pure logic worth testing belongs in
+  `src/lib/`, not in a hook.
 - `dist/` is gitignored but is what `main`/`module` point at; `prepublishOnly` rebuilds it.
   `example/` and `scripts/` are gitignored from the npm tarball but tracked in git.
 - **Publish with `npm run release`, not bare `npm publish`.** `.npmrc` (gitignored) reads
@@ -55,7 +77,31 @@ column freezing. Treat that as the first thing to check when the pinned block "s
 
 ### File layout
 
-- `src/FreezeTable.js` — the entire component (~1200 lines, one `forwardRef` function).
+- `src/FreezeTable.js` — the `forwardRef` shell: reads the props, calls the hooks below in
+  order, renders the four child components. It holds no logic of its own; anything that
+  grows past a few lines here belongs in a hook.
+- `src/lib/columnTypes.js` — the `type` / `footer` / `format` shorthands: the date and
+  number formatters, one entry per column type, and `normalizeColumns`, which expands a
+  caller's config into what react-table gets. Two rules hold it together: **anything the
+  caller wrote explicitly wins**, and a column using no shorthand is returned with its
+  IDENTITY intact (cloning every column would break the memo chain downstream).
+- `src/lib/props.js` — `resolveHeight`, and anywhere else a prop needs interpreting.
+- `src/lib/columns.js` — **pure** column maths, no React and no DOM: `colIdOf`,
+  `colWidthOf`, `reconcileOrder`, `applyLayout`, the pin caps, `stickyOffsets`, and the
+  shared constants (`OVERSCAN`, `DRAG_SLOP`, `PIN_MIN_SCROLLABLE`, `ELLIPSIS`). This is
+  the only file with unit tests, so put new logic here whenever it can be expressed as a
+  function of its arguments.
+- `src/hooks/` — one concern each, called from the shell in this order:
+  `useLayoutStorage` (the `pinStorageKey` reads/writes) → `useColumnLayout` (widths,
+  hidden set, order → `cols`) → `usePinning` (the two freeze counts and their caps) →
+  `useTableColumns` (`cols` + `__strip`/`__actions` → what react-table receives) →
+  `useMeasurements` → `useTableScroll` → `useOverlayScrollbars` → `useRowNavigation` →
+  `useColumnDrag` → `useTableHandle` (the whole imperative ref API). Plus
+  `useStabilityWarning`, a dev-only console warning when `columns` / `data` arrive as a
+  new array with the same contents several renders running.
+- `src/components/` — `TableHead`, `TableBody` (+ the memoized `VirtualRow`), `TableFoot`,
+  `OverlayBars`, `Toolbar` (the built-in Columns / Freeze menus), and `defaults.js` (the
+  default cell and filter renderers).
 - `src/internal-ui.js` — inline-SVG replacements for the Semantic UI pieces the component
   originally used (sort/pin/inbox/search icons, filter input, spinner), plus `injectStyles`
   (one idempotent `<style>` tag carrying only what inline styles cannot express: keyframes,
@@ -63,6 +109,25 @@ column freezing. Treat that as the first thing to check when the pinned block "s
 - `src/index.js` — re-exports, including the `CommonTable` alias.
 - `index.d.ts` — **hand-written and not generated**. Every prop/ref change must be mirrored
   here or consumers silently lose typing.
+
+### The shorthand layer (1.0)
+
+`type`, `footer`, `format` and the `width`-implies-`minWidth` rule are all one thing:
+sugar over the config that already existed. Three rules keep it from becoming a second,
+competing API —
+
+- **Explicit wins.** A `type` only fills in keys the caller left out. `{ type: 'currency',
+  align: 'left' }` is a left-aligned currency column, not a conflict. The one exception is
+  deliberate: an explicit `width` overrides the type's `minWidth` floor, because
+  `{ type: 'date', width: 60 }` has to mean 60.
+- **Identity is preserved.** `normalizeColumns` returns the SAME array (and the same
+  column objects) when nothing needed expanding — the whole memo chain hangs off that
+  identity.
+- **Nothing is only reachable through a shorthand.** Every one of them expands to config a
+  caller could have written by hand, which is what keeps the escape hatch honest.
+
+Same principle for the toolbar: it drives the ref API and nothing else. If a menu can do
+something the ref cannot, that is a bug in the split.
 
 ### Pinning model
 
@@ -74,7 +139,8 @@ middle column would have its neighbours scroll out from under it.
   (`defaultPinCount` / `defaultRightPinCount`).
 - The user's choice lives in state, is set via the ref (`setLeftPinCount` /
   `setRightPinCount`), and persists to `localStorage` under `ctPin:<key>` / `ctPinR:<key>`
-  when `pinStorageKey` is given. The pin *menu* is the caller's to render.
+  when `pinStorageKey` is given. The pin *menu* is either the built-in toolbar's or the
+  caller's — the component's state is the same either way.
 - A hard cap (`maxPinCount` / `maxRightPinCount`) keeps `PIN_MIN_SCROLLABLE = 250px` of
   viewport for the scrolling columns. Right is budgeted first, then left gets the
   remainder. Getters report the **effective** (capped) count; `getMax…` exposes the cap so
@@ -88,16 +154,16 @@ middle column would have its neighbours scroll out from under it.
 ### Column widths, visibility and order (0.7.0 / 0.8.0)
 
 Same shape as pinning: the column config is only the **default**, the user's choice lives
-in state and is applied on top, and the *menu* is the caller's to render (`getColumnList()`
-feeds it).
+in state and is applied on top, and the *menu* is either the built-in toolbar's or the
+caller's own (`getColumnList()` feeds both).
 
 - All three are keyed by `colIdOf(c)` (explicit `id`, else a string accessor). A column
   with an accessor function and no id cannot be hidden, resized or moved (it rides along
   under a positional `__col<i>` key so the order list stays complete).
-- The `layout` memo (hidden dropped, resized widths applied, user order applied) is derived
-  from the `columns` prop right at the top of the component and yields `cols` +
-  `actionPos`. **Everything downstream reads `cols`, never `columns`** — pin defaults, pin
-  caps, `pinIndex`, the sticky offsets. Only the layout-state block and `getColumnList()`
+- `applyLayout()` (hidden dropped, resized widths applied, user order applied) is derived
+  from the `columns` prop inside `useColumnLayout` and yields `cols` + `actionPos`.
+  **Everything downstream reads `cols`, never `columns`** — pin defaults, pin caps,
+  `pinIndex`, the sticky offsets. Only `useColumnLayout` itself and `getColumnList()`
   still look at the raw prop.
 - A resize writes `width`/`minWidth`/`maxWidth` to the same number, because react-table
   renders `min(max(minWidth, width), maxWidth)`.
@@ -158,7 +224,11 @@ changes. `rollup.demo.mjs` is a separate IIFE build that inlines React too.
   migrating off a local `CommonTable`. Don't drop the twins.
 - Styling is inline; there is no stylesheet for consumers to import. New visuals go inline
   unless they need a selector/pseudo-class/keyframe, which goes in `STYLESHEET`.
-- README.md is the full user manual (13 sections) and is the package's main documentation —
-  update the relevant section with any behaviour or prop change.
+- README.md is the full user manual (15 sections) and is the package's main documentation —
+  update the relevant section with any behaviour or prop change, and `index.d.ts` with it.
+- **Additive, with the old spelling kept working.** 1.0 added `status`, `toolbar`,
+  `context` and the layout API without removing `loading`/`dataFetched`, the pre-0.6 pin
+  method names, or `CommonTable`. Keep doing that: a published package's old props are
+  someone's working screen.
 - Commits are one per release: `vX.Y.Z — <what changed, lowercase>`, bumping
   `package.json` in the same commit.

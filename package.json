@@ -1,7 +1,7 @@
 {
   "name": "freeze-table",
-  "version": "0.8.0",
-  "description": "Virtualized React list table — sortable, per-column filters, frozen (pinned) columns, keyboard row navigation, sticky totals footer. Built on react-table v7. Zero UI-library dependencies.",
+  "version": "1.0.0",
+  "description": "Virtualized React list table \u2014 frozen (pinned) columns, drag to resize/reorder/hide, per-column filters, sortable, keyboard row navigation, sticky totals footer, and a built-in column + freeze toolbar. Built on react-table v7. Zero UI-library dependencies.",
   "keywords": [
     "react",
     "table",
@@ -13,7 +13,12 @@
     "frozen-columns",
     "pinned-columns",
     "react-table",
-    "list"
+    "list",
+    "column-resize",
+    "column-reorder",
+    "sticky-header",
+    "excel-like",
+    "erp"
   ],
   "license": "MIT",
   "author": "abmishra (https://www.npmjs.com/~abmishra)",
@@ -48,6 +53,11 @@
     "build": "rimraf dist && rollup -c",
     "prepublishOnly": "npm run build",
     "smoke": "node scripts/smoke.js",
+    "golden": "node scripts/golden.js",
+    "golden:update": "node scripts/golden.js --update",
+    "test:unit": "rollup -c rollup.test.mjs && node scripts/.unit.build.cjs",
+    "test:dom": "node scripts/dom.cjs",
+    "test": "npm run build && npm run smoke && npm run golden && npm run test:unit && npm run test:dom",
     "demo": "rollup -c rollup.demo.mjs",
     "release": "set -a && . ./.env && set +a && npm publish"
   },
@@ -62,6 +72,7 @@
     "@rollup/plugin-commonjs": "^25.0.8",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-replace": "^5.0.7",
+    "jsdom": "^29.1.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-table": "^7.8.0",

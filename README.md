@@ -21,8 +21,18 @@ That is the whole install. `react-table` v7 is bundled in (see
 ```jsx
 import { FreezeTable } from 'freeze-table';
 
-<FreezeTable columns={columns} data={rows} height={560} />
+const columns = [
+  { type: 'serial', pinned: true },
+  { Header: 'Customer', accessor: 'name', width: 200, pinned: true },
+  { Header: 'Invoice date', accessor: 'date', type: 'date' },
+  { Header: 'Amount', accessor: 'amount', type: 'currency', width: 140, footer: 'sum' },
+];
+
+<FreezeTable columns={columns} data={rows} height={560} toolbar />
 ```
+
+That table sorts, searches per column, freezes its first two columns, totals the amount
+column in a sticky footer, and ships its own **Columns** and **Freeze** menus.
 
 ---
 
@@ -30,8 +40,11 @@ import { FreezeTable } from 'freeze-table';
 
 Most grids either give you a plain HTML table that dies at 2,000 rows, or a full
 datagrid framework with its own theming system. This one sits in between: it does
-exactly what an accounting / ERP list screen needs, in ~900 lines you can read.
+exactly what an accounting / ERP list screen needs, in a handful of files you can read —
+a 300-line component shell over one hook per concern.
 
+- **Nothing to import but the component.** No CSS file, no theme provider, no plugin
+  registration. `npm i freeze-table` and the table above is the whole setup.
 - **One scrollport, both axes.** Header, body and footer are children of the same wide
   inner div, so horizontal scrolling moves them together — columns never drift apart.
 - **Frozen columns are real `position: sticky`.** Nothing runs in JS per scroll frame,
@@ -45,6 +58,10 @@ exactly what an accounting / ERP list screen needs, in ~900 lines you can read.
   `pinStorageKey`). Even the Action column can be dragged out of the right-hand end.
 - **Selection repaints imperatively**, so arrow-key navigation does not re-render every
   visible row.
+- **The config is short.** `type: 'currency'` is the alignment, the width floor, the
+  ellipsis cell, the `title` and the grouping; `footer: 'sum'` is the reduce *and* the
+  formatting. `toolbar` is the column and freeze menus. Nothing here is a framework you
+  have to adopt — every one of them is a shorthand for something you can still write out.
 
 ---
 
@@ -54,7 +71,7 @@ exactly what an accounting / ERP list screen needs, in ~900 lines you can read.
 2. [Layout and scroll model](#2-layout-and-scroll-model)
 3. [Column config](#3-column-config)
 4. [Props](#4-props)
-5. [Imperative ref API](#5-imperative-ref-api)
+5. [Toolbar and imperative ref API](#5-toolbar-and-imperative-ref-api)
 6. [Keyboard navigation and body states](#6-keyboard-navigation-and-body-states)
 7. [Footer totals](#7-footer-totals)
 8. [Frozen (pinned) columns](#8-frozen-pinned-columns)
@@ -64,6 +81,7 @@ exactly what an accounting / ERP list screen needs, in ~900 lines you can read.
 12. [Styling hooks](#12-styling-hooks)
 13. [Gotchas](#13-gotchas)
 14. [Demo, build, compatibility](#14-demo-build-compatibility)
+15. [What changed in 1.0](#15-what-changed-in-10)
 
 ---
 
@@ -71,21 +89,18 @@ exactly what an accounting / ERP list screen needs, in ~900 lines you can read.
 
 ```jsx
 import React, { useMemo, useRef } from 'react';
-import { FreezeTable, ELLIPSIS } from 'freeze-table';
+import { FreezeTable } from 'freeze-table';
 
 const COLUMNS = [
-  { Header: '#', id: 'sl', width: 50, minWidth: 50, align: 'right', pinned: true,
-    disableFilters: true, disableSortBy: true,
-    Cell: ({ row, rows }) => rows.indexOf(row) + 1 },
+  // The 1..N display-order column. No accessor, no Cell, no `disableSortBy`.
+  { type: 'serial', pinned: true },
 
-  { Header: 'Customer Name', accessor: 'name', width: 200, minWidth: 200, pinned: true,
-    Cell: ({ value }) => <div style={ELLIPSIS} title={value}>{value}</div>,
-    Footer: (info) => `Count : ${info.rows.length}` },
+  { Header: 'Customer Name', accessor: 'name', width: 200, pinned: true, footer: 'count' },
 
-  { Header: 'Amount', accessor: 'amount', width: 140, minWidth: 140, align: 'right',
-    Footer: (info) => info.rows
-      .reduce((s, r) => s + Number(r.values.amount || 0), 0)
-      .toLocaleString('en-IN', { minimumFractionDigits: 2 }) },
+  // `type` brings the alignment, the width floor, the ellipsis + title cell and the
+  // formatting; `footer: 'sum'` brings the reduce, formatted the same way.
+  { Header: 'Invoice date', accessor: 'invoice_date', type: 'datetime' },
+  { Header: 'Amount', accessor: 'amount', type: 'currency', width: 140, footer: 'sum' },
 ];
 
 export default function CustomerList({ byId, fetched, openRow }) {
@@ -99,13 +114,39 @@ export default function CustomerList({ byId, fetched, openRow }) {
       columns={columns}
       data={data}
       height={560}
-      loading={!fetched}
-      dataFetched={fetched}
+      status={fetched ? 'ready' : 'loading'}
+      toolbar                      // Columns + Freeze menus, rendered for you
+      locale="en-IN"
+      currencySymbol="₹"
       pinStorageKey="customer-list"
       onRowEnter={(row) => openRow(row)}
     />
   );
 }
+```
+
+Nothing above is required except `columns` and `data`. Everything else — `type`,
+`footer`, `toolbar`, `status`, `pinStorageKey` — is a shorthand you can drop back down to
+its longhand (`Cell`, `Footer`, your own menus, `loading` + `dataFetched`, the ref API) the
+moment a screen needs something the shorthand does not cover.
+
+### Writing it the long way
+
+The same two columns without any shorthand, which is what every version before 1.0
+required — and still works exactly as it did:
+
+```jsx
+{ Header: '#', id: 'sl', width: 50, minWidth: 50, align: 'right',
+  disableFilters: true, disableSortBy: true,
+  Cell: ({ row, rows }) => rows.indexOf(row) + 1 },
+
+{ Header: 'Amount', accessor: 'amount', width: 140, minWidth: 140, align: 'right',
+  Cell: ({ value }) => (
+    <div style={ELLIPSIS}>{Number(value || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
+  ),
+  Footer: (info) => info.rows
+    .reduce((s, r) => s + Number(r.values.amount || 0), 0)
+    .toLocaleString('en-IN', { minimumFractionDigits: 2 }) },
 ```
 
 Both `columns` and `data` should be memoized — see [Gotchas](#13-gotchas).
@@ -173,12 +214,19 @@ sticky.
 
 ```js
 {
-  Header,           // string | node. A plain string is best (a pin menu can list it)
+  Header,           // string | node. A plain string is best (a menu can list it)
   accessor,         // field key, or (row) => value (an accessor fn also needs `id`)
   id,               // required when accessor is a fn or absent
+  type,             // 'text' | 'number' | 'currency' | 'date' | 'datetime' | 'boolean' | 'serial'
+  footer,           // 'sum' | 'avg' | 'min' | 'max' | 'count' | node | fn(info)
+  format,           // (value, row) => node — a one-off formatter, no Cell needed
+  decimals,         // number/currency decimal places (currency defaults to 2)
+  dateFormat,       // per-column override of the table's date pattern
+  booleanLabels,    // [whenTrue, whenFalse] for a boolean column
+  blankZero,        // render 0 as blank (default: true for text, false for numbers)
   Cell,             // optional renderer; default prints the raw value with ellipsis + title
-  width,            // px (default 1 — i.e. effectively minWidth)
-  minWidth,         // px (default 90) — an unconfigured column is 90px wide
+  width,            // px — on its own this is ALSO the minWidth
+  minWidth,         // px (defaults to `width`, else 90)
   maxWidth,         // px
   align,            // 'left' | 'center' | 'right' — header, cells and footer
   disableFilters,   // hide this column's search box
@@ -194,6 +242,44 @@ sticky.
 }
 ```
 
+### Column types
+
+`type` is a shorthand for the four or five lines a column of that kind always needed.
+It only fills in what you did **not** write — `{ type: 'currency', align: 'left' }` is a
+left-aligned currency column, not an argument.
+
+| `type`      | Fills in                                                                             |
+|-------------|--------------------------------------------------------------------------------------|
+| `text`      | ellipsis cell with a `title` (the default renderer, named)                            |
+| `number`    | right-aligned, locale grouping, `decimals` (default: as they come, max 3)             |
+| `currency`  | right-aligned, locale grouping, 2 decimals, optional `currencySymbol` prefix          |
+| `date`      | `minWidth: 110`, formatted with `dateFormat` (default `'DD-MM-YYYY'`)                  |
+| `datetime`  | `minWidth: 150`, formatted with `dateTimeFormat` (default `'DD-MM-YYYY HH:mm'`)        |
+| `boolean`   | centred, `✓` / blank — override with `booleanLabels: ['Yes', 'No']`                    |
+| `serial`    | the whole 1..N display-order column: `#` header, 50px, right-aligned, no sort/search   |
+
+Date columns accept a `Date`, an epoch number, an ISO string, or the
+`'YYYY-MM-DD HH:mm:ss'` a SQL backend hands back (Safari refuses that one until the space
+becomes a `T`, which is handled here). Anything unparseable is printed **as it came**,
+never as `Invalid Date`. Format tokens: `YYYY YY MMM MM DD HH hh mm ss A`.
+
+`serial` counts through `rows` — the filtered and sorted set — so the numbering stays
+1..N after any sort or search.
+
+A **zero** renders as blank in text (and untyped) columns and as a real `0` in numeric
+ones. These lists are financial: a column of zeros is noise, but a formatted `0.00` in an
+amount column is information. `blankZero` overrides it either way.
+
+### Footer shorthands
+
+`footer: 'sum'` computes over `info.rows` — the **filtered** rows, so the total follows
+the search boxes — and formats the result with the column's own formatter, so a currency
+total lands with the same decimals and grouping as the cells above it. `'avg'`, `'min'`,
+`'max'` and `'count'` work the same way. Non-numeric and blank values are skipped rather
+than turning the total into `NaN`.
+
+`Footer` (the react-table key) still works and wins if you give both.
+
 ### Widths are pixels, not flex weights
 
 react-table computes `totalWidth = min(max(minWidth, width), maxWidth)`, and
@@ -201,8 +287,13 @@ react-table computes `totalWidth = min(max(minWidth, width), maxWidth)`, and
 `useResizeColumns` does, and this component does not use it. So every cell renders
 `flex: 0 0 auto` at `totalWidth` px, and **nothing stretches to fill leftover space**.
 
-Give real pixel values. A `width` below `minWidth` is silently ignored
-(`width: 2.4, minWidth: 200` → a 200px column).
+**A `width` on its own sets the `minWidth` too**, so one number means one width:
+`{ width: 45 }` renders 45px. (Before 1.0 it rendered 90px — react-table's floor — and
+the fix was to repeat the number, which is why every older config says
+`width: 120, minWidth: 120`. Those still mean exactly what they did.)
+
+Set both when you want a column that renders wider than its floor. A `width` below an
+**explicit** `minWidth` is still ignored (`width: 2.4, minWidth: 200` → a 200px column).
 
 A **dragged** width (§9) overwrites `width`, `minWidth` **and** `maxWidth` with the same
 number, precisely so that expression collapses to it — the config's floor and ceiling are
@@ -218,8 +309,21 @@ the default, and an explicit drag outranks both.
   `Cell: ({ row, rows }) => rows.indexOf(row) + 1`. Using `rows` (the filtered + sorted
   set) keeps the numbering 1..N after any sort or filter; `row.index` alone would shuffle.
 
-Only `userList` is forwarded, so a `Cell` cannot reach an arbitrary callback. Export the
-columns as a **factory** taking the callback and memoize it in the caller:
+`context` is the general-purpose version of the same thing, and the intended way for a
+cell to reach your callbacks:
+
+```jsx
+<FreezeTable columns={columns} data={rows} context={{ openPopup, canEdit }} />
+
+{ Header: 'Customer', accessor: 'name',
+  Cell: ({ value, row, context }) => (
+    <a onClick={() => context.openPopup(row.original)}>{value}</a>
+  ) }
+```
+
+That keeps `columns` a module-level constant. The older way — a **factory** rebuilt in
+the caller — still works, and is what you want when a column's *structure* (not just its
+callbacks) depends on props:
 
 ```js
 const columns = useMemo(() => makeColumns(openPopup), []);
@@ -237,13 +341,16 @@ const columns = useMemo(() => makeColumns(openPopup), []);
 
 ### Date columns
 
-Format in the `Cell`, and give date-time columns `minWidth: 150` so `DD-MM-YYYY HH:mm:ss`
-is not clipped:
+`type: 'datetime'` covers it — including the 150px floor that keeps `DD-MM-YYYY HH:mm`
+from being clipped:
 
 ```js
-{ Header: 'Created', accessor: 'created_at', width: 150, minWidth: 150,
-  Cell: ({ value }) => <div style={ELLIPSIS}>{fmt(value)}</div> }
+{ Header: 'Created', accessor: 'created_at', type: 'datetime' }
 ```
+
+For a pattern this column alone needs, add `dateFormat`; to change it for the whole
+table, use the `dateFormat` / `dateTimeFormat` props. For anything the tokens cannot
+express, `format: (v) => myOwnFormatter(v)` keeps the ellipsis cell and drops the parsing.
 
 ---
 
@@ -253,7 +360,8 @@ is not clipped:
 |---------------------|-----------------------|----------------------------------------------------------------------|
 | `columns`           | (required)            | Column config array. **Memoize it**                                  |
 | `data`              | (required)            | Row array. **Memoize it**                                            |
-| `height`            | `500`                 | **Total** table height in px (header + body + footer)                |
+| `height`            | `500`                 | **Total** table height — a number is px, `'100%'` / `'60vh'` / `'calc(…)'` / `'fill'` are used as-is |
+| `toolbar`           | `false`               | Render the built-in **Columns** and **Freeze** menus (§5)            |
 | `rowHeight`         | `44`                  | Row height px (a dense list uses `35`)                               |
 | `fontSize`          | `12`                  | Drives cells, header labels and footer (dense: `11`)                 |
 | `Actions`           | —                     | Component for the auto-appended Action column                        |
@@ -262,10 +370,16 @@ is not clipped:
 | `pinActions`        | `false`               | Freeze just the Action column against the edge it sits at (§8)       |
 | `actionIndex`       | `'last'`              | Where the Action column **starts** — `'first'`, `'last'` or an index (§9) |
 | `userList`          | —                     | Forwarded onto the table instance → readable in every `Cell`         |
+| `context`           | —                     | Also forwarded — the intended way for a `Cell` to reach your callbacks (§3) |
+| `locale`            | browser               | BCP-47 locale for `number` / `currency` columns, e.g. `'en-IN'`      |
+| `currencySymbol`    | —                     | Prefix for `currency` cells and totals                               |
+| `dateFormat`        | `'DD-MM-YYYY'`        | Pattern for `date` columns                                           |
+| `dateTimeFormat`    | `'DD-MM-YYYY HH:mm'`  | Pattern for `datetime` columns                                       |
+| `status`            | —                     | `'idle' \| 'loading' \| 'ready'` — one prop instead of `loading` + `dataFetched` (§6) |
 | `sortable`          | `true`                | Master switch for sorting                                            |
 | `searchable`        | `true`                | Master switch for the per-column search boxes                        |
-| `loading`           | `false`               | Spinner + `loadingText` instead of the body                          |
-| `dataFetched`       | `true`                | Gate for the empty state — **always wire both** (§6)                 |
+| `loading`           | `false`               | Spinner + `loadingText` instead of the body — superseded by `status` |
+| `dataFetched`       | `true`                | Gate for the empty state — superseded by `status` (§6)               |
 | `emptyText`         | `'No records found'`  | Empty-state copy                                                     |
 | `loadingText`       | `'Fetching records…'` | Loading-state copy                                                   |
 | `footerLeft`        | `null`                | Static left-aligned footer label (prefer a column `Footer` — §7)     |
@@ -289,17 +403,59 @@ is not clipped:
 | `onColumnResize`    | —                     | `(id, width, widths)` — `width` is `null` on a reset (§9)            |
 | `onColumnVisibilityChange` | —              | `(hiddenIds)` whenever a column is hidden or shown (§9)              |
 | `onColumnOrderChange` | —                   | `(order)` whenever the column order changes (§9)                     |
+| `defaultLayout`     | —                     | Starting layout for a table with nothing stored yet (§5)             |
+| `onLayoutChange`    | —                     | `(layout)` whenever **any** part of the layout changes (§5)          |
 | `className`         | —                     | Extra class on the root element                                      |
 | `style`             | —                     | Extra inline styles merged onto the root element                     |
 
 ---
 
-## 5. Imperative ref API
+## 5. Toolbar and imperative ref API
+
+Two ways to drive the table from outside. Start with the toolbar; drop to the ref when
+you want the menus to look like the rest of your app.
+
+### The built-in toolbar
+
+```jsx
+<FreezeTable columns={columns} data={rows} toolbar />
+```
+
+That renders a strip above the header with two menus:
+
+- **Columns** — show / hide (locked columns are listed but disabled), move a column one
+  place either way, and *Show all* / *Reset widths* / *Reset order*. It stays open while
+  you toggle, so several changes are one visit.
+- **Freeze** — "Up to <column>" for the left edge and "From <column>" for the right, plus
+  *No freeze*. Entries past what the viewport allows are **disabled, not hidden**, so the
+  menu shows why a column cannot be frozen instead of quietly omitting it. The button
+  carries the current counts.
+
+Every choice hands focus back to the rows, so the arrow keys keep working without a click.
+
+Pass an object to configure it:
+
+```jsx
+toolbar={{
+  columns: true,                     // show the Columns menu (default true)
+  pin: false,                        // drop the Freeze menu
+  left: <strong>Invoices</strong>,   // your own content, left-aligned
+  right: <button onClick={refresh}>Refresh</button>,   // …and just before the menus
+}}
+```
+
+The toolbar sits **outside** the scrollport, so it does not disturb the freeze — and it
+counts towards `height`, which is the whole table box.
+
+### The ref
 
 ```jsx
 const tableRef = useRef(null);
 <FreezeTable ref={tableRef} … />
 ```
+
+Everything the toolbar does is here too, so a menu of your own is still a first-class
+option — that is all the built-in one is.
 
 | Method             | Meaning                                                                    |
 |--------------------|----------------------------------------------------------------------------|
@@ -324,10 +480,34 @@ const tableRef = useRef(null);
 | `moveColumn(id, i)` | Move one column to position `i` of `getColumnOrder()`                     |
 | `resetColumnOrder()` | Back to the order of your `columns` array                                |
 | `getColumnList()`  | `[{ id, index, position, header, hidden, hideable, resizable, movable, width }]` — everything a column menu needs, in **display order**, Action column included |
+| `setColumnWidths(map)` | Replace the whole `id -> px` map at once                               |
+| `getLayout()`      | The **whole** layout as one object: `{ pins: { left, right }, widths, hidden, order }` |
+| `setLayout(layout)` | Apply one. Every key is optional; `null` restores the column config        |
+| `resetLayout()`    | Drop every user layout choice                                              |
 
 Both boundaries persist when `pinStorageKey` is set. `getPinCount` / `getMaxPinCount` /
 `setPinCount` are the pre-0.6 names for the three left-hand methods — they still work,
 but nothing in those names said which edge they meant, hence the rename.
+
+### Saving a layout per user
+
+`pinStorageKey` persists the layout in `localStorage`, which is per browser. `getLayout()`
+is the same state as a plain object, so it can be stored per **user** instead — saved
+views, a layout that follows someone between machines, an "apply this preset" button:
+
+```jsx
+<FreezeTable
+  ref={tableRef}
+  defaultLayout={savedView}                       // what the server had
+  onLayoutChange={(layout) => saveView(layout)}   // any change: pins, widths, hidden, order
+/>
+```
+
+`onLayoutChange` is the one callback for all four choices — the three `onColumn*`
+callbacks cover only their own slice, and the freeze boundaries have none of their own.
+Priority when a table mounts: `localStorage` (if `pinStorageKey` is set) → `defaultLayout`
+→ the column config. Freeze counts come back **uncapped**, so a boundary saved on a wide
+screen is not permanently trimmed by the window it was read from.
 
 `selectRow(0)` is the one you reach for on a list that **re-fetches on a Search click**:
 the table is already mounted, so the mount-time focus effect will not fire again and
@@ -350,6 +530,22 @@ user clicks the table.
 - Selection is **index-based**: after a sort the highlight stays at the same *position*
   (a different logical row). Track ids yourself via `onRowSelect` if you need otherwise.
 - Turn the whole thing off with `rowNavigation={false}`.
+
+### Body states
+
+`status` is one prop with three values:
+
+| `status`    | Body                                                       |
+|-------------|-------------------------------------------------------------|
+| `'loading'` | the spinner and `loadingText`                               |
+| `'ready'`   | the rows — or `emptyText` when there are none                |
+| `'idle'`    | neither: nothing has been asked for yet                     |
+
+The `'idle'` state is the one worth knowing about: before the first fetch there are no
+rows *and* nothing is loading, and "No records found" over a list nobody has searched yet
+is a lie. That is what the old `loading` + `dataFetched` pair encoded between them — two
+booleans that had to be wired together correctly, in the right order, on every screen.
+Both still work, and `status` wins when you pass it.
 
 ### Row-boundary scroll snapping (`rowSnap`, off by default)
 
@@ -460,13 +656,13 @@ cannot both claim the same viewport. A stored-but-too-large boundary is clamped 
 render, so a persisted over-wide choice self-corrects. Freezing wider than the viewport
 would leave no room to actually read the scrolling columns.
 
-### The "Pin Columns" menu is yours to render
+### The freeze menu
 
-The component deliberately renders no picker. Put a dropdown next to your other toolbar
-buttons listing `No pin` plus every column ("pin up to here" semantics), read
-`getLeftPinCount()` when the menu opens, and disable entries past `getMaxLeftPinCount()`.
-The right-hand block works the same way through `getRightPinCount()` /
-`setRightPinCount()`:
+`toolbar` renders one (§5). If you want it in your own design system, the component's
+state is fully addressable through the ref: list `No pin` plus every column ("pin up to
+here" semantics), read `getLeftPinCount()` when the menu opens, and disable entries past
+`getMaxLeftPinCount()`. The right-hand block works the same way through
+`getRightPinCount()` / `setRightPinCount()`:
 
 ```jsx
 const openPinMenu = () => {
@@ -554,7 +750,8 @@ tableRef.current.setHiddenColumns(['engine', 'vin']);
 tableRef.current.showAllColumns();
 ```
 
-The **menu is yours to render**, exactly like the pin menu. `getColumnList()` gives you
+`toolbar` renders the menu (§5); building your own works exactly like the freeze menu.
+`getColumnList()` gives you
 one entry per caller column — `{ id, index, header, hidden, hideable, resizable, width }`
 — so the menu never has to re-derive any of it from your column config:
 
@@ -655,7 +852,10 @@ With `pinStorageKey="sales-invoice-list"`:
 | `ctHide:sales-invoice-list`      | `["<columnId>", …]` — hidden columns     |
 | `ctOrd:sales-invoice-list`       | `["<columnId>", …]` — the column order, `"__actions"` included |
 
-Without the key nothing is stored and every choice lasts until unmount.
+Without the key nothing is stored and every choice lasts until unmount — unless you
+persist it yourself, which is what `getLayout()` / `onLayoutChange` are for (§5). The two
+can be combined: `pinStorageKey` for the fast per-browser restore, `onLayoutChange` for
+the copy that follows the user to another machine.
 
 ---
 
@@ -748,6 +948,10 @@ your tests:
 | `.ft-wrap`             | scroller                       | scroll owner, focus target              |
 | `.ft-track-v` / `-h`   | overlay scrollbar tracks       | restyle the bars                        |
 | `.ft-thumb`            | scrollbar thumb                | restyle the bars                        |
+| `.ft-toolbar`          | toolbar strip (`toolbar` only) | restyle the strip                       |
+| `.ft-btn`              | toolbar buttons                | restyle the menu buttons                |
+| `.ft-menu`             | an open toolbar menu           | restyle the popovers                    |
+| `.ft-menu-item`        | one entry in a menu            | `aria-checked` / `[disabled]` carry state |
 | `.ft-head` / `.ft-th`  | header row / cell              | —                                       |
 | `.ft-th-label`         | header label row               | sort toggle click area                  |
 | `.ft-th-filter`        | search-box wrapper             | —                                       |
@@ -781,20 +985,25 @@ Key values, if you want to re-theme by forking:
 1. **Memoize `data`.** react-table's `autoResetSortBy` / `autoResetFilters` are already
    disabled inside the component (otherwise every `Object.values(byId)` recreation
    silently cleared the sort, making a header click appear to do nothing), but an
-   un-memoized array still causes needless row churn.
-2. **Memoize `columns`** — and when a `Cell` needs a callback, export the columns as a
-   factory: `const columns = useMemo(() => makeColumns(onOpen), [])`.
-3. **Wire `loading` and `dataFetched` together**, or the empty state flashes before the
-   first fetch.
-4. **Row menus must escape the row's `overflow: hidden`.** Use a portal-based popup, not
+   un-memoized array still causes needless row churn. In development the component now
+   says so in the console when it sees the same contents arrive in a new array several
+   renders running.
+2. **Memoize `columns`** — and when a `Cell` needs a callback, pass it through `context`
+   (§3) rather than rebuilding the column array around it.
+3. **Use `status`** rather than wiring `loading` and `dataFetched` together, or the empty
+   state flashes before the first fetch.
+4. **`height` is the whole box.** A number is pixels; a string keeps its unit
+   (`'100%'`, `'60vh'`). A percentage only resolves if the parent has a definite height —
+   that, not the table, is why `height="100%"` usually collapses.
+5. **Row menus must escape the row's `overflow: hidden`.** Use a portal-based popup, not
    an inline dropdown, or the menu will be clipped by its row.
-5. **Sorting is three-state** — ascending → descending → unsorted.
-6. `Header` is best kept a plain string: a "pin up to here" or column menu in your
+6. **Sorting is three-state** — ascending → descending → unsorted.
+7. `Header` is best kept a plain string: a "pin up to here" or column menu in your
    toolbar has to render it as a label.
-7. **A header press is two gestures.** Click = sort, drag sideways = reorder, drag the
+8. **A header press is two gestures.** Click = sort, drag sideways = reorder, drag the
    right edge = resize. If you put an interactive control inside a `Header`, give it its
    own `onPointerDown` stopPropagation, or dragging it will move the column.
-8. Custom `Filter` dropdowns that render their menu in a portal need a real CSS rule for
+9. Custom `Filter` dropdowns that render their menu in a portal need a real CSS rule for
    the menu font size — inline styles cannot reach portalled nodes.
 
 ---
@@ -804,13 +1013,18 @@ Key values, if you want to re-theme by forking:
 ```bash
 npm install
 npm run build     # dist/freeze-table.esm.js + dist/freeze-table.cjs.js
-npm run smoke     # server-render the built bundle and assert its shape
+npm test          # build + smoke + golden snapshots + unit + DOM tests
 npm run demo      # bundles example/ — then open example/index.html in a browser
 ```
 
-The demo renders 2,000 rows × 18 columns with frozen columns, footer totals, status
-strips and the loading / empty states, and bundles React in, so `example/index.html`
-opens straight from the filesystem with no server.
+The demo renders 2,000 rows × 19 columns with frozen columns, footer totals, status
+strips, the built-in toolbar and the loading / empty states, and bundles React in, so
+`example/index.html` opens straight from the filesystem with no server.
+
+The test suite is four passes over the built bundle: a smoke render, 30 byte-compared
+server-rendered snapshots, unit tests for the column maths and the formatters, and jsdom
+tests that mount the component and drive it — windowing, keyboard navigation, the toolbar
+menus and the layout round-trip.
 
 **The only peer dependency is `react >= 16.8`** (hooks + `forwardRef`). React 16, 17, 18
 and 19 all work — the component is function-based and uses no legacy lifecycle APIs.
@@ -829,6 +1043,38 @@ conflict.
 Server-side rendering is safe: layout effects degrade to `useEffect` on the server and
 the style tag is only injected in the browser. The body renders empty until the client
 measures it, which is the correct behaviour for a virtualized list.
+
+## 15. What changed in 1.0
+
+1.0 is **additive**. Every prop, column key and ref method from 0.x still works and still
+means what it did; the release is about how much you have to write to get the same table.
+
+**New**
+
+- `type` and `footer` column shorthands, and `format` / `decimals` / `dateFormat` /
+  `booleanLabels` / `blankZero` alongside them (§3).
+- `toolbar` — the Columns and Freeze menus, rendered by the component (§5).
+- `getLayout()` / `setLayout()` / `resetLayout()`, `defaultLayout` and `onLayoutChange`:
+  the whole layout as one value, for saved views (§5).
+- `context`, so a `Cell` can reach your callbacks without a column factory (§3).
+- `status`, replacing the `loading` + `dataFetched` pair (§6).
+- `locale`, `currencySymbol`, `dateFormat`, `dateTimeFormat` for the typed columns.
+- `setColumnWidths(map)` on the ref.
+
+**Two behaviour changes**
+
+- **A `width` with no `minWidth` now sets the `minWidth` too.** A column narrower than
+  90px used to be silently widened to react-table's floor, and the only fix was to repeat
+  the number. If you wrote `width: 45, minWidth: 45` nothing changes; if you wrote
+  `width: 45` alone, the column now renders at the width you asked for.
+- **`height` keeps its unit.** `height="100%"` used to be parsed to `100` — a 100-pixel
+  table. Strings with units, and `'fill'`, now pass through. A bare number, or a numeric
+  string, is still pixels.
+
+**Deprecated but working**: `loading` + `dataFetched` (use `status`), and the pre-0.6
+`getPinCount` / `getMaxPinCount` / `setPinCount` names for the left-edge methods.
+
+---
 
 ## License
 

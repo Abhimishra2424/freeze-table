@@ -62,6 +62,33 @@ const STYLESHEET = `
 .ft-resize-guide{position:absolute;top:0;bottom:0;left:0;width:2px;background:#0070C2;
   opacity:.7;pointer-events:none;z-index:7;}
 
+/* Toolbar: a plain button strip above the table, and the popovers its two menus open in.
+   Both live OUTSIDE .ft-wrap — a menu with its own overflow inside the scrollport would
+   become the sticky container for the cells beneath it and break the column freeze. */
+.ft-btn{display:inline-flex;align-items:center;gap:5px;border:1px solid #d7dde5;border-radius:4px;
+  background:#fff;color:#243447;padding:4px 9px;cursor:pointer;font:inherit;line-height:1.4;
+  white-space:nowrap;}
+.ft-btn:hover{background:#f2f6fa;border-color:#c2ccd8;}
+.ft-btn:focus-visible{outline:2px solid #0070C2;outline-offset:1px;}
+.ft-btn[aria-expanded="true"]{background:#e9f2fb;border-color:#9dc4e8;}
+.ft-btn[disabled]{opacity:.45;cursor:default;}
+.ft-menu{position:absolute;top:100%;margin-top:4px;z-index:9;min-width:210px;max-height:320px;
+  overflow-y:auto;background:#fff;border:1px solid #dde3ea;border-radius:6px;
+  box-shadow:0 6px 20px rgba(20,32,48,.16);padding:4px;}
+.ft-menu-head{padding:6px 8px 4px;font-weight:700;color:#66738a;text-transform:uppercase;
+  letter-spacing:.4px;}
+.ft-menu-item{display:flex;align-items:center;gap:8px;width:100%;box-sizing:border-box;
+  border:0;background:none;font:inherit;color:#243447;text-align:left;padding:5px 8px;
+  border-radius:4px;cursor:pointer;}
+.ft-menu-item:hover:not([disabled]){background:#f0f5fa;}
+.ft-menu-item[disabled]{opacity:.4;cursor:default;}
+.ft-menu-item[aria-checked="true"],.ft-menu-item[aria-current="true"]{background:#e9f2fb;color:#0a4d84;}
+.ft-menu-sep{height:1px;background:#eceff3;margin:4px 0;}
+.ft-menu-move{border:0;background:none;padding:0 3px;cursor:pointer;color:#8794a8;font:inherit;
+  line-height:1;border-radius:3px;}
+.ft-menu-move:hover:not([disabled]){background:#dfe7f0;color:#243447;}
+.ft-menu-move[disabled]{opacity:.25;cursor:default;}
+
 /* Column reorder. Same deal as the resize guide: the drop line is the ONLY thing that
    moves while the pointer is down (see startColReorder), and the header being carried
    dims so the line reads as "this column lands here" rather than as a second cursor. */
@@ -150,6 +177,22 @@ export const FilterInput = ({ value, onChange, onClick, placeholder, fontSize = 
       style={{ fontSize: `${fontSize}px` }}
     />
   </div>
+);
+
+/** Stacked-columns glyph for the toolbar's column menu. */
+export const ColumnsIcon = ({ color = '#5a6b82', size = 12 }) => (
+  <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false" style={{ ...svgBase(size), fill: color }}>
+    <rect x="1" y="2" width="3.4" height="12" rx="1" />
+    <rect x="6.3" y="2" width="3.4" height="12" rx="1" opacity=".65" />
+    <rect x="11.6" y="2" width="3.4" height="12" rx="1" opacity=".4" />
+  </svg>
+);
+
+/** Tick for a checked menu entry. Rendered in a fixed-width box so labels stay aligned. */
+export const CheckIcon = ({ color = '#0070C2', size = 11, checked }) => (
+  <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false" style={{ ...svgBase(size), fill: 'none', stroke: checked ? color : 'transparent', strokeWidth: 2.2, strokeLinecap: 'round', strokeLinejoin: 'round' }}>
+    <path d="M2.5 8.5 6.2 12 13.5 4" />
+  </svg>
 );
 
 /** Centred loading spinner + caption. */
