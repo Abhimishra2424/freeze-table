@@ -1,5 +1,4 @@
 import React from 'react';
-import { MoveIcon } from '../internal-ui';
 import { cx, skin } from '../lib/slots';
 import { v } from '../lib/theme';
 
@@ -46,104 +45,170 @@ const usePopover = (open, onClose) => {
   return ref;
 };
 
-/** Show / hide, move up / down, and the three resets. */
-const ColumnMenu = ({ list, onToggle, onMove, onShowAll, onResetWidths, onResetOrder, ui, classNames }) => (
-  <ui.Menu className={classNames.menu}>
-    <ui.MenuHeading>Columns</ui.MenuHeading>
-    {list.map((c) => (
-      <div key={c.id || c.position} className="ft-menu-row">
-        <ui.MenuItem
-          role="menuitemcheckbox"
-          aria-checked={!c.hidden}
-          checked={!c.hidden}
-          icon={ui.CheckIcon}
-          className={classNames.menuItem}
-          disabled={!c.hideable}
-          onClick={() => onToggle(c.id)}
-          // A column with no header text (or a node for one) still has to be listable, or
-          // the menu would silently be missing rows the table is showing.
-          title={c.hideable ? undefined : 'This column cannot be hidden'}
-        >
-          <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {c.header || c.id}
-          </span>
-        </ui.MenuItem>
-        <span style={{ display: 'flex', flex: '0 0 auto', paddingRight: 4 }}>
-          <button type="button" className="ft-menu-move" disabled={!c.movable || c.position === 0} onClick={() => onMove(c.id, c.position - 1)} title="Move left" aria-label={`Move ${c.header || c.id} left`}>
-            <MoveIcon dir="up" />
-          </button>
-          <button type="button" className="ft-menu-move" disabled={!c.movable || c.position === list.length - 1} onClick={() => onMove(c.id, c.position + 1)} title="Move right" aria-label={`Move ${c.header || c.id} right`}>
-            <MoveIcon dir="down" />
-          </button>
-        </span>
+/**
+ * Drag-to-reorder inside the Columns menu.
+ *
+ * The rows are few and not windowed, so this is deliberately simpler than the header
+ * drag on the table itself: no rAF loop, no measuring cache — on each pointermove it
+ * asks the DOM which row is under the pointer and remembers the edge. The commit happens
+ * once, on pointerup, for the same reason the header drag commits once: the column defs
+ * feed every visible row, so reordering per frame would re-render the whole table.
+ */
+const useMenuDrag = (onMove) => {
+  const [drag, setDrag] = React.useState(null);
+  const dragRef = React.useRef(null);
+  dragRef.current = drag;
+
+  const start = (id, index) => (e) => {
+    // Left button only, and never let the press reach the menu's dismiss handler.
+    if (e.button !== 0) return;
+    e.preventDefault();
+    e.stopPropagation();
+    e.currentTarget.setPointerCapture(e.pointerId);
+    setDrag({ id, from: index, over: index, edge: 'above' });
+  };
+
+  const move = (e) => {
+    const state = dragRef.current;
+    if (!state) return;
+    // elementFromPoint rather than a rect cache: the list can scroll under the pointer
+    // mid-drag, and a cache taken at pointerdown would then point at the wrong rows.
+    const el = document.elementFromPoint(e.clientX, e.clientY);
+    const row = el && el.closest ? el.closest('[data-ft-menu-index]') : null;
+    if (!row) return;
+    const over = parseInt(row.getAttribute('data-ft-menu-index'), 10);
+    const box = row.getBoundingClientRect();
+    const edge = e.clientY < box.top + box.height / 2 ? 'above' : 'below';
+    if (over !== state.over || edge !== state.edge) setDrag({ ...state, over, edge });
+  };
+
+  const end = () => {
+    const state = dragRef.current;
+    setDrag(null);
+    if (!state) return;
+    // moveColumn takes the index the column lands on AFTER it has been lifted out, so
+    // dropping below a row that sits above the dragged one needs no adjustment, while
+    // dropping above one does.
+    let to = state.edge === 'below' ? state.over + 1 : state.over;
+    if (state.from < to) to -= 1;
+    if (to !== state.from) onMove(state.id, to);
+  };
+
+  return { drag, start, move, end };
+};
+
+/** Show / hide, drag to reorder, and the three resets. */
+const ColumnMenu = ({ list, onToggle, onMove, onShowAll, onResetWidths, onResetOrder, ui, classNames }) => {
+  const { drag, start, move, end } = useMenuDrag(onMove);
+  const shown = list.filter((c) => !c.hidden).length;
+  const Checkbox = ui.CheckboxIcon;
+  return (
+    <ui.Menu className={classNames.menu}>
+      <ui.MenuHeading note={`${shown} of ${list.length}`}>Columns</ui.MenuHeading>
+      <div onPointerMove={move} onPointerUp={end} onPointerCancel={end}>
+        {list.map((c, i) => (
+          <div
+            key={c.id || c.position}
+            className="ft-menu-row"
+            data-ft-menu-index={i}
+            data-ft-dragging={drag && drag.from === i ? '1' : undefined}
+            data-ft-drop={drag && drag.from !== i && drag.over === i ? drag.edge : undefined}
+          >
+            <ui.MenuItem
+              role="menuitemcheckbox"
+              aria-checked={!c.hidden}
+              checked={!c.hidden}
+              icon={Checkbox}
+              className={classNames.menuItem}
+              disabled={!c.hideable}
+              onClick={() => onToggle(c.id)}
+              // A column with no header text (or a node for one) still has to be listable, or
+              // the menu would silently be missing rows the table is showing.
+              title={c.hideable ? undefined : 'This column cannot be hidden'}
+            >
+              <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {c.header || c.id}
+              </span>
+            </ui.MenuItem>
+            <button
+              type="button"
+              className="ft-menu-move"
+              disabled={!c.movable}
+              onPointerDown={c.movable ? start(c.id, i) : undefined}
+              // The drag is the affordance; the arrow keys are how it is reachable without
+              // a pointer. Dropping the two arrow buttons cannot mean dropping keyboard
+              // reordering with them.
+              onKeyDown={(e) => {
+                if (!c.movable) return;
+                if (e.key === 'ArrowUp' && c.position > 0) { e.preventDefault(); onMove(c.id, c.position - 1); }
+                if (e.key === 'ArrowDown' && c.position < list.length - 1) { e.preventDefault(); onMove(c.id, c.position + 1); }
+              }}
+              title="Drag to reorder · ↑ ↓ to move"
+              aria-label={`Reorder ${c.header || c.id}`}
+            >
+              {ui.GripIcon && <ui.GripIcon />}
+            </button>
+          </div>
+        ))}
       </div>
-    ))}
-    <ui.MenuSeparator />
-    <ui.MenuItem role="menuitem" className={classNames.menuItem} onClick={onShowAll}>
-      Show all columns
-    </ui.MenuItem>
-    <ui.MenuItem role="menuitem" className={classNames.menuItem} onClick={onResetWidths}>
-      Reset widths
-    </ui.MenuItem>
-    <ui.MenuItem role="menuitem" className={classNames.menuItem} onClick={onResetOrder}>
-      Reset order
-    </ui.MenuItem>
-  </ui.Menu>
-);
+      <ui.MenuSeparator />
+      <div className="ft-menu-actions">
+        <button type="button" className="ft-menu-action" onClick={onShowAll}>Show all</button>
+        <span className="ft-menu-action-sep" aria-hidden="true">·</span>
+        <button type="button" className="ft-menu-action" onClick={onResetWidths}>Reset widths</button>
+        <span className="ft-menu-action-sep" aria-hidden="true">·</span>
+        <button type="button" className="ft-menu-action" onClick={onResetOrder}>Reset order</button>
+      </div>
+    </ui.Menu>
+  );
+};
 
 /**
- * "Pin up to here" on the left, "pin from here" on the right. Entries past the viewport
- * cap are disabled rather than hidden, so the menu shows WHY a column cannot be frozen
- * (there would be no room left to read the scrolling ones) instead of quietly omitting it.
+ * "Pin up to here" on the left, "pin from here" on the right, as two radio groups with
+ * the current state spelled out in the title bar — before that the only way to know how
+ * much was frozen was to find the marked entry somewhere in a list of forty.
+ *
+ * Entries past the viewport cap are disabled rather than hidden, so the menu shows WHY a
+ * column cannot be frozen (there would be no room left to read the scrolling ones)
+ * instead of quietly omitting it.
  */
-const PinMenu = ({ columns, left, maxLeft, right, maxRight, onLeft, onRight, ui, classNames }) => (
-  <ui.Menu align="right" className={classNames.menu}>
-    <ui.MenuHeading>Freeze left</ui.MenuHeading>
-    <ui.MenuItem role="menuitemradio" aria-checked={left === 0} aria-current={left === 0} checked={left === 0} icon={ui.CheckIcon} className={classNames.menuItem} onClick={() => onLeft(0)}>
-      <span>No freeze</span>
+const PinMenu = ({ columns, left, maxLeft, right, maxRight, onLeft, onRight, ui, classNames }) => {
+  const Radio = ui.RadioIcon;
+  const note = left || right
+    ? `${left ? `${left} left` : 'none left'} · ${right ? `${right} right` : 'none right'}`
+    : 'none';
+  const entry = (key, label, checked, disabled, onClick) => (
+    <ui.MenuItem
+      key={key}
+      role="menuitemradio"
+      aria-checked={checked}
+      aria-current={checked}
+      checked={checked}
+      icon={Radio}
+      className={classNames.menuItem}
+      disabled={disabled}
+      onClick={onClick}
+      title={disabled ? 'Not enough room left for the scrolling columns' : undefined}
+    >
+      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{label}</span>
     </ui.MenuItem>
-    {columns.map((c, i) => (
-      <ui.MenuItem
-        key={'l' + i}
-        role="menuitemradio"
-        aria-checked={left === i + 1}
-        aria-current={left === i + 1}
-        checked={left === i + 1}
-        icon={ui.CheckIcon}
-        className={classNames.menuItem}
-        disabled={i + 1 > maxLeft}
-        onClick={() => onLeft(i + 1)}
-        title={i + 1 > maxLeft ? 'Not enough room left for the scrolling columns' : undefined}
-      >
-        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Up to {c.label}</span>
-      </ui.MenuItem>
-    ))}
-    <ui.MenuSeparator />
-    <ui.MenuHeading>Freeze right</ui.MenuHeading>
-    <ui.MenuItem role="menuitemradio" aria-checked={right === 0} aria-current={right === 0} checked={right === 0} icon={ui.CheckIcon} className={classNames.menuItem} onClick={() => onRight(0)}>
-      <span>No freeze</span>
-    </ui.MenuItem>
-    {columns.map((c, i) => {
-      const n = columns.length - i;
-      return (
-        <ui.MenuItem
-          key={'r' + i}
-          role="menuitemradio"
-          aria-checked={right === n}
-          aria-current={right === n}
-          checked={right === n}
-          icon={ui.CheckIcon}
-          className={classNames.menuItem}
-          disabled={n > maxRight}
-          onClick={() => onRight(n)}
-          title={n > maxRight ? 'Not enough room left for the scrolling columns' : undefined}
-        >
-          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>From {c.label}</span>
-        </ui.MenuItem>
-      );
-    })}
-  </ui.Menu>
-);
+  );
+  return (
+    <ui.Menu align="right" className={classNames.menu}>
+      <ui.MenuHeading note={note}>Freeze</ui.MenuHeading>
+      <div className="ft-menu-group">Left edge</div>
+      {entry('l0', 'No freeze', left === 0, false, () => onLeft(0))}
+      {columns.map((c, i) => entry('l' + i, `Up to ${c.label}`, left === i + 1, i + 1 > maxLeft, () => onLeft(i + 1)))}
+      <ui.MenuSeparator />
+      <div className="ft-menu-group">Right edge</div>
+      {entry('r0', 'No freeze', right === 0, false, () => onRight(0))}
+      {columns.map((c, i) => {
+        const n = columns.length - i;
+        return entry('r' + i, `From ${c.label}`, right === n, n > maxRight, () => onRight(n));
+      })}
+    </ui.Menu>
+  );
+};
 
 export const Toolbar = ({ toolbarRef, fontPx, config, getColumnList, pinColumns, pin, api, refocus, ui, classNames, unstyled }) => {
   const [open, setOpen] = React.useState(null);

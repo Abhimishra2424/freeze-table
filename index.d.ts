@@ -98,8 +98,14 @@ export interface FreezeTableComponents {
   Menu?: React.ComponentType<any> | null;
   /** One menu entry. Props: `{ children, checked, icon, className, ...rest }` — forward `role` / `aria-checked` / `disabled` / `onClick` / `title`. */
   MenuItem?: React.ComponentType<any> | null;
-  /** A group label in a menu. Props: `{ children }`. */
+  /** A menu's title bar. Props: `{ children, note }` — `note` is the menu's current state ("12 of 18", "3 left · none right"), shown on the right. */
   MenuHeading?: React.ComponentType<any> | null;
+  /** The show/hide box in the Columns menu. Props: `{ checked }`. */
+  CheckboxIcon?: React.ComponentType<any> | null;
+  /** The selected dot in the Freeze menu. Props: `{ checked }`. */
+  RadioIcon?: React.ComponentType<any> | null;
+  /** The drag-to-reorder grip on a Columns menu row. No required props. */
+  GripIcon?: React.ComponentType<any> | null;
   /** A rule between menu groups. No props. */
   MenuSeparator?: React.ComponentType<any> | null;
   /** The loading state. Props: `{ text }`. */

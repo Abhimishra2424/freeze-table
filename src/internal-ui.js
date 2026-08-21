@@ -147,9 +147,55 @@ export const ColumnsIcon = ({ color = v('icon'), size = 12 }) => (
 );
 
 /**
- * The move-this-column control in the Columns menu. A chevron rather than the `↑` / `↓`
- * text glyphs it used to be: those are drawn by whatever font the host page happens to
- * use, so they came out thin, differently sized and vertically off in most of them.
+ * A checkbox, for the Columns menu's show/hide entries.
+ *
+ * A box rather than the bare tick it used to be: with a tick alone, "hidden" is the
+ * ABSENCE of a mark, and a column list where most rows are ticked reads as a column of
+ * floating checkmarks with a few gaps in it. An empty box is a thing you can see.
+ */
+export const CheckboxIcon = ({ checked, size = 13 }) => (
+  <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false" style={{ ...svgBase(size) }}>
+    <rect
+      x="1.5" y="1.5" width="13" height="13" rx="3"
+      fill={checked ? v('accent') : 'transparent'}
+      stroke={checked ? v('accent') : v('btn-border')}
+      strokeWidth="1.4"
+    />
+    {checked && (
+      <path d="M4.5 8.2 6.9 10.6 11.5 5.6" fill="none" stroke={v('bg')} strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
+    )}
+  </svg>
+);
+
+/**
+ * A radio dot, for the Freeze menu. One boundary out of many is a radio choice, not a
+ * checkbox one, and drawing it as a tick said "on" where it needed to say "this one".
+ */
+export const RadioIcon = ({ checked, size = 12 }) => (
+  <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false" style={{ ...svgBase(size) }}>
+    <circle cx="8" cy="8" r="6.2" fill="none" stroke={checked ? v('accent') : v('btn-border')} strokeWidth="1.4" />
+    {checked && <circle cx="8" cy="8" r="3.1" fill={v('accent')} />}
+  </svg>
+);
+
+/**
+ * The reorder grip on a Columns-menu row.
+ *
+ * It replaces the pair of up/down buttons each row used to carry: on an 18-column report
+ * that was 36 controls stacked in one popover, and the two arrows were the loudest thing
+ * in a menu whose actual job is the checkboxes. One grip per row, dragged.
+ */
+export const GripIcon = ({ size = 12 }) => (
+  <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false" style={{ ...svgBase(size), fill: 'currentColor' }}>
+    <circle cx="6" cy="4" r="1.35" /><circle cx="10" cy="4" r="1.35" />
+    <circle cx="6" cy="8" r="1.35" /><circle cx="10" cy="8" r="1.35" />
+    <circle cx="6" cy="12" r="1.35" /><circle cx="10" cy="12" r="1.35" />
+  </svg>
+);
+
+/**
+ * A chevron. The Columns menu used a pair of these to move a column; it has a drag grip
+ * now (see GripIcon), and this is kept only because 1.1.2 exported it.
  */
 export const MoveIcon = ({ dir = 'up', size = 11 }) => (
   <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false" style={{ ...svgBase(size), fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' }}>
@@ -236,8 +282,20 @@ export const MenuItem = ({ children, checked, icon: Icon = CheckIcon, className,
   </button>
 );
 
-/** A group label inside a menu. Slot contract: `{ children }`. */
-export const MenuHeading = ({ children }) => <div className="ft-menu-head">{children}</div>;
+/**
+ * A menu's title bar.
+ *
+ * Slot contract (`components.MenuHeading`): `{ children, note }`. `note` is the menu's
+ * current state, shown on the right — "12 of 18", "3 left / none right". It exists
+ * because neither menu said anything about its own state, so the only way to know how
+ * much was hidden or frozen was to read every entry looking for the marked ones.
+ */
+export const MenuHeading = ({ children, note }) => (
+  <div className="ft-menu-head">
+    <span>{children}</span>
+    {note ? <span className="ft-menu-head-note">{note}</span> : null}
+  </div>
+);
 
 /** A rule between menu groups. Slot contract: no props. */
 export const MenuSeparator = () => <div className="ft-menu-sep" />;
@@ -248,6 +306,9 @@ export const MenuSeparator = () => <div className="ft-menu-sep" />;
  */
 export const DEFAULT_COMPONENTS = {
   FilterInput,
+  CheckboxIcon,
+  RadioIcon,
+  GripIcon,
   Button,
   Menu,
   MenuItem,

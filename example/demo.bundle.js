@@ -884,21 +884,64 @@
 .ft-btn:focus-visible{outline:2px solid ${v('focus-ring')};outline-offset:1px;}
 .ft-btn[aria-expanded="true"]{background:${v('btn-active-bg')};border-color:${v('btn-active-border')};}
 .ft-btn[disabled]{opacity:.45;cursor:default;}
-.ft-menu{position:absolute;top:100%;margin-top:4px;z-index:9;min-width:210px;max-height:320px;
+.ft-menu{position:absolute;top:100%;margin-top:4px;z-index:9;min-width:248px;max-height:340px;
   overflow-y:auto;background:${v('menu-bg')};border:1px solid ${v('menu-border')};
   border-radius:${v('radius-menu')};
   box-shadow:${v('shadow-menu')};padding:4px;}
-.ft-menu-head{padding:6px 8px 4px;font-weight:700;color:${v('menu-head-text')};text-transform:uppercase;
+/* The bar at the top of a menu: its name on the left, its current state on the right
+   ("12 of 18", "3 left / none right"). The state used to be nowhere, so the only way to
+   know how much was frozen or hidden was to read the whole list. */
+.ft-menu-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;
+  padding:7px 9px 6px;font-weight:700;color:${v('menu-head-text')};text-transform:uppercase;
   letter-spacing:.4px;}
+.ft-menu-head-note{font-weight:600;letter-spacing:0;text-transform:none;opacity:.85;}
+/* A group label inside a menu that already has a title bar (LEFT EDGE / RIGHT EDGE). */
+.ft-menu-group{padding:8px 9px 3px;font-weight:700;font-size:.9em;color:${v('menu-head-text')};
+  text-transform:uppercase;letter-spacing:.4px;}
+.ft-menu-row{display:flex;align-items:center;gap:2px;border-radius:${v('radius')};}
+/* The row being carried dims, and the row it will land on shows the insertion edge —
+   the same vocabulary the header reorder drag already uses on the table itself. */
+.ft-menu-row[data-ft-dragging="1"]{opacity:.4;}
+.ft-menu-row[data-ft-drop="above"]{box-shadow:inset 0 2px 0 0 ${v('accent')};}
+.ft-menu-row[data-ft-drop="below"]{box-shadow:inset 0 -2px 0 0 ${v('accent')};}
+/* Inside a row that also carries the move buttons, the entry takes the space that is
+   left instead of all of it: a width:100% flex child is 100% of the ROW, which pushed
+   the up/down arrows past the menu's right edge and clipped them.
+   (No backticks in here - this whole sheet is one JS template literal.) */
+.ft-menu-row .ft-menu-item{width:auto;flex:1 1 auto;min-width:0;}
 .ft-menu-item{display:flex;align-items:center;gap:8px;width:100%;box-sizing:border-box;
   border:0;background:none;font:inherit;color:${v('menu-text')};text-align:left;padding:5px 8px;
   border-radius:${v('radius')};cursor:pointer;}
 .ft-menu-item:hover:not([disabled]){background:${v('menu-item-hover')};}
 .ft-menu-item[disabled]{opacity:.4;cursor:default;}
-.ft-menu-item[aria-checked="true"],.ft-menu-item[aria-current="true"]{background:${v('menu-item-active-bg')};color:${v('menu-item-active-text')};}
+/* The "this one is selected" tint belongs to a RADIO choice — one entry out of many, as
+   in the Freeze menu. It must NOT key off aria-checked, which is what a CHECKBOX entry
+   carries: in the Columns menu nearly every column is visible, so nearly every row was
+   tinted and the menu read as a solid block of accent colour with no signal in it. The
+   tick alone says "shown"; an unchecked row is dimmed below instead. */
+.ft-menu-item[aria-current="true"]{background:${v('menu-item-active-bg')};color:${v('menu-item-active-text')};font-weight:600;}
+/* A hidden column reads as hidden: no tick, and the label recedes. Scoped to a CHECKBOX
+   entry — a radio list (Freeze) also marks its unselected entries aria-checked="false",
+   and dimming all but one of those would say "unavailable" rather than "not chosen". */
+.ft-menu-item[role="menuitemcheckbox"][aria-checked="false"]{color:${v('text-muted')};}
 .ft-menu-sep{height:1px;background:${v('menu-sep')};margin:4px 0;}
-.ft-menu-move{border:0;background:none;padding:0 3px;cursor:pointer;color:${v('menu-move-text')};font:inherit;
-  line-height:1;border-radius:3px;}
+/* The three resets, on one line instead of three full-width rows. They are housekeeping,
+   not choices, and stacked they were as prominent as the column list above them. */
+.ft-menu-actions{display:flex;align-items:center;flex-wrap:wrap;gap:2px;padding:2px 5px 3px;}
+.ft-menu-action{border:0;background:none;font:inherit;font-size:.92em;color:${v('accent-text')};
+  padding:3px 5px;border-radius:${v('radius')};cursor:pointer;white-space:nowrap;}
+.ft-menu-action:hover{background:${v('menu-item-hover')};}
+.ft-menu-action:focus-visible{outline:2px solid ${v('focus-ring')};outline-offset:-2px;}
+.ft-menu-action-sep{color:${v('menu-move-text')};opacity:.6;user-select:none;}
+/* One grip per row instead of two arrow buttons. It is still a real button — focus it and
+   the up/down arrow keys move the column — because a drag is not reachable by keyboard. */
+.ft-menu-move{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;
+  border:0;background:none;padding:0;cursor:grab;color:${v('menu-move-text')};font:inherit;
+  line-height:1;border-radius:${v('radius')};touch-action:none;opacity:.55;
+  transition:opacity .12s,background .12s;}
+.ft-menu-row:hover .ft-menu-move,.ft-menu-move:focus-visible{opacity:1;}
+.ft-menu-move:active{cursor:grabbing;}
+.ft-menu-move:focus-visible{outline:2px solid ${v('focus-ring')};outline-offset:-2px;}
 .ft-menu-move:hover:not([disabled]){background:${v('menu-move-hover')};color:${v('menu-text')};}
 .ft-menu-move[disabled]{opacity:.25;cursor:default;}
 
@@ -1148,6 +1191,112 @@
     opacity: ".4"
   }));
 
+  /**
+   * A checkbox, for the Columns menu's show/hide entries.
+   *
+   * A box rather than the bare tick it used to be: with a tick alone, "hidden" is the
+   * ABSENCE of a mark, and a column list where most rows are ticked reads as a column of
+   * floating checkmarks with a few gaps in it. An empty box is a thing you can see.
+   */
+  const CheckboxIcon = ({
+    checked,
+    size = 13
+  }) => /*#__PURE__*/React.createElement("svg", {
+    viewBox: "0 0 16 16",
+    "aria-hidden": "true",
+    focusable: "false",
+    style: {
+      ...svgBase(size)
+    }
+  }, /*#__PURE__*/React.createElement("rect", {
+    x: "1.5",
+    y: "1.5",
+    width: "13",
+    height: "13",
+    rx: "3",
+    fill: checked ? v('accent') : 'transparent',
+    stroke: checked ? v('accent') : v('btn-border'),
+    strokeWidth: "1.4"
+  }), checked && /*#__PURE__*/React.createElement("path", {
+    d: "M4.5 8.2 6.9 10.6 11.5 5.6",
+    fill: "none",
+    stroke: v('bg'),
+    strokeWidth: "1.9",
+    strokeLinecap: "round",
+    strokeLinejoin: "round"
+  }));
+
+  /**
+   * A radio dot, for the Freeze menu. One boundary out of many is a radio choice, not a
+   * checkbox one, and drawing it as a tick said "on" where it needed to say "this one".
+   */
+  const RadioIcon = ({
+    checked,
+    size = 12
+  }) => /*#__PURE__*/React.createElement("svg", {
+    viewBox: "0 0 16 16",
+    "aria-hidden": "true",
+    focusable: "false",
+    style: {
+      ...svgBase(size)
+    }
+  }, /*#__PURE__*/React.createElement("circle", {
+    cx: "8",
+    cy: "8",
+    r: "6.2",
+    fill: "none",
+    stroke: checked ? v('accent') : v('btn-border'),
+    strokeWidth: "1.4"
+  }), checked && /*#__PURE__*/React.createElement("circle", {
+    cx: "8",
+    cy: "8",
+    r: "3.1",
+    fill: v('accent')
+  }));
+
+  /**
+   * The reorder grip on a Columns-menu row.
+   *
+   * It replaces the pair of up/down buttons each row used to carry: on an 18-column report
+   * that was 36 controls stacked in one popover, and the two arrows were the loudest thing
+   * in a menu whose actual job is the checkboxes. One grip per row, dragged.
+   */
+  const GripIcon = ({
+    size = 12
+  }) => /*#__PURE__*/React.createElement("svg", {
+    viewBox: "0 0 16 16",
+    "aria-hidden": "true",
+    focusable: "false",
+    style: {
+      ...svgBase(size),
+      fill: 'currentColor'
+    }
+  }, /*#__PURE__*/React.createElement("circle", {
+    cx: "6",
+    cy: "4",
+    r: "1.35"
+  }), /*#__PURE__*/React.createElement("circle", {
+    cx: "10",
+    cy: "4",
+    r: "1.35"
+  }), /*#__PURE__*/React.createElement("circle", {
+    cx: "6",
+    cy: "8",
+    r: "1.35"
+  }), /*#__PURE__*/React.createElement("circle", {
+    cx: "10",
+    cy: "8",
+    r: "1.35"
+  }), /*#__PURE__*/React.createElement("circle", {
+    cx: "6",
+    cy: "12",
+    r: "1.35"
+  }), /*#__PURE__*/React.createElement("circle", {
+    cx: "10",
+    cy: "12",
+    r: "1.35"
+  }));
+
   /** Tick for a checked menu entry. Rendered in a fixed-width box so labels stay aligned. */
   const CheckIcon = ({
     color = v('accent'),
@@ -1278,12 +1427,22 @@
     checked: checked
   }), children);
 
-  /** A group label inside a menu. Slot contract: `{ children }`. */
+  /**
+   * A menu's title bar.
+   *
+   * Slot contract (`components.MenuHeading`): `{ children, note }`. `note` is the menu's
+   * current state, shown on the right — "12 of 18", "3 left / none right". It exists
+   * because neither menu said anything about its own state, so the only way to know how
+   * much was hidden or frozen was to read every entry looking for the marked ones.
+   */
   const MenuHeading = ({
-    children
+    children,
+    note
   }) => /*#__PURE__*/React.createElement("div", {
     className: "ft-menu-head"
-  }, children);
+  }, /*#__PURE__*/React.createElement("span", null, children), note ? /*#__PURE__*/React.createElement("span", {
+    className: "ft-menu-head-note"
+  }, note) : null);
 
   /** A rule between menu groups. Slot contract: no props. */
   const MenuSeparator = () => /*#__PURE__*/React.createElement("div", {
@@ -1296,6 +1455,9 @@
    */
   const DEFAULT_COMPONENTS = {
     FilterInput,
+    CheckboxIcon,
+    RadioIcon,
+    GripIcon,
     Button,
     Menu,
     MenuItem,
@@ -2217,7 +2379,69 @@
     return ref;
   };
 
-  /** Show / hide, move up / down, and the three resets. */
+  /**
+   * Drag-to-reorder inside the Columns menu.
+   *
+   * The rows are few and not windowed, so this is deliberately simpler than the header
+   * drag on the table itself: no rAF loop, no measuring cache — on each pointermove it
+   * asks the DOM which row is under the pointer and remembers the edge. The commit happens
+   * once, on pointerup, for the same reason the header drag commits once: the column defs
+   * feed every visible row, so reordering per frame would re-render the whole table.
+   */
+  const useMenuDrag = onMove => {
+    const [drag, setDrag] = React.useState(null);
+    const dragRef = React.useRef(null);
+    dragRef.current = drag;
+    const start = (id, index) => e => {
+      // Left button only, and never let the press reach the menu's dismiss handler.
+      if (e.button !== 0) return;
+      e.preventDefault();
+      e.stopPropagation();
+      e.currentTarget.setPointerCapture(e.pointerId);
+      setDrag({
+        id,
+        from: index,
+        over: index,
+        edge: 'above'
+      });
+    };
+    const move = e => {
+      const state = dragRef.current;
+      if (!state) return;
+      // elementFromPoint rather than a rect cache: the list can scroll under the pointer
+      // mid-drag, and a cache taken at pointerdown would then point at the wrong rows.
+      const el = document.elementFromPoint(e.clientX, e.clientY);
+      const row = el && el.closest ? el.closest('[data-ft-menu-index]') : null;
+      if (!row) return;
+      const over = parseInt(row.getAttribute('data-ft-menu-index'), 10);
+      const box = row.getBoundingClientRect();
+      const edge = e.clientY < box.top + box.height / 2 ? 'above' : 'below';
+      if (over !== state.over || edge !== state.edge) setDrag({
+        ...state,
+        over,
+        edge
+      });
+    };
+    const end = () => {
+      const state = dragRef.current;
+      setDrag(null);
+      if (!state) return;
+      // moveColumn takes the index the column lands on AFTER it has been lifted out, so
+      // dropping below a row that sits above the dragged one needs no adjustment, while
+      // dropping above one does.
+      let to = state.edge === 'below' ? state.over + 1 : state.over;
+      if (state.from < to) to -= 1;
+      if (to !== state.from) onMove(state.id, to);
+    };
+    return {
+      drag,
+      start,
+      move,
+      end
+    };
+  };
+
+  /** Show / hide, drag to reorder, and the three resets. */
   const ColumnMenu = ({
     list,
     onToggle,
@@ -2227,70 +2451,101 @@
     onResetOrder,
     ui,
     classNames
-  }) => /*#__PURE__*/React.createElement(ui.Menu, {
-    className: classNames.menu
-  }, /*#__PURE__*/React.createElement(ui.MenuHeading, null, "Columns"), list.map(c => /*#__PURE__*/React.createElement("div", {
-    key: c.id || c.position,
-    style: {
-      display: 'flex',
-      alignItems: 'center'
-    }
-  }, /*#__PURE__*/React.createElement(ui.MenuItem, {
-    role: "menuitemcheckbox",
-    "aria-checked": !c.hidden,
-    checked: !c.hidden,
-    icon: ui.CheckIcon,
-    className: classNames.menuItem,
-    disabled: !c.hideable,
-    onClick: () => onToggle(c.id)
-    // A column with no header text (or a node for one) still has to be listable, or
-    // the menu would silently be missing rows the table is showing.
-    ,
-    title: c.hideable ? undefined : 'This column cannot be hidden'
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      flex: 1,
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap'
-    }
-  }, c.header || c.id)), /*#__PURE__*/React.createElement("span", {
-    style: {
-      display: 'flex',
-      paddingRight: 4
-    }
-  }, /*#__PURE__*/React.createElement("button", {
-    type: "button",
-    className: "ft-menu-move",
-    disabled: !c.movable || c.position === 0,
-    onClick: () => onMove(c.id, c.position - 1),
-    title: "Move left",
-    "aria-label": `Move ${c.header || c.id} left`
-  }, "\u2191"), /*#__PURE__*/React.createElement("button", {
-    type: "button",
-    className: "ft-menu-move",
-    disabled: !c.movable || c.position === list.length - 1,
-    onClick: () => onMove(c.id, c.position + 1),
-    title: "Move right",
-    "aria-label": `Move ${c.header || c.id} right`
-  }, "\u2193")))), /*#__PURE__*/React.createElement(ui.MenuSeparator, null), /*#__PURE__*/React.createElement(ui.MenuItem, {
-    role: "menuitem",
-    className: classNames.menuItem,
-    onClick: onShowAll
-  }, "Show all columns"), /*#__PURE__*/React.createElement(ui.MenuItem, {
-    role: "menuitem",
-    className: classNames.menuItem,
-    onClick: onResetWidths
-  }, "Reset widths"), /*#__PURE__*/React.createElement(ui.MenuItem, {
-    role: "menuitem",
-    className: classNames.menuItem,
-    onClick: onResetOrder
-  }, "Reset order"));
+  }) => {
+    const {
+      drag,
+      start,
+      move,
+      end
+    } = useMenuDrag(onMove);
+    const shown = list.filter(c => !c.hidden).length;
+    const Checkbox = ui.CheckboxIcon;
+    return /*#__PURE__*/React.createElement(ui.Menu, {
+      className: classNames.menu
+    }, /*#__PURE__*/React.createElement(ui.MenuHeading, {
+      note: `${shown} of ${list.length}`
+    }, "Columns"), /*#__PURE__*/React.createElement("div", {
+      onPointerMove: move,
+      onPointerUp: end,
+      onPointerCancel: end
+    }, list.map((c, i) => /*#__PURE__*/React.createElement("div", {
+      key: c.id || c.position,
+      className: "ft-menu-row",
+      "data-ft-menu-index": i,
+      "data-ft-dragging": drag && drag.from === i ? '1' : undefined,
+      "data-ft-drop": drag && drag.from !== i && drag.over === i ? drag.edge : undefined
+    }, /*#__PURE__*/React.createElement(ui.MenuItem, {
+      role: "menuitemcheckbox",
+      "aria-checked": !c.hidden,
+      checked: !c.hidden,
+      icon: Checkbox,
+      className: classNames.menuItem,
+      disabled: !c.hideable,
+      onClick: () => onToggle(c.id)
+      // A column with no header text (or a node for one) still has to be listable, or
+      // the menu would silently be missing rows the table is showing.
+      ,
+      title: c.hideable ? undefined : 'This column cannot be hidden'
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        flex: 1,
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap'
+      }
+    }, c.header || c.id)), /*#__PURE__*/React.createElement("button", {
+      type: "button",
+      className: "ft-menu-move",
+      disabled: !c.movable,
+      onPointerDown: c.movable ? start(c.id, i) : undefined
+      // The drag is the affordance; the arrow keys are how it is reachable without
+      // a pointer. Dropping the two arrow buttons cannot mean dropping keyboard
+      // reordering with them.
+      ,
+      onKeyDown: e => {
+        if (!c.movable) return;
+        if (e.key === 'ArrowUp' && c.position > 0) {
+          e.preventDefault();
+          onMove(c.id, c.position - 1);
+        }
+        if (e.key === 'ArrowDown' && c.position < list.length - 1) {
+          e.preventDefault();
+          onMove(c.id, c.position + 1);
+        }
+      },
+      title: "Drag to reorder \xB7 \u2191 \u2193 to move",
+      "aria-label": `Reorder ${c.header || c.id}`
+    }, ui.GripIcon && /*#__PURE__*/React.createElement(ui.GripIcon, null))))), /*#__PURE__*/React.createElement(ui.MenuSeparator, null), /*#__PURE__*/React.createElement("div", {
+      className: "ft-menu-actions"
+    }, /*#__PURE__*/React.createElement("button", {
+      type: "button",
+      className: "ft-menu-action",
+      onClick: onShowAll
+    }, "Show all"), /*#__PURE__*/React.createElement("span", {
+      className: "ft-menu-action-sep",
+      "aria-hidden": "true"
+    }, "\xB7"), /*#__PURE__*/React.createElement("button", {
+      type: "button",
+      className: "ft-menu-action",
+      onClick: onResetWidths
+    }, "Reset widths"), /*#__PURE__*/React.createElement("span", {
+      className: "ft-menu-action-sep",
+      "aria-hidden": "true"
+    }, "\xB7"), /*#__PURE__*/React.createElement("button", {
+      type: "button",
+      className: "ft-menu-action",
+      onClick: onResetOrder
+    }, "Reset order")));
+  };
 
   /**
-   * "Pin up to here" on the left, "pin from here" on the right. Entries past the viewport
-   * cap are disabled rather than hidden, so the menu shows WHY a column cannot be frozen
-   * (there would be no room left to read the scrolling ones) instead of quietly omitting it.
+   * "Pin up to here" on the left, "pin from here" on the right, as two radio groups with
+   * the current state spelled out in the title bar — before that the only way to know how
+   * much was frozen was to find the marked entry somewhere in a list of forty.
+   *
+   * Entries past the viewport cap are disabled rather than hidden, so the menu shows WHY a
+   * column cannot be frozen (there would be no room left to read the scrolling ones)
+   * instead of quietly omitting it.
    */
   const PinMenu = ({
     columns,
@@ -2302,63 +2557,41 @@
     onRight,
     ui,
     classNames
-  }) => /*#__PURE__*/React.createElement(ui.Menu, {
-    align: "right",
-    className: classNames.menu
-  }, /*#__PURE__*/React.createElement(ui.MenuHeading, null, "Freeze left"), /*#__PURE__*/React.createElement(ui.MenuItem, {
-    role: "menuitemradio",
-    "aria-checked": left === 0,
-    "aria-current": left === 0,
-    checked: left === 0,
-    icon: ui.CheckIcon,
-    className: classNames.menuItem,
-    onClick: () => onLeft(0)
-  }, /*#__PURE__*/React.createElement("span", null, "No freeze")), columns.map((c, i) => /*#__PURE__*/React.createElement(ui.MenuItem, {
-    key: 'l' + i,
-    role: "menuitemradio",
-    "aria-checked": left === i + 1,
-    "aria-current": left === i + 1,
-    checked: left === i + 1,
-    icon: ui.CheckIcon,
-    className: classNames.menuItem,
-    disabled: i + 1 > maxLeft,
-    onClick: () => onLeft(i + 1),
-    title: i + 1 > maxLeft ? 'Not enough room left for the scrolling columns' : undefined
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap'
-    }
-  }, "Up to ", c.label))), /*#__PURE__*/React.createElement(ui.MenuSeparator, null), /*#__PURE__*/React.createElement(ui.MenuHeading, null, "Freeze right"), /*#__PURE__*/React.createElement(ui.MenuItem, {
-    role: "menuitemradio",
-    "aria-checked": right === 0,
-    "aria-current": right === 0,
-    checked: right === 0,
-    icon: ui.CheckIcon,
-    className: classNames.menuItem,
-    onClick: () => onRight(0)
-  }, /*#__PURE__*/React.createElement("span", null, "No freeze")), columns.map((c, i) => {
-    const n = columns.length - i;
-    return /*#__PURE__*/React.createElement(ui.MenuItem, {
-      key: 'r' + i,
+  }) => {
+    const Radio = ui.RadioIcon;
+    const note = left || right ? `${left ? `${left} left` : 'none left'} · ${right ? `${right} right` : 'none right'}` : 'none';
+    const entry = (key, label, checked, disabled, onClick) => /*#__PURE__*/React.createElement(ui.MenuItem, {
+      key: key,
       role: "menuitemradio",
-      "aria-checked": right === n,
-      "aria-current": right === n,
-      checked: right === n,
-      icon: ui.CheckIcon,
+      "aria-checked": checked,
+      "aria-current": checked,
+      checked: checked,
+      icon: Radio,
       className: classNames.menuItem,
-      disabled: n > maxRight,
-      onClick: () => onRight(n),
-      title: n > maxRight ? 'Not enough room left for the scrolling columns' : undefined
+      disabled: disabled,
+      onClick: onClick,
+      title: disabled ? 'Not enough room left for the scrolling columns' : undefined
     }, /*#__PURE__*/React.createElement("span", {
       style: {
         overflow: 'hidden',
         textOverflow: 'ellipsis',
         whiteSpace: 'nowrap'
       }
-    }, "From ", c.label));
-  }));
+    }, label));
+    return /*#__PURE__*/React.createElement(ui.Menu, {
+      align: "right",
+      className: classNames.menu
+    }, /*#__PURE__*/React.createElement(ui.MenuHeading, {
+      note: note
+    }, "Freeze"), /*#__PURE__*/React.createElement("div", {
+      className: "ft-menu-group"
+    }, "Left edge"), entry('l0', 'No freeze', left === 0, false, () => onLeft(0)), columns.map((c, i) => entry('l' + i, `Up to ${c.label}`, left === i + 1, i + 1 > maxLeft, () => onLeft(i + 1))), /*#__PURE__*/React.createElement(ui.MenuSeparator, null), /*#__PURE__*/React.createElement("div", {
+      className: "ft-menu-group"
+    }, "Right edge"), entry('r0', 'No freeze', right === 0, false, () => onRight(0)), columns.map((c, i) => {
+      const n = columns.length - i;
+      return entry('r' + i, `From ${c.label}`, right === n, n > maxRight, () => onRight(n));
+    }));
+  };
   const Toolbar = ({
     toolbarRef,
     fontPx,
@@ -3193,7 +3426,12 @@
           id,
           index: i,
           position,
-          header: typeof c.Header === 'string' ? c.Header : undefined,
+          // What a menu can print. A `Header` is often a node — a sort arrow beside
+          // the text, a unit under it — and a node cannot be an entry in a dropdown,
+          // so those columns used to show their raw id ('employee_code') in the
+          // Columns and Freeze menus. `label` is the plain-text name to use instead;
+          // a string `Header` still works on its own and needs nothing.
+          header: c.label || (typeof c.Header === 'string' ? c.Header : undefined),
           hidden: !!(id && c.hideable !== false && hiddenRef.current.indexOf(id) >= 0),
           hideable: !!id && c.hideable !== false,
           resizable: !!id && resizable && !c.disableResizing,
@@ -4583,7 +4821,10 @@
     // The freeze menu counts in VISIBLE CALLER columns — the same units as the pin
     // boundaries themselves — so it is built from `cols`, not from the raw config.
     const pinColumns = React.useMemo(() => showToolbar ? cols.map((c, i) => ({
-      label: typeof c.Header === 'string' && c.Header ? c.Header : colIdOf(c) || `Column ${i + 1}`
+      // Same fallback chain as getColumnList: the column's own `label`, else a
+      // plain-string `Header`, and only then the id — which is a field name and
+      // reads like a bug when it surfaces in a menu.
+      label: c.label || (typeof c.Header === 'string' && c.Header ? c.Header : colIdOf(c)) || `Column ${i + 1}`
     })) : [], [cols, showToolbar]);
     const toolbarColumnList = React.useCallback(() => layout.getColumnList({
       resizable,

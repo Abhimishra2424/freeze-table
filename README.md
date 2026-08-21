@@ -1135,7 +1135,10 @@ Recolouring will not make the table look like *your* design system. These will:
 | `Button` | `{ children, className, onClick, ...aria }` — spread the rest onto a real `<button>`; `aria-expanded` carries the open state |
 | `Menu` | `{ children, align, className }` |
 | `MenuItem` | `{ children, checked, icon, className, ...rest }` — forward `role`, `aria-checked`, `disabled`, `onClick`, `title` |
-| `MenuHeading` | `{ children }` |
+| `MenuHeading` | `{ children, note }` — `note` is the menu's current state, shown on the right |
+| `CheckboxIcon` | `{ checked }` — the show/hide box in the Columns menu |
+| `RadioIcon` | `{ checked }` — the selected dot in the Freeze menu |
+| `GripIcon` | — the drag-to-reorder grip on a Columns menu row |
 | `MenuSeparator` | — |
 | `Spinner` | `{ text }` |
 | `Empty` | `{ text }` |
@@ -1303,6 +1306,26 @@ the style tag is only injected in the browser. The body renders empty until the 
 measures it, which is the correct behaviour for a virtualized list.
 
 ## 15. What changed in 1.1
+
+### 1.2.0
+
+**Both toolbar menus redesigned.** They had grown into long undifferentiated lists that
+said nothing about their own state.
+
+- **Columns** — a title bar with a live count (*12 of 18*), real checkboxes rather than a
+  bare tick, and **one drag grip per row instead of two arrow buttons**: on an 18-column
+  report that was 36 controls stacked in a popover whose actual job is the checkboxes.
+  Drag a row to reorder; the grip is still a button, so ↑/↓ move a column without a
+  pointer. The three resets are one compact footer line, not three full-width rows.
+- **Freeze** — the current state in the title bar (*3 left · none right*), and the two
+  edges as named groups (**Left edge** / **Right edge**) with radio dots instead of ticks,
+  because one boundary out of many is a radio choice.
+- New `components` slots: `CheckboxIcon`, `RadioIcon`, `GripIcon`. `MenuHeading` takes a
+  `note`.
+
+**If you styled the menus yourself:** the three resets are now `.ft-menu-action` inside
+`.ft-menu-actions` (they were `.ft-menu-item`), each row carries one `.ft-menu-move`
+rather than two, and `.ft-menu-group` is the new per-edge label in the Freeze menu.
 
 ### 1.1.2
 

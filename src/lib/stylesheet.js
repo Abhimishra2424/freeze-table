@@ -110,9 +110,22 @@ const STYLESHEET = `
   overflow-y:auto;background:${v('menu-bg')};border:1px solid ${v('menu-border')};
   border-radius:${v('radius-menu')};
   box-shadow:${v('shadow-menu')};padding:4px;}
-.ft-menu-head{padding:6px 8px 4px;font-weight:700;color:${v('menu-head-text')};text-transform:uppercase;
+/* The bar at the top of a menu: its name on the left, its current state on the right
+   ("12 of 18", "3 left / none right"). The state used to be nowhere, so the only way to
+   know how much was frozen or hidden was to read the whole list. */
+.ft-menu-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;
+  padding:7px 9px 6px;font-weight:700;color:${v('menu-head-text')};text-transform:uppercase;
   letter-spacing:.4px;}
-.ft-menu-row{display:flex;align-items:center;gap:2px;}
+.ft-menu-head-note{font-weight:600;letter-spacing:0;text-transform:none;opacity:.85;}
+/* A group label inside a menu that already has a title bar (LEFT EDGE / RIGHT EDGE). */
+.ft-menu-group{padding:8px 9px 3px;font-weight:700;font-size:.9em;color:${v('menu-head-text')};
+  text-transform:uppercase;letter-spacing:.4px;}
+.ft-menu-row{display:flex;align-items:center;gap:2px;border-radius:${v('radius')};}
+/* The row being carried dims, and the row it will land on shows the insertion edge —
+   the same vocabulary the header reorder drag already uses on the table itself. */
+.ft-menu-row[data-ft-dragging="1"]{opacity:.4;}
+.ft-menu-row[data-ft-drop="above"]{box-shadow:inset 0 2px 0 0 ${v('accent')};}
+.ft-menu-row[data-ft-drop="below"]{box-shadow:inset 0 -2px 0 0 ${v('accent')};}
 /* Inside a row that also carries the move buttons, the entry takes the space that is
    left instead of all of it: a width:100% flex child is 100% of the ROW, which pushed
    the up/down arrows past the menu's right edge and clipped them.
@@ -134,9 +147,23 @@ const STYLESHEET = `
    and dimming all but one of those would say "unavailable" rather than "not chosen". */
 .ft-menu-item[role="menuitemcheckbox"][aria-checked="false"]{color:${v('text-muted')};}
 .ft-menu-sep{height:1px;background:${v('menu-sep')};margin:4px 0;}
-.ft-menu-move{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;
-  border:0;background:none;padding:0;cursor:pointer;color:${v('menu-move-text')};font:inherit;
-  line-height:1;border-radius:${v('radius')};}
+/* The three resets, on one line instead of three full-width rows. They are housekeeping,
+   not choices, and stacked they were as prominent as the column list above them. */
+.ft-menu-actions{display:flex;align-items:center;flex-wrap:wrap;gap:2px;padding:2px 5px 3px;}
+.ft-menu-action{border:0;background:none;font:inherit;font-size:.92em;color:${v('accent-text')};
+  padding:3px 5px;border-radius:${v('radius')};cursor:pointer;white-space:nowrap;}
+.ft-menu-action:hover{background:${v('menu-item-hover')};}
+.ft-menu-action:focus-visible{outline:2px solid ${v('focus-ring')};outline-offset:-2px;}
+.ft-menu-action-sep{color:${v('menu-move-text')};opacity:.6;user-select:none;}
+/* One grip per row instead of two arrow buttons. It is still a real button — focus it and
+   the up/down arrow keys move the column — because a drag is not reachable by keyboard. */
+.ft-menu-move{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;
+  border:0;background:none;padding:0;cursor:grab;color:${v('menu-move-text')};font:inherit;
+  line-height:1;border-radius:${v('radius')};touch-action:none;opacity:.55;
+  transition:opacity .12s,background .12s;}
+.ft-menu-row:hover .ft-menu-move,.ft-menu-move:focus-visible{opacity:1;}
+.ft-menu-move:active{cursor:grabbing;}
+.ft-menu-move:focus-visible{outline:2px solid ${v('focus-ring')};outline-offset:-2px;}
 .ft-menu-move:hover:not([disabled]){background:${v('menu-move-hover')};color:${v('menu-text')};}
 .ft-menu-move[disabled]{opacity:.25;cursor:default;}
 

@@ -35,6 +35,14 @@ global.cancelAnimationFrame = () => {};
 dom.window.requestAnimationFrame = global.requestAnimationFrame;
 dom.window.cancelAnimationFrame = global.cancelAnimationFrame;
 global.IS_REACT_ACT_ENVIRONMENT = true;
+// jsdom implements neither PointerEvent nor pointer capture. The menu's reorder drag uses
+// both, so they are stubbed here — MouseEvent carries the same clientX/clientY the drag
+// reads. (The HEADER reorder drag is still deliberately untested: it runs a rAF loop, and
+// rAF is synchronous in this file, so driving it would spin. The menu drag has no loop.)
+if (!dom.window.PointerEvent) dom.window.PointerEvent = dom.window.MouseEvent;
+global.PointerEvent = dom.window.PointerEvent;
+dom.window.HTMLElement.prototype.setPointerCapture = function () {};
+dom.window.HTMLElement.prototype.releasePointerCapture = function () {};
 
 // ----- the fake layout engine -----
 // Sizes by role, not by CSS: the wrap is the scrollport, the header and footer eat into
@@ -132,6 +140,10 @@ const press = (key) =>
   act(() => $('.ft-wrap').dispatchEvent(new dom.window.KeyboardEvent('keydown', { key, bubbles: true })));
 const btnNamed = (name) => $$('.ft-btn').find((b) => b.textContent.trim().startsWith(name));
 const menuItemNamed = (name) => $$('.ft-menu-item').find((b) => b.textContent.trim() === name);
+// The three resets are compact text actions in the menu's footer, not full-width entries.
+const menuActionNamed = (name) => $$('.ft-menu-action').find((b) => b.textContent.trim() === name);
+const gripFor = (name) =>
+  $$('.ft-menu-move').find((b) => b.getAttribute('aria-label') === `Reorder ${name}`);
 
 mount({ toolbar: true, height: WRAP_H });
 
@@ -236,19 +248,70 @@ assert(!!$('.ft-menu'), 'the menu stays open, so several columns can be toggled 
 click(menuItemNamed('City'));
 assert(headers().includes('City'), 'clicking again brings it back');
 
-// Moving a column from the menu.
+// Moving a column from the menu. The two arrow buttons per row are gone — one grip is
+// dragged instead — but the grip is still a button, and the arrow keys still move the
+// column, because a drag is not reachable from the keyboard.
 const before = headers();
-click(menuItemNamed('Show all columns'));
+click(menuActionNamed('Show all'));
 assert(!$('.ft-menu'), 'a menu action that ends the job closes the menu');
 click(btnNamed('Columns'));
-const cityRow = $$('.ft-menu-move').find((b) => b.getAttribute('aria-label') === 'Move City left');
-click(cityRow);
-eq(headers().indexOf('City') < headers().indexOf('Name'), true, 'the move buttons reorder the column');
-click(menuItemNamed('Reset order'));
+const grip = gripFor('City');
+assert(!!grip, 'each row carries one reorder grip');
+eq($$('.ft-menu-row')[0].querySelectorAll('.ft-menu-move').length, 1, 'one grip per row, not a pair of arrows');
+act(() => {
+  grip.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }));
+});
+eq(headers().indexOf('City') < headers().indexOf('Name'), true, 'ArrowUp on the grip reorders the column');
+click(menuActionNamed('Reset order'));
 eq(headers(), before, 'reset order puts it back');
+
+// Drag-to-reorder inside the menu. jsdom has no layout, so the two things the drag reads
+// are stubbed: each row's box, and what sits under the pointer.
+// (Reset order closed the menu on the way in.)
+click(btnNamed('Columns'));
+const dragRows = $$('.ft-menu-row');
+dragRows.forEach((r, i) => {
+  r.getBoundingClientRect = () => ({ top: i * 30, height: 30, bottom: i * 30 + 30, left: 0, right: 240, width: 240 });
+});
+document.elementFromPoint = (x, y) => dragRows[Math.min(dragRows.length - 1, Math.max(0, Math.floor(y / 30)))];
+const ptr = (type, y) => {
+  const e = new dom.window.MouseEvent(type, { bubbles: true, clientX: 10, clientY: y, button: 0 });
+  e.pointerId = 1;
+  return e;
+};
+const firstHeader = headers()[0];
+const dragBody = dragRows[0].parentNode;
+act(() => dragRows[0].querySelector('.ft-menu-move').dispatchEvent(ptr('pointerdown', 5)));
+eq($$('.ft-menu-row')[0].getAttribute('data-ft-dragging'), '1', 'the row being carried is marked');
+act(() => dragBody.dispatchEvent(ptr('pointermove', 30 * (dragRows.length - 1) + 25)));
+eq(
+  $$('.ft-menu-row')[dragRows.length - 1].getAttribute('data-ft-drop'),
+  'below',
+  'and the row it will land after shows the insertion edge'
+);
+act(() => dragBody.dispatchEvent(ptr('pointerup', 30 * (dragRows.length - 1) + 25)));
+eq(headers()[headers().length - 1], firstHeader, 'dropping past the last row moves the column to the end');
+assert(!$('.ft-menu-row[data-ft-dragging]'), 'and the drag state is cleared on drop');
+click(menuActionNamed('Reset order'));
+
+// The title bar reports the menu's own state — before this the only way to know how many
+// columns were hidden was to read every entry looking for the unticked ones.
+// (Reset order is one of the actions that closes the menu, so reopen it first.)
+click(btnNamed('Columns'));
+const columnsHead = $('.ft-menu .ft-menu-head');
+assert(columnsHead.textContent.includes('Columns'), 'the Columns menu names itself');
+assert(/\d+ of \d+/.test(columnsHead.textContent), 'and reports how many are shown');
+click(btnNamed('Columns'));
 
 // The freeze menu.
 click(btnNamed('Freeze'));
+const freezeHead = $('.ft-menu .ft-menu-head');
+assert(/left/.test(freezeHead.textContent) || /none/.test(freezeHead.textContent), 'the Freeze menu reports its current state in the title bar');
+eq(
+  $$('.ft-menu-group').map((g) => g.textContent.trim()),
+  ['Left edge', 'Right edge'],
+  'and separates the two edges into named groups'
+);
 assert(!!menuItemNamed('No freeze'), 'the freeze menu lists a "no freeze" entry');
 eq(ref.current.getLeftPinCount(), 2, 'the config default is two frozen columns');
 click($$('.ft-menu-item').find((b) => b.textContent.trim() === 'Up to City'));
@@ -322,8 +385,8 @@ assert(menuLabels.includes('city'), 'a node Header with no label still falls bac
 // width, or the arrows are pushed past the menu's right edge and clipped.
 const row = $('.ft-menu-row');
 assert(!!row, 'each column entry sits in a .ft-menu-row');
-assert(row.querySelectorAll('.ft-menu-move').length === 2, 'and keeps both move buttons inside it');
-assert(row.querySelector('.ft-menu-move svg'), 'the move controls are drawn, not font glyphs');
+assert(row.querySelectorAll('.ft-menu-move').length === 1, 'and carries one reorder grip');
+assert(row.querySelector('.ft-menu-move svg'), 'the grip is drawn, not a font glyph');
 
 // The "selected" tint is for a RADIO choice. A checkbox entry must not claim it: in this
 // menu nearly every column is visible, so tinting each checked row turned the whole menu
