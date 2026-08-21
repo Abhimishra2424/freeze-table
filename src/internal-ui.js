@@ -146,6 +146,17 @@ export const ColumnsIcon = ({ color = v('icon'), size = 12 }) => (
   </svg>
 );
 
+/**
+ * The move-this-column control in the Columns menu. A chevron rather than the `↑` / `↓`
+ * text glyphs it used to be: those are drawn by whatever font the host page happens to
+ * use, so they came out thin, differently sized and vertically off in most of them.
+ */
+export const MoveIcon = ({ dir = 'up', size = 11 }) => (
+  <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false" style={{ ...svgBase(size), fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' }}>
+    {dir === 'up' ? <path d="M3.5 10 8 5.5 12.5 10" /> : <path d="M3.5 6 8 10.5 12.5 6" />}
+  </svg>
+);
+
 /** Tick for a checked menu entry. Rendered in a fixed-width box so labels stay aligned. */
 export const CheckIcon = ({ color = v('accent'), size = 11, checked }) => (
   <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false" style={{ ...svgBase(size), fill: 'none', stroke: checked ? color : 'transparent', strokeWidth: 2.2, strokeLinecap: 'round', strokeLinejoin: 'round' }}>

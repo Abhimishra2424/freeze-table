@@ -106,7 +106,7 @@ const STYLESHEET = `
 .ft-btn:focus-visible{outline:2px solid ${v('focus-ring')};outline-offset:1px;}
 .ft-btn[aria-expanded="true"]{background:${v('btn-active-bg')};border-color:${v('btn-active-border')};}
 .ft-btn[disabled]{opacity:.45;cursor:default;}
-.ft-menu{position:absolute;top:100%;margin-top:4px;z-index:9;min-width:210px;max-height:320px;
+.ft-menu{position:absolute;top:100%;margin-top:4px;z-index:9;min-width:248px;max-height:340px;
   overflow-y:auto;background:${v('menu-bg')};border:1px solid ${v('menu-border')};
   border-radius:${v('radius-menu')};
   box-shadow:${v('shadow-menu')};padding:4px;}
@@ -123,10 +123,20 @@ const STYLESHEET = `
   border-radius:${v('radius')};cursor:pointer;}
 .ft-menu-item:hover:not([disabled]){background:${v('menu-item-hover')};}
 .ft-menu-item[disabled]{opacity:.4;cursor:default;}
-.ft-menu-item[aria-checked="true"],.ft-menu-item[aria-current="true"]{background:${v('menu-item-active-bg')};color:${v('menu-item-active-text')};}
+/* The "this one is selected" tint belongs to a RADIO choice — one entry out of many, as
+   in the Freeze menu. It must NOT key off aria-checked, which is what a CHECKBOX entry
+   carries: in the Columns menu nearly every column is visible, so nearly every row was
+   tinted and the menu read as a solid block of accent colour with no signal in it. The
+   tick alone says "shown"; an unchecked row is dimmed below instead. */
+.ft-menu-item[aria-current="true"]{background:${v('menu-item-active-bg')};color:${v('menu-item-active-text')};font-weight:600;}
+/* A hidden column reads as hidden: no tick, and the label recedes. Scoped to a CHECKBOX
+   entry — a radio list (Freeze) also marks its unselected entries aria-checked="false",
+   and dimming all but one of those would say "unavailable" rather than "not chosen". */
+.ft-menu-item[role="menuitemcheckbox"][aria-checked="false"]{color:${v('text-muted')};}
 .ft-menu-sep{height:1px;background:${v('menu-sep')};margin:4px 0;}
-.ft-menu-move{border:0;background:none;padding:0 3px;cursor:pointer;color:${v('menu-move-text')};font:inherit;
-  line-height:1;border-radius:3px;}
+.ft-menu-move{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;
+  border:0;background:none;padding:0;cursor:pointer;color:${v('menu-move-text')};font:inherit;
+  line-height:1;border-radius:${v('radius')};}
 .ft-menu-move:hover:not([disabled]){background:${v('menu-move-hover')};color:${v('menu-text')};}
 .ft-menu-move[disabled]{opacity:.25;cursor:default;}
 

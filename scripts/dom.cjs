@@ -323,6 +323,24 @@ assert(menuLabels.includes('city'), 'a node Header with no label still falls bac
 const row = $('.ft-menu-row');
 assert(!!row, 'each column entry sits in a .ft-menu-row');
 assert(row.querySelectorAll('.ft-menu-move').length === 2, 'and keeps both move buttons inside it');
+assert(row.querySelector('.ft-menu-move svg'), 'the move controls are drawn, not font glyphs');
+
+// The "selected" tint is for a RADIO choice. A checkbox entry must not claim it: in this
+// menu nearly every column is visible, so tinting each checked row turned the whole menu
+// into one block of accent colour with no signal left in it.
+const styles = document.getElementById('freeze-table-styles-2').textContent;
+assert(
+  !/\.ft-menu-item\[aria-checked="true"\]/.test(styles),
+  'a checked checkbox entry is not given the radio "selected" background'
+);
+assert(
+  styles.includes('.ft-menu-item[aria-current="true"]'),
+  'the radio entry still is — that is the Freeze menu showing the current boundary'
+);
+assert(
+  styles.includes('.ft-menu-item[role="menuitemcheckbox"][aria-checked="false"]'),
+  'and a hidden column is dimmed, scoped to checkbox entries so a radio list is not greyed out'
+);
 click(btnNamed('Columns'));
 
 click(btnNamed('Freeze'));

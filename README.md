@@ -1304,6 +1304,17 @@ measures it, which is the correct behaviour for a virtualized list.
 
 ## 15. What changed in 1.1
 
+### 1.1.2
+
+- **The Columns menu was a solid block of accent colour.** The "selected" tint keyed off
+  `aria-checked`, which is what a CHECKBOX entry carries — and in that menu nearly every
+  column is visible, so nearly every row was tinted and the highlight meant nothing. It is
+  now scoped to `aria-current`, i.e. to a radio choice (the Freeze menu's current
+  boundary). A hidden column is dimmed instead, which is the signal that was missing.
+- The move controls are drawn (an inline chevron) rather than `↑` / `↓` text glyphs, which
+  came out thin, differently sized and vertically off depending on the host page's font.
+- Menus are 248px wide, not 210 — "Leave Travel Allowance" plus two move buttons did not fit.
+
 ### 1.1.1
 
 - **`label`** — a plain-text column name for the Columns and Freeze menus. A `Header`

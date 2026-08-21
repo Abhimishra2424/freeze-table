@@ -1,4 +1,5 @@
 import React from 'react';
+import { MoveIcon } from '../internal-ui';
 import { cx, skin } from '../lib/slots';
 import { v } from '../lib/theme';
 
@@ -69,10 +70,10 @@ const ColumnMenu = ({ list, onToggle, onMove, onShowAll, onResetWidths, onResetO
         </ui.MenuItem>
         <span style={{ display: 'flex', flex: '0 0 auto', paddingRight: 4 }}>
           <button type="button" className="ft-menu-move" disabled={!c.movable || c.position === 0} onClick={() => onMove(c.id, c.position - 1)} title="Move left" aria-label={`Move ${c.header || c.id} left`}>
-            ↑
+            <MoveIcon dir="up" />
           </button>
           <button type="button" className="ft-menu-move" disabled={!c.movable || c.position === list.length - 1} onClick={() => onMove(c.id, c.position + 1)} title="Move right" aria-label={`Move ${c.header || c.id} right`}>
-            ↓
+            <MoveIcon dir="down" />
           </button>
         </span>
       </div>
