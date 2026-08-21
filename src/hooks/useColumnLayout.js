@@ -232,7 +232,12 @@ export const useColumnLayout = ({
             id,
             index: i,
             position,
-            header: typeof c.Header === 'string' ? c.Header : undefined,
+            // What a menu can print. A `Header` is often a node — a sort arrow beside
+            // the text, a unit under it — and a node cannot be an entry in a dropdown,
+            // so those columns used to show their raw id ('employee_code') in the
+            // Columns and Freeze menus. `label` is the plain-text name to use instead;
+            // a string `Header` still works on its own and needs nothing.
+            header: c.label || (typeof c.Header === 'string' ? c.Header : undefined),
             hidden: !!(id && c.hideable !== false && hiddenRef.current.indexOf(id) >= 0),
             hideable: !!id && c.hideable !== false,
             resizable: !!id && resizable && !c.disableResizing,

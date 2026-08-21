@@ -388,7 +388,10 @@ export const FreezeTable = React.forwardRef(function FreezeTable(
     () =>
       showToolbar
         ? cols.map((c, i) => ({
-            label: typeof c.Header === 'string' && c.Header ? c.Header : colIdOf(c) || `Column ${i + 1}`,
+            // Same fallback chain as getColumnList: the column's own `label`, else a
+            // plain-string `Header`, and only then the id — which is a field name and
+            // reads like a bug when it surfaces in a menu.
+            label: c.label || (typeof c.Header === 'string' && c.Header ? c.Header : colIdOf(c)) || `Column ${i + 1}`,
           }))
         : [],
     [cols, showToolbar]

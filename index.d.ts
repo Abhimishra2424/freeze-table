@@ -140,8 +140,18 @@ export interface FreezeTableLayout {
  * FreezeTable adds. `width` / `minWidth` are **pixels**, not flex weights.
  */
 export interface FreezeTableColumn<D extends object = any> {
-  /** Header content. A plain string is recommended (a toolbar pin menu can list it). */
+  /** Header content. A node is fine — set {@link FreezeTableColumn.label} alongside it
+   *  so the Columns and Freeze menus have something to print. */
   Header?: React.ReactNode;
+  /**
+   * Plain-text name for this column, used by the built-in menus and `getColumnList()`.
+   *
+   * Needed whenever `Header` is a node rather than a string — a sort control, a unit on
+   * a second line — because a menu entry cannot render an element. Without it those
+   * columns are listed by their id, i.e. by field name (`employee_code`), which reads
+   * like a bug. A string `Header` is used automatically and needs no `label`.
+   */
+  label?: string;
   /** Field key, or `(row) => value` (an accessor fn also needs an `id`). */
   accessor?: keyof D | string | ((row: D, index: number) => any);
   /** Required when `accessor` is a function or absent. */

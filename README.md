@@ -220,7 +220,10 @@ sticky.
 
 ```js
 {
-  Header,           // string | node. A plain string is best (a menu can list it)
+  Header,           // string | node
+  label,            // plain-text name for the Columns / Freeze menus. REQUIRED when
+                    //   Header is a node — a menu entry cannot render an element, and
+                    //   without it the column is listed by its field name
   accessor,         // field key, or (row) => value (an accessor fn also needs `id`)
   id,               // required when accessor is a fn or absent
   type,             // 'text' | 'number' | 'currency' | 'date' | 'datetime' | 'boolean' | 'serial'
@@ -1250,8 +1253,11 @@ Layout values, if you are matching something to them: cell padding `0 12px`, hea
 5. **Row menus must escape the row's `overflow: hidden`.** Use a portal-based popup, not
    an inline dropdown, or the menu will be clipped by its row.
 6. **Sorting is three-state** — ascending → descending → unsorted.
-7. `Header` is best kept a plain string: a "pin up to here" or column menu in your
-   toolbar has to render it as a label.
+7. **A node `Header` needs a `label`.** The Columns and Freeze menus print text, so a
+   header built from an element (a sort control, a unit on a second line) has nothing to
+   show and falls back to the column's id — a field name like `employee_code`, in a menu
+   a user is reading. Set `label: 'Emp Code'` beside it. A plain-string `Header` is used
+   automatically and needs no `label`.
 8. **A header press is two gestures.** Click = sort, drag sideways = reorder, drag the
    right edge = resize. If you put an interactive control inside a `Header`, give it its
    own `onPointerDown` stopPropagation, or dragging it will move the column.
@@ -1297,6 +1303,17 @@ the style tag is only injected in the browser. The body renders empty until the 
 measures it, which is the correct behaviour for a virtualized list.
 
 ## 15. What changed in 1.1
+
+### 1.1.1
+
+- **`label`** — a plain-text column name for the Columns and Freeze menus. A `Header`
+  built from an element (a sort control, a unit on a second line) left the menus with
+  nothing to print, so they listed the column by its id: `employee_code` where the table
+  showed "Emp Code".
+- The Columns menu's move arrows were pushed past the menu's right edge and clipped: the
+  entry is a flex child and `width: 100%` on one means 100% of the row.
+
+### 1.1.0
 
 Everything here is **additive**. No prop was removed or renamed, and a 1.0 table upgrades
 with no code change.

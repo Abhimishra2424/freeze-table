@@ -293,6 +293,43 @@ act(() => {
 });
 assert(!container.textContent.includes('No records found'), 'status="idle" shows neither — nothing has been fetched yet');
 
+// ---------------------------------------------------------------- menu labels (1.1.1)
+group('menu labels for a non-string Header');
+act(() => {
+  root.render(
+    React.createElement(FreezeTable, {
+      ref,
+      // A rich header — an element, not a string — is the normal case for any table that
+      // puts a sort control or a unit inside the header. Before `label` these columns
+      // showed their raw field name in both menus.
+      columns: [
+        { id: 'code', accessor: 'name', label: 'Emp Code', Header: React.createElement('span', null, 'Emp Code'), width: 120 },
+        { id: 'city', accessor: 'city', Header: React.createElement('span', null, 'City'), width: 120 },
+        { Header: 'Amount', accessor: 'amount', width: 100 },
+      ],
+      data,
+      height: WRAP_H,
+      toolbar: true,
+    })
+  );
+});
+click(btnNamed('Columns'));
+const menuLabels = $$('.ft-menu-item').map((b) => b.textContent.trim());
+assert(menuLabels.includes('Emp Code'), '`label` names the column in the Columns menu');
+assert(menuLabels.includes('Amount'), 'a plain-string Header still names its own column');
+assert(menuLabels.includes('city'), 'a node Header with no label still falls back to the id');
+// The row holds the entry AND the two move buttons; the entry must not claim the whole
+// width, or the arrows are pushed past the menu's right edge and clipped.
+const row = $('.ft-menu-row');
+assert(!!row, 'each column entry sits in a .ft-menu-row');
+assert(row.querySelectorAll('.ft-menu-move').length === 2, 'and keeps both move buttons inside it');
+click(btnNamed('Columns'));
+
+click(btnNamed('Freeze'));
+const freezeLabels = $$('.ft-menu-item').map((b) => b.textContent.trim());
+assert(freezeLabels.includes('Up to Emp Code'), '`label` names the column in the Freeze menu too');
+click(btnNamed('Freeze'));
+
 // ---------------------------------------------------------------- theming (1.1)
 group('theme, tokens and the class/component slots');
 act(() => {

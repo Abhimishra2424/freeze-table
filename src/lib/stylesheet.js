@@ -112,6 +112,12 @@ const STYLESHEET = `
   box-shadow:${v('shadow-menu')};padding:4px;}
 .ft-menu-head{padding:6px 8px 4px;font-weight:700;color:${v('menu-head-text')};text-transform:uppercase;
   letter-spacing:.4px;}
+.ft-menu-row{display:flex;align-items:center;gap:2px;}
+/* Inside a row that also carries the move buttons, the entry takes the space that is
+   left instead of all of it: a width:100% flex child is 100% of the ROW, which pushed
+   the up/down arrows past the menu's right edge and clipped them.
+   (No backticks in here - this whole sheet is one JS template literal.) */
+.ft-menu-row .ft-menu-item{width:auto;flex:1 1 auto;min-width:0;}
 .ft-menu-item{display:flex;align-items:center;gap:8px;width:100%;box-sizing:border-box;
   border:0;background:none;font:inherit;color:${v('menu-text')};text-align:left;padding:5px 8px;
   border-radius:${v('radius')};cursor:pointer;}

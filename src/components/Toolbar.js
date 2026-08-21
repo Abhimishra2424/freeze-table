@@ -50,7 +50,7 @@ const ColumnMenu = ({ list, onToggle, onMove, onShowAll, onResetWidths, onResetO
   <ui.Menu className={classNames.menu}>
     <ui.MenuHeading>Columns</ui.MenuHeading>
     {list.map((c) => (
-      <div key={c.id || c.position} style={{ display: 'flex', alignItems: 'center' }}>
+      <div key={c.id || c.position} className="ft-menu-row">
         <ui.MenuItem
           role="menuitemcheckbox"
           aria-checked={!c.hidden}
@@ -67,7 +67,7 @@ const ColumnMenu = ({ list, onToggle, onMove, onShowAll, onResetWidths, onResetO
             {c.header || c.id}
           </span>
         </ui.MenuItem>
-        <span style={{ display: 'flex', paddingRight: 4 }}>
+        <span style={{ display: 'flex', flex: '0 0 auto', paddingRight: 4 }}>
           <button type="button" className="ft-menu-move" disabled={!c.movable || c.position === 0} onClick={() => onMove(c.id, c.position - 1)} title="Move left" aria-label={`Move ${c.header || c.id} left`}>
             ↑
           </button>
